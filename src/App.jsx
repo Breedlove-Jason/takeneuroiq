@@ -1,13 +1,28 @@
-import Header from "./layout/Header.jsx";
-import Hero from "./components/Hero.jsx";
-import HowItWorks from "./components/HowItWorks.jsx";
+// src/App.jsx - Main application shell
+
+import Header from "./layout/Header";
+import Hero from "./components/Hero";
+import HowItWorks from "./components/HowItWorks";
+import FeatureHighlights from "./components/FeatureHighlights";
+
 function App() {
+  // App layout: header + main content sections
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-      <h1 className="text-5xl font-bold text-cyan-400">TakeNeuroIQ</h1>
+    <div className="min-h-screen bg-slate-900 text-white">
+      {/* Top navigation/header */}
       <Header />
-      <Hero />
-      <HowItWorks />
+
+      {/* Primary page content */}
+      <main>
+        {/* Hero / primary CTA */}
+        <Hero />
+
+        {/* Explainer: how it works */}
+        <HowItWorks />
+
+        {/* Feature highlights */}
+        <FeatureHighlights />
+      </main>
     </div>
   );
 }
