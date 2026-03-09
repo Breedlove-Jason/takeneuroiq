@@ -1,30 +1,24 @@
 function Header() {
-  // Renders site header with brand and navigation.
-
   return (
-    <header className="w-full border-b border-slate-700 bg-slate-900 text-white">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-
-        {/* Logo */}
-        <div className="text-xl font-bold text-cyan-400">
+    <header className="sticky top-0 z-50 w-full border-b border-cyan-400/10 bg-[#0b1120]/80 text-white backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="text-xl font-bold tracking-wide text-cyan-400">
           TakeNeuroIQ
         </div>
 
-        {/* Primary navigation */}
-        <nav className="flex gap-6 text-sm font-medium">
-          <a href="#" className="hover:text-cyan-400 transition">
+        <nav className="flex gap-6 text-sm font-medium text-slate-300">
+          <a href="#" className="transition hover:text-cyan-400">
             Play
           </a>
 
-          <a href="#" className="hover:text-cyan-400 transition">
+          <a href="#" className="transition hover:text-cyan-400">
             Leaderboard
           </a>
 
-          <a href="#" className="hover:text-cyan-400 transition">
+          <a href="#" className="transition hover:text-cyan-400">
             Profile
           </a>
         </nav>
-
       </div>
     </header>
   )

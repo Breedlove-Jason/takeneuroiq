@@ -1,6 +1,4 @@
-// src/components/HowItWorks.jsx - How it works section
 function HowItWorks() {
-  // Renders the three-step explanation with semantic markup.
   const steps = [
     {
       title: "Choose a Challenge",
@@ -17,58 +15,44 @@ function HowItWorks() {
       description:
         "Track your progress, challenge others, and rise through the ranks in competitive brain games.",
     },
-  ];
+  ]
 
   return (
-    <section
-      className="px-6 py-24 bg-slate-950"
-      aria-labelledby="howitworks-head"
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-2xl mx-auto">
-          <p className="text-cyan-400 font-semibold uppercase tracking-wider text-sm">
+    <section className="px-6 py-24">
+      <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-400">
             How It Works
           </p>
-          <h2
-            id="howitworks-head"
-            className="mt-4 text-3xl md:text-4xl font-bold text-white"
-          >
-            Train your brain. Compete with purpose.
+
+          <h2 className="mt-4 text-3xl font-bold text-white md:text-4xl">
+            Train your mind. Enter the arena.
           </h2>
-          <p className="mt-4 text-slate-400">
-            TakeNeuroIQ turns intelligence testing into a modern competitive
-            experience.
+
+          <p className="mt-4 text-slate-300">
+            Fast rounds, real competition, and a platform designed to make intelligence feel alive.
           </p>
         </div>
 
-        {/* Semantic list of steps */}
-        <ul className="mt-16 grid gap-6 md:grid-cols-3" role="list">
-          {steps.map((step) => {
-            // create a stable id for accessibility
-            const id = `how-step-${step.title
-              .toLowerCase()
-              .replace(/\s+/g, "-")
-              .replace(/[^a-z0-9-]/g, "")}`;
-            return (
-              <li key={step.title}>
-                <article
-                  aria-labelledby={id}
-                  className="rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-lg"
-                >
-                  <h3 id={id} className="text-xl font-semibold text-cyan-400">
-                    {step.title}
-                  </h3>
-                  <p className="mt-4 text-slate-400 leading-7">
-                    {step.description}
-                  </p>
-                </article>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="mt-16 grid gap-6 md:grid-cols-3">
+          {steps.map((step) => (
+            <div
+              key={step.title}
+              className="rounded-2xl border border-cyan-400/10 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,0,0,0.18)] backdrop-blur-sm transition hover:border-cyan-400/30"
+            >
+              <h3 className="text-xl font-semibold text-cyan-400">
+                {step.title}
+              </h3>
+
+              <p className="mt-4 leading-7 text-slate-300">
+                {step.description}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
-  );
+  )
 }
 
-export default HowItWorks;
+export default HowItWorks

@@ -1,31 +1,36 @@
-// src/components/Hero.jsx - Landing hero section
-
 function Hero() {
-  // Centered hero with headline, description, and CTA button.
-
   return (
-    <section className="flex flex-col items-center justify-center text-center px-6 py-32">
-      <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
-        Test Your Intelligence.
-        <span className="block text-cyan-400">Challenge the World.</span>
-      </h1>
+    <section className="relative overflow-hidden px-6 py-32">
+      <div className="mx-auto max-w-5xl text-center">
+        <p className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium tracking-wide text-cyan-300">
+          Competitive Intelligence Gaming
+        </p>
 
-      {/* Short descriptive paragraph */}
-      <p className="mt-6 text-lg text-slate-400 max-w-xl">
-        TakeNeuroIQ turns intelligence testing into competitive games. Solve
-        puzzles, challenge friends, and climb the global leaderboard.
-      </p>
+        <h1 className="mt-8 text-5xl font-bold leading-tight text-white md:text-7xl">
+          Test Your Intelligence.
+          <br />
+          <span className="text-cyan-400 drop-shadow-[0_0_18px_rgba(34,211,238,0.45)]">
+            Challenge the World.
+          </span>
+        </h1>
 
-      {/* Primary CTA */}
-      <button
-        type="button"
-        aria-label="Start a Challenge"
-        className="mt-10 bg-cyan-400 text-slate-900 font-semibold px-8 py-4 rounded-lg hover:bg-cyan-300 transition"
-      >
-        Start a Challenge
-      </button>
+        <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">
+          TakeNeuroIQ turns brain testing into a high-energy competitive arena.
+          Solve logic, memory, pattern, and speed challenges while climbing the global leaderboard.
+        </p>
+
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <button className="rounded-xl bg-cyan-400 px-8 py-4 font-semibold text-slate-950 shadow-[0_0_25px_rgba(34,211,238,0.35)] transition hover:bg-cyan-300">
+            Start a Challenge
+          </button>
+
+          <button className="rounded-xl border border-fuchsia-400/30 bg-fuchsia-500/10 px-8 py-4 font-semibold text-fuchsia-300 transition hover:bg-fuchsia-500/20">
+            View Leaderboard
+          </button>
+        </div>
+      </div>
     </section>
-  );
+  )
 }
 
-export default Hero;
+export default Hero

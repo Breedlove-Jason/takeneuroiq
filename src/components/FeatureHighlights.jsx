@@ -1,5 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrophy, faBolt, faBrain } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faTrophy, faBolt, faBrain } from "@fortawesome/free-solid-svg-icons"
 
 function FeatureHighlights() {
   const features = [
@@ -21,23 +21,22 @@ function FeatureHighlights() {
       description:
         "See how you perform across logic, pattern recognition, memory, and processing speed over time.",
     },
-  ];
+  ]
 
   return (
-    <section className="px-6 py-24 bg-slate-900">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-2xl mx-auto">
-          <p className="text-cyan-400 font-semibold uppercase tracking-wider text-sm">
+    <section className="px-6 py-24">
+      <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-fuchsia-400">
             Why TakeNeuroIQ
           </p>
 
-          <h2 className="mt-4 text-3xl md:text-4xl font-bold text-white">
+          <h2 className="mt-4 text-3xl font-bold text-white md:text-4xl">
             Built for competitive minds
           </h2>
 
-          <p className="mt-4 text-slate-400">
-            More than a test. TakeNeuroIQ transforms intelligence challenges
-            into a modern competitive experience.
+          <p className="mt-4 text-slate-300">
+            More than a test. TakeNeuroIQ transforms intelligence challenges into a modern, replayable experience.
           </p>
         </div>
 
@@ -45,9 +44,9 @@ function FeatureHighlights() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="rounded-2xl border border-slate-800 bg-slate-950 p-8 shadow-lg hover:border-cyan-400 transition"
+              className="rounded-2xl border border-fuchsia-400/10 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,0,0,0.18)] backdrop-blur-sm transition hover:border-fuchsia-400/30"
             >
-              <div className="text-4xl text-cyan-400">
+              <div className="text-4xl text-cyan-400 drop-shadow-[0_0_16px_rgba(34,211,238,0.35)]">
                 <FontAwesomeIcon icon={feature.icon} />
               </div>
 
@@ -55,7 +54,7 @@ function FeatureHighlights() {
                 {feature.title}
               </h3>
 
-              <p className="mt-4 text-slate-400 leading-7">
+              <p className="mt-4 leading-7 text-slate-300">
                 {feature.description}
               </p>
             </div>
@@ -63,7 +62,7 @@ function FeatureHighlights() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-export default FeatureHighlights;
+export default FeatureHighlights
