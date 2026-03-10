@@ -89,6 +89,28 @@ function Arena({ theme }) {
       ? "--"
       : `${Math.round((correctAnswers / totalAnswers) * 100)}%`;
 
+  function getPerformanceMessage() {
+    if (totalAnswers === 0) {
+      return "No response data captured. Re-enter the arena to begin analysis.";
+    }
+
+    const accuracyValue = Math.round((correctAnswers / totalAnswers) * 100);
+
+    if (accuracyValue >= 90) {
+      return "Exceptional pattern stability detected. Your responses were fast, precise, and highly consistent.";
+    }
+
+    if (accuracyValue >= 75) {
+      return "Strong cognitive performance recorded. Pattern recognition remained reliable under timed pressure.";
+    }
+
+    if (accuracyValue >= 60) {
+      return "Solid performance. Recognition accuracy is developing well, but speed-pressure introduced some instability.";
+    }
+
+    return "Analysis indicates unstable pattern response under pressure. Additional challenge reps recommended.";
+  }
+
   return (
     <div className="px-6 py-10">
       <div className="mx-auto max-w-6xl">
@@ -198,12 +220,11 @@ function Arena({ theme }) {
                 </h2>
 
                 <p
-                  className={`mt-4 max-w-xl text-lg ${
+                  className={`mt-4 max-w-xl text-lg leading-8 ${
                     isCyber ? "text-slate-300" : "text-slate-600"
                   }`}
                 >
-                  Nice run. Review your stats and jump back in for another
-                  challenge.
+                  {getPerformanceMessage()}
                 </p>
 
                 <div className="mt-10 grid w-full max-w-3xl gap-4 md:grid-cols-3">
