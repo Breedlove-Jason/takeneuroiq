@@ -16,10 +16,28 @@ function Arena({ theme }) {
   const [timeLeft, setTimeLeft] = useState(45);
   const [gameOver, setGameOver] = useState(false);
 
+  useEffect(() => {
+    if (gameOver) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setGameOver(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameOver]);
+
   function loadNextPuzzle(currentId) {
     const availablePuzzles = patternPuzzles.filter(
       (puzzle) => puzzle.id !== currentId,
     );
+
+    if (availablePuzzles.length === 0) return;
 
     const nextPuzzle =
       availablePuzzles[Math.floor(Math.random() * availablePuzzles.length)];
@@ -28,6 +46,7 @@ function Arena({ theme }) {
   }
 
   function handleAnswer(selectedAnswer) {
+    if (gameOver || feedback !== "") return;
     const isCorrect = checkAnswer(currentPuzzle, selectedAnswer);
 
     setTotalAnswers((prev) => prev + 1);
@@ -52,7 +71,7 @@ function Arena({ theme }) {
     <div className="px-6 py-10">
       <div className="mx-auto max-w-6xl">
         <div
-          className={`rounded-[28px] border p-6 md:p-8 ${
+          className={`relative overflow-hidden rounded-[28px] border p-6 md:p-8 ${
             isCyber
               ? "border-cyan-400/20 bg-[#09101d]/80 shadow-[0_0_40px_rgba(0,0,0,0.35)] backdrop-blur-xl"
               : "border-slate-200 bg-white shadow-sm"
@@ -101,7 +120,7 @@ function Arena({ theme }) {
                   isCyber ? "text-fuchsia-400" : "text-slate-800"
                 }`}
               >
-                00:45
+               {timeLeft.toString().padStart(2, "0")}s
               </div>
             </div>
 
@@ -167,7 +186,7 @@ function Arena({ theme }) {
                         : "bg-slate-100 text-slate-700 ring-1 ring-slate-200"
                 }`}
               >
-                {feedback || "Live Round"}
+                {gameOver ? "Round Complete" : feedback || "Live Round"}
               </div>
             </div>
 
@@ -199,7 +218,10 @@ function Arena({ theme }) {
                 <button
                   key={choice}
                   onClick={() => handleAnswer(choice)}
+                  disabled={gameOver || feedback !== ""}
                   className={`group rounded-2xl border px-5 py-4 text-left transition ${
+                    gameOver || feedback !== "" ? "cursor-not-allowed opacity-50" : ""
+                  } ${
                     isCyber
                       ? "border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]"
                       : "border-slate-200 bg-white text-slate-900 hover:border-cyan-300"
