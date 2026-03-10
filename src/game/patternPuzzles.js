@@ -1,0 +1,55 @@
+const patternPuzzles = [
+  {
+    id: 1,
+    title: "Identify the missing pattern",
+    grid: [
+      "square",
+      "triangle",
+      "circle",
+      "triangle",
+      "circle",
+      "square",
+      "circle",
+      "missing",
+      "triangle",
+    ],
+    choices: ["square", "triangle", "circle", "diamond"],
+    correctAnswer: "square",
+  },
+  {
+    id: 2,
+    title: "Find the missing symbol",
+    grid: [
+      "circle",
+      "diamond",
+      "triangle",
+      "diamond",
+      "triangle",
+      "circle",
+      "triangle",
+      "missing",
+      "diamond",
+    ],
+    choices: ["diamond", "circle", "triangle", "square"],
+    correctAnswer: "circle",
+  },
+  {
+    id: 3,
+    title: "Complete the sequence grid",
+    grid: [
+      "triangle",
+      "square",
+      "diamond",
+      "square",
+      "diamond",
+      "triangle",
+      "diamond",
+      "missing",
+      "square",
+    ],
+    choices: ["triangle", "circle", "diamond", "square"],
+    correctAnswer: "triangle",
+  },
+];
+
+export default patternPuzzles;
