@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import patternPuzzles from "../game/patternPuzzles";
 import PuzzleShape from "../components/PuzzleShape";
 import { getRandomPuzzle, checkAnswer } from "../game/puzzleEngine";
@@ -11,6 +11,10 @@ function Arena({ theme }) {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [feedback, setFeedback] = useState("");
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [totalAnswers, setTotalAnswers] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(45);
+  const [gameOver, setGameOver] = useState(false);
 
   function loadNextPuzzle(currentId) {
     const availablePuzzles = patternPuzzles.filter(
@@ -26,9 +30,12 @@ function Arena({ theme }) {
   function handleAnswer(selectedAnswer) {
     const isCorrect = checkAnswer(currentPuzzle, selectedAnswer);
 
+    setTotalAnswers((prev) => prev + 1);
+
     if (isCorrect) {
       setScore((prev) => prev + 100);
       setStreak((prev) => prev + 1);
+      setCorrectAnswers((prev) => prev + 1);
       setFeedback("Correct");
     } else {
       setStreak(0);
@@ -281,7 +288,9 @@ function Arena({ theme }) {
                   isCyber ? "text-cyan-300" : "text-slate-800"
                 }`}
               >
-                --
+                {totalAnswers === 0
+                  ? "--"
+                  : Math.round((correctAnswers / totalAnswers) * 100) + "%"}
               </div>
             </div>
           </div>
