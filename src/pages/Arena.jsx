@@ -11,11 +11,12 @@ function Arena({ theme }) {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [feedback, setFeedback] = useState("");
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [totalAnswers, setTotalAnswers] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(45);
-  const [gameOver, setGameOver] = useState(false);
+  const [feedback, setFeedback] = useState("")
+const [correctAnswers, setCorrectAnswers] = useState(0)
+const [totalAnswers, setTotalAnswers] = useState(0)
+const [puzzlesSeen, setPuzzlesSeen] = useState(1)
+const [timeLeft, setTimeLeft] = useState(45)
+const [gameOver, setGameOver] = useState(false)
 
   useEffect(() => {
     if (gameOver) return;
@@ -32,17 +33,17 @@ function Arena({ theme }) {
     return () => clearInterval(timer);
   }, [timeLeft, gameOver]);
 
-  function loadNextPuzzle(currentId) {
-    const availablePuzzles = patternPuzzles.filter(
-      (puzzle) => puzzle.id !== currentId,
-    );
+function loadNextPuzzle(currentId) {
+  const availablePuzzles = patternPuzzles.filter(
+    (puzzle) => puzzle.id !== currentId
+  )
 
-    const nextPuzzle =
-      availablePuzzles[Math.floor(Math.random() * availablePuzzles.length)];
+  const nextPuzzle =
+    availablePuzzles[Math.floor(Math.random() * availablePuzzles.length)]
 
-    setCurrentPuzzle(nextPuzzle);
-  }
-
+  setCurrentPuzzle(nextPuzzle)
+  setPuzzlesSeen((prev) => prev + 1)
+}
   function handleAnswer(selectedAnswer) {
     if (gameOver) return;
 
@@ -70,25 +71,24 @@ function Arena({ theme }) {
     }, 700);
   }
 
-  function resetGame() {
-    const newPuzzle = getRandomPuzzle();
+function resetGame() {
+  const newPuzzle = getRandomPuzzle()
 
-    setCurrentPuzzle(newPuzzle);
-    setScore(0);
-    setStreak(0);
-    setBestStreak(0);
-    setFeedback("");
-    setCorrectAnswers(0);
-    setTotalAnswers(0);
-    setTimeLeft(45);
-    setGameOver(false);
-  }
-
-  const accuracy =
-    totalAnswers === 0
-      ? "--"
-      : `${Math.round((correctAnswers / totalAnswers) * 100)}%`;
-
+  setCurrentPuzzle(newPuzzle)
+  setScore(0)
+  setStreak(0)
+  setBestStreak(0)
+  setFeedback("")
+  setCorrectAnswers(0)
+  setTotalAnswers(0)
+  setPuzzlesSeen(1)
+  setTimeLeft(45)
+  setGameOver(false)
+}
+const accuracy =
+  puzzlesSeen === 0
+    ? "--"
+    : `${Math.round((correctAnswers / puzzlesSeen) * 100)}%`
   function getPerformanceMessage() {
     if (totalAnswers === 0) {
       return "No response data captured. Re-enter the arena to begin analysis.";
@@ -96,16 +96,20 @@ function Arena({ theme }) {
 
     const accuracyValue = Math.round((correctAnswers / totalAnswers) * 100);
 
-    if (accuracyValue >= 90) {
-      return "Exceptional pattern stability detected. Your responses were fast, precise, and highly consistent.";
+    if (accuracyValue >= 90 && bestStreak >= 6) {
+      return "Exceptional neural stability detected. Your pattern recognition remained precise even under time pressure.";
     }
 
-    if (accuracyValue >= 75) {
-      return "Strong cognitive performance recorded. Pattern recognition remained reliable under timed pressure.";
+    if (accuracyValue >= 80 && bestStreak >= 4) {
+      return "Strong cognitive performance recorded. Pattern recognition remained reliable throughout the round.";
+    }
+
+    if (accuracyValue >= 70) {
+      return "Good analytical performance. Your recognition accuracy remained solid, but streak interruptions reduced momentum.";
     }
 
     if (accuracyValue >= 60) {
-      return "Solid performance. Recognition accuracy is developing well, but speed-pressure introduced some instability.";
+      return "Moderate stability detected. Your pattern recognition is developing, but response timing created inconsistency.";
     }
 
     return "Analysis indicates unstable pattern response under pressure. Additional challenge reps recommended.";
