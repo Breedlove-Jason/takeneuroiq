@@ -11,12 +11,12 @@ function Arena({ theme }) {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [feedback, setFeedback] = useState("")
-const [correctAnswers, setCorrectAnswers] = useState(0)
-const [totalAnswers, setTotalAnswers] = useState(0)
-const [puzzlesSeen, setPuzzlesSeen] = useState(1)
-const [timeLeft, setTimeLeft] = useState(45)
-const [gameOver, setGameOver] = useState(false)
+  const [feedback, setFeedback] = useState("");
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [totalAnswers, setTotalAnswers] = useState(0);
+  const [puzzlesSeen, setPuzzlesSeen] = useState(1);
+  const [timeLeft, setTimeLeft] = useState(45);
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     if (gameOver) return;
@@ -33,17 +33,17 @@ const [gameOver, setGameOver] = useState(false)
     return () => clearInterval(timer);
   }, [timeLeft, gameOver]);
 
-function loadNextPuzzle(currentId) {
-  const availablePuzzles = patternPuzzles.filter(
-    (puzzle) => puzzle.id !== currentId
-  )
+  function loadNextPuzzle(currentId) {
+    const availablePuzzles = patternPuzzles.filter(
+      (puzzle) => puzzle.id !== currentId,
+    );
 
-  const nextPuzzle =
-    availablePuzzles[Math.floor(Math.random() * availablePuzzles.length)]
+    const nextPuzzle =
+      availablePuzzles[Math.floor(Math.random() * availablePuzzles.length)];
 
-  setCurrentPuzzle(nextPuzzle)
-  setPuzzlesSeen((prev) => prev + 1)
-}
+    setCurrentPuzzle(nextPuzzle);
+    setPuzzlesSeen((prev) => prev + 1);
+  }
   function handleAnswer(selectedAnswer) {
     if (gameOver) return;
 
@@ -71,24 +71,26 @@ function loadNextPuzzle(currentId) {
     }, 700);
   }
 
-function resetGame() {
-  const newPuzzle = getRandomPuzzle()
+  function resetGame() {
+    const newPuzzle = getRandomPuzzle();
 
-  setCurrentPuzzle(newPuzzle)
-  setScore(0)
-  setStreak(0)
-  setBestStreak(0)
-  setFeedback("")
-  setCorrectAnswers(0)
-  setTotalAnswers(0)
-  setPuzzlesSeen(1)
-  setTimeLeft(45)
-  setGameOver(false)
-}
-const accuracy =
-  puzzlesSeen === 0
-    ? "--"
-    : `${Math.round((correctAnswers / puzzlesSeen) * 100)}%`
+    setCurrentPuzzle(newPuzzle);
+    setScore(0);
+    setStreak(0);
+    setBestStreak(0);
+    setFeedback("");
+    setCorrectAnswers(0);
+    setTotalAnswers(0);
+    setPuzzlesSeen(1);
+    setTimeLeft(45);
+    setGameOver(false);
+  }
+  const accuracy =
+    puzzlesSeen === 0
+      ? "--"
+      : `${Math.round((correctAnswers / puzzlesSeen) * 100)}%`;
+  const comboMultiplier =
+  streak >= 6 ? 4 : streak >= 4 ? 3 : streak >= 2 ? 2 : 1
   function getPerformanceMessage() {
     if (totalAnswers === 0) {
       return "No response data captured. Re-enter the arena to begin analysis.";
@@ -300,7 +302,7 @@ const accuracy =
                       {accuracy}
                     </div>
                   </div>
-                </div>
+                 </div>
 
                 <button
                   onClick={resetGame}
@@ -313,98 +315,98 @@ const accuracy =
                   Play Again
                 </button>
               </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p
-                      className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                        isCyber ? "text-slate-500" : "text-slate-500"
-                      }`}
-                    >
-                      Puzzle Feed
-                    </p>
-                    <h2
-                      className={`mt-2 text-xl font-semibold ${
-                        isCyber ? "text-white" : "text-slate-900"
-                      }`}
-                    >
-                      {currentPuzzle.title}
-                    </h2>
-                  </div>
-
-                  <div
-                    className={`hidden rounded-full px-3 py-1 text-xs font-semibold md:inline-flex ${
-                      feedback === "Correct"
-                        ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20"
-                        : feedback === "Incorrect"
-                          ? "bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20"
-                          : isCyber
-                            ? "bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20"
-                            : "bg-slate-100 text-slate-700 ring-1 ring-slate-200"
+            ) :
+            <>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p
+                    className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                      isCyber ? "text-slate-500" : "text-slate-500"
                     }`}
                   >
-                    {feedback || "Live Round"}
-                  </div>
+                    Puzzle Feed
+                  </p>
+                  <h2
+                    className={`mt-2 text-xl font-semibold ${
+                      isCyber ? "text-white" : "text-slate-900"
+                    }`}
+                  >
+                    {currentPuzzle.title}
+                  </h2>
                 </div>
 
                 <div
-                  className={`mt-8 rounded-2xl border p-8 md:p-12 ${
-                    isCyber
-                      ? "border-cyan-400/15 bg-[#0c1526]"
-                      : "border-slate-200 bg-slate-50"
+                  className={`hidden rounded-full px-3 py-1 text-xs font-semibold md:inline-flex ${
+                    feedback === "Correct"
+                      ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20"
+                      : feedback === "Incorrect"
+                        ? "bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20"
+                        : isCyber
+                          ? "bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20"
+                          : "bg-slate-100 text-slate-700 ring-1 ring-slate-200"
                   }`}
                 >
-                  <div className="grid grid-cols-3 gap-4 md:gap-6">
-                    {currentPuzzle.grid.map((item, index) => (
-                      <div
-                        key={`${item}-${index}`}
-                        className={`flex aspect-square items-center justify-center rounded-2xl border ${
-                          isCyber
-                            ? "border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]"
-                            : "border-slate-200 bg-white"
-                        }`}
-                      >
-                        <PuzzleShape shape={item} />
-                      </div>
-                    ))}
-                  </div>
+                  {feedback || "Live Round"}
                 </div>
+              </div>
 
-                <div className="mt-8 grid gap-4 md:grid-cols-2">
-                  {currentPuzzle.choices.map((choice) => (
-                    <button
-                      key={choice}
-                      onClick={() => handleAnswer(choice)}
-                      disabled={gameOver}
-                      className={`group rounded-2xl border px-5 py-4 text-left transition ${
-                        gameOver ? "cursor-not-allowed opacity-50" : ""
-                      } ${
+              <div
+                className={`mt-8 rounded-2xl border p-8 md:p-12 ${
+                  isCyber
+                    ? "border-cyan-400/15 bg-[#0c1526]"
+                    : "border-slate-200 bg-slate-50"
+                }`}
+              >
+                <div className="grid grid-cols-3 gap-4 md:gap-6">
+                  {currentPuzzle.grid.map((item, index) => (
+                    <div
+                      key={`${item}-${index}`}
+                      className={`flex aspect-square items-center justify-center rounded-2xl border ${
                         isCyber
-                          ? "border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]"
-                          : "border-slate-200 bg-white text-slate-900 hover:border-cyan-300"
+                          ? "border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]"
+                          : "border-slate-200 bg-white"
                       }`}
                     >
-                      <span
-                        className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                          isCyber
-                            ? "text-cyan-400 group-hover:text-fuchsia-300"
-                            : "text-cyan-600"
-                        }`}
-                      >
-                        Response
-                      </span>
-                      <div className="mt-3 flex items-center justify-center">
-                        <PuzzleShape shape={choice} />
-                      </div>
-                    </button>
+                      <PuzzleShape shape={item} />
+                    </div>
                   ))}
                 </div>
-              </>
-            )}
+              </div>
+
+              <div className="mt-8 grid gap-4 md:grid-cols-2">
+                {currentPuzzle.choices.map((choice) => (
+                  <button
+                    key={choice}
+                    onClick={() => handleAnswer(choice)}
+                    disabled={gameOver}
+                    className={`group rounded-2xl border px-5 py-4 text-left transition ${
+                      gameOver ? "cursor-not-allowed opacity-50" : ""
+                    } ${
+                      isCyber
+                        ? "border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]"
+                        : "border-slate-200 bg-white text-slate-900 hover:border-cyan-300"
+                    }`}
+                  >
+                    <span
+                      className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                        isCyber
+                          ? "text-cyan-400 group-hover:text-fuchsia-300"
+                          : "text-cyan-600"
+                      }`}
+                    >
+                      Response
+                    </span>
+                    <div className="mt-3 flex items-center justify-center">
+                      <PuzzleShape shape={choice} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
+            }
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-4">
             <div
               className={`rounded-2xl border px-5 py-4 ${
                 isCyber
@@ -429,9 +431,15 @@ const accuracy =
             </div>
 
             <div
-              className={`rounded-2xl border px-5 py-4 ${
+              className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
                 isCyber
-                  ? "border-fuchsia-400/20 bg-fuchsia-500/5"
+                  ? streak >= 6
+                    ? "border-fuchsia-400/90 bg-fuchsia-500/25 shadow-[0_0_48px_rgba(217,70,239,0.60),0_0_90px_rgba(217,70,239,0.28)]"
+                    : streak >= 4
+                      ? "border-fuchsia-400/60 bg-fuchsia-500/18 shadow-[0_0_32px_rgba(217,70,239,0.40)]"
+                      : streak >= 2
+                        ? "border-fuchsia-400/35 bg-fuchsia-500/10 shadow-[0_0_18px_rgba(217,70,239,0.22)]"
+                        : "border-fuchsia-400/20 bg-fuchsia-500/5"
                   : "border-slate-200 bg-slate-50"
               }`}
             >
@@ -443,8 +451,16 @@ const accuracy =
                 Streak
               </p>
               <div
-                className={`mt-2 font-mono text-2xl font-bold ${
-                  isCyber ? "text-fuchsia-300" : "text-slate-800"
+                className={`mt-2 font-mono text-2xl font-bold transition-all duration-300 ${
+                  isCyber
+                    ? streak >= 6
+                      ? "text-fuchsia-100 drop-shadow-[0_0_16px_rgba(217,70,239,0.70)]"
+                      : streak >= 4
+                        ? "text-fuchsia-200 drop-shadow-[0_0_10px_rgba(217,70,239,0.45)]"
+                        : streak >= 2
+                          ? "text-fuchsia-300 drop-shadow-[0_0_6px_rgba(217,70,239,0.25)]"
+                          : "text-fuchsia-300"
+                    : "text-slate-800"
                 }`}
               >
                 x{streak.toString().padStart(2, "0")}
@@ -471,6 +487,35 @@ const accuracy =
                 }`}
               >
                 {accuracy}
+              </div>
+            </div>
+
+            <div
+              className={`rounded-2xl border px-5 py-4 ${
+                isCyber
+                  ? comboMultiplier >= 3
+                    ? "border-fuchsia-400/30 bg-fuchsia-500/10 shadow-[0_0_20px_rgba(217,70,239,0.12)]"
+                    : "border-cyan-400/20 bg-cyan-400/5"
+                  : "border-slate-200 bg-slate-50"
+              }`}
+            >
+              <p
+                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                  isCyber ? "text-slate-400" : "text-slate-500"
+                }`}
+              >
+                Combo
+              </p>
+              <div
+                className={`mt-2 font-mono text-2xl font-bold ${
+                  isCyber
+                    ? comboMultiplier >= 3
+                      ? "text-fuchsia-300"
+                      : "text-cyan-300"
+                    : "text-slate-800"
+                }`}
+              >
+                x{comboMultiplier}
               </div>
             </div>
           </div>
