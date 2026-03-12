@@ -1,4 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserAstronaut,
   faClockRotateLeft,
@@ -6,8 +6,8 @@ import {
   faChartLine,
   faBolt,
   faLayerGroup,
-} from '@fortawesome/free-solid-svg-icons';
-import { getSessions } from '../game/sessionTracker';
+} from "@fortawesome/free-solid-svg-icons";
+import { getSessions } from "../game/sessionTracker";
 
 function ProfilePage() {
   const sessions = getSessions();
@@ -27,7 +27,43 @@ function ProfilePage() {
         )
       : 0;
 
-  const currentRank = sessions.length > 0 ? 'Active' : 'Unranked';
+  const currentRank = sessions.length > 0 ? "Active" : "Unranked";
+  const totalSessions = sessions.length;
+
+  const averageScore =
+    sessions.length > 0
+      ? Math.round(
+          sessions.reduce((sum, s) => sum + (s.score ?? 0), 0) /
+            sessions.length,
+        )
+      : 0;
+
+  const averageAccuracy =
+    sessions.length > 0
+      ? Math.round(
+          sessions.reduce((sum, s) => sum + (s.accuracy ?? 0), 0) /
+            sessions.length,
+        )
+      : 0;
+  const performanceInsight = (() => {
+    if (sessions.length === 0) {
+      return "Complete your first arena run to begin neural performance analysis.";
+    }
+
+    if (averageAccuracy >= 90) {
+      return "Precision stability detected. Your pattern recognition accuracy is exceeding baseline performance.";
+    }
+
+    if (bestStreak >= 10) {
+      return "Streak resilience detected. You maintain cognitive momentum under time pressure.";
+    }
+
+    if (averageScore >= 800) {
+      return "Strong scoring efficiency detected. Your neural processing speed is trending above baseline.";
+    }
+
+    return "Early performance signals detected. Continue running sessions to unlock deeper cognitive analysis.";
+  })();
   return (
     <section className="min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
@@ -83,22 +119,51 @@ function ProfilePage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                      Best Score
-                    </p>
-                    <p className="mt-2 text-2xl font-bold text-cyan-300">
-                      {bestScore}
-                    </p>
-                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Best Score
+                      </p>
+                      <p className="mt-2 text-2xl font-bold text-cyan-300">
+                        {bestScore}
+                      </p>
+                    </div>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                      Best Streak
-                    </p>
-                    <p className="mt-2 text-2xl font-bold text-emerald-300">
-                      {bestStreak}
-                    </p>
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Best Streak
+                      </p>
+                      <p className="mt-2 text-2xl font-bold text-emerald-300">
+                        {bestStreak}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Avg Score
+                      </p>
+                      <p className="mt-2 text-2xl font-bold text-fuchsia-300">
+                        {averageScore}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Avg Accuracy
+                      </p>
+                      <p className="mt-2 text-2xl font-bold text-cyan-300">
+                        {averageAccuracy}%
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4 col-span-2">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Sessions Played
+                      </p>
+                      <p className="mt-2 text-2xl font-bold text-white">
+                        {totalSessions}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -107,9 +172,7 @@ function ProfilePage() {
                     Agent Summary
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-300">
-                    Performance analysis will appear here as the session system
-                    expands. Future versions will surface strengths, weakness
-                    patterns, and training recommendations.
+                    {performanceInsight}
                   </p>
                 </div>
               </div>
@@ -163,7 +226,7 @@ function ProfilePage() {
                       className="grid grid-cols-[1.2fr_1fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                     >
                       <span className="font-semibold text-white">
-                        {session.mode || 'Pattern Rush'}
+                        {session.mode || "Pattern Rush"}
                       </span>
                       <span>{session.score ?? 0}</span>
                       <span>{session.accuracy ?? 0}%</span>
@@ -172,7 +235,8 @@ function ProfilePage() {
                   ))
                 ) : (
                   <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
-                    No recorded sessions yet. Complete a run to build your profile history.
+                    No recorded sessions yet. Complete a run to build your
+                    profile history.
                   </div>
                 )}
               </div>
