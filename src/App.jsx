@@ -7,7 +7,7 @@ import Play from "./pages/Play";
 import Arena from "./pages/Arena";
 import Header from "./layout/Header.jsx";
 import LeaderboardPage from "./pages/LeaderboardPage.jsx";
-import Leaderboard from "./pages/LeaderboardPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 function App() {
   const [theme, setTheme] = useState("cyber");
@@ -27,6 +27,7 @@ function App() {
         <Route path="/play" element={<Play theme={theme} />} />
         <Route path="/arena" element={<Arena theme={theme} />} />
         <Route path="/leaderboard" element={<LeaderboardPage theme={theme} />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </div>
   );

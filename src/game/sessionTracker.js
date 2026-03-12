@@ -1,7 +1,19 @@
 const sessions = [];
 
 export function recordSession(session) {
-  sessions.push(session);
+  const normalizedSession = {
+    id: crypto.randomUUID(),
+    mode: session.mode || 'Pattern Rush',
+    timestamp: session.timestamp || new Date().toISOString(),
+    name: session.name || 'Arena Runner',
+    score: session.score ?? 0,
+    accuracy: session.accuracy ?? 0,
+    streak: session.streak ?? 0,
+    bestStreak: session.bestStreak ?? session.streak ?? 0,
+    ...session,
+  };
+
+  sessions.push(normalizedSession);
 }
 
 export function getSessions() {

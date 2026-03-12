@@ -1,16 +1,35 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTrophy,
   faMedal,
   faChartLine,
   faBolt,
   faBrain,
-} from "@fortawesome/free-solid-svg-icons";
-import { getLeaderboardSessions } from "../game/sessionTracker";
-
+} from '@fortawesome/free-solid-svg-icons';
+import { getLeaderboardSessions } from '../game/sessionTracker';
 
 function LeaderboardPage() {
-    const leaderboardData = getLeaderboardSessions();
+  const leaderboardData = getLeaderboardSessions();
+
+  const topScore =
+    leaderboardData.length > 0
+      ? Math.max(...leaderboardData.map((player) => player.score))
+      : 0;
+
+  const bestAccuracy =
+    leaderboardData.length > 0
+      ? Math.max(
+          ...leaderboardData.map(
+            (player) => Number.parseInt(player.accuracy, 10) || 0,
+          ),
+        )
+      : 0;
+
+  const longestStreak =
+    leaderboardData.length > 0
+      ? Math.max(...leaderboardData.map((player) => player.streak))
+      : 0;
+
   return (
     <section className="min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
@@ -38,21 +57,27 @@ function LeaderboardPage() {
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Top Score
                 </p>
-                <p className="mt-2 text-2xl font-bold text-cyan-300">1840</p>
+                <p className="mt-2 text-2xl font-bold text-cyan-300">
+                  {topScore}
+                </p>
               </div>
 
               <div className="rounded-2xl border border-fuchsia-400/20 bg-slate-800/70 px-4 py-3">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Best Accuracy
                 </p>
-                <p className="mt-2 text-2xl font-bold text-fuchsia-300">96%</p>
+                <p className="mt-2 text-2xl font-bold text-fuchsia-300">
+                  {bestAccuracy}%
+                </p>
               </div>
 
               <div className="rounded-2xl border border-emerald-400/20 bg-slate-800/70 px-4 py-3">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Longest Streak
                 </p>
-                <p className="mt-2 text-2xl font-bold text-emerald-300">18</p>
+                <p className="mt-2 text-2xl font-bold text-emerald-300">
+                  {longestStreak}
+                </p>
               </div>
             </div>
           </div>
@@ -94,7 +119,9 @@ function LeaderboardPage() {
                       #{player.rank}
                     </span>
 
-                    <span className="font-semibold text-white">{player.name}</span>
+                    <span className="font-semibold text-white">
+                      {player.name}
+                    </span>
 
                     <span>{player.score}</span>
                     <span>{player.accuracy}</span>
@@ -103,7 +130,8 @@ function LeaderboardPage() {
                 ))
               ) : (
                 <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
-                  No arena sessions recorded yet. Complete a run to populate the leaderboard.
+                  No arena sessions recorded yet. Complete a run to populate the
+                  leaderboard.
                 </div>
               )}
             </div>
