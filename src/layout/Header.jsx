@@ -1,4 +1,5 @@
 import logo from "../assets/logo.png";
+import { Link } from "react-router-dom";
 
 function Header({ theme, setTheme }) {
   const isCyber = theme === "cyber";
@@ -12,7 +13,7 @@ function Header({ theme, setTheme }) {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3">
           <img
             src={logo}
             alt="TakeNeuroIQ"
@@ -26,13 +27,22 @@ function Header({ theme, setTheme }) {
           >
             TakeNeuroIQ
           </span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-8">
           <nav className="flex gap-6 text-sm font-medium">
-            <a className="transition hover:text-cyan-400">Play</a>
-            <a className="transition hover:text-cyan-400">Leaderboard</a>
-            <a className="transition hover:text-cyan-400">Profile</a>
+            <Link to="/" className="transition hover:text-cyan-400">
+              Home
+            </Link>
+            <Link to="/play" className="transition hover:text-cyan-400">
+              Play
+            </Link>
+            <Link to="/arena" className="transition hover:text-cyan-400">
+              Pattern Rush
+            </Link>
+            <Link to="/leaderboard" className="transition hover:text-cyan-400">
+              Leaderboard
+            </Link>
           </nav>
 
           <button

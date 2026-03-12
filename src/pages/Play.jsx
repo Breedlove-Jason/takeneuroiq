@@ -1,5 +1,6 @@
 // src/pages/Play.jsx
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate, Link } from "react-router-dom";
 import {
   faShapes,
   faScaleBalanced,
@@ -8,6 +9,7 @@ import {
 
 function Play({ theme }) {
   const isCyber = theme === "cyber";
+  const navigate = useNavigate();
 
   const challenges = [
     {
@@ -99,15 +101,16 @@ function Play({ theme }) {
                 {challenge.description}
               </p>
 
-              <button
-                className={`mt-8 w-full rounded-xl px-5 py-3 font-semibold transition ${
-                  isCyber
-                    ? "bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(34,211,238,0.25)] hover:bg-cyan-300"
+              <Link
+                to="/arena"
+                className={`mt-6 inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold transition ${
+                  theme === "cyber"
+                    ? "bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.25)]"
                     : "bg-cyan-600 text-white hover:bg-cyan-500"
                 }`}
               >
-                {challenge.buttonText}
-              </button>
+                Launch Pattern Rush
+              </Link>
             </div>
           ))}
         </div>

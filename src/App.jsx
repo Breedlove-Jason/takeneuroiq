@@ -1,36 +1,33 @@
 import { useState } from "react";
-import Header from "./layout/Header";
-import Hero from "./components/Hero";
-import HowItWorks from "./components/HowItWorks";
-import FeatureHighlights from "./components/FeatureHighlights";
-import Play from "./pages/Play.jsx";
-import Arena from "./pages/Arena.jsx";
+import { Routes, Route } from "react-router-dom";
+
+// import Header from "./layout/Header"
+import Home from "./pages/Home";
+import Play from "./pages/Play";
+import Arena from "./pages/Arena";
+import Header from "./layout/Header.jsx";
+import LeaderboardPage from "./pages/LeaderboardPage.jsx";
+import Leaderboard from "./pages/LeaderboardPage.jsx";
 
 function App() {
   const [theme, setTheme] = useState("cyber");
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-500 ${
+      className={
         theme === "cyber"
-          ? "bg-[#070b14] text-white"
-          : "bg-white text-slate-900"
-      }`}
+          ? "bg-[#060b14] min-h-screen"
+          : "bg-white min-h-screen"
+      }
     >
-      {/* Background effects only for cyber mode */}
-      {theme === "cyber" && (
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.14),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(217,70,239,0.12),transparent_30%)]" />
-      )}
-
       <Header theme={theme} setTheme={setTheme} />
 
-      <main>
-        <Hero theme={theme} />
-        <HowItWorks theme={theme} />
-        <FeatureHighlights theme={theme} />
-        {/*<Play theme={theme} />*/}
-        <Arena theme={theme} />
-      </main>
+      <Routes>
+        <Route path="/" element={<Home theme={theme} />} />
+        <Route path="/play" element={<Play theme={theme} />} />
+        <Route path="/arena" element={<Arena theme={theme} />} />
+        <Route path="/leaderboard" element={<LeaderboardPage theme={theme} />} />
+      </Routes>
     </div>
   );
 }

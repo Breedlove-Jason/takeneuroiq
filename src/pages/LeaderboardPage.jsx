@@ -1,0 +1,212 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTrophy,
+  faMedal,
+  faChartLine,
+  faBolt,
+  faBrain,
+} from "@fortawesome/free-solid-svg-icons";
+
+const mockLeaders = [
+  {
+    rank: 1,
+    name: "NeuralGhost",
+    score: 1840,
+    accuracy: "96%",
+    streak: 18,
+  },
+  {
+    rank: 2,
+    name: "SynapseRunner",
+    score: 1725,
+    accuracy: "92%",
+    streak: 14,
+  },
+  {
+    rank: 3,
+    name: "CipherMind",
+    score: 1660,
+    accuracy: "89%",
+    streak: 12,
+  },
+  {
+    rank: 4,
+    name: "PatternHunter",
+    score: 1480,
+    accuracy: "87%",
+    streak: 10,
+  },
+  {
+    rank: 5,
+    name: "CortexPulse",
+    score: 1395,
+    accuracy: "85%",
+    streak: 9,
+  },
+];
+
+function LeaderboardPage() {
+  return (
+    <section className="min-h-screen px-6 py-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 rounded-3xl border border-cyan-400/30 bg-slate-900/70 p-6 shadow-[0_0_40px_rgba(34,211,238,0.12)] backdrop-blur-md dark:bg-slate-900/70">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300">
+                <FontAwesomeIcon icon={faBolt} />
+                Neural Arena Rankings
+              </p>
+
+              <h1 className="text-3xl font-extrabold tracking-tight text-cyan-300 md:text-5xl">
+                Leaderboard
+              </h1>
+
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
+                Track the strongest minds in the arena. This page will evolve
+                into a live competitive board powered by session history, ranked
+                runs, and adaptive performance analysis.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-cyan-400/20 bg-slate-800/70 px-4 py-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  Top Score
+                </p>
+                <p className="mt-2 text-2xl font-bold text-cyan-300">1840</p>
+              </div>
+
+              <div className="rounded-2xl border border-fuchsia-400/20 bg-slate-800/70 px-4 py-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  Best Accuracy
+                </p>
+                <p className="mt-2 text-2xl font-bold text-fuchsia-300">96%</p>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-400/20 bg-slate-800/70 px-4 py-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  Longest Streak
+                </p>
+                <p className="mt-2 text-2xl font-bold text-emerald-300">18</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
+          <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                  <FontAwesomeIcon
+                    icon={faTrophy}
+                    className="text-yellow-300"
+                  />
+                  Top Competitors
+                </h2>
+                <p className="mt-1 text-sm text-slate-400">
+                  Prototype rankings for the neural competition layer.
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-slate-700/60">
+              <div className="grid grid-cols-[80px_1.4fr_1fr_1fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <span>Rank</span>
+                <span>Player</span>
+                <span>Score</span>
+                <span>Accuracy</span>
+                <span>Streak</span>
+              </div>
+
+              {mockLeaders.map((player) => (
+                <div
+                  key={player.rank}
+                  className="grid grid-cols-[80px_1.4fr_1fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                >
+                  <span className="font-bold text-cyan-300">
+                    #{player.rank}
+                  </span>
+
+                  <span className="font-semibold text-white">
+                    {player.name}
+                  </span>
+
+                  <span>{player.score}</span>
+                  <span>{player.accuracy}</span>
+                  <span>{player.streak}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <aside className="space-y-6">
+            <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+                <FontAwesomeIcon icon={faMedal} className="text-fuchsia-300" />
+                Rank Signals
+              </h2>
+
+              <div className="mt-4 space-y-3 text-sm text-slate-300">
+                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                  <p className="font-semibold text-cyan-300">Score Power</p>
+                  <p className="mt-1 text-slate-400">
+                    Total points earned during a session.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                  <p className="font-semibold text-fuchsia-300">
+                    Accuracy Stability
+                  </p>
+                  <p className="mt-1 text-slate-400">
+                    Precision based on puzzles actually seen.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                  <p className="font-semibold text-emerald-300">
+                    Streak Pressure
+                  </p>
+                  <p className="mt-1 text-slate-400">
+                    Consecutive correct answers under time stress.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+                <FontAwesomeIcon icon={faBrain} className="text-cyan-300" />
+                Agent Note
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-slate-300">
+                This leaderboard is the front shell for the competitive system.
+                Next, we will connect it to recorded session data so the board
+                reflects actual arena performance.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+                <FontAwesomeIcon
+                  icon={faChartLine}
+                  className="text-emerald-300"
+                />
+                Future Expansion
+              </h2>
+              <ul className="mt-3 space-y-2 text-sm text-slate-300">
+                <li>Daily challenge rankings</li>
+                <li>Friends and team boards</li>
+                <li>Adaptive skill tiers</li>
+                <li>Tournament ladders</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default LeaderboardPage;
