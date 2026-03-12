@@ -30,17 +30,52 @@ function Header({ theme, setTheme }) {
         </Link>
 
         <div className="flex items-center gap-8">
-          <nav className="flex gap-6 text-sm font-medium">
-            <Link to="/" className="transition hover:text-cyan-400">
+          <nav
+            className={`flex items-center gap-2 text-sm font-medium ${
+              isCyber ? "text-slate-300" : "text-slate-600"
+            }`}
+          >
+            <Link
+              to="/"
+              className={`inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                isCyber
+                  ? "text-slate-300 hover:bg-white/5 hover:text-cyan-300"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-cyan-600"
+              }`}
+            >
               Home
             </Link>
-            <Link to="/play" className="transition hover:text-cyan-400">
+
+            <Link
+              to="/play"
+              className={`inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                isCyber
+                  ? "text-slate-300 hover:bg-white/5 hover:text-cyan-300"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-cyan-600"
+              }`}
+            >
               Play
             </Link>
-            <Link to="/arena" className="transition hover:text-cyan-400">
+
+            <Link
+              to="/arena"
+              className={`inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                isCyber
+                  ? "text-slate-300 hover:bg-white/5 hover:text-cyan-300"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-cyan-600"
+              }`}
+            >
               Pattern Rush
             </Link>
-            <Link to="/leaderboard" className="transition hover:text-cyan-400">
+
+            <Link
+              to="/leaderboard"
+              className={`inline-flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                isCyber
+                  ? "text-slate-300 hover:bg-white/5 hover:text-cyan-300"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-cyan-600"
+              }`}
+            >
               Leaderboard
             </Link>
           </nav>

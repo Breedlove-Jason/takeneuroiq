@@ -6,46 +6,11 @@ import {
   faBolt,
   faBrain,
 } from "@fortawesome/free-solid-svg-icons";
+import { getLeaderboardSessions } from "../game/sessionTracker";
 
-const mockLeaders = [
-  {
-    rank: 1,
-    name: "NeuralGhost",
-    score: 1840,
-    accuracy: "96%",
-    streak: 18,
-  },
-  {
-    rank: 2,
-    name: "SynapseRunner",
-    score: 1725,
-    accuracy: "92%",
-    streak: 14,
-  },
-  {
-    rank: 3,
-    name: "CipherMind",
-    score: 1660,
-    accuracy: "89%",
-    streak: 12,
-  },
-  {
-    rank: 4,
-    name: "PatternHunter",
-    score: 1480,
-    accuracy: "87%",
-    streak: 10,
-  },
-  {
-    rank: 5,
-    name: "CortexPulse",
-    score: 1395,
-    accuracy: "85%",
-    streak: 9,
-  },
-];
 
 function LeaderboardPage() {
+    const leaderboardData = getLeaderboardSessions();
   return (
     <section className="min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
@@ -119,24 +84,28 @@ function LeaderboardPage() {
                 <span>Streak</span>
               </div>
 
-              {mockLeaders.map((player) => (
-                <div
-                  key={player.rank}
-                  className="grid grid-cols-[80px_1.4fr_1fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
-                >
-                  <span className="font-bold text-cyan-300">
-                    #{player.rank}
-                  </span>
+              {leaderboardData.length > 0 ? (
+                leaderboardData.map((player) => (
+                  <div
+                    key={`${player.rank}-${player.name}-${player.score}`}
+                    className="grid grid-cols-[80px_1.4fr_1fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                  >
+                    <span className="font-bold text-cyan-300">
+                      #{player.rank}
+                    </span>
 
-                  <span className="font-semibold text-white">
-                    {player.name}
-                  </span>
+                    <span className="font-semibold text-white">{player.name}</span>
 
-                  <span>{player.score}</span>
-                  <span>{player.accuracy}</span>
-                  <span>{player.streak}</span>
+                    <span>{player.score}</span>
+                    <span>{player.accuracy}</span>
+                    <span>{player.streak}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
+                  No arena sessions recorded yet. Complete a run to populate the leaderboard.
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
