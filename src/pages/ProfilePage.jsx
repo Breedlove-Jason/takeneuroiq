@@ -64,6 +64,80 @@ function ProfilePage() {
 
     return "Early performance signals detected. Continue running sessions to unlock deeper cognitive analysis.";
   })();
+  const scoreTrend = (() => {
+    if (sessions.length < 2) {
+      return "Not enough sessions yet to detect a score trend.";
+    }
+
+    const recentScores = recentSessions
+      .slice()
+      .reverse()
+      .map((session) => session.score ?? 0);
+
+    const firstScore = recentScores[0];
+    const lastScore = recentScores[recentScores.length - 1];
+    const difference = lastScore - firstScore;
+
+    if (difference >= 100) {
+      return "Score trend rising. Recent runs show stronger scoring output.";
+    }
+
+    if (difference <= -100) {
+      return "Score trend dipping. Recent sessions suggest reduced scoring efficiency.";
+    }
+
+    return "Score trend stable. Performance output is holding near current baseline.";
+  })();
+  const accuracyTrend = (() => {
+    if (sessions.length < 2) {
+      return "Not enough sessions yet to detect an accuracy trend.";
+    }
+
+    const recentAccuracies = recentSessions
+      .slice()
+      .reverse()
+      .map((session) => session.accuracy ?? 0);
+
+    const firstAccuracy = recentAccuracies[0];
+    const lastAccuracy = recentAccuracies[recentAccuracies.length - 1];
+    const difference = lastAccuracy - firstAccuracy;
+
+    if (difference >= 5) {
+      return "Accuracy trend rising. Precision control is improving across recent runs.";
+    }
+
+    if (difference <= -5) {
+      return "Accuracy trend slipping. Precision consistency is dropping under current conditions.";
+    }
+
+    return "Accuracy trend stable. Precision output is holding near current baseline.";
+  })();
+
+  const streakStability = (() => {
+    if (sessions.length < 2) {
+      return "Not enough sessions yet to detect streak stability.";
+    }
+
+    const recentStreaks = recentSessions
+      .slice()
+      .reverse()
+      .map((session) => session.bestStreak ?? session.streak ?? 0);
+
+    const minStreak = Math.min(...recentStreaks);
+    const maxStreak = Math.max(...recentStreaks);
+    const spread = maxStreak - minStreak;
+
+    if (spread <= 2) {
+      return "Streak stability strong. Cognitive momentum is holding consistently across recent runs.";
+    }
+
+    if (spread >= 6) {
+      return "Streak stability volatile. Momentum is fluctuating noticeably between sessions.";
+    }
+
+    return "Streak stability moderate. Momentum control is forming but not yet fully consistent.";
+  })();
+
   return (
     <section className="min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
@@ -195,7 +269,12 @@ function ProfilePage() {
                   Working memory
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  Adaptive pressure handling
+                  <p className="font-semibold text-cyan-300">
+                    Adaptive pressure handling
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    {streakStability}
+                  </p>
                 </div>
               </div>
             </div>
@@ -242,7 +321,7 @@ function ProfilePage() {
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-3">
               <div className="rounded-3xl border border-emerald-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
@@ -252,8 +331,7 @@ function ProfilePage() {
                   Progression
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">
-                  This panel will later show score trends, accuracy trends, and
-                  consistency patterns across multiple sessions.
+                  {scoreTrend}
                 </p>
               </div>
 
@@ -266,8 +344,17 @@ function ProfilePage() {
                   Adaptive Layer
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">
-                  Future versions will use performance data to suggest challenge
-                  types, identify strengths, and shape dynamic difficulty.
+                  {accuracyTrend}
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+                  <FontAwesomeIcon icon={faBolt} className="text-fuchsia-300" />
+                  Momentum
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-slate-300">
+                  {streakStability}
                 </p>
               </div>
             </div>
