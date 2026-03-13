@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'takeneuroiq_sessions';
+const STORAGE_KEY = "takeneuroiq_sessions";
 
 function loadSessions() {
   try {
@@ -8,7 +8,7 @@ function loadSessions() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error('Failed to load TakeNeuroIQ sessions:', error);
+    console.error("Failed to load TakeNeuroIQ sessions:", error);
     return [];
   }
 }
@@ -17,7 +17,7 @@ function saveSessions() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
   } catch (error) {
-    console.error('Failed to save TakeNeuroIQ sessions:', error);
+    console.error("Failed to save TakeNeuroIQ sessions:", error);
   }
 }
 
@@ -29,26 +29,26 @@ function getSessionLabel(session) {
   const bestStreak = session.bestStreak ?? session.streak ?? 0;
 
   if (score >= 1000 && accuracy >= 90 && bestStreak >= 10) {
-    return 'Elite Run';
+    return "Elite Run";
   }
 
   if (score >= 700 && accuracy >= 80 && bestStreak >= 6) {
-    return 'Strong Run';
+    return "Strong Run";
   }
 
   if (score >= 400 && accuracy >= 70) {
-    return 'Stable Run';
+    return "Stable Run";
   }
 
-  return 'Training Run';
+  return "Training Run";
 }
 
 export function recordSession(session) {
   const normalizedSession = {
     id: crypto.randomUUID(),
-    mode: session.mode || 'Pattern Rush',
+    mode: session.mode || "Pattern Rush",
     timestamp: session.timestamp || new Date().toISOString(),
-    name: session.name || 'Arena Runner',
+    name: session.name || "Arena Runner",
     score: session.score ?? 0,
     accuracy: session.accuracy ?? 0,
     streak: session.streak ?? 0,
@@ -71,7 +71,7 @@ export function clearSessions() {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.error('Failed to clear TakeNeuroIQ sessions:', error);
+    console.error("Failed to clear TakeNeuroIQ sessions:", error);
   }
 }
 export function getLeaderboardSessions() {

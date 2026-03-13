@@ -1,16 +1,15 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrophy,
   faMedal,
   faChartLine,
   faBolt,
   faBrain,
-} from '@fortawesome/free-solid-svg-icons';
-import { getLeaderboardSessions } from '../game/sessionTracker';
-import { useState } from 'react';
+} from "@fortawesome/free-solid-svg-icons";
+import { useSessionData } from "../hooks/useSessionData";
 
 function LeaderboardPage() {
-  const [leaderboardData] = useState(() => getLeaderboardSessions());
+  const { leaderboardData } = useSessionData();
 
   const topScore =
     leaderboardData.length > 0
