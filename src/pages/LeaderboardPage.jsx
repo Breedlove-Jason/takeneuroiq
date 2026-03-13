@@ -7,9 +7,10 @@ import {
   faBrain,
 } from '@fortawesome/free-solid-svg-icons';
 import { getLeaderboardSessions } from '../game/sessionTracker';
+import { useState } from 'react';
 
 function LeaderboardPage() {
-  const leaderboardData = getLeaderboardSessions();
+  const [leaderboardData] = useState(() => getLeaderboardSessions());
 
   const topScore =
     leaderboardData.length > 0

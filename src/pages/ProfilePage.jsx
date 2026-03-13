@@ -1,4 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUserAstronaut,
   faClockRotateLeft,
@@ -6,7 +7,7 @@ import {
   faChartLine,
   faBolt,
   faLayerGroup,
-} from "@fortawesome/free-solid-svg-icons";
+} from '@fortawesome/free-solid-svg-icons';
 import { getSessions, clearSessions } from '../game/sessionTracker';
 
 function formatSessionTime(timestamp) {
@@ -18,7 +19,7 @@ function formatSessionTime(timestamp) {
 }
 
 function ProfilePage() {
-  const sessions = getSessions();
+  const [sessions, setSessions] = useState(() => [...getSessions()]);
   const recentSessions = [...sessions].slice(-5).reverse();
 
   const bestScore =
@@ -35,7 +36,7 @@ function ProfilePage() {
         )
       : 0;
 
-  const currentRank = sessions.length > 0 ? "Active" : "Unranked";
+  const currentRank = sessions.length > 0 ? 'Active' : 'Unranked';
   const totalSessions = sessions.length;
 
   const averageScore =
@@ -55,56 +56,56 @@ function ProfilePage() {
       : 0;
   const performanceInsight = (() => {
     if (sessions.length === 0) {
-      return "Complete your first arena run to begin neural performance analysis.";
+      return 'Complete your first arena run to begin neural performance analysis.';
     }
 
     const insights = [];
 
     if (averageAccuracy >= 90) {
       insights.push(
-        "Precision is running above baseline, indicating strong pattern recognition control.",
+        'Precision is running above baseline, indicating strong pattern recognition control.',
       );
     } else if (averageAccuracy >= 75) {
       insights.push(
-        "Accuracy is stable, with room to sharpen precision under pressure.",
+        'Accuracy is stable, with room to sharpen precision under pressure.',
       );
     } else {
       insights.push(
-        "Precision remains an active improvement area and may benefit from slower, more controlled runs.",
+        'Precision remains an active improvement area and may benefit from slower, more controlled runs.',
       );
     }
 
     if (bestStreak >= 10) {
       insights.push(
-        "Momentum resilience is strong, with extended streaks sustained during timed play.",
+        'Momentum resilience is strong, with extended streaks sustained during timed play.',
       );
     } else if (bestStreak >= 5) {
       insights.push(
-        "Streak control is forming, though longer momentum chains are still developing.",
+        'Streak control is forming, though longer momentum chains are still developing.',
       );
     } else {
       insights.push(
-        "Momentum breaks quickly, suggesting pressure handling is still stabilizing.",
+        'Momentum breaks quickly, suggesting pressure handling is still stabilizing.',
       );
     }
 
     if (averageScore >= 1000) {
       insights.push(
-        "Scoring efficiency is trending high, pointing to strong processing speed and execution.",
+        'Scoring efficiency is trending high, pointing to strong processing speed and execution.',
       );
     } else if (averageScore >= 600) {
-      insights.push("Scoring output is building steadily across sessions.");
+      insights.push('Scoring output is building steadily across sessions.');
     } else {
       insights.push(
-        "Scoring output is still early-stage, with growth expected as consistency improves.",
+        'Scoring output is still early-stage, with growth expected as consistency improves.',
       );
     }
 
-    return insights.join(" ");
+    return insights.join(' ');
   })();
   const scoreTrend = (() => {
     if (sessions.length < 2) {
-      return "Not enough sessions yet to detect a score trend.";
+      return 'Not enough sessions yet to detect a score trend.';
     }
 
     const recentScores = recentSessions
@@ -117,18 +118,18 @@ function ProfilePage() {
     const difference = lastScore - firstScore;
 
     if (difference >= 100) {
-      return "Score trend rising. Recent runs show stronger scoring output.";
+      return 'Score trend rising. Recent runs show stronger scoring output.';
     }
 
     if (difference <= -100) {
-      return "Score trend dipping. Recent sessions suggest reduced scoring efficiency.";
+      return 'Score trend dipping. Recent sessions suggest reduced scoring efficiency.';
     }
 
-    return "Score trend stable. Performance output is holding near current baseline.";
+    return 'Score trend stable. Performance output is holding near current baseline.';
   })();
   const accuracyTrend = (() => {
     if (sessions.length < 2) {
-      return "Not enough sessions yet to detect an accuracy trend.";
+      return 'Not enough sessions yet to detect an accuracy trend.';
     }
 
     const recentAccuracies = recentSessions
@@ -141,19 +142,19 @@ function ProfilePage() {
     const difference = lastAccuracy - firstAccuracy;
 
     if (difference >= 5) {
-      return "Accuracy trend rising. Precision control is improving across recent runs.";
+      return 'Accuracy trend rising. Precision control is improving across recent runs.';
     }
 
     if (difference <= -5) {
-      return "Accuracy trend slipping. Precision consistency is dropping under current conditions.";
+      return 'Accuracy trend slipping. Precision consistency is dropping under current conditions.';
     }
 
-    return "Accuracy trend stable. Precision output is holding near current baseline.";
+    return 'Accuracy trend stable. Precision output is holding near current baseline.';
   })();
 
   const streakStability = (() => {
     if (sessions.length < 2) {
-      return "Not enough sessions yet to detect streak stability.";
+      return 'Not enough sessions yet to detect streak stability.';
     }
 
     const recentStreaks = recentSessions
@@ -166,14 +167,14 @@ function ProfilePage() {
     const spread = maxStreak - minStreak;
 
     if (spread <= 2) {
-      return "Streak stability strong. Cognitive momentum is holding consistently across recent runs.";
+      return 'Streak stability strong. Cognitive momentum is holding consistently across recent runs.';
     }
 
     if (spread >= 6) {
-      return "Streak stability volatile. Momentum is fluctuating noticeably between sessions.";
+      return 'Streak stability volatile. Momentum is fluctuating noticeably between sessions.';
     }
 
-    return "Streak stability moderate. Momentum control is forming but not yet fully consistent.";
+    return 'Streak stability moderate. Momentum control is forming but not yet fully consistent.';
   })();
 
   const scoreBarMax = Math.max(bestScore, 1500);
@@ -183,13 +184,13 @@ function ProfilePage() {
   const bestStreakPercent = Math.min((bestStreak / 20) * 100, 100);
   const handleResetData = () => {
     const confirmed = window.confirm(
-      'Clear all TakeNeuroIQ session history and leaderboard data?'
+      'Clear all TakeNeuroIQ session history and leaderboard data?',
     );
 
     if (!confirmed) return;
 
     clearSessions();
-    window.location.reload();
+    setSessions([]);
   };
 
   return (
@@ -219,7 +220,9 @@ function ProfilePage() {
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Current Rank
                 </p>
-                <p className="mt-2 text-3xl font-bold text-cyan-300">{currentRank}</p>
+                <p className="mt-2 text-3xl font-bold text-cyan-300">
+                  {currentRank}
+                </p>
               </div>
 
               <button
