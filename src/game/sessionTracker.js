@@ -1,4 +1,27 @@
-const sessions = [];
+const STORAGE_KEY = 'takeneuroiq_sessions';
+
+function loadSessions() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error('Failed to load TakeNeuroIQ sessions:', error);
+    return [];
+  }
+}
+
+function saveSessions() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+  } catch (error) {
+    console.error('Failed to save TakeNeuroIQ sessions:', error);
+  }
+}
+
+const sessions = loadSessions();
 
 function getSessionLabel(session) {
   const score = session.score ?? 0;
@@ -36,12 +59,21 @@ export function recordSession(session) {
   normalizedSession.label = getSessionLabel(normalizedSession);
 
   sessions.push(normalizedSession);
+  saveSessions();
 }
 
 export function getSessions() {
   return sessions;
 }
+export function clearSessions() {
+  sessions.length = 0;
 
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to clear TakeNeuroIQ sessions:', error);
+  }
+}
 export function getLeaderboardSessions() {
   return [...sessions]
     .sort((a, b) => b.score - a.score)

@@ -7,7 +7,7 @@ import {
   faBolt,
   faLayerGroup,
 } from "@fortawesome/free-solid-svg-icons";
-import { getSessions } from "../game/sessionTracker";
+import { getSessions, clearSessions } from '../game/sessionTracker';
 
 function formatSessionTime(timestamp) {
   if (!timestamp) return '—';
@@ -181,6 +181,16 @@ function ProfilePage() {
   const averageScorePercent = Math.min((averageScore / scoreBarMax) * 100, 100);
   const averageAccuracyPercent = Math.min(averageAccuracy, 100);
   const bestStreakPercent = Math.min((bestStreak / 20) * 100, 100);
+  const handleResetData = () => {
+    const confirmed = window.confirm(
+      'Clear all TakeNeuroIQ session history and leaderboard data?'
+    );
+
+    if (!confirmed) return;
+
+    clearSessions();
+    window.location.reload();
+  };
 
   return (
     <section className="min-h-screen px-6 py-10">
@@ -204,13 +214,21 @@ function ProfilePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-cyan-400/20 bg-slate-800/70 px-5 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                Current Rank
-              </p>
-              <p className="mt-2 text-3xl font-bold text-cyan-300">
-                {currentRank}
-              </p>
+            <div className="flex flex-col items-end gap-3">
+              <div className="rounded-2xl border border-cyan-400/20 bg-slate-800/70 px-5 py-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  Current Rank
+                </p>
+                <p className="mt-2 text-3xl font-bold text-cyan-300">{currentRank}</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleResetData}
+                className="rounded-xl border border-fuchsia-400/30 bg-fuchsia-500/10 px-4 py-2 text-sm font-semibold text-fuchsia-300 transition hover:border-fuchsia-300/50 hover:bg-fuchsia-500/20 hover:text-fuchsia-200"
+              >
+                Reset Session Data
+              </button>
             </div>
           </div>
         </div>
