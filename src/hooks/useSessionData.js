@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   getSessions,
   getLeaderboardSessions,
@@ -8,9 +8,27 @@ import {
 export function useSessionData() {
   const [sessions, setSessions] = useState(() => [...getSessions()]);
 
-  const leaderboardData = useMemo(() => {
-    return getLeaderboardSessions();
+  useEffect(() => {
+    const handleSessionsUpdated = () => {
+      setSessions([...getSessions()]);
+    };
+
+    window.addEventListener(
+      'takeneuroiq:sessions-updated',
+      handleSessionsUpdated,
+    );
+
+    return () => {
+      window.removeEventListener(
+        'takeneuroiq:sessions-updated',
+        handleSessionsUpdated,
+      );
+    };
   }, []);
+
+  const leaderboardData = useMemo(() => {
+    return getLeaderboardSessions(sessions);
+  }, [sessions]);
 
   const resetSessions = () => {
     clearSessions();

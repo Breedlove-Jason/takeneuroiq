@@ -21,6 +21,10 @@ function saveSessions() {
   }
 }
 
+function notifySessionUpdate() {
+  window.dispatchEvent(new Event("takeneuroiq:sessions-updated"));
+}
+
 const sessions = loadSessions();
 
 function getSessionLabel(session) {
@@ -59,6 +63,7 @@ export function recordSession(session) {
   normalizedSession.label = getSessionLabel(normalizedSession);
 
   sessions.push(normalizedSession);
+  notifySessionUpdate();
   saveSessions();
 }
 
@@ -70,12 +75,13 @@ export function clearSessions() {
 
   try {
     localStorage.removeItem(STORAGE_KEY);
+    notifySessionUpdate();
   } catch (error) {
     console.error("Failed to clear TakeNeuroIQ sessions:", error);
   }
 }
-export function getLeaderboardSessions() {
-  return [...sessions]
+export function getLeaderboardSessions(sourceSessions = sessions) {
+  return [...sourceSessions]
     .sort((a, b) => b.score - a.score)
     .slice(0, 5)
     .map((session, index) => ({
