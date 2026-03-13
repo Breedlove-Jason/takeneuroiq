@@ -1,5 +1,25 @@
 const sessions = [];
 
+function getSessionLabel(session) {
+  const score = session.score ?? 0;
+  const accuracy = session.accuracy ?? 0;
+  const bestStreak = session.bestStreak ?? session.streak ?? 0;
+
+  if (score >= 1000 && accuracy >= 90 && bestStreak >= 10) {
+    return 'Elite Run';
+  }
+
+  if (score >= 700 && accuracy >= 80 && bestStreak >= 6) {
+    return 'Strong Run';
+  }
+
+  if (score >= 400 && accuracy >= 70) {
+    return 'Stable Run';
+  }
+
+  return 'Training Run';
+}
+
 export function recordSession(session) {
   const normalizedSession = {
     id: crypto.randomUUID(),
@@ -12,6 +32,8 @@ export function recordSession(session) {
     bestStreak: session.bestStreak ?? session.streak ?? 0,
     ...session,
   };
+
+  normalizedSession.label = getSessionLabel(normalizedSession);
 
   sessions.push(normalizedSession);
 }

@@ -9,6 +9,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { getSessions } from "../game/sessionTracker";
 
+function formatSessionTime(timestamp) {
+  if (!timestamp) return '—';
+  return new Date(timestamp).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 function ProfilePage() {
   const sessions = getSessions();
   const recentSessions = [...sessions].slice(-5).reverse();
@@ -50,19 +58,49 @@ function ProfilePage() {
       return "Complete your first arena run to begin neural performance analysis.";
     }
 
+    const insights = [];
+
     if (averageAccuracy >= 90) {
-      return "Precision stability detected. Your pattern recognition accuracy is exceeding baseline performance.";
+      insights.push(
+        "Precision is running above baseline, indicating strong pattern recognition control.",
+      );
+    } else if (averageAccuracy >= 75) {
+      insights.push(
+        "Accuracy is stable, with room to sharpen precision under pressure.",
+      );
+    } else {
+      insights.push(
+        "Precision remains an active improvement area and may benefit from slower, more controlled runs.",
+      );
     }
 
     if (bestStreak >= 10) {
-      return "Streak resilience detected. You maintain cognitive momentum under time pressure.";
+      insights.push(
+        "Momentum resilience is strong, with extended streaks sustained during timed play.",
+      );
+    } else if (bestStreak >= 5) {
+      insights.push(
+        "Streak control is forming, though longer momentum chains are still developing.",
+      );
+    } else {
+      insights.push(
+        "Momentum breaks quickly, suggesting pressure handling is still stabilizing.",
+      );
     }
 
-    if (averageScore >= 800) {
-      return "Strong scoring efficiency detected. Your neural processing speed is trending above baseline.";
+    if (averageScore >= 1000) {
+      insights.push(
+        "Scoring efficiency is trending high, pointing to strong processing speed and execution.",
+      );
+    } else if (averageScore >= 600) {
+      insights.push("Scoring output is building steadily across sessions.");
+    } else {
+      insights.push(
+        "Scoring output is still early-stage, with growth expected as consistency improves.",
+      );
     }
 
-    return "Early performance signals detected. Continue running sessions to unlock deeper cognitive analysis.";
+    return insights.join(" ");
   })();
   const scoreTrend = (() => {
     if (sessions.length < 2) {
@@ -137,6 +175,12 @@ function ProfilePage() {
 
     return "Streak stability moderate. Momentum control is forming but not yet fully consistent.";
   })();
+
+  const scoreBarMax = Math.max(bestScore, 1500);
+  const bestScorePercent = Math.min((bestScore / scoreBarMax) * 100, 100);
+  const averageScorePercent = Math.min((averageScore / scoreBarMax) * 100, 100);
+  const averageAccuracyPercent = Math.min(averageAccuracy, 100);
+  const bestStreakPercent = Math.min((bestStreak / 20) * 100, 100);
 
   return (
     <section className="min-h-screen px-6 py-10">
@@ -291,25 +335,33 @@ function ProfilePage() {
               </h2>
 
               <div className="mt-4 rounded-2xl border border-slate-700/60">
-                <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr_1.2fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Mode</span>
                   <span>Score</span>
                   <span>Accuracy</span>
                   <span>Streak</span>
+                  <span>Label</span>
+                  <span>When</span>
                 </div>
 
                 {recentSessions.length > 0 ? (
                   recentSessions.map((session, index) => (
                     <div
                       key={`${session.score ?? 0}-${index}`}
-                      className="grid grid-cols-[1.2fr_1fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                      className="grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                     >
                       <span className="font-semibold text-white">
-                        {session.mode || "Pattern Rush"}
+                        {session.mode || 'Pattern Rush'}
                       </span>
                       <span>{session.score ?? 0}</span>
                       <span>{session.accuracy ?? 0}%</span>
                       <span>{session.bestStreak ?? session.streak ?? 0}</span>
+                      <span className="text-fuchsia-300 font-semibold">
+                        {session.label}
+                      </span>
+                      <span className="text-slate-400">
+                        {formatSessionTime(session.timestamp)}
+                      </span>
                     </div>
                   ))
                 ) : (
@@ -318,6 +370,78 @@ function ProfilePage() {
                     profile history.
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                <FontAwesomeIcon
+                  icon={faChartLine}
+                  className="text-fuchsia-300"
+                />
+                Performance Snapshot
+              </h2>
+
+              <div className="mt-5 space-y-4">
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Best Score</span>
+                    <span className="font-semibold text-cyan-300">
+                      {bestScore}
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-cyan-400 transition-all duration-500"
+                      style={{ width: `${bestScorePercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Average Score</span>
+                    <span className="font-semibold text-fuchsia-300">
+                      {averageScore}
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-fuchsia-400 transition-all duration-500"
+                      style={{ width: `${averageScorePercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Average Accuracy</span>
+                    <span className="font-semibold text-emerald-300">
+                      {averageAccuracy}%
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-emerald-400 transition-all duration-500"
+                      style={{ width: `${averageAccuracyPercent}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Best Streak</span>
+                    <span className="font-semibold text-yellow-300">
+                      {bestStreak}
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-yellow-400 transition-all duration-500"
+                      style={{ width: `${bestStreakPercent}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
