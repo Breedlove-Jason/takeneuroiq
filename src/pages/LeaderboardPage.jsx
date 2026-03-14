@@ -10,6 +10,18 @@ import { useSessionData } from "../hooks/useSessionData";
 
 function LeaderboardPage() {
   const { leaderboardData } = useSessionData();
+  // Build leaderboard using each player's BEST session
+  const bestRunsByPlayer = Object.values(
+    leaderboardData.reduce((acc, session) => {
+      const existing = acc[session.name];
+
+      if (!existing || session.score > existing.score) {
+        acc[session.name] = session;
+      }
+
+      return acc;
+    }, {}),
+  ).sort((a, b) => b.score - a.score);
   const getPlayerAccuracy = (player) => {
     if (
       typeof player.puzzlesAttempted === "number" &&
@@ -123,23 +135,24 @@ function LeaderboardPage() {
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-slate-700/60">
-              <div className="grid grid-cols-[80px_1.2fr_1fr_1fr_1fr_1.2fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                <span>Rank</span>
-                <span>Player</span>
+              <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr_1.2fr_1.2fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <span>Mode</span>
                 <span>Score</span>
                 <span>Accuracy</span>
                 <span>Streak</span>
                 <span>Label</span>
+                <span>Difficulty</span>
+                <span>When</span>
               </div>
 
-              {leaderboardData.length > 0 ? (
-                leaderboardData.map((player) => (
+              {bestRunsByPlayer.length > 0 ? (
+                bestRunsByPlayer.map((player, index) => (
                   <div
                     key={`${player.rank}-${player.name}-${player.score}`}
-                    className="grid grid-cols-[80px_1.2fr_1fr_1fr_1fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                    className="grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr_1.2fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                   >
                     <span className="font-bold text-cyan-300">
-                      #{player.rank}
+                      #{index + 1}
                     </span>
 
                     <span className="font-semibold text-white">
@@ -151,6 +164,9 @@ function LeaderboardPage() {
                     <span>{player.streak}</span>
                     <span className="font-semibold text-fuchsia-300">
                       {player.label}
+                    </span>
+                    <span className="text-cyan-300 font-semibold">
+                      {player.difficultyBucket ?? "Adaptive"}
                     </span>
                   </div>
                 ))

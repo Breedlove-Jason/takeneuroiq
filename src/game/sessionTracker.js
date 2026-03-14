@@ -55,6 +55,33 @@ function getSessionLabel(session) {
   return "Novice Run";
 }
 
+function getDifficultyBucket(session) {
+  const score = session.score ?? 0;
+  const bestStreak = session.bestStreak ?? session.streak ?? 0;
+
+  const puzzlesAttempted = session.puzzlesAttempted ?? session.puzzlesSeen ?? 0;
+  const puzzlesCorrect = session.puzzlesCorrect ?? session.correctAnswers ?? 0;
+
+  const solveRate =
+    puzzlesAttempted > 0
+      ? Math.round((puzzlesCorrect / puzzlesAttempted) * 100)
+      : (session.accuracy ?? 0);
+
+  if (score >= 1200 || (solveRate >= 90 && bestStreak >= 10)) {
+    return "Expert Mode";
+  }
+
+  if (score >= 900 || (solveRate >= 85 && bestStreak >= 7)) {
+    return "Pressure Mode";
+  }
+
+  if (score >= 600 || (solveRate >= 75 && bestStreak >= 4)) {
+    return "Focus Mode";
+  }
+
+  return "Adaptive";
+}
+
 export function recordSession(session) {
   const normalizedSession = {
     id: crypto.randomUUID(),
@@ -66,8 +93,9 @@ export function recordSession(session) {
     streak: session.streak ?? 0,
     bestStreak: session.bestStreak ?? session.streak ?? 0,
     puzzlesAttempted: session.puzzlesAttempted ?? 0,
-    puzzlesCorrect: session.puzzlesCorrect ?? 0,
+    difficultyBucket: session.difficultyBucket || getDifficultyBucket(session),
     ...session,
+    puzzlesCorrect: session.puzzlesCorrect ?? 0,
     label: session.label || getSessionLabel(session),
   };
 

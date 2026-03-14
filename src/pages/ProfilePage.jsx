@@ -283,6 +283,29 @@ function ProfilePage() {
     return () => window.clearTimeout(timeout);
   }, [nameSaved]);
 
+  useEffect(() => {
+    const syncPlayerSessions = () => {
+      const currentPlayer = getPlayerName();
+      setSessions(
+        getSessions().filter((session) => session.name === currentPlayer),
+      );
+    };
+
+    syncPlayerSessions();
+
+    window.addEventListener(
+      'takeneuroiq:sessions-updated',
+      syncPlayerSessions,
+    );
+
+    return () => {
+      window.removeEventListener(
+        'takeneuroiq:sessions-updated',
+        syncPlayerSessions,
+      );
+    };
+  }, [playerName]);
+
   return (
     <section className="min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
