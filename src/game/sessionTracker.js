@@ -1,4 +1,4 @@
-import { getPlayerName } from './playerIdentity';
+import { getPlayerName } from "./playerIdentity";
 const STORAGE_KEY = "takeneuroiq_sessions";
 
 function loadSessions() {
@@ -30,38 +30,46 @@ const sessions = loadSessions();
 
 function getSessionLabel(session) {
   const score = session.score ?? 0;
-  const accuracy = session.accuracy ?? 0;
   const bestStreak = session.bestStreak ?? session.streak ?? 0;
 
-  if (score >= 1000 && accuracy >= 90 && bestStreak >= 10) {
+  const puzzlesAttempted = session.puzzlesAttempted ?? session.puzzlesSeen ?? 0;
+  const puzzlesCorrect = session.puzzlesCorrect ?? session.correctAnswers ?? 0;
+
+  const solveRate =
+    puzzlesAttempted > 0
+      ? Math.round((puzzlesCorrect / puzzlesAttempted) * 100)
+      : (session.accuracy ?? 0);
+
+  if (score >= 1200 && solveRate >= 90 && bestStreak >= 10) {
+    return "Neural Surge";
+  }
+
+  if (score >= 900 && solveRate >= 85 && bestStreak >= 7) {
     return "Elite Run";
   }
 
-  if (score >= 700 && accuracy >= 80 && bestStreak >= 6) {
-    return "Strong Run";
+  if (score >= 600 && solveRate >= 75 && bestStreak >= 4) {
+    return "Focused Run";
   }
 
-  if (score >= 400 && accuracy >= 70) {
-    return "Stable Run";
-  }
-
-  return "Training Run";
+  return "Novice Run";
 }
 
 export function recordSession(session) {
-const normalizedSession = {
-  id: crypto.randomUUID(),
-  mode: session.mode || "Pattern Rush",
-  timestamp: session.timestamp || new Date().toISOString(),
-  name: session.name || getPlayerName(),
-  score: session.score ?? 0,
-  accuracy: session.accuracy ?? 0,
-  streak: session.streak ?? 0,
-  bestStreak: session.bestStreak ?? session.streak ?? 0,
-  puzzlesAttempted: session.puzzlesAttempted ?? 0,
-  puzzlesCorrect: session.puzzlesCorrect ?? 0,
-  ...session,
-};  normalizedSession.label = getSessionLabel(normalizedSession);
+  const normalizedSession = {
+    id: crypto.randomUUID(),
+    mode: session.mode || "Pattern Rush",
+    timestamp: session.timestamp || new Date().toISOString(),
+    name: session.name || getPlayerName(),
+    score: session.score ?? 0,
+    accuracy: session.accuracy ?? 0,
+    streak: session.streak ?? 0,
+    bestStreak: session.bestStreak ?? session.streak ?? 0,
+    puzzlesAttempted: session.puzzlesAttempted ?? 0,
+    puzzlesCorrect: session.puzzlesCorrect ?? 0,
+    ...session,
+    label: session.label || getSessionLabel(session),
+  };
 
   sessions.push(normalizedSession);
   notifySessionUpdate();

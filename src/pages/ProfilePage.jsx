@@ -123,6 +123,20 @@ function ProfilePage() {
       );
     }
 
+    if (solveRate >= 90) {
+      insights.push(
+        'Solve rate is elite, showing highly efficient puzzle conversion across attempts.',
+      );
+    } else if (solveRate >= 75) {
+      insights.push(
+        'Solve rate is healthy, suggesting a solid balance between output and precision.',
+      );
+    } else {
+      insights.push(
+        'Solve rate is still developing, indicating that accuracy under active attempt volume can improve further.',
+      );
+    }
+
     if (bestStreak >= 10) {
       insights.push(
         'Momentum resilience is strong, with extended streaks sustained during timed play.',
