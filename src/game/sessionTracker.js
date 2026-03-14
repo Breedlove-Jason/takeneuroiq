@@ -1,3 +1,4 @@
+import { getPlayerName } from './playerIdentity';
 const STORAGE_KEY = "takeneuroiq_sessions";
 
 function loadSessions() {
@@ -52,7 +53,7 @@ export function recordSession(session) {
     id: crypto.randomUUID(),
     mode: session.mode || "Pattern Rush",
     timestamp: session.timestamp || new Date().toISOString(),
-    name: session.name || "Arena Runner",
+    name: session.name || getPlayerName(),
     score: session.score ?? 0,
     accuracy: session.accuracy ?? 0,
     streak: session.streak ?? 0,

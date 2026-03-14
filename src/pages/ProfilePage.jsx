@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserAstronaut,
   faClockRotateLeft,
@@ -7,21 +7,29 @@ import {
   faChartLine,
   faBolt,
   faLayerGroup,
-} from '@fortawesome/free-solid-svg-icons';
-import { getSessions, clearSessions } from '../game/sessionTracker';
+} from "@fortawesome/free-solid-svg-icons";
+import { getSessions, clearSessions } from "../game/sessionTracker";
+import { getPlayerName, setPlayerName } from "../game/playerIdentity";
 
 function formatSessionTime(timestamp) {
-  if (!timestamp) return '—';
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  if (!timestamp) return "—";
+  return new Date(timestamp).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
   });
 }
 
 function ProfilePage() {
+  const [playerName, setPlayerNameState] = useState(() => getPlayerName());
+  const [nameInput, setNameInput] = useState(() => getPlayerName());
+  const [nameSaved, setNameSaved] = useState(false);
   const [sessions, setSessions] = useState(() => [...getSessions()]);
+
   const recentSessions = [...sessions].slice(-5).reverse();
 
+  const normalizedNameInput = nameInput.trim();
+  const canSavePlayerName =
+    normalizedNameInput.length > 0 && normalizedNameInput !== playerName;
   const bestScore =
     sessions.length > 0
       ? Math.max(...sessions.map((session) => session.score ?? 0))
@@ -36,7 +44,7 @@ function ProfilePage() {
         )
       : 0;
 
-  const currentRank = sessions.length > 0 ? 'Active' : 'Unranked';
+  const currentRank = sessions.length > 0 ? "Active" : "Unranked";
   const totalSessions = sessions.length;
 
   const averageScore =
@@ -56,56 +64,56 @@ function ProfilePage() {
       : 0;
   const performanceInsight = (() => {
     if (sessions.length === 0) {
-      return 'Complete your first arena run to begin neural performance analysis.';
+      return "Complete your first arena run to begin neural performance analysis.";
     }
 
     const insights = [];
 
     if (averageAccuracy >= 90) {
       insights.push(
-        'Precision is running above baseline, indicating strong pattern recognition control.',
+        "Precision is running above baseline, indicating strong pattern recognition control.",
       );
     } else if (averageAccuracy >= 75) {
       insights.push(
-        'Accuracy is stable, with room to sharpen precision under pressure.',
+        "Accuracy is stable, with room to sharpen precision under pressure.",
       );
     } else {
       insights.push(
-        'Precision remains an active improvement area and may benefit from slower, more controlled runs.',
+        "Precision remains an active improvement area and may benefit from slower, more controlled runs.",
       );
     }
 
     if (bestStreak >= 10) {
       insights.push(
-        'Momentum resilience is strong, with extended streaks sustained during timed play.',
+        "Momentum resilience is strong, with extended streaks sustained during timed play.",
       );
     } else if (bestStreak >= 5) {
       insights.push(
-        'Streak control is forming, though longer momentum chains are still developing.',
+        "Streak control is forming, though longer momentum chains are still developing.",
       );
     } else {
       insights.push(
-        'Momentum breaks quickly, suggesting pressure handling is still stabilizing.',
+        "Momentum breaks quickly, suggesting pressure handling is still stabilizing.",
       );
     }
 
     if (averageScore >= 1000) {
       insights.push(
-        'Scoring efficiency is trending high, pointing to strong processing speed and execution.',
+        "Scoring efficiency is trending high, pointing to strong processing speed and execution.",
       );
     } else if (averageScore >= 600) {
-      insights.push('Scoring output is building steadily across sessions.');
+      insights.push("Scoring output is building steadily across sessions.");
     } else {
       insights.push(
-        'Scoring output is still early-stage, with growth expected as consistency improves.',
+        "Scoring output is still early-stage, with growth expected as consistency improves.",
       );
     }
 
-    return insights.join(' ');
+    return insights.join(" ");
   })();
   const scoreTrend = (() => {
     if (sessions.length < 2) {
-      return 'Not enough sessions yet to detect a score trend.';
+      return "Not enough sessions yet to detect a score trend.";
     }
 
     const recentScores = recentSessions
@@ -118,18 +126,18 @@ function ProfilePage() {
     const difference = lastScore - firstScore;
 
     if (difference >= 100) {
-      return 'Score trend rising. Recent runs show stronger scoring output.';
+      return "Score trend rising. Recent runs show stronger scoring output.";
     }
 
     if (difference <= -100) {
-      return 'Score trend dipping. Recent sessions suggest reduced scoring efficiency.';
+      return "Score trend dipping. Recent sessions suggest reduced scoring efficiency.";
     }
 
-    return 'Score trend stable. Performance output is holding near current baseline.';
+    return "Score trend stable. Performance output is holding near current baseline.";
   })();
   const accuracyTrend = (() => {
     if (sessions.length < 2) {
-      return 'Not enough sessions yet to detect an accuracy trend.';
+      return "Not enough sessions yet to detect an accuracy trend.";
     }
 
     const recentAccuracies = recentSessions
@@ -142,19 +150,19 @@ function ProfilePage() {
     const difference = lastAccuracy - firstAccuracy;
 
     if (difference >= 5) {
-      return 'Accuracy trend rising. Precision control is improving across recent runs.';
+      return "Accuracy trend rising. Precision control is improving across recent runs.";
     }
 
     if (difference <= -5) {
-      return 'Accuracy trend slipping. Precision consistency is dropping under current conditions.';
+      return "Accuracy trend slipping. Precision consistency is dropping under current conditions.";
     }
 
-    return 'Accuracy trend stable. Precision output is holding near current baseline.';
+    return "Accuracy trend stable. Precision output is holding near current baseline.";
   })();
 
   const streakStability = (() => {
     if (sessions.length < 2) {
-      return 'Not enough sessions yet to detect streak stability.';
+      return "Not enough sessions yet to detect streak stability.";
     }
 
     const recentStreaks = recentSessions
@@ -167,14 +175,14 @@ function ProfilePage() {
     const spread = maxStreak - minStreak;
 
     if (spread <= 2) {
-      return 'Streak stability strong. Cognitive momentum is holding consistently across recent runs.';
+      return "Streak stability strong. Cognitive momentum is holding consistently across recent runs.";
     }
 
     if (spread >= 6) {
-      return 'Streak stability volatile. Momentum is fluctuating noticeably between sessions.';
+      return "Streak stability volatile. Momentum is fluctuating noticeably between sessions.";
     }
 
-    return 'Streak stability moderate. Momentum control is forming but not yet fully consistent.';
+    return "Streak stability moderate. Momentum control is forming but not yet fully consistent.";
   })();
 
   const scoreBarMax = Math.max(bestScore, 1500);
@@ -184,7 +192,7 @@ function ProfilePage() {
   const bestStreakPercent = Math.min((bestStreak / 20) * 100, 100);
   const handleResetData = () => {
     const confirmed = window.confirm(
-      'Clear all TakeNeuroIQ session history and leaderboard data?',
+      "Clear all TakeNeuroIQ session history and leaderboard data?",
     );
 
     if (!confirmed) return;
@@ -192,6 +200,34 @@ function ProfilePage() {
     clearSessions();
     setSessions([]);
   };
+
+  const handleSavePlayerName = () => {
+    if (!canSavePlayerName) return;
+
+    const savedName = setPlayerName(nameInput);
+    setPlayerNameState(savedName);
+    setNameInput(savedName);
+    setNameSaved(true);
+  };
+  const handlePlayerNameKeyDown = (event) => {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+
+    if (!canSavePlayerName) return;
+
+    handleSavePlayerName();
+  };
+
+  useEffect(() => {
+    if (!nameSaved) return;
+
+    const timeout = window.setTimeout(() => {
+      setNameSaved(false);
+    }, 2000);
+
+    return () => window.clearTimeout(timeout);
+  }, [nameSaved]);
 
   return (
     <section className="min-h-screen px-6 py-10">
@@ -253,8 +289,37 @@ function ProfilePage() {
                     Player
                   </p>
                   <p className="mt-2 text-lg font-semibold text-white">
-                    Arena Runner
+                    {playerName}
                   </p>
+
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                    <input
+                      type="text"
+                      value={nameInput}
+                      onChange={(event) => setNameInput(event.target.value)}
+                      onKeyDown={handlePlayerNameKeyDown}
+                      placeholder="Enter player name"
+                      className="w-full rounded-xl border border-cyan-400/20 bg-slate-900/80 px-4 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSavePlayerName}
+                      disabled={!canSavePlayerName}
+                      className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                        canSavePlayerName
+                          ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
+                          : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
+                      }`}
+                    >
+                      Save Name
+                    </button>
+                  </div>
+
+                  {nameSaved && (
+                    <p className="mt-2 text-sm font-medium text-emerald-300">
+                      Player name saved.
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -372,7 +437,7 @@ function ProfilePage() {
                       className="grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                     >
                       <span className="font-semibold text-white">
-                        {session.mode || 'Pattern Rush'}
+                        {session.mode || "Pattern Rush"}
                       </span>
                       <span>{session.score ?? 0}</span>
                       <span>{session.accuracy ?? 0}%</span>
