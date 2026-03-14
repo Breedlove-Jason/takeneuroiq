@@ -1,20 +1,20 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrophy,
   faMedal,
   faChartLine,
   faBolt,
   faBrain,
-} from '@fortawesome/free-solid-svg-icons';
-import { useSessionData } from '../hooks/useSessionData';
+} from "@fortawesome/free-solid-svg-icons";
+import { useSessionData } from "../hooks/useSessionData";
 
 function LeaderboardPage() {
   const { leaderboardData } = useSessionData();
   const getPlayerAccuracy = (player) => {
     if (
-      typeof player.puzzlesAttempted === 'number' &&
+      typeof player.puzzlesAttempted === "number" &&
       player.puzzlesAttempted > 0 &&
-      typeof player.puzzlesCorrect === 'number'
+      typeof player.puzzlesCorrect === "number"
     ) {
       return Math.round(
         (player.puzzlesCorrect / player.puzzlesAttempted) * 100,
@@ -123,19 +123,20 @@ function LeaderboardPage() {
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-slate-700/60">
-              <div className="grid grid-cols-[80px_1.4fr_1fr_1fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <div className="grid grid-cols-[80px_1.2fr_1fr_1fr_1fr_1.2fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                 <span>Rank</span>
                 <span>Player</span>
                 <span>Score</span>
                 <span>Accuracy</span>
                 <span>Streak</span>
+                <span>Label</span>
               </div>
 
               {leaderboardData.length > 0 ? (
                 leaderboardData.map((player) => (
                   <div
                     key={`${player.rank}-${player.name}-${player.score}`}
-                    className="grid grid-cols-[80px_1.4fr_1fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                    className="grid grid-cols-[80px_1.2fr_1fr_1fr_1fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                   >
                     <span className="font-bold text-cyan-300">
                       #{player.rank}
@@ -148,6 +149,9 @@ function LeaderboardPage() {
                     <span>{player.score}</span>
                     <span>{getPlayerAccuracy(player)}%</span>
                     <span>{player.streak}</span>
+                    <span className="font-semibold text-fuchsia-300">
+                      {player.label}
+                    </span>
                   </div>
                 ))
               ) : (

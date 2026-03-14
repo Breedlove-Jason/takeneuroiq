@@ -99,5 +99,6 @@ export function getLeaderboardSessions(sourceSessions = sessions) {
       score: session.score ?? 0,
       accuracy: `${session.accuracy ?? 0}%`,
       streak: session.bestStreak ?? session.streak ?? 0,
+      label: session.label ?? "Run",
     }));
 }
