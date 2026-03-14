@@ -70,6 +70,12 @@ function ProfilePage() {
       sum + (session.puzzlesAttempted ?? session.puzzlesSeen ?? 0),
     0,
   );
+
+  const solveRate =
+    totalPuzzlesAttempted > 0
+      ? Math.round((totalPuzzlesSolved / totalPuzzlesAttempted) * 100)
+      : 0;
+
   const averageScore =
     sessions.length > 0
       ? Math.round(
@@ -408,6 +414,14 @@ function ProfilePage() {
                       </p>
                       <p className="mt-2 text-2xl font-bold text-cyan-300">
                         {totalPuzzlesAttempted}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Solve Rate
+                      </p>
+                      <p className="mt-2 text-2xl font-bold text-fuchsia-300">
+                        {solveRate}%
                       </p>
                     </div>
                     <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4 col-span-2">
