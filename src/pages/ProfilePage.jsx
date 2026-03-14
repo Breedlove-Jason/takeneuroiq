@@ -65,6 +65,11 @@ function ProfilePage() {
       sum + (session.puzzlesCorrect ?? session.correctAnswers ?? 0),
     0,
   );
+  const totalPuzzlesAttempted = sessions.reduce(
+    (sum, session) =>
+      sum + (session.puzzlesAttempted ?? session.puzzlesSeen ?? 0),
+    0,
+  );
   const averageScore =
     sessions.length > 0
       ? Math.round(
@@ -397,7 +402,14 @@ function ProfilePage() {
                         {totalPuzzlesSolved}
                       </p>
                     </div>
-
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        Total Attempts
+                      </p>
+                      <p className="mt-2 text-2xl font-bold text-cyan-300">
+                        {totalPuzzlesAttempted}
+                      </p>
+                    </div>
                     <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4 col-span-2">
                       <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                         Sessions Played
