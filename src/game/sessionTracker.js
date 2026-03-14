@@ -49,19 +49,19 @@ function getSessionLabel(session) {
 }
 
 export function recordSession(session) {
-  const normalizedSession = {
-    id: crypto.randomUUID(),
-    mode: session.mode || "Pattern Rush",
-    timestamp: session.timestamp || new Date().toISOString(),
-    name: session.name || getPlayerName(),
-    score: session.score ?? 0,
-    accuracy: session.accuracy ?? 0,
-    streak: session.streak ?? 0,
-    bestStreak: session.bestStreak ?? session.streak ?? 0,
-    ...session,
-  };
-
-  normalizedSession.label = getSessionLabel(normalizedSession);
+const normalizedSession = {
+  id: crypto.randomUUID(),
+  mode: session.mode || "Pattern Rush",
+  timestamp: session.timestamp || new Date().toISOString(),
+  name: session.name || getPlayerName(),
+  score: session.score ?? 0,
+  accuracy: session.accuracy ?? 0,
+  streak: session.streak ?? 0,
+  bestStreak: session.bestStreak ?? session.streak ?? 0,
+  puzzlesAttempted: session.puzzlesAttempted ?? 0,
+  puzzlesCorrect: session.puzzlesCorrect ?? 0,
+  ...session,
+};  normalizedSession.label = getSessionLabel(normalizedSession);
 
   sessions.push(normalizedSession);
   notifySessionUpdate();
