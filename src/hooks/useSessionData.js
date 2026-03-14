@@ -5,12 +5,25 @@ import {
   clearSessions,
 } from '../game/sessionTracker';
 
+function normalizeSession(session) {
+  const puzzlesAttempted = session.puzzlesAttempted ?? session.puzzlesSeen ?? 0;
+  const puzzlesCorrect = session.puzzlesCorrect ?? session.correctAnswers ?? 0;
+
+  return {
+    ...session,
+    puzzlesAttempted,
+    puzzlesCorrect,
+  };
+}
+
 export function useSessionData() {
-  const [sessions, setSessions] = useState(() => [...getSessions()]);
+  const [sessions, setSessions] = useState(() =>
+    getSessions().map(normalizeSession),
+  );
 
   useEffect(() => {
     const handleSessionsUpdated = () => {
-      setSessions([...getSessions()]);
+      setSessions(getSessions().map(normalizeSession));
     };
 
     window.addEventListener(
@@ -36,7 +49,7 @@ export function useSessionData() {
   };
 
   const refreshSessions = () => {
-    setSessions([...getSessions()]);
+    setSessions(getSessions().map(normalizeSession));
   };
 
   return {

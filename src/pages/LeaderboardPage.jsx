@@ -1,16 +1,28 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTrophy,
   faMedal,
   faChartLine,
   faBolt,
   faBrain,
-} from "@fortawesome/free-solid-svg-icons";
-import { useSessionData } from "../hooks/useSessionData";
+} from '@fortawesome/free-solid-svg-icons';
+import { useSessionData } from '../hooks/useSessionData';
 
 function LeaderboardPage() {
   const { leaderboardData } = useSessionData();
+  const getPlayerAccuracy = (player) => {
+    if (
+      typeof player.puzzlesAttempted === 'number' &&
+      player.puzzlesAttempted > 0 &&
+      typeof player.puzzlesCorrect === 'number'
+    ) {
+      return Math.round(
+        (player.puzzlesCorrect / player.puzzlesAttempted) * 100,
+      );
+    }
 
+    return Number.parseInt(player.accuracy, 10) || 0;
+  };
   const topScore =
     leaderboardData.length > 0
       ? Math.max(...leaderboardData.map((player) => player.score))
@@ -19,9 +31,19 @@ function LeaderboardPage() {
   const bestAccuracy =
     leaderboardData.length > 0
       ? Math.max(
-          ...leaderboardData.map(
-            (player) => Number.parseInt(player.accuracy, 10) || 0,
-          ),
+          ...leaderboardData.map((player) => {
+            if (
+              player.puzzlesAttempted &&
+              player.puzzlesCorrect &&
+              player.puzzlesAttempted > 0
+            ) {
+              return Math.round(
+                (player.puzzlesCorrect / player.puzzlesAttempted) * 100,
+              );
+            }
+
+            return Number.parseInt(player.accuracy, 10) || 0;
+          }),
         )
       : 0;
 
@@ -124,7 +146,7 @@ function LeaderboardPage() {
                     </span>
 
                     <span>{player.score}</span>
-                    <span>{player.accuracy}</span>
+                    <span>{getPlayerAccuracy(player)}%</span>
                     <span>{player.streak}</span>
                   </div>
                 ))
