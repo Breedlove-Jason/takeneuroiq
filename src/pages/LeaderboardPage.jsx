@@ -10,18 +10,7 @@ import { useSessionData } from "../hooks/useSessionData";
 
 function LeaderboardPage() {
   const { leaderboardData } = useSessionData();
-  // Build leaderboard using each player's BEST session
-  const bestRunsByPlayer = Object.values(
-    leaderboardData.reduce((acc, session) => {
-      const existing = acc[session.name];
 
-      if (!existing || session.score > existing.score) {
-        acc[session.name] = session;
-      }
-
-      return acc;
-    }, {}),
-  ).sort((a, b) => b.score - a.score);
   const getPlayerAccuracy = (player) => {
     if (
       typeof player.puzzlesAttempted === "number" &&
@@ -35,6 +24,37 @@ function LeaderboardPage() {
 
     return Number.parseInt(player.accuracy, 10) || 0;
   };
+
+  const bestRunsByPlayer = Object.values(
+    leaderboardData.reduce((acc, session) => {
+      const existing = acc[session.name];
+      const sessionPower =
+        session.neuralPower ??
+        session.score +
+          getPlayerAccuracy(session) * 5 +
+          (session.streak ?? 0) * 40;
+      const existingPower =
+        existing?.neuralPower ??
+        (existing?.score ?? 0) +
+          getPlayerAccuracy(existing ?? {}) * 5 +
+          (existing?.streak ?? 0) * 40;
+
+      if (!existing || sessionPower > existingPower) {
+        acc[session.name] = session;
+      }
+
+      return acc;
+    }, {}),
+  ).sort((a, b) => {
+    const aPower =
+      a.neuralPower ??
+      a.score + getPlayerAccuracy(a) * 5 + (a.streak ?? 0) * 40;
+    const bPower =
+      b.neuralPower ??
+      b.score + getPlayerAccuracy(b) * 5 + (b.streak ?? 0) * 40;
+
+    return bPower - aPower;
+  });
   const topScore =
     leaderboardData.length > 0
       ? Math.max(...leaderboardData.map((player) => player.score))
@@ -61,7 +81,11 @@ function LeaderboardPage() {
 
   const longestStreak =
     leaderboardData.length > 0
-      ? Math.max(...leaderboardData.map((player) => player.streak))
+      ? Math.max(
+          ...leaderboardData.map(
+            (player) => player.bestStreak ?? player.streak ?? 0,
+          ),
+        )
       : 0;
 
   return (
@@ -135,21 +159,24 @@ function LeaderboardPage() {
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-slate-700/60">
-              <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr_1.2fr_1.2fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                <span>Mode</span>
+              <div className="grid grid-cols-[0.8fr_1.4fr_1fr_1fr_1fr_1.2fr_1.2fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <span>Rank</span>
+                <span>Player</span>
                 <span>Score</span>
                 <span>Accuracy</span>
                 <span>Streak</span>
                 <span>Label</span>
                 <span>Difficulty</span>
-                <span>When</span>
               </div>
 
               {bestRunsByPlayer.length > 0 ? (
                 bestRunsByPlayer.map((player, index) => (
                   <div
-                    key={`${player.rank}-${player.name}-${player.score}`}
-                    className="grid grid-cols-[1fr_1fr_1fr_1fr_1.2fr_1.2fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                    key={
+                      player.id ??
+                      `${player.name}-${player.score}-${player.timestamp ?? index}`
+                    }
+                    className="grid grid-cols-[0.8fr_1.4fr_1fr_1fr_1fr_1.2fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                   >
                     <span className="font-bold text-cyan-300">
                       #{index + 1}
@@ -161,7 +188,7 @@ function LeaderboardPage() {
 
                     <span>{player.score}</span>
                     <span>{getPlayerAccuracy(player)}%</span>
-                    <span>{player.streak}</span>
+                    <span>{player.bestStreak ?? player.streak ?? 0}</span>
                     <span className="font-semibold text-fuchsia-300">
                       {player.label}
                     </span>

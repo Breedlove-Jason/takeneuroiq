@@ -81,6 +81,22 @@ function getDifficultyBucket(session) {
 
   return "Adaptive";
 }
+function calculateNeuralPower(session) {
+  const score = session.score ?? 0;
+  const streak = session.bestStreak ?? session.streak ?? 0;
+
+  const attempted = session.puzzlesAttempted ?? session.puzzlesSeen ?? 0;
+
+  const correct = session.puzzlesCorrect ?? session.correctAnswers ?? 0;
+
+  const accuracy =
+    attempted > 0 ? correct / attempted : (session.accuracy ?? 0) / 100;
+
+  const accuracyScore = accuracy * 500;
+  const streakScore = streak * 40;
+
+  return Math.round(score + accuracyScore + streakScore);
+}
 
 export function recordSession(session) {
   const normalizedSession = {
@@ -94,6 +110,7 @@ export function recordSession(session) {
     bestStreak: session.bestStreak ?? session.streak ?? 0,
     puzzlesAttempted: session.puzzlesAttempted ?? 0,
     difficultyBucket: session.difficultyBucket || getDifficultyBucket(session),
+    neuralPower: calculateNeuralPower(session),
     ...session,
     puzzlesCorrect: session.puzzlesCorrect ?? 0,
     label: session.label || getSessionLabel(session),
@@ -117,9 +134,14 @@ export function clearSessions() {
     console.error("Failed to clear TakeNeuroIQ sessions:", error);
   }
 }
-export function getLeaderboardSessions(sourceSessions = sessions) {
+
+export function getLeaderboardData(sourceSessions = sessions) {
   return [...sourceSessions]
-    .sort((a, b) => b.score - a.score)
+    .sort(
+      (a, b) =>
+        (b.neuralPower ?? calculateNeuralPower(b)) -
+        (a.neuralPower ?? calculateNeuralPower(a)),
+    )
     .slice(0, 5)
     .map((session, index) => ({
       rank: index + 1,
@@ -128,5 +150,9 @@ export function getLeaderboardSessions(sourceSessions = sessions) {
       accuracy: `${session.accuracy ?? 0}%`,
       streak: session.bestStreak ?? session.streak ?? 0,
       label: session.label ?? "Run",
+      difficultyBucket: session.difficultyBucket ?? "Adaptive",
+      neuralPower: session.neuralPower ?? calculateNeuralPower(session),
+      puzzlesAttempted: session.puzzlesAttempted ?? session.puzzlesSeen ?? 0,
+      puzzlesCorrect: session.puzzlesCorrect ?? session.correctAnswers ?? 0,
     }));
 }
