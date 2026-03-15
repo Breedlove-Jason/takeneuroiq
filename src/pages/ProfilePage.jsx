@@ -8,6 +8,14 @@ import {
   faBolt,
   faLayerGroup,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+} from "recharts";
 import { getSessions, clearSessions } from "../game/sessionTracker";
 import { getPlayerName, setPlayerName } from "../game/playerIdentity";
 
@@ -70,6 +78,7 @@ function ProfilePage() {
       sum + (session.puzzlesCorrect ?? session.correctAnswers ?? 0),
     0,
   );
+
   const totalPuzzlesAttempted = sessions.reduce(
     (sum, session) =>
       sum + (session.puzzlesAttempted ?? session.puzzlesSeen ?? 0),
@@ -107,6 +116,43 @@ function ProfilePage() {
           }, 0) / sessions.length,
         )
       : 0;
+  const precisionScore = Math.min(
+    Math.round((averageAccuracy + solveRate) / 2),
+    100,
+  );
+
+  const momentumScore = Math.min(Math.round((bestStreak / 12) * 100), 100);
+
+  const throughputScore = Math.min(
+    Math.round((averageScore / 1200) * 100),
+    100,
+  );
+
+  const consistencyScore = (() => {
+    if (sessions.length < 2) return 50;
+
+    const recentScores = recentSessions
+      .slice()
+      .reverse()
+      .map((session) => session.score ?? 0);
+
+    const minScore = Math.min(...recentScores);
+    const maxScore = Math.max(...recentScores);
+    const spread = maxScore - minScore;
+
+    if (spread <= 100) return 90;
+    if (spread <= 250) return 75;
+    if (spread <= 400) return 60;
+    return 40;
+  })();
+
+  const radarData = [
+    { skill: "Precision", value: precisionScore },
+    { skill: "Momentum", value: momentumScore },
+    { skill: "Throughput", value: throughputScore },
+    { skill: "Consistency", value: consistencyScore },
+  ];
+
   const performanceInsight = (() => {
     if (sessions.length === 0) {
       return "Complete your first arena run to begin neural performance analysis.";
@@ -639,6 +685,99 @@ function ProfilePage() {
                     <div
                       className="h-full rounded-full bg-yellow-400 transition-all duration-500"
                       style={{ width: `${bestStreakPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                <FontAwesomeIcon icon={faBrain} className="text-cyan-300" />
+                Cognitive Skill Signals
+              </h2>
+
+              <div className="mt-5 h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="rgba(148, 163, 184, 0.25)" />
+                    <PolarAngleAxis
+                      dataKey="skill"
+                      tick={{ fill: "#cbd5e1", fontSize: 12 }}
+                    />
+                    <PolarRadiusAxis
+                      angle={30}
+                      domain={[0, 100]}
+                      tick={{ fill: "#64748b", fontSize: 10 }}
+                    />
+                    <Radar
+                      name="Cognitive Profile"
+                      dataKey="value"
+                      stroke="#22d3ee"
+                      fill="#22d3ee"
+                      fillOpacity={0.35}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Precision</span>
+                    <span className="font-semibold text-cyan-300">
+                      {precisionScore}
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-cyan-400 transition-all duration-500"
+                      style={{ width: `${precisionScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Momentum</span>
+                    <span className="font-semibold text-fuchsia-300">
+                      {momentumScore}
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-fuchsia-400 transition-all duration-500"
+                      style={{ width: `${momentumScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Throughput</span>
+                    <span className="font-semibold text-emerald-300">
+                      {throughputScore}
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-emerald-400 transition-all duration-500"
+                      style={{ width: `${throughputScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Consistency</span>
+                    <span className="font-semibold text-yellow-300">
+                      {consistencyScore}
+                    </span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-yellow-400 transition-all duration-500"
+                      style={{ width: `${consistencyScore}%` }}
                     />
                   </div>
                 </div>
