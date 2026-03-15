@@ -135,7 +135,7 @@ export function clearSessions() {
   }
 }
 
-export function getLeaderboardData(sourceSessions = sessions) {
+export function getLeaderboardSessions(sourceSessions = sessions) {
   return [...sourceSessions]
     .sort(
       (a, b) =>
