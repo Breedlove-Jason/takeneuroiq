@@ -9,7 +9,7 @@ import {
 import { useSessionData } from "../hooks/useSessionData";
 
 function LeaderboardPage() {
-  const { leaderboardData } = useSessionData();
+  const { sessions, leaderboardData } = useSessionData();
 
   const getPlayerAccuracy = (player) => {
     if (
@@ -25,45 +25,16 @@ function LeaderboardPage() {
     return Number.parseInt(player.accuracy, 10) || 0;
   };
 
-  const bestRunsByPlayer = Object.values(
-    leaderboardData.reduce((acc, session) => {
-      const existing = acc[session.name];
-      const sessionPower =
-        session.neuralPower ??
-        session.score +
-          getPlayerAccuracy(session) * 5 +
-          (session.streak ?? 0) * 40;
-      const existingPower =
-        existing?.neuralPower ??
-        (existing?.score ?? 0) +
-          getPlayerAccuracy(existing ?? {}) * 5 +
-          (existing?.streak ?? 0) * 40;
-
-      if (!existing || sessionPower > existingPower) {
-        acc[session.name] = session;
-      }
-
-      return acc;
-    }, {}),
-  ).sort((a, b) => {
-    const aPower =
-      a.neuralPower ??
-      a.score + getPlayerAccuracy(a) * 5 + (a.streak ?? 0) * 40;
-    const bPower =
-      b.neuralPower ??
-      b.score + getPlayerAccuracy(b) * 5 + (b.streak ?? 0) * 40;
-
-    return bPower - aPower;
-  });
   const topScore =
-    leaderboardData.length > 0
-      ? Math.max(...leaderboardData.map((player) => player.score))
+    sessions.length > 0
+      ? Math.max(...sessions.map((player) => Number(player?.score) || 0))
       : 0;
 
   const bestAccuracy =
-    leaderboardData.length > 0
+    sessions.length > 0
       ? Math.max(
-          ...leaderboardData.map((player) => {
+          ...sessions.map((player) => {
+            if (!player) return 0;
             if (
               player.puzzlesAttempted &&
               player.puzzlesCorrect &&
@@ -80,10 +51,10 @@ function LeaderboardPage() {
       : 0;
 
   const longestStreak =
-    leaderboardData.length > 0
+    sessions.length > 0
       ? Math.max(
-          ...leaderboardData.map(
-            (player) => player.bestStreak ?? player.streak ?? 0,
+          ...sessions.map(
+            (player) => Number(player?.bestStreak ?? player?.streak) || 0,
           ),
         )
       : 0;
@@ -169,8 +140,8 @@ function LeaderboardPage() {
                 <span>Difficulty</span>
               </div>
 
-              {bestRunsByPlayer.length > 0 ? (
-                bestRunsByPlayer.map((player, index) => (
+              {leaderboardData.length > 0 ? (
+                leaderboardData.map((player, index) => (
                   <div
                     key={
                       player.id ??
@@ -179,7 +150,7 @@ function LeaderboardPage() {
                     className="grid grid-cols-[0.8fr_1.4fr_1fr_1fr_1fr_1.2fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                   >
                     <span className="font-bold text-cyan-300">
-                      #{index + 1}
+                      #{player.rank}
                     </span>
 
                     <span className="font-semibold text-white">
