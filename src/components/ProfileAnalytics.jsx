@@ -21,6 +21,39 @@ function ProfileAnalytics() {
   const neuralTrend = calculateNeuralTrend(recentTrendData);
   const trendSessionCount = recentTrendData.length;
 
+  const trendStartPower =
+    trendSessionCount > 0 ? recentTrendData[0].neuralPower : 0;
+
+  const trendLatestPower =
+    trendSessionCount > 0
+      ? recentTrendData[trendSessionCount - 1].neuralPower
+      : 0;
+
+  const recentAverageNeuralPower =
+    trendSessionCount > 0
+      ? Math.round(
+          recentTrendData.reduce(
+            (sum, session) => sum + session.neuralPower,
+            0,
+          ) / trendSessionCount,
+        )
+      : 0;
+
+  const lifetimeSessionCount = neuralPowerTrendData.length;
+
+  const lifetimeAverageNeuralPower =
+    lifetimeSessionCount > 0
+      ? Math.round(
+          neuralPowerTrendData.reduce(
+            (sum, session) => sum + session.neuralPower,
+            0,
+          ) / lifetimeSessionCount,
+        )
+      : 0;
+
+  const recentVsLifetimeDelta =
+    recentAverageNeuralPower - lifetimeAverageNeuralPower;
+
   const trendToneMap = {
     improving: {
       label: "Improving",
@@ -81,6 +114,61 @@ function ProfileAnalytics() {
               {trendDisplay.subtext} Based on your last {trendSessionCount}{" "}
               {trendSessionCount === 1 ? "session" : "sessions"}.
             </p>
+
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Sessions
+                </p>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  {trendSessionCount}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Start NP
+                </p>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  {trendStartPower}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Latest NP
+                </p>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  {trendLatestPower}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Delta
+                </p>
+                <p
+                  className={`mt-2 text-lg font-semibold ${trendDisplay.className}`}
+                >
+                  {neuralTrend.change > 0 ? "+" : ""}
+                  {neuralTrend.change}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Vs Lifetime
+                </p>
+                <p
+                  className={`mt-2 text-lg font-semibold ${
+                    recentVsLifetimeDelta >= 0 ? "text-emerald-300" : "text-rose-300"
+                  }`}
+                >
+                  {recentVsLifetimeDelta > 0 ? "+" : ""}
+                  {recentVsLifetimeDelta}
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="text-right">
@@ -96,15 +184,22 @@ function ProfileAnalytics() {
       </div>
 
       <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-white">
-            Neural Power History
-          </h3>
-          <p className="text-sm text-slate-400">
-            Track how your recent performance is trending across sessions.
-          </p>
-        </div>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-white">
+              Neural Power History
+            </h3>
+            <p className="text-sm text-slate-400">
+              Track how your recent performance is trending across sessions.
+            </p>
+          </div>
 
+          <div
+            className={`rounded-full border border-slate-700 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${trendDisplay.className}`}
+          >
+            {trendDisplay.symbol} {trendDisplay.label}
+          </div>
+        </div>
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={neuralPowerTrendData}>
@@ -116,6 +211,24 @@ function ProfileAnalytics() {
                 labelFormatter={(label, payload) => {
                   const point = payload?.[0]?.payload;
                   return point?.date || label;
+                }}
+                contentStyle={{
+                  backgroundColor: "#020617",
+                  border: "1px solid #0f172a",
+                  borderRadius: "10px",
+                  color: "#e2e8f0",
+                }}
+                labelStyle={{
+                  color: "#67e8f9",
+                  fontWeight: 600,
+                }}
+                itemStyle={{
+                  color: "#e2e8f0",
+                }}
+                cursor={{
+                  stroke: "#22d3ee",
+                  strokeWidth: 1,
+                  strokeDasharray: "4 4",
                 }}
               />
               <Line
