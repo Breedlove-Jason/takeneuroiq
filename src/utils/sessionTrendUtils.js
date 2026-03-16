@@ -1,0 +1,37 @@
+export function buildNeuralPowerTrendData(sessions = []) {
+  if (!Array.isArray(sessions) || sessions.length === 0) {
+    return [];
+  }
+
+  return [...sessions]
+    .filter((session) => session && typeof session === "object")
+    .sort((a, b) => {
+      const aTime = new Date(a.timestamp || 0).getTime();
+      const bTime = new Date(b.timestamp || 0).getTime();
+      return aTime - bTime;
+    })
+    .map((session, index) => {
+      const neuralPower =
+        typeof session.neuralPower === "number" ? session.neuralPower : 0;
+
+      const score = typeof session.score === "number" ? session.score : 0;
+      const accuracy =
+        typeof session.accuracy === "number" ? session.accuracy : 0;
+      const bestStreak =
+        typeof session.bestStreak === "number" ? session.bestStreak : 0;
+
+      const date = session.timestamp
+        ? new Date(session.timestamp).toLocaleDateString()
+        : `Session ${index + 1}`;
+
+      return {
+        session: index + 1,
+        label: `S${index + 1}`,
+        date,
+        neuralPower: Math.round(neuralPower),
+        score: Math.round(score),
+        accuracy: Number(accuracy.toFixed(1)),
+        bestStreak,
+      };
+    });
+}
