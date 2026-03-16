@@ -57,3 +57,51 @@ export function calculateNeuralTrend(trendData = []) {
   return { direction, change };
 }
 
+export function calculatePressureState(trendData = []) {
+  if (!Array.isArray(trendData) || trendData.length < 3) {
+    return {
+      state: "neutral",
+      label: "Not Enough Data",
+      detail: "Complete a few more sessions to detect pressure patterns.",
+    };
+  }
+
+  const recent = trendData.slice(-5);
+
+  const avgAccuracy =
+    recent.reduce((sum, session) => sum + (session.accuracy || 0), 0) /
+    recent.length;
+
+  const avgStreak =
+    recent.reduce((sum, session) => sum + (session.bestStreak || 0), 0) /
+    recent.length;
+
+  const avgScore =
+    recent.reduce((sum, session) => sum + (session.score || 0), 0) /
+    recent.length;
+
+  if (avgAccuracy >= 80 && avgStreak <= 5) {
+    return {
+      state: "under-pressure",
+      label: "Under Pressure",
+      detail:
+        "Accuracy is holding up, but streak control is slipping under sustained play.",
+    };
+  }
+
+  if (avgAccuracy >= 80 && avgStreak >= 8 && avgScore >= 700) {
+    return {
+      state: "locked-in",
+      label: "Locked In",
+      detail:
+        "Recent sessions show strong accuracy, stable streaks, and confident output.",
+    };
+  }
+
+  return {
+    state: "stable",
+    label: "Stable Load",
+    detail:
+      "Recent sessions show a balanced performance pattern without major pressure signals.",
+  };
+}

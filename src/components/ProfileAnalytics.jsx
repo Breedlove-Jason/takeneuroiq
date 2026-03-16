@@ -1,6 +1,7 @@
 import {
   buildNeuralPowerTrendData,
   calculateNeuralTrend,
+  calculatePressureState
 } from "../utils/sessionTrendUtils";
 
 import { useSessionData } from "../hooks/useSessionData";
@@ -20,6 +21,8 @@ function ProfileAnalytics() {
   const recentTrendData = neuralPowerTrendData.slice(-5);
   const neuralTrend = calculateNeuralTrend(recentTrendData);
   const trendSessionCount = recentTrendData.length;
+  const pressureState = calculatePressureState(recentTrendData);
+  
 
   const trendStartPower =
     trendSessionCount > 0 ? recentTrendData[0].neuralPower : 0;
@@ -110,6 +113,32 @@ function ProfileAnalytics() {
   const trendDisplay =
     trendToneMap[neuralTrend.direction] || trendToneMap.neutral;
 
+  const pressureToneMap = {
+    "under-pressure": {
+      className: "text-amber-300",
+      borderClass: "border-amber-500/20",
+      accentClass: "text-amber-300/80",
+    },
+    "locked-in": {
+      className: "text-emerald-300",
+      borderClass: "border-emerald-500/20",
+      accentClass: "text-emerald-300/80",
+    },
+    stable: {
+      className: "text-cyan-300",
+      borderClass: "border-cyan-500/20",
+      accentClass: "text-cyan-300/80",
+    },
+    neutral: {
+      className: "text-slate-300",
+      borderClass: "border-slate-700",
+      accentClass: "text-slate-400",
+    },
+  };
+
+  const pressureDisplay =
+    pressureToneMap[pressureState.state] || pressureToneMap.neutral;
+
   if (neuralPowerTrendData.length === 0) {
     return (
       <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-6 text-center">
@@ -125,7 +154,9 @@ function ProfileAnalytics() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+      <div
+        className={`rounded-2xl border bg-slate-900/70 p-4 ${pressureDisplay.borderClass}`}
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300/80">
@@ -213,6 +244,24 @@ function ProfileAnalytics() {
         </div>
 
         <p className="mt-4 text-sm text-slate-400">{trendSummary}</p>
+      </div>
+
+      <div
+        className={`rounded-2xl border bg-slate-900/70 p-4 ${pressureDisplay.borderClass}`}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p
+              className={`text-xs font-semibold uppercase tracking-[0.25em] ${pressureDisplay.accentClass}`}
+            >
+              Cognitive Pressure
+            </p>
+            <h3 className={`mt-2 text-xl font-semibold ${pressureDisplay.className}`}>
+              {pressureState.label}
+            </h3>
+            <p className="mt-2 text-sm text-slate-400">{pressureState.detail}</p>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
