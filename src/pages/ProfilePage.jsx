@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserAstronaut,
@@ -32,6 +32,11 @@ function ProfilePage() {
   const [nameInput, setNameInput] = useState(() => getPlayerName());
   const [nameSaved, setNameSaved] = useState(false);
   const [sessions, setSessions] = useState(() => [...getSessions()]);
+  const chartContainerRef = useRef(null);
+  const [chartDimensions, setChartDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
 
   const recentSessions = [...sessions].slice(-5).reverse();
 
@@ -116,34 +121,99 @@ function ProfilePage() {
           }, 0) / sessions.length,
         )
       : 0;
-  const precisionScore = Math.min(
-    Math.round((averageAccuracy + solveRate) / 2),
-    100,
+
+  function weightedAverage(values) {
+    if (!values.length) return 0;
+
+    const weights = values.map((_, index) => index + 1);
+    const weightedSum = values.reduce(
+      (sum, value, index) => sum + value * weights[index],
+      0,
+    );
+
+    const weightTotal = weights.reduce((a, b) => a + b, 0);
+
+    return weightedSum / weightTotal;
+  }
+
+  const weightedAccuracy = Math.round(
+    weightedAverage(
+      recentSessions
+        .slice()
+        .reverse()
+        .map((session) => getSessionAccuracy(session)),
+    ),
   );
 
-  const momentumScore = Math.min(Math.round((bestStreak / 12) * 100), 100);
+  const weightedScore = Math.round(
+    weightedAverage(
+      recentSessions
+        .slice()
+        .reverse()
+        .map((session) => session.score ?? 0),
+    ),
+  );
+  const weightedStreak = Math.round(
+    weightedAverage(
+      recentSessions
+        .slice()
+        .reverse()
+        .map((session) => session.bestStreak ?? session.streak ?? 0),
+    ),
+  );
+
+  const precisionScore = Math.min(
+    Math.round((weightedAccuracy + solveRate) / 2),
+    100,
+  );
+  const momentumScore = Math.min(
+    Math.round(((bestStreak + weightedStreak) / 2 / 12) * 100),
+    100,
+  );
 
   const throughputScore = Math.min(
-    Math.round((averageScore / 1200) * 100),
+    Math.round((weightedScore / 1200) * 100),
     100,
   );
-
   const consistencyScore = (() => {
     if (sessions.length < 2) return 50;
 
-    const recentScores = recentSessions
-      .slice()
-      .reverse()
-      .map((session) => session.score ?? 0);
+    const recentSessionSlice = recentSessions.slice().reverse();
 
-    const minScore = Math.min(...recentScores);
-    const maxScore = Math.max(...recentScores);
-    const spread = maxScore - minScore;
+    const recentScores = recentSessionSlice.map(
+      (session) => session.score ?? 0,
+    );
+    const recentAccuracies = recentSessionSlice.map((session) =>
+      getSessionAccuracy(session),
+    );
+    const recentStreaks = recentSessionSlice.map(
+      (session) => session.bestStreak ?? session.streak ?? 0,
+    );
 
-    if (spread <= 100) return 90;
-    if (spread <= 250) return 75;
-    if (spread <= 400) return 60;
-    return 40;
+    const scoreSpread = Math.max(...recentScores) - Math.min(...recentScores);
+    const accuracySpread =
+      Math.max(...recentAccuracies) - Math.min(...recentAccuracies);
+    const streakSpread =
+      Math.max(...recentStreaks) - Math.min(...recentStreaks);
+
+    let scoreComponent = 40;
+    if (scoreSpread <= 100) scoreComponent = 90;
+    else if (scoreSpread <= 250) scoreComponent = 75;
+    else if (scoreSpread <= 400) scoreComponent = 60;
+
+    let accuracyComponent = 40;
+    if (accuracySpread <= 5) accuracyComponent = 90;
+    else if (accuracySpread <= 10) accuracyComponent = 75;
+    else if (accuracySpread <= 20) accuracyComponent = 60;
+
+    let streakComponent = 40;
+    if (streakSpread <= 2) streakComponent = 90;
+    else if (streakSpread <= 4) streakComponent = 75;
+    else if (streakSpread <= 6) streakComponent = 60;
+
+    return Math.round(
+      (scoreComponent + accuracyComponent + streakComponent) / 3,
+    );
   })();
 
   const radarData = [
@@ -353,6 +423,34 @@ function ProfilePage() {
       );
     };
   }, [playerName]);
+
+  useEffect(() => {
+    const chartContainer = chartContainerRef.current;
+    if (!chartContainer) return undefined;
+
+    const updateChartDimensions = () => {
+      const nextWidth = chartContainer.clientWidth;
+      const nextHeight = chartContainer.clientHeight;
+
+      setChartDimensions((previousDimensions) => {
+        if (
+          previousDimensions.width === nextWidth &&
+          previousDimensions.height === nextHeight
+        ) {
+          return previousDimensions;
+        }
+
+        return { width: nextWidth, height: nextHeight };
+      });
+    };
+
+    updateChartDimensions();
+
+    const observer = new ResizeObserver(updateChartDimensions);
+    observer.observe(chartContainer);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section className="min-h-screen px-6 py-10">
@@ -697,28 +795,40 @@ function ProfilePage() {
                 Cognitive Skill Signals
               </h2>
 
-              <div className="mt-5 h-80 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={radarData}>
-                    <PolarGrid stroke="rgba(148, 163, 184, 0.25)" />
-                    <PolarAngleAxis
-                      dataKey="skill"
-                      tick={{ fill: "#cbd5e1", fontSize: 12 }}
-                    />
-                    <PolarRadiusAxis
-                      angle={30}
-                      domain={[0, 100]}
-                      tick={{ fill: "#64748b", fontSize: 10 }}
-                    />
-                    <Radar
-                      name="Cognitive Profile"
-                      dataKey="value"
-                      stroke="#22d3ee"
-                      fill="#22d3ee"
-                      fillOpacity={0.35}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
+              <div
+                ref={chartContainerRef}
+                className="mt-5 h-80 min-h-[20rem] w-full min-w-0"
+              >
+                {chartDimensions.width > 0 && chartDimensions.height > 0 ? (
+                  <ResponsiveContainer
+                    width="100%"
+                    height="100%"
+                    minWidth={0}
+                    minHeight={320}
+                  >
+                    <RadarChart data={radarData}>
+                      <PolarGrid stroke="rgba(148, 163, 184, 0.25)" />
+                      <PolarAngleAxis
+                        dataKey="skill"
+                        tick={{ fill: "#cbd5e1", fontSize: 12 }}
+                      />
+                      <PolarRadiusAxis
+                        angle={30}
+                        domain={[0, 100]}
+                        tick={{ fill: "#64748b", fontSize: 10 }}
+                      />
+                      <Radar
+                        name="Cognitive Profile"
+                        dataKey="value"
+                        stroke="#22d3ee"
+                        fill="#22d3ee"
+                        fillOpacity={0.35}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full w-full rounded-2xl bg-slate-800/60" />
+                )}
               </div>
 
               <div className="mt-5 space-y-4">
