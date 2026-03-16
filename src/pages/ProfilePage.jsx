@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import { getSessions, clearSessions } from "../game/sessionTracker";
 import { getPlayerName, setPlayerName } from "../game/playerIdentity";
+import ProfileAnalytics from "../components/ProfileAnalytics";
 
 function formatSessionTime(timestamp) {
   if (!timestamp) return "—";
@@ -665,6 +666,7 @@ function ProfilePage() {
           </aside>
 
           <div className="space-y-6">
+            <ProfileAnalytics />
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                 <FontAwesomeIcon
