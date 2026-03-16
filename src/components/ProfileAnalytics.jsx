@@ -54,6 +54,32 @@ function ProfileAnalytics() {
   const recentVsLifetimeDelta =
     recentAverageNeuralPower - lifetimeAverageNeuralPower;
 
+  const getTrendSummary = () => {
+    if (trendSessionCount < 2) {
+      return "Complete a few more sessions to generate a reliable neural performance summary.";
+    }
+
+    if (neuralTrend.direction === "improving") {
+      if (recentVsLifetimeDelta > 0) {
+        return "Recent neural performance is improving and running above your long-term baseline.";
+      }
+
+      return "Recent neural performance is improving, with signs of stronger session execution.";
+    }
+
+    if (neuralTrend.direction === "declining") {
+      if (recentVsLifetimeDelta < 0) {
+        return "Recent neural performance has dipped and is currently tracking below your long-term baseline.";
+      }
+
+      return "Recent neural performance has softened slightly, though your broader baseline remains intact.";
+    }
+
+    return "Recent neural performance is stable, showing a steady training rhythm across sessions.";
+  };
+
+  const trendSummary = getTrendSummary();
+
   const trendToneMap = {
     improving: {
       label: "Improving",
@@ -110,10 +136,14 @@ function ProfileAnalytics() {
             >
               {trendDisplay.symbol} {trendDisplay.label}
             </h3>
-            <p className="mt-2 text-sm text-slate-400">
-              {trendDisplay.subtext} Based on your last {trendSessionCount}{" "}
-              {trendSessionCount === 1 ? "session" : "sessions"}.
-            </p>
+<p className="mt-2 text-sm text-slate-400">
+  {trendSummary}
+</p>
+
+<p className="mt-1 text-xs text-slate-500">
+  Based on your last {trendSessionCount}{" "}
+  {trendSessionCount === 1 ? "session" : "sessions"}.
+</p>
 
             <div className="mt-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
@@ -181,6 +211,8 @@ function ProfileAnalytics() {
             </p>
           </div>
         </div>
+
+        <p className="mt-4 text-sm text-slate-400">{trendSummary}</p>
       </div>
 
       <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
