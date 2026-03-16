@@ -666,57 +666,13 @@ function ProfilePage() {
           </aside>
 
           <div className="space-y-6">
-            <ProfileAnalytics />
-            <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
-              <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                <FontAwesomeIcon
-                  icon={faClockRotateLeft}
-                  className="text-cyan-300"
-                />
-                Recent Sessions
-              </h2>
-
-              <div className="mt-4 rounded-2xl border border-slate-700/60">
-                <div className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  <span>Mode</span>
-                  <span>Score</span>
-                  <span>Accuracy</span>
-                  <span>Streak</span>
-                  <span>Run Data</span>
-                  <span>When</span>
-                </div>{" "}
-                {recentSessions.length > 0 ? (
-                  recentSessions.map((session, index) => (
-                    <div
-                      key={`${session.score ?? 0}-${index}`}
-                      className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
-                    >
-                      <span className="font-semibold text-white">
-                        {session.mode || "Pattern Rush"}
-                      </span>
-                      <span>{session.score ?? 0}</span>
-                      <span>{getSessionAccuracy(session)}%</span>
-                      <span>{session.bestStreak ?? session.streak ?? 0}</span>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-fuchsia-300">
-                          {session.label}
-                        </span>
-                        <span className="font-bold text-yellow-300">
-                          NP: {session.neuralPower ?? 0}
-                        </span>
-                      </div>
-                      <span className="text-slate-400">
-                        {formatSessionTime(session.timestamp)}
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
-                    No recorded sessions yet. Complete a run to build your
-                    profile history.
-                  </div>
-                )}
-              </div>
+            <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/40 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-300/80">
+                Cognitive Analytics
+              </p>
+              <p className="mt-1 text-sm text-slate-400">
+                Track performance, neural growth, and recent training behavior.
+              </p>
             </div>
 
             <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
@@ -790,6 +746,8 @@ function ProfilePage() {
                 </div>
               </div>
             </div>
+
+            <ProfileAnalytics />
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
@@ -893,6 +851,58 @@ function ProfilePage() {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                <FontAwesomeIcon
+                  icon={faClockRotateLeft}
+                  className="text-cyan-300"
+                />
+                Recent Sessions
+              </h2>
+
+              <div className="mt-4 rounded-2xl border border-slate-700/60">
+                <div className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <span>Mode</span>
+                  <span>Score</span>
+                  <span>Accuracy</span>
+                  <span>Streak</span>
+                  <span>Run Data</span>
+                  <span>When</span>
+                </div>{" "}
+                {recentSessions.length > 0 ? (
+                  recentSessions.map((session, index) => (
+                    <div
+                      key={`${session.score ?? 0}-${index}`}
+                      className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                    >
+                      <span className="font-semibold text-white">
+                        {session.mode || "Pattern Rush"}
+                      </span>
+                      <span>{session.score ?? 0}</span>
+                      <span>{getSessionAccuracy(session)}%</span>
+                      <span>{session.bestStreak ?? session.streak ?? 0}</span>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-fuchsia-300">
+                          {session.label}
+                        </span>
+                        <span className="font-bold text-yellow-300">
+                          NP: {session.neuralPower ?? 0}
+                        </span>
+                      </div>
+                      <span className="text-slate-400">
+                        {formatSessionTime(session.timestamp)}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
+                    No recorded sessions yet. Complete a run to build your
+                    profile history.
+                  </div>
+                )}
               </div>
             </div>
 

@@ -35,3 +35,25 @@ export function buildNeuralPowerTrendData(sessions = []) {
       };
     });
 }
+
+export function calculateNeuralTrend(trendData = []) {
+  if (!Array.isArray(trendData) || trendData.length < 2) {
+    return { direction: "neutral", change: 0 };
+  }
+
+  const first = trendData[0].neuralPower ?? 0;
+  const last = trendData[trendData.length - 1].neuralPower ?? 0;
+  const change = Math.round(last - first);
+
+  let direction;
+  if (change > 5) {
+    direction = "improving";
+  } else if (change < -5) {
+    direction = "declining";
+  } else {
+    direction = "stable";
+  }
+
+  return { direction, change };
+}
+
