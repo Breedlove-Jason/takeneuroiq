@@ -29,7 +29,11 @@ function ProfileAnalytics({
   const neuralPowerTrendData = buildNeuralPowerTrendData(sessions);
   const recentTrendData = neuralPowerTrendData.slice(-5);
   const localNeuralTrend = calculateNeuralTrend(recentTrendData);
-  const neuralTrend = propNeuralTrend ?? localNeuralTrend;
+  const neuralTrend =
+    propNeuralTrend ?? {
+      direction: "neutral",
+      change: 0,
+    };
   const trendSessionCount = recentTrendData.length;
 
   const localPressureState = calculatePressureState(recentTrendData);
@@ -75,8 +79,8 @@ function ProfileAnalytics({
   const consistencyScore = cognitiveTracks.consistency;
 
   const localAdaptiveDifficulty = calculateAdaptiveDifficulty({
-    neuralTrend: localNeuralTrend,
-    pressureState: localPressureState,
+    neuralTrend,
+    pressureState,
     cognitiveTracks: {
       patternRecognition: precisionScore,
       focusStability: consistencyScore,
@@ -94,8 +98,8 @@ function ProfileAnalytics({
       processingSpeed: throughputScore,
       consistency: consistencyScore,
     },
-    neuralTrend: localNeuralTrend,
-    pressureState: localPressureState,
+    neuralTrend,
+    pressureState,
     adaptiveDifficulty: localAdaptiveDifficulty,
   });
 
