@@ -18,13 +18,21 @@ import { generateCoachingInsight } from "../analytics/coachingEngine";
 import { calculateCognitiveTracks } from "../analytics/cognitiveTracks";
 import { calculateAdaptiveDifficulty } from "../analytics/adaptiveDifficulty";
 
-function ProfileAnalytics() {
+function ProfileAnalytics({
+  cognitiveTracks: propCognitiveTracks,
+  neuralTrend: propNeuralTrend,
+  pressureState: propPressureState,
+  adaptiveDifficulty: propAdaptiveDifficulty,
+  coachingInsight: propCoachingInsight,
+}) {
   const { sessions } = useSessionData();
   const neuralPowerTrendData = buildNeuralPowerTrendData(sessions);
   const recentTrendData = neuralPowerTrendData.slice(-5);
-  const neuralTrend = calculateNeuralTrend(recentTrendData);
+  const localNeuralTrend = calculateNeuralTrend(recentTrendData);
+  const neuralTrend = propNeuralTrend ?? localNeuralTrend;
   const trendSessionCount = recentTrendData.length;
-  const pressureState = calculatePressureState(recentTrendData);
+  const localPressureState = calculatePressureState(recentTrendData);
+  const pressureState = propPressureState ?? localPressureState;
 
   const trendStartPower =
     trendSessionCount > 0 ? recentTrendData[0].neuralPower : 0;
@@ -59,16 +67,18 @@ function ProfileAnalytics() {
   const recentVsLifetimeDelta =
     recentAverageNeuralPower - lifetimeAverageNeuralPower;
 
-  const cognitiveTracks = calculateCognitiveTracks(sessions);
+  const cognitiveTracks = propCognitiveTracks || calculateCognitiveTracks(sessions);
   const precisionScore = cognitiveTracks.patternRecognition;
   const throughputScore = cognitiveTracks.processingSpeed;
   const consistencyScore = cognitiveTracks.consistency;
 
-  const adaptiveDifficulty = calculateAdaptiveDifficulty({
+  const localAdaptiveDifficulty = calculateAdaptiveDifficulty({
     neuralTrend,
     pressureState,
     cognitiveTracks,
   });
+
+  const adaptiveDifficulty = propAdaptiveDifficulty ?? localAdaptiveDifficulty;
   const getTrendSummary = () => {
     if (trendSessionCount < 2) {
       return "Complete a few more sessions to generate a reliable neural performance summary.";
@@ -95,17 +105,19 @@ function ProfileAnalytics() {
 
   const trendSummary = getTrendSummary();
 
-  const coachingInsight = generateCoachingInsight({
+  const localCoachingInsight = generateCoachingInsight({
     cognitiveTracks: {
       patternRecognition: precisionScore,
       focusStability: consistencyScore,
       processingSpeed: throughputScore,
       consistency: consistencyScore,
     },
-    neuralTrend,
-    pressureState,
-    adaptiveDifficulty,
+    neuralTrend: neuralTrend,
+    pressureState: pressureState,
+    adaptiveDifficulty: adaptiveDifficulty,
   });
+
+  const coachingInsight = propCoachingInsight ?? localCoachingInsight;
 
   const trendToneMap = {
     improving: {

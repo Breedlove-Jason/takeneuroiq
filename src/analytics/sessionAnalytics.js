@@ -1,17 +1,21 @@
 import { calculateAdaptiveDifficulty } from "./adaptiveDifficulty";
 import { generateCoachingInsight } from "./coachingEngine";
 import { buildCognitiveTracks } from "./cognitiveTracks";
-import { calculateNeuralTrend } from "../utils/sessionTrendUtils";
-import { calculatePressureState } from "../utils/sessionTrendUtils";
+import {
+  buildNeuralPowerTrendData,
+  calculateNeuralTrend,
+  calculatePressureState,
+} from "../utils/sessionTrendUtils";
 
 export function buildSessionAnalytics(sessions) {
   if (!sessions || sessions.length === 0) {
     return null;
   }
 
+  const trendData = buildNeuralPowerTrendData(sessions);
   const cognitiveTracks = buildCognitiveTracks(sessions);
-  const neuralTrend = calculateNeuralTrend(sessions);
-  const pressureState = calculatePressureState(sessions);
+  const neuralTrend = calculateNeuralTrend(trendData);
+  const pressureState = calculatePressureState(trendData);
 
   const adaptiveDifficulty = calculateAdaptiveDifficulty({
     neuralTrend,

@@ -57,7 +57,7 @@ function ProfilePage() {
   } = analytics || {};
 
   const agentSummary = analytics
-    ? `${analytics.coachingInsight.summary} ${analytics.coachingInsight.detail}`.trim()
+    ? `${coachingInsight.summary} ${coachingInsight.detail}`.trim()
     : "Complete your first session to unlock AI coaching insights.";
 
   const normalizedNameInput = nameInput.trim();
@@ -704,7 +704,13 @@ function ProfilePage() {
               </div>
             </div>
 
-            <ProfileAnalytics />
+            <ProfileAnalytics
+              cognitiveTracks={cognitiveTracks}
+              neuralTrend={neuralTrend}
+              pressureState={pressureState}
+              adaptiveDifficulty={adaptiveDifficulty}
+              coachingInsight={coachingInsight}
+            />
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
