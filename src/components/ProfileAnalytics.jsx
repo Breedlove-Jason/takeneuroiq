@@ -21,7 +21,7 @@ import { calculateAdaptiveDifficulty } from "../analytics/adaptiveDifficulty";
 function ProfileAnalytics({
   cognitiveTracks: propCognitiveTracks,
   neuralTrend: propNeuralTrend,
-  pressureState: propPressureState,
+  pressureState: sharedPressureState,
   adaptiveDifficulty: propAdaptiveDifficulty,
   coachingInsight: propCoachingInsight,
 }) {
@@ -31,8 +31,9 @@ function ProfileAnalytics({
   const localNeuralTrend = calculateNeuralTrend(recentTrendData);
   const neuralTrend = propNeuralTrend ?? localNeuralTrend;
   const trendSessionCount = recentTrendData.length;
+
   const localPressureState = calculatePressureState(recentTrendData);
-  const pressureState = propPressureState ?? localPressureState;
+  const pressureState = sharedPressureState ?? localPressureState;
 
   const trendStartPower =
     trendSessionCount > 0 ? recentTrendData[0].neuralPower : 0;
@@ -74,37 +75,17 @@ function ProfileAnalytics({
   const consistencyScore = cognitiveTracks.consistency;
 
   const localAdaptiveDifficulty = calculateAdaptiveDifficulty({
-    neuralTrend,
-    pressureState,
-    cognitiveTracks,
+    neuralTrend: localNeuralTrend,
+    pressureState: localPressureState,
+    cognitiveTracks: {
+      patternRecognition: precisionScore,
+      focusStability: consistencyScore,
+      processingSpeed: throughputScore,
+      consistency: consistencyScore,
+    },
   });
 
   const adaptiveDifficulty = propAdaptiveDifficulty ?? localAdaptiveDifficulty;
-  const getTrendSummary = () => {
-    if (trendSessionCount < 2) {
-      return "Complete a few more sessions to generate a reliable neural performance summary.";
-    }
-
-    if (neuralTrend.direction === "improving") {
-      if (recentVsLifetimeDelta > 0) {
-        return "Recent neural performance is improving and running above your long-term baseline.";
-      }
-
-      return "Recent neural performance is improving, with signs of stronger session execution.";
-    }
-
-    if (neuralTrend.direction === "declining") {
-      if (recentVsLifetimeDelta < 0) {
-        return "Recent neural performance has dipped and is currently tracking below your long-term baseline.";
-      }
-
-      return "Recent neural performance has softened slightly, though your broader baseline remains intact.";
-    }
-
-    return "Recent neural performance is stable, showing a steady training rhythm across sessions.";
-  };
-
-  const trendSummary = getTrendSummary();
 
   const localCoachingInsight = generateCoachingInsight({
     cognitiveTracks: {
@@ -113,9 +94,9 @@ function ProfileAnalytics({
       processingSpeed: throughputScore,
       consistency: consistencyScore,
     },
-    neuralTrend: neuralTrend,
-    pressureState: pressureState,
-    adaptiveDifficulty: adaptiveDifficulty,
+    neuralTrend: localNeuralTrend,
+    pressureState: localPressureState,
+    adaptiveDifficulty: localAdaptiveDifficulty,
   });
 
   const coachingInsight = propCoachingInsight ?? localCoachingInsight;
@@ -230,7 +211,7 @@ function ProfileAnalytics({
               {trendDisplay.symbol} {trendDisplay.label}
             </h3>
             <p className="mt-2 text-sm text-slate-400">
-              {coachingInsight.summary || trendSummary}
+              {coachingInsight.summary}
             </p>{" "}
             <p className="mt-2 text-xs leading-5 text-slate-500">
               {coachingInsight.focus}
