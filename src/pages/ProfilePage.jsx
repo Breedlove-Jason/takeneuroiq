@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import { getSessions, clearSessions } from "../game/sessionTracker";
 import { getPlayerName, setPlayerName } from "../game/playerIdentity";
+import { calculateCognitiveTracks } from "../analytics/cognitiveTracks";
 import ProfileAnalytics from "../components/ProfileAnalytics";
 
 function formatSessionTime(timestamp) {
@@ -40,6 +41,7 @@ function ProfilePage() {
   });
 
   const recentSessions = [...sessions].slice(-5).reverse();
+  const cognitiveTracks = calculateCognitiveTracks(sessions);
 
   const normalizedNameInput = nameInput.trim();
   const canSavePlayerName =
@@ -645,18 +647,42 @@ function ProfilePage() {
 
               <div className="mt-4 space-y-3 text-sm text-slate-300">
                 <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  Pattern recognition
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-cyan-300">
+                      Pattern recognition
+                    </p>
+                    <span className="text-lg font-bold text-white">
+                      {cognitiveTracks.patternRecognition}
+                    </span>
+                  </div>
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  Reaction consistency
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-fuchsia-300">
+                      Focus stability
+                    </p>
+                    <span className="text-lg font-bold text-white">
+                      {cognitiveTracks.focusStability}
+                    </span>
+                  </div>
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  Working memory
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-emerald-300">
+                      Processing speed
+                    </p>
+                    <span className="text-lg font-bold text-white">
+                      {cognitiveTracks.processingSpeed}
+                    </span>
+                  </div>
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  <p className="font-semibold text-cyan-300">
-                    Adaptive pressure handling
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-yellow-300">Consistency</p>
+                    <span className="text-lg font-bold text-white">
+                      {cognitiveTracks.consistency}
+                    </span>
+                  </div>
                   <p className="mt-2 text-sm leading-6 text-slate-400">
                     {streakStability}
                   </p>
