@@ -78,18 +78,14 @@ function ProfileAnalytics({
   const throughputScore = cognitiveTracks.processingSpeed;
   const consistencyScore = cognitiveTracks.consistency;
 
-  const localAdaptiveDifficulty = calculateAdaptiveDifficulty({
-    neuralTrend,
-    pressureState,
-    cognitiveTracks: {
-      patternRecognition: precisionScore,
-      focusStability: consistencyScore,
-      processingSpeed: throughputScore,
-      consistency: consistencyScore,
-    },
-  });
-
-  const adaptiveDifficulty = propAdaptiveDifficulty ?? localAdaptiveDifficulty;
+  const adaptiveDifficulty =
+    propAdaptiveDifficulty ?? {
+      state: "steady",
+      label: "Steady Mode",
+      description:
+        "Maintain balanced difficulty to reinforce skill growth without overload.",
+      targetDifficulty: "medium",
+    };
 
   const localCoachingInsight = generateCoachingInsight({
     cognitiveTracks: {
@@ -100,7 +96,7 @@ function ProfileAnalytics({
     },
     neuralTrend,
     pressureState,
-    adaptiveDifficulty: localAdaptiveDifficulty,
+    adaptiveDifficulty,
   });
 
   const coachingInsight = propCoachingInsight ?? localCoachingInsight;
