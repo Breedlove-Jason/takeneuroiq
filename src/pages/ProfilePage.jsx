@@ -16,10 +16,10 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
-import { getSessions, clearSessions } from "../game/sessionTracker";
 import { getPlayerName, setPlayerName } from "../game/playerIdentity";
-import { calculateCognitiveTracks } from "../analytics/cognitiveTracks";
+import { useSessionData } from "../hooks/useSessionData";
 import ProfileAnalytics from "../components/ProfileAnalytics";
+import { buildSessionAnalytics } from "../analytics/sessionAnalytics";
 
 function formatSessionTime(timestamp) {
   if (!timestamp) return "—";
@@ -33,7 +33,8 @@ function ProfilePage() {
   const [playerName, setPlayerNameState] = useState(() => getPlayerName());
   const [nameInput, setNameInput] = useState(() => getPlayerName());
   const [nameSaved, setNameSaved] = useState(false);
-  const [sessions, setSessions] = useState(() => [...getSessions()]);
+  const { sessions, resetSessions } = useSessionData();
+  const analytics = buildSessionAnalytics(sessions);
   const chartContainerRef = useRef(null);
   const [chartDimensions, setChartDimensions] = useState({
     width: 0,
@@ -41,7 +42,23 @@ function ProfilePage() {
   });
 
   const recentSessions = [...sessions].slice(-5).reverse();
-  const cognitiveTracks = calculateCognitiveTracks(sessions);
+
+  const {
+    cognitiveTracks = {
+      patternRecognition: 0,
+      focusStability: 0,
+      processingSpeed: 0,
+      consistency: 0,
+    },
+    neuralTrend = { direction: "neutral", change: 0 },
+    pressureState = { state: "neutral", label: "Stable Load", detail: "" },
+    adaptiveDifficulty = { state: "steady", label: "Steady Mode" },
+    coachingInsight = { summary: "", detail: "" },
+  } = analytics || {};
+
+  const agentSummary = analytics
+    ? `${analytics.coachingInsight.summary} ${analytics.coachingInsight.detail}`.trim()
+    : "Complete your first session to unlock AI coaching insights.";
 
   const normalizedNameInput = nameInput.trim();
   const canSavePlayerName =
@@ -226,69 +243,6 @@ function ProfilePage() {
     { skill: "Consistency", value: consistencyScore },
   ];
 
-  const performanceInsight = (() => {
-    if (sessions.length === 0) {
-      return "Complete your first arena run to begin neural performance analysis.";
-    }
-
-    const insights = [];
-
-    if (averageAccuracy >= 90) {
-      insights.push(
-        "Precision is running above baseline, indicating strong pattern recognition control.",
-      );
-    } else if (averageAccuracy >= 75) {
-      insights.push(
-        "Accuracy is stable, with room to sharpen precision under pressure.",
-      );
-    } else {
-      insights.push(
-        "Precision remains an active improvement area and may benefit from slower, more controlled runs.",
-      );
-    }
-
-    if (solveRate >= 90) {
-      insights.push(
-        "Solve rate is elite, showing highly efficient puzzle conversion across attempts.",
-      );
-    } else if (solveRate >= 75) {
-      insights.push(
-        "Solve rate is healthy, suggesting a solid balance between output and precision.",
-      );
-    } else {
-      insights.push(
-        "Solve rate is still developing, indicating that accuracy under active attempt volume can improve further.",
-      );
-    }
-
-    if (bestStreak >= 10) {
-      insights.push(
-        "Momentum resilience is strong, with extended streaks sustained during timed play.",
-      );
-    } else if (bestStreak >= 5) {
-      insights.push(
-        "Streak control is forming, though longer momentum chains are still developing.",
-      );
-    } else {
-      insights.push(
-        "Momentum breaks quickly, suggesting pressure handling is still stabilizing.",
-      );
-    }
-
-    if (averageScore >= 1000) {
-      insights.push(
-        "Scoring efficiency is trending high, pointing to strong processing speed and execution.",
-      );
-    } else if (averageScore >= 600) {
-      insights.push("Scoring output is building steadily across sessions.");
-    } else {
-      insights.push(
-        "Scoring output is still early-stage, with growth expected as consistency improves.",
-      );
-    }
-
-    return insights.join(" ");
-  })();
   const scoreTrend = (() => {
     if (sessions.length < 2) {
       return "Not enough sessions yet to detect a score trend.";
@@ -375,8 +329,7 @@ function ProfilePage() {
 
     if (!confirmed) return;
 
-    clearSessions();
-    setSessions([]);
+    resetSessions();
   };
 
   const handleSavePlayerName = () => {
@@ -398,34 +351,12 @@ function ProfilePage() {
   };
 
   useEffect(() => {
-    if (!nameSaved) return;
-
     const timeout = window.setTimeout(() => {
       setNameSaved(false);
     }, 2000);
 
     return () => window.clearTimeout(timeout);
   }, [nameSaved]);
-
-  useEffect(() => {
-    const syncPlayerSessions = () => {
-      const currentPlayer = getPlayerName();
-      setSessions(
-        getSessions().filter((session) => session.name === currentPlayer),
-      );
-    };
-
-    syncPlayerSessions();
-
-    window.addEventListener("takeneuroiq:sessions-updated", syncPlayerSessions);
-
-    return () => {
-      window.removeEventListener(
-        "takeneuroiq:sessions-updated",
-        syncPlayerSessions,
-      );
-    };
-  }, [playerName]);
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -633,7 +564,7 @@ function ProfilePage() {
                     Agent Summary
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {performanceInsight}
+                    {agentSummary}
                   </p>
                 </div>
               </div>

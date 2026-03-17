@@ -1,3 +1,7 @@
+export function buildCognitiveTracks(sessions = []) {
+  return calculateCognitiveTracks(sessions);
+}
+
 export function calculateCognitiveTracks(sessions = []) {
   if (!Array.isArray(sessions) || sessions.length === 0) {
     return {
