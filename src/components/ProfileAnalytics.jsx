@@ -67,7 +67,8 @@ function ProfileAnalytics({
   const recentVsLifetimeDelta =
     recentAverageNeuralPower - lifetimeAverageNeuralPower;
 
-  const cognitiveTracks = propCognitiveTracks || calculateCognitiveTracks(sessions);
+  const cognitiveTracks =
+    propCognitiveTracks || calculateCognitiveTracks(sessions);
   const precisionScore = cognitiveTracks.patternRecognition;
   const throughputScore = cognitiveTracks.processingSpeed;
   const consistencyScore = cognitiveTracks.consistency;
@@ -177,22 +178,22 @@ function ProfileAnalytics({
 
   const adaptiveToneMap = {
     recover: {
-      className: 'text-amber-300',
-      borderClass: 'border-amber-500/20',
-      accentClass: 'text-amber-300/80',
-      badgeClass: 'text-amber-300',
+      className: "text-amber-300",
+      borderClass: "border-amber-500/20",
+      accentClass: "text-amber-300/80",
+      badgeClass: "text-amber-300",
     },
     steady: {
-      className: 'text-cyan-300',
-      borderClass: 'border-cyan-500/20',
-      accentClass: 'text-cyan-300/80',
-      badgeClass: 'text-cyan-300',
+      className: "text-cyan-300",
+      borderClass: "border-cyan-500/20",
+      accentClass: "text-cyan-300/80",
+      badgeClass: "text-cyan-300",
     },
     challenge: {
-      className: 'text-emerald-300',
-      borderClass: 'border-emerald-500/20',
-      accentClass: 'text-emerald-300/80',
-      badgeClass: 'text-emerald-300',
+      className: "text-emerald-300",
+      borderClass: "border-emerald-500/20",
+      accentClass: "text-emerald-300/80",
+      badgeClass: "text-emerald-300",
     },
   };
 
@@ -230,13 +231,14 @@ function ProfileAnalytics({
             </h3>
             <p className="mt-2 text-sm text-slate-400">
               {coachingInsight.summary || trendSummary}
+            </p>{" "}
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              {coachingInsight.focus}
             </p>
-
             <p className="mt-1 text-xs text-slate-500">
               Based on your last {trendSessionCount}{" "}
               {trendSessionCount === 1 ? "session" : "sessions"}.
             </p>
-
             <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-5">
               <div className="flex min-h-[88px] flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
