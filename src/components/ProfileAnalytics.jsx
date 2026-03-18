@@ -1,6 +1,4 @@
-import { buildNeuralPowerTrendData, calculatePressureState } from "../utils/sessionTrendUtils";
-import { calculateCognitiveTracks } from "../analytics/cognitiveTracks";
-
+import { buildNeuralPowerTrendData } from "../utils/sessionTrendUtils";
 import { useSessionData } from "../hooks/useSessionData";
 import {
   LineChart,
@@ -13,6 +11,15 @@ import {
 } from "recharts";
 import { generateCoachingInsight } from "../analytics/coachingEngine";
 
+const statColors = {
+  score: "text-cyan-400",
+  streak: "text-green-400",
+  neural: "text-yellow-400",
+  accuracy: "text-blue-400",
+  attempts: "text-cyan-300",
+  solveRate: "text-fuchsia-300",
+  sessions: "text-cyan-200",
+};
 function ProfileAnalytics({
   cognitiveTracks: propCognitiveTracks,
   neuralTrend: propNeuralTrend,
@@ -23,15 +30,16 @@ function ProfileAnalytics({
   const { sessions } = useSessionData();
   const neuralPowerTrendData = buildNeuralPowerTrendData(sessions);
   const recentTrendData = neuralPowerTrendData.slice(-5);
-  const neuralTrend =
-    propNeuralTrend ?? {
-      direction: "neutral",
-      change: 0,
-    };
+  const neuralTrend = propNeuralTrend ?? {
+    direction: 'neutral',
+    change: 0,
+  };
   const trendSessionCount = recentTrendData.length;
-
-  const localPressureState = calculatePressureState(recentTrendData);
-  const pressureState = sharedPressureState ?? localPressureState;
+  const pressureState = sharedPressureState ?? {
+    state: 'neutral',
+    label: 'Not Enough Data',
+    detail: 'Complete a few more sessions to detect pressure patterns.',
+  };
 
   const trendStartPower =
     trendSessionCount > 0 ? recentTrendData[0].neuralPower : 0;
@@ -66,20 +74,22 @@ function ProfileAnalytics({
   const recentVsLifetimeDelta =
     recentAverageNeuralPower - lifetimeAverageNeuralPower;
 
-  const cognitiveTracks =
-    propCognitiveTracks || calculateCognitiveTracks(sessions);
+  const cognitiveTracks = propCognitiveTracks ?? {
+    patternRecognition: 0,
+    processingSpeed: 0,
+    consistency: 0,
+  };
   const precisionScore = cognitiveTracks.patternRecognition;
   const throughputScore = cognitiveTracks.processingSpeed;
   const consistencyScore = cognitiveTracks.consistency;
 
-  const adaptiveDifficulty =
-    propAdaptiveDifficulty ?? {
-      state: "steady",
-      label: "Steady Mode",
-      description:
-        "Maintain balanced difficulty to reinforce skill growth without overload.",
-      targetDifficulty: "medium",
-    };
+  const adaptiveDifficulty = propAdaptiveDifficulty ?? {
+    state: 'steady',
+    label: 'Steady Mode',
+    description:
+      'Maintain balanced difficulty to reinforce skill growth without overload.',
+    targetDifficulty: 'medium',
+  };
 
   const localCoachingInsight = generateCoachingInsight({
     cognitiveTracks: {
@@ -97,28 +107,28 @@ function ProfileAnalytics({
 
   const trendToneMap = {
     improving: {
-      label: "Improving",
-      symbol: "▲",
-      className: "text-emerald-300",
-      subtext: "Your recent Neural Power is trending upward.",
+      label: 'Improving',
+      symbol: '▲',
+      className: 'text-emerald-300',
+      subtext: 'Your recent Neural Power is trending upward.',
     },
     stable: {
-      label: "Stable",
-      symbol: "■",
-      className: "text-yellow-300",
-      subtext: "Your recent Neural Power is holding steady.",
+      label: 'Stable',
+      symbol: '■',
+      className: 'text-yellow-300',
+      subtext: 'Your recent Neural Power is holding steady.',
     },
     declining: {
-      label: "Declining",
-      symbol: "▼",
-      className: "text-rose-300",
-      subtext: "Your recent Neural Power has dipped across recent sessions.",
+      label: 'Declining',
+      symbol: '▼',
+      className: 'text-rose-300',
+      subtext: 'Your recent Neural Power has dipped across recent sessions.',
     },
     neutral: {
-      label: "Not Enough Data",
-      symbol: "•",
-      className: "text-slate-300",
-      subtext: "Complete more sessions to detect a reliable trend.",
+      label: 'Not Enough Data',
+      symbol: '•',
+      className: 'text-slate-300',
+      subtext: 'Complete more sessions to detect a reliable trend.',
     },
   };
 
@@ -126,25 +136,25 @@ function ProfileAnalytics({
     trendToneMap[neuralTrend.direction] || trendToneMap.neutral;
 
   const pressureToneMap = {
-    "under-pressure": {
-      className: "text-amber-300",
-      borderClass: "border-amber-500/20",
-      accentClass: "text-amber-300/80",
+    'under-pressure': {
+      className: 'text-amber-300',
+      borderClass: 'border-amber-500/20',
+      accentClass: 'text-amber-300/80',
     },
-    "locked-in": {
-      className: "text-emerald-300",
-      borderClass: "border-emerald-500/20",
-      accentClass: "text-emerald-300/80",
+    'locked-in': {
+      className: 'text-emerald-300',
+      borderClass: 'border-emerald-500/20',
+      accentClass: 'text-emerald-300/80',
     },
     stable: {
-      className: "text-cyan-300",
-      borderClass: "border-cyan-500/20",
-      accentClass: "text-cyan-300/80",
+      className: 'text-cyan-300',
+      borderClass: 'border-cyan-500/20',
+      accentClass: 'text-cyan-300/80',
     },
     neutral: {
-      className: "text-slate-300",
-      borderClass: "border-slate-700",
-      accentClass: "text-slate-400",
+      className: 'text-slate-300',
+      borderClass: 'border-slate-700',
+      accentClass: 'text-slate-400',
     },
   };
 
@@ -153,22 +163,22 @@ function ProfileAnalytics({
 
   const adaptiveToneMap = {
     recover: {
-      className: "text-amber-300",
-      borderClass: "border-amber-500/20",
-      accentClass: "text-amber-300/80",
-      badgeClass: "text-amber-300",
+      className: 'text-amber-300',
+      borderClass: 'border-amber-500/20',
+      accentClass: 'text-amber-300/80',
+      badgeClass: 'text-amber-300',
     },
     steady: {
-      className: "text-cyan-300",
-      borderClass: "border-cyan-500/20",
-      accentClass: "text-cyan-300/80",
-      badgeClass: "text-cyan-300",
+      className: 'text-cyan-300',
+      borderClass: 'border-cyan-500/20',
+      accentClass: 'text-cyan-300/80',
+      badgeClass: 'text-cyan-300',
     },
     challenge: {
-      className: "text-emerald-300",
-      borderClass: "border-emerald-500/20",
-      accentClass: "text-emerald-300/80",
-      badgeClass: "text-emerald-300",
+      className: 'text-emerald-300',
+      borderClass: 'border-emerald-500/20',
+      accentClass: 'text-emerald-300/80',
+      badgeClass: 'text-emerald-300',
     },
   };
 
@@ -194,7 +204,7 @@ function ProfileAnalytics({
         className={`rounded-2xl border bg-slate-900/70 p-4 ${pressureDisplay.borderClass}`}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          {" "}
+          {' '}
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300/80">
               Neural Trend
@@ -206,16 +216,16 @@ function ProfileAnalytics({
             </h3>
             <p className="mt-2 text-sm text-slate-400">
               {coachingInsight.summary}
-            </p>{" "}
+            </p>{' '}
             <p className="mt-2 text-xs leading-5 text-slate-500">
               {coachingInsight.focus}
             </p>
             <p className="mt-1 text-xs text-slate-500">
-              Based on your last {trendSessionCount}{" "}
-              {trendSessionCount === 1 ? "session" : "sessions"}.
+              Based on your last {trendSessionCount}{' '}
+              {trendSessionCount === 1 ? 'session' : 'sessions'}.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-5">
-              <div className="flex min-h-[88px] flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+              <div className="flex min-h-22 flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
                   Sessions
                 </p>
@@ -224,7 +234,7 @@ function ProfileAnalytics({
                 </p>
               </div>
 
-              <div className="flex min-h-[88px] flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+              <div className="flex min-h-22 flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
                   Start NP
                 </p>
@@ -233,7 +243,7 @@ function ProfileAnalytics({
                 </p>
               </div>
 
-              <div className="flex min-h-[88px] flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+              <div className="flexmin-h-22 flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
                   Latest NP
                 </p>
@@ -242,30 +252,30 @@ function ProfileAnalytics({
                 </p>
               </div>
 
-              <div className="flex min-h-[88px] flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+              <div className="flexmin-h-22 flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
                   Delta
                 </p>
                 <p
                   className={`mt-3 text-lg font-semibold ${trendDisplay.className}`}
                 >
-                  {neuralTrend.change > 0 ? "+" : ""}
+                  {neuralTrend.change > 0 ? '+' : ''}
                   {neuralTrend.change}
                 </p>
               </div>
 
-              <div className="flex min-h-[88px] flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+              <div className="flex min-h-22 flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
                   Vs Lifetime
                 </p>
                 <p
                   className={`mt-3 text-lg font-semibold ${
                     recentVsLifetimeDelta >= 0
-                      ? "text-emerald-300"
-                      : "text-rose-300"
+                      ? 'text-emerald-300'
+                      : 'text-rose-300'
                   }`}
                 >
-                  {recentVsLifetimeDelta > 0 ? "+" : ""}
+                  {recentVsLifetimeDelta > 0 ? '+' : ''}
                   {recentVsLifetimeDelta}
                 </p>
               </div>
@@ -278,7 +288,7 @@ function ProfileAnalytics({
             <p
               className={`mt-2 whitespace-nowrap text-2xl font-bold ${trendDisplay.className}`}
             >
-              {neuralTrend.change > 0 ? "+" : ""}
+              {neuralTrend.change > 0 ? '+' : ''}
               {neuralTrend.change} NP
             </p>
           </div>
@@ -364,28 +374,28 @@ function ProfileAnalytics({
               <XAxis dataKey="label" />
               <YAxis />
               <Tooltip
-                formatter={(value) => [`${value} NP`, "Neural Power"]}
+                formatter={(value) => [`${value} NP`, 'Neural Power']}
                 labelFormatter={(label, payload) => {
                   const point = payload?.[0]?.payload;
                   return point?.date || label;
                 }}
                 contentStyle={{
-                  backgroundColor: "#020617",
-                  border: "1px solid #0f172a",
-                  borderRadius: "10px",
-                  color: "#e2e8f0",
+                  backgroundColor: '#020617',
+                  border: '1px solid #0f172a',
+                  borderRadius: '10px',
+                  color: '#e2e8f0',
                 }}
                 labelStyle={{
-                  color: "#67e8f9",
+                  color: '#67e8f9',
                   fontWeight: 600,
                 }}
                 itemStyle={{
-                  color: "#e2e8f0",
+                  color: '#e2e8f0',
                 }}
                 cursor={{
-                  stroke: "#22d3ee",
+                  stroke: '#22d3ee',
                   strokeWidth: 1,
-                  strokeDasharray: "4 4",
+                  strokeDasharray: '4 4',
                 }}
               />
               <Line

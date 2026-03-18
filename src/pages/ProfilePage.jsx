@@ -510,9 +510,11 @@ function ProfilePage() {
                       <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                         Avg Score
                       </p>
-                      <p className="mt-2 text-2xl font-bold text-fuchsia-300">
+
+                    <p className="mt-2 text-2xl font-bold text-fuchsia-300">
                         {averageScore}
                       </p>
+
                     </div>
 
                     <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
