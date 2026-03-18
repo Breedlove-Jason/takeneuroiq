@@ -58,6 +58,36 @@ function ProfilePage() {
     coachingInsight = { summary: "", detail: "" },
   } = analytics || {};
 
+  const neuralTrendLabelMap = {
+    rising: "Improving",
+    steady: "Stable",
+    falling: "Needs Recovery",
+    neutral: "Neutral",
+  };
+
+  const pressureStateDetailMap = {
+    "locked-in": "Your recent sessions show strong control under pressure.",
+    "under-pressure":
+      "Your recent sessions suggest strain is affecting consistency.",
+    stable: "Your recent sessions are balanced and controlled.",
+    neutral: "Complete more sessions to reveal your pressure profile.",
+  };
+
+  const adaptiveDifficultyDetailMap = {
+    challenge: "You are ready for harder patterns and faster escalation.",
+    steady: "Your current difficulty pacing looks well matched.",
+    recover: "A lighter difficulty window may help rebuild momentum.",
+  };
+
+  const neuralTrendLabel =
+    neuralTrendLabelMap[neuralTrend.direction] ?? "Neutral";
+  const pressureStateDetail =
+    pressureStateDetailMap[pressureState.state] ??
+    "Complete more sessions to reveal your pressure profile.";
+  const adaptiveDifficultyDetail =
+    adaptiveDifficultyDetailMap[adaptiveDifficulty.state] ??
+    "Keep training to generate a stronger adaptive signal.";
+
   const precisionScore = cognitiveTracks.patternRecognition ?? 0;
   const momentumScore = cognitiveTracks.focusStability ?? 0;
   const throughputScore = cognitiveTracks.processingSpeed ?? 0;
@@ -92,59 +122,6 @@ function ProfilePage() {
 
   const currentRank = sessions.length > 0 ? "Active" : "Unranked";
 
-  const scoreTrend = (() => {
-    if (sessions.length < 2) {
-      return "Not enough sessions yet to detect a score trend.";
-    }
-    const recentScores = recentSessions
-      .slice()
-      .reverse()
-      .map((session) => session.score ?? 0);
-    const firstScore = recentScores[0];
-    const lastScore = recentScores[recentScores.length - 1];
-    const difference = lastScore - firstScore;
-    if (difference >= 100)
-      return "Score trend rising. Recent runs show stronger scoring output.";
-    if (difference <= -100)
-      return "Score trend dipping. Recent sessions suggest reduced scoring efficiency.";
-    return "Score trend stable. Performance output is holding near current baseline.";
-  })();
-
-  const accuracyTrend = (() => {
-    if (sessions.length < 2) {
-      return "Not enough sessions yet to detect an accuracy trend.";
-    }
-    const recentAccuracies = recentSessions
-      .slice()
-      .reverse()
-      .map((session) => session.accuracy ?? 0);
-    const firstAccuracy = recentAccuracies[0];
-    const lastAccuracy = recentAccuracies[recentAccuracies.length - 1];
-    const difference = lastAccuracy - firstAccuracy;
-    if (difference >= 5)
-      return "Accuracy trend rising. Precision control is improving across recent runs.";
-    if (difference <= -5)
-      return "Accuracy trend slipping. Precision consistency is dropping under current conditions.";
-    return "Accuracy trend stable. Precision output is holding near current baseline.";
-  })();
-
-  const streakStability = (() => {
-    if (sessions.length < 2) {
-      return "Not enough sessions yet to detect streak stability.";
-    }
-    const recentStreaks = recentSessions
-      .slice()
-      .reverse()
-      .map((session) => session.bestStreak ?? session.streak ?? 0);
-    const minStreak = Math.min(...recentStreaks);
-    const maxStreak = Math.max(...recentStreaks);
-    const spread = maxStreak - minStreak;
-    if (spread <= 2)
-      return "Streak stability strong. Cognitive momentum is holding consistently across recent runs.";
-    if (spread >= 6)
-      return "Streak stability volatile. Momentum is fluctuating noticeably between sessions.";
-    return "Streak stability moderate. Momentum control is forming but not yet fully consistent.";
-  })();
   const handleResetData = () => {
     const confirmed = window.confirm(
       "Clear all TakeNeuroIQ session history and leaderboard data?",
@@ -263,49 +240,49 @@ function ProfilePage() {
                 Identity Core
               </h2>
 
-                <div className="mt-4 space-y-4">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                      Player
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {playerName}
-                    </p>
+              <div className="mt-4 space-y-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                    Player
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-white">
+                    {playerName}
+                  </p>
 
-                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                      <input
-                        type="text"
-                        value={nameInput}
-                        onChange={(event) => setNameInput(event.target.value)}
-                        onKeyDown={handlePlayerNameKeyDown}
-                        placeholder="Enter player name"
-                        className="w-full rounded-xl border border-cyan-400/20 bg-slate-900/80 px-4 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSavePlayerName}
-                        disabled={!canSavePlayerName}
-                        className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                          canSavePlayerName
-                            ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
-                            : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
-                        }`}
-                      >
-                        Save Name
-                      </button>
-                    </div>
-
-                    {nameSaved && (
-                      <p className="mt-2 text-sm font-medium text-emerald-300">
-                        Player name saved.
-                      </p>
-                    )}
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                    <input
+                      type="text"
+                      value={nameInput}
+                      onChange={(event) => setNameInput(event.target.value)}
+                      onKeyDown={handlePlayerNameKeyDown}
+                      placeholder="Enter player name"
+                      className="w-full rounded-xl border border-cyan-400/20 bg-slate-900/80 px-4 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSavePlayerName}
+                      disabled={!canSavePlayerName}
+                      className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                        canSavePlayerName
+                          ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
+                          : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
+                      }`}
+                    >
+                      Save Name
+                    </button>
                   </div>
 
-                  <IdentityCoreStats />
-
-                  <AgentSummary coachingInsight={coachingInsight} />
+                  {nameSaved && (
+                    <p className="mt-2 text-sm font-medium text-emerald-300">
+                      Player name saved.
+                    </p>
+                  )}
                 </div>
+
+                <IdentityCoreStats />
+
+                <AgentSummary coachingInsight={coachingInsight} />
+              </div>
             </div>
 
             <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
@@ -353,7 +330,7 @@ function ProfilePage() {
                     </span>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-slate-400">
-                    {streakStability}
+                    {pressureStateDetail}
                   </p>
                 </div>
               </div>
@@ -547,7 +524,7 @@ function ProfilePage() {
                   Progression
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {scoreTrend}
+                  {neuralTrendLabel}
                 </p>
               </div>
 
@@ -560,7 +537,7 @@ function ProfilePage() {
                   Adaptive Layer
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {accuracyTrend}
+                  {adaptiveDifficultyDetail}
                 </p>
               </div>
 
@@ -570,7 +547,7 @@ function ProfilePage() {
                   Momentum
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {streakStability}
+                  {pressureStateDetail}
                 </p>
               </div>
             </div>
