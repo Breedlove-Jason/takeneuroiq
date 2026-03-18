@@ -13,15 +13,6 @@ import { generateCoachingInsight } from "../analytics/coachingEngine";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 
-export const statColors = {
-  score: "text-cyan-400",
-  streak: "text-green-400",
-  neural: "text-yellow-400",
-  accuracy: "text-blue-400",
-  attempts: "text-cyan-300",
-  solveRate: "text-fuchsia-300",
-  sessions: "text-cyan-200",
-};
 
 /**
  * ProfileAnalytics Component
@@ -213,34 +204,34 @@ function ProfileAnalytics({
     adaptiveToneMap[adaptiveDifficulty.state] || adaptiveToneMap.steady;
 
   // Centralize the stat card content so shared colors stay in sync with the UI.
-  const trendStats = [
-    {
-      label: 'Sessions',
-      value: trendSessionCount,
-      colorClass: statColors.sessions,
-    },
-    {
-      label: 'Start NP',
-      value: trendStartPower,
-      colorClass: statColors.neural,
-    },
-    {
-      label: 'Latest NP',
-      value: trendLatestPower,
-      colorClass: statColors.neural,
-    },
-    {
-      label: 'Delta',
-      value: `${neuralTrend.change > 0 ? '+' : ''}${neuralTrend.change}`,
-      colorClass: trendDisplay.className,
-    },
-    {
-      label: 'Vs Lifetime',
-      value: `${recentVsLifetimeDelta > 0 ? '+' : ''}${recentVsLifetimeDelta}`,
-      colorClass:
-        recentVsLifetimeDelta >= 0 ? 'text-emerald-300' : 'text-rose-300',
-    },
-  ];
+const trendStats = [
+  {
+    label: "Sessions",
+    value: trendSessionCount,
+    colorClass: "text-cyan-200",
+  },
+  {
+    label: "Start NP",
+    value: trendStartPower,
+    colorClass: "text-yellow-400",
+  },
+  {
+    label: "Latest NP",
+    value: trendLatestPower,
+    colorClass: "text-yellow-400",
+  },
+  {
+    label: "Delta",
+    value: `${neuralTrend.change > 0 ? "+" : ""}${neuralTrend.change}`,
+    colorClass: trendDisplay.className,
+  },
+  {
+    label: "Vs Lifetime",
+    value: `${recentVsLifetimeDelta > 0 ? "+" : ""}${recentVsLifetimeDelta}`,
+    colorClass:
+      recentVsLifetimeDelta >= 0 ? "text-emerald-300" : "text-rose-300",
+  },
+];
 
   if (neuralPowerTrendData.length === 0) {
     return (
@@ -449,7 +440,7 @@ function getSessionAccuracy(session) {
 /**
  * Calculates a set of performance metrics from session history.
  */
-export function calculatePerformanceMetrics(sessions) {
+function calculatePerformanceMetrics(sessions) {
   if (!sessions || sessions.length === 0) {
     return {
       bestScore: 0,
@@ -514,46 +505,46 @@ export function IdentityCoreStats() {
   const metrics = calculatePerformanceMetrics(sessions);
 
   const stats = [
-    { label: "Best Score", value: metrics.bestScore, color: statColors.score },
+    { label: "Best Score", value: metrics.bestScore, color: "text-cyan-400" },
     {
       label: "Best Streak",
       value: metrics.bestStreak,
-      color: statColors.streak,
+      color: "text-green-400",
     },
     {
       label: "Best Neural Power",
       value: metrics.bestNeuralPower,
-      color: statColors.neural,
+      color: "text-yellow-400",
     },
     {
       label: "Avg Score",
       value: metrics.averageScore,
-      color: statColors.score,
+      color: "text-cyan-400",
     },
     {
       label: "Avg Accuracy",
       value: `${metrics.averageAccuracy}%`,
-      color: statColors.accuracy,
+      color: "text-blue-400",
     },
     {
       label: "Puzzles Solved",
       value: metrics.totalPuzzlesSolved,
-      color: statColors.streak,
+      color: "text-green-400",
     },
     {
       label: "Total Attempts",
       value: metrics.totalPuzzlesAttempted,
-      color: statColors.attempts,
+      color: "text-cyan-300",
     },
     {
       label: "Solve Rate",
       value: `${metrics.solveRate}%`,
-      color: statColors.solveRate,
+      color: "text-fuchsia-300",
     },
     {
       label: "Sessions Played",
       value: metrics.totalSessions,
-      color: statColors.sessions,
+      color: "text-cyan-200",
       fullWidth: true,
     },
   ];
@@ -603,29 +594,36 @@ export function PerformanceSnapshot() {
       label: "Best Score",
       value: metrics.bestScore,
       percent: bestScorePercent,
-      color: statColors.score,
+      color: "text-cyan-400",
       barColor: "bg-cyan-400",
     },
     {
       label: "Average Score",
       value: metrics.averageScore,
       percent: averageScorePercent,
-      color: statColors.score,
-      barColor: "bg-cyan-400",
+      color: "text-green-300",
+      barColor: "bg-green-300",
     },
     {
       label: "Average Accuracy",
       value: `${metrics.averageAccuracy}%`,
       percent: averageAccuracyPercent,
-      color: statColors.accuracy,
-      barColor: "bg-blue-400",
+      color: "text-violet-300",
+      barColor: "bg-violet-400",
     },
     {
       label: "Best Streak",
       value: metrics.bestStreak,
       percent: bestStreakPercent,
-      color: statColors.streak,
-      barColor: "bg-green-400",
+      color: "text-fuchsia-300",
+      barColor: "bg-fuchsia-400",
+    },
+    {
+      label: "Best Power",
+      value: metrics.bestNeuralPower,
+      percent: Math.min((metrics.bestNeuralPower / 100) * 100, 100),
+      color: "text-yellow-300",
+      barColor: "bg-yellow-400",
     },
   ];
 
@@ -637,18 +635,18 @@ export function PerformanceSnapshot() {
       </h2>
 
       <div className="mt-5 space-y-4">
-        {snapshots.map((snap) => (
-          <div key={snap.label}>
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="text-slate-300">{snap.label}</span>
-              <span className={`font-semibold ${snap.color}`}>
-                {snap.value}
+        {snapshots.map((snapshot) => (
+          <div key={snapshot.label} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-300">{snapshot.label}</span>
+              <span className={`text-sm font-semibold ${snapshot.color}`}>
+                {snapshot.value}
               </span>
             </div>
-            <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+            <div className="h-2 rounded-full bg-slate-800/80">
               <div
-                className={`h-full rounded-full ${snap.barColor} transition-all duration-500`}
-                style={{ width: `${snap.percent}%` }}
+                className={`h-2 rounded-full ${snapshot.barColor}`}
+                style={{ width: `${snapshot.percent}%` }}
               />
             </div>
           </div>

@@ -58,6 +58,18 @@ function ProfilePage() {
     coachingInsight = { summary: "", detail: "" },
   } = analytics || {};
 
+  const precisionScore = cognitiveTracks.patternRecognition ?? 0;
+  const momentumScore = cognitiveTracks.focusStability ?? 0;
+  const throughputScore = cognitiveTracks.processingSpeed ?? 0;
+  const consistencyScore = cognitiveTracks.consistency ?? 0;
+
+  const radarData = [
+    { skill: "Precision", value: precisionScore },
+    { skill: "Momentum", value: momentumScore },
+    { skill: "Throughput", value: throughputScore },
+    { skill: "Consistency", value: consistencyScore },
+  ];
+
   const recentSessions = [...sessions].slice(-5).reverse();
 
   // Helper to calculate session accuracy for the table and trends.
@@ -79,130 +91,6 @@ function ProfilePage() {
     normalizedNameInput.length > 0 && normalizedNameInput !== playerName;
 
   const currentRank = sessions.length > 0 ? "Active" : "Unranked";
-
-  // Re-calculate derived metrics used for charts and sub-labels.
-  function weightedAverage(values) {
-    if (!values.length) return 0;
-    const weights = values.map((_, index) => index + 1);
-    const weightedSum = values.reduce(
-      (sum, value, index) => sum + value * weights[index],
-      0,
-    );
-    const weightTotal = weights.reduce((a, b) => a + b, 0);
-    return weightedSum / weightTotal;
-  }
-
-  const weightedAccuracy = Math.round(
-    weightedAverage(
-      recentSessions
-        .slice()
-        .reverse()
-        .map((session) => getSessionAccuracy(session)),
-    ),
-  );
-
-  const weightedScore = Math.round(
-    weightedAverage(
-      recentSessions
-        .slice()
-        .reverse()
-        .map((session) => session.score ?? 0),
-    ),
-  );
-
-  const weightedStreak = Math.round(
-    weightedAverage(
-      recentSessions
-        .slice()
-        .reverse()
-        .map((session) => session.bestStreak ?? session.streak ?? 0),
-    ),
-  );
-
-  const totalPuzzlesSolved = sessions.reduce(
-    (sum, session) =>
-      sum + (session.puzzlesCorrect ?? session.correctAnswers ?? 0),
-    0,
-  );
-
-  const totalPuzzlesAttempted = sessions.reduce(
-    (sum, session) =>
-      sum + (session.puzzlesAttempted ?? session.puzzlesSeen ?? 0),
-    0,
-  );
-
-  const solveRate =
-    totalPuzzlesAttempted > 0
-      ? Math.round((totalPuzzlesSolved / totalPuzzlesAttempted) * 100)
-      : 0;
-
-  const bestStreak =
-    sessions.length > 0
-      ? Math.max(
-          ...sessions.map(
-            (session) => session.bestStreak ?? session.streak ?? 0,
-          ),
-        )
-      : 0;
-
-  const precisionScore = Math.min(
-    Math.round((weightedAccuracy + solveRate) / 2),
-    100,
-  );
-  const momentumScore = Math.min(
-    Math.round(((bestStreak + weightedStreak) / 2 / 12) * 100),
-    100,
-  );
-  const throughputScore = Math.min(
-    Math.round((weightedScore / 1200) * 100),
-    100,
-  );
-
-  const consistencyScore = (() => {
-    if (sessions.length < 2) return 50;
-    const recentSessionSlice = recentSessions.slice().reverse();
-    const recentScores = recentSessionSlice.map(
-      (session) => session.score ?? 0,
-    );
-    const recentAccuracies = recentSessionSlice.map((session) =>
-      getSessionAccuracy(session),
-    );
-    const recentStreaks = recentSessionSlice.map(
-      (session) => session.bestStreak ?? session.streak ?? 0,
-    );
-
-    const scoreSpread = Math.max(...recentScores) - Math.min(...recentScores);
-    const accuracySpread =
-      Math.max(...recentAccuracies) - Math.min(...recentAccuracies);
-    const streakSpread =
-      Math.max(...recentStreaks) - Math.min(...recentStreaks);
-
-    let scoreComponent = 40;
-    if (scoreSpread <= 100) scoreComponent = 90;
-    else if (scoreSpread <= 250) scoreComponent = 75;
-    else if (scoreSpread <= 400) scoreComponent = 60;
-
-    let accuracyComponent = 40;
-    if (accuracySpread <= 5) accuracyComponent = 90;
-    else if (accuracySpread <= 10) accuracyComponent = 75;
-    else if (accuracySpread <= 20) accuracyComponent = 60;
-
-    let streakComponent = 40;
-    if (streakSpread <= 2) streakComponent = 90;
-    else if (streakSpread <= 4) streakComponent = 75;
-    else if (streakSpread <= 6) streakComponent = 60;
-
-    return Math.round(
-      (scoreComponent + accuracyComponent + streakComponent) / 3,
-    );
-  })();
-
-  const radarData = [
-    { skill: "Precision", value: precisionScore },
-    { skill: "Momentum", value: momentumScore },
-    { skill: "Throughput", value: throughputScore },
-    { skill: "Consistency", value: consistencyScore },
-  ];
 
   const scoreTrend = (() => {
     if (sessions.length < 2) {
@@ -348,7 +236,7 @@ function ProfilePage() {
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Current Rank
                 </p>
-                <p className="mt-2 text-3xl font-bold text-cyan-300">
+                <p className="mt-2 text-3xl font-bold text-indigo-400">
                   {currentRank}
                 </p>
               </div>
@@ -523,8 +411,8 @@ function ProfilePage() {
                       <Radar
                         name="Cognitive Profile"
                         dataKey="value"
-                        stroke="#22d3ee"
-                        fill="#22d3ee"
+                        stroke="#a855f7"
+                        fill="#a855f7"
                         fillOpacity={0.35}
                       />
                     </RadarChart>
@@ -538,13 +426,13 @@ function ProfilePage() {
                 <div>
                   <div className="mb-2 flex items-center justify-between text-sm">
                     <span className="text-slate-300">Precision</span>
-                    <span className="font-semibold text-cyan-300">
+                    <span className="font-semibold text-cyan-400">
                       {precisionScore}
                     </span>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-slate-800">
                     <div
-                      className="h-full rounded-full bg-cyan-400 transition-all duration-500"
+                      className={`h-full rounded-full bg-cyan-400 transition-all duration-500`}
                       style={{ width: `${precisionScore}%` }}
                     />
                   </div>
@@ -553,13 +441,13 @@ function ProfilePage() {
                 <div>
                   <div className="mb-2 flex items-center justify-between text-sm">
                     <span className="text-slate-300">Momentum</span>
-                    <span className="font-semibold text-fuchsia-300">
+                    <span className="font-semibold text-fuchsia-400">
                       {momentumScore}
                     </span>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-slate-800">
                     <div
-                      className="h-full rounded-full bg-fuchsia-400 transition-all duration-500"
+                      className={`h-full rounded-full bg-fuchsia-400 transition-all duration-500`}
                       style={{ width: `${momentumScore}%` }}
                     />
                   </div>
@@ -568,13 +456,13 @@ function ProfilePage() {
                 <div>
                   <div className="mb-2 flex items-center justify-between text-sm">
                     <span className="text-slate-300">Throughput</span>
-                    <span className="font-semibold text-emerald-300">
+                    <span className="font-semibold text-emerald-400">
                       {throughputScore}
                     </span>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-slate-800">
                     <div
-                      className="h-full rounded-full bg-emerald-400 transition-all duration-500"
+                      className={`h-full rounded-full bg-emerald-400 transition-all duration-500`}
                       style={{ width: `${throughputScore}%` }}
                     />
                   </div>
@@ -583,13 +471,13 @@ function ProfilePage() {
                 <div>
                   <div className="mb-2 flex items-center justify-between text-sm">
                     <span className="text-slate-300">Consistency</span>
-                    <span className="font-semibold text-yellow-300">
+                    <span className="font-semibold text-amber-400">
                       {consistencyScore}
                     </span>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-slate-800">
                     <div
-                      className="h-full rounded-full bg-yellow-400 transition-all duration-500"
+                      className={`h-full rounded-full bg-amber-400 transition-all duration-500`}
                       style={{ width: `${consistencyScore}%` }}
                     />
                   </div>
