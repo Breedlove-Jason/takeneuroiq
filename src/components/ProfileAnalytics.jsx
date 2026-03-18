@@ -1,8 +1,5 @@
-import {
-  buildNeuralPowerTrendData,
-  calculateNeuralTrend,
-  calculatePressureState,
-} from "../utils/sessionTrendUtils";
+import { buildNeuralPowerTrendData, calculatePressureState } from "../utils/sessionTrendUtils";
+import { calculateCognitiveTracks } from "../analytics/cognitiveTracks";
 
 import { useSessionData } from "../hooks/useSessionData";
 import {
@@ -15,8 +12,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { generateCoachingInsight } from "../analytics/coachingEngine";
-import { calculateCognitiveTracks } from "../analytics/cognitiveTracks";
-import { calculateAdaptiveDifficulty } from "../analytics/adaptiveDifficulty";
 
 function ProfileAnalytics({
   cognitiveTracks: propCognitiveTracks,
@@ -28,7 +23,6 @@ function ProfileAnalytics({
   const { sessions } = useSessionData();
   const neuralPowerTrendData = buildNeuralPowerTrendData(sessions);
   const recentTrendData = neuralPowerTrendData.slice(-5);
-  const localNeuralTrend = calculateNeuralTrend(recentTrendData);
   const neuralTrend =
     propNeuralTrend ?? {
       direction: "neutral",
