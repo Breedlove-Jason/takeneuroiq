@@ -9,6 +9,12 @@ import Header from "./layout/Header.jsx";
 import LeaderboardPage from "./pages/LeaderboardPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 
+/**
+ * App Root Component
+ * 
+ * Sets the overall theme and application routing structure using React Router.
+ * Managed themes: 'cyber' (dark/futuristic) and 'light' (clean/modern).
+ */
 function App() {
   const [theme, setTheme] = useState("cyber");
 

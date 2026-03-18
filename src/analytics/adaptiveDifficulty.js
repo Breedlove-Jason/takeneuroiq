@@ -1,3 +1,24 @@
+/**
+ * Engine for determining the optimal difficulty level for the next session.
+ * 
+ * It uses performance trends, current pressure state, and specific cognitive
+ * tracks to recommend a 'Recovery', 'Steady', or 'Challenge' mode.
+ */
+
+/**
+ * Calculates the recommended adaptive difficulty based on recent performance.
+ * 
+ * Logic:
+ * - If performance is declining or under pressure: Recommendation = Recovery Mode (Easy)
+ * - If performance is improving, strong tracks, and 'locked-in': Recommendation = Challenge Mode (Hard)
+ * - Otherwise: Recommendation = Steady Mode (Medium)
+ * 
+ * @param {Object} params - Input metrics for the calculation.
+ * @param {Object} params.neuralTrend - Current power trend (improving/declining).
+ * @param {Object} params.pressureState - Current mental load state (locked-in/under-pressure).
+ * @param {Object} params.cognitiveTracks - Specific skill metrics.
+ * @returns {Object} A recommendation object with state, label, description, and targetDifficulty.
+ */
 export function calculateAdaptiveDifficulty({
   neuralTrend,
   pressureState,

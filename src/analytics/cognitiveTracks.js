@@ -1,7 +1,33 @@
+/**
+ * Engine for calculating specific cognitive skill 'tracks' based on session history.
+ * 
+ * Tracks include:
+ * - Pattern Recognition: Derived from accuracy and solve rates.
+ * - Focus Stability: Derived from streaks and accuracy.
+ * - Processing Speed: Derived from scores, total correct, and attempted puzzles.
+ * - Consistency: Derived from score variance and session stability.
+ */
+
+/**
+ * Entry point for building cognitive track metrics.
+ * 
+ * @param {Array} sessions - The list of player sessions to analyze.
+ * @returns {Object} Calculated metrics for each cognitive track.
+ */
 export function buildCognitiveTracks(sessions = []) {
   return calculateCognitiveTracks(sessions);
 }
 
+/**
+ * Core logic for calculating cognitive tracks from raw session metrics.
+ * 
+ * Uses mathematical models to normalize scores, handle variance, 
+ * and clamp values within a 0-100 range for consistency.
+ * 
+ * @param {Array} sessions - The list of session objects.
+ * @returns {Object} An object containing patternRecognition, focusStability, 
+ *                   processingSpeed, and consistency scores.
+ */
 export function calculateCognitiveTracks(sessions = []) {
   if (!Array.isArray(sessions) || sessions.length === 0) {
     return {

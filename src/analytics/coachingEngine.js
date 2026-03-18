@@ -1,3 +1,23 @@
+/**
+ * Engine for generating personalized coaching insights based on cognitive analytics.
+ * 
+ * This module translates raw performance metrics (tracks, trends, pressure) 
+ * into human-readable feedback, headlines, and strategic focus areas.
+ */
+
+/**
+ * Generates a coaching report including headlines, summaries, and strategic focus.
+ * 
+ * The logic identifies strengths and weaknesses across cognitive tracks and 
+ * combines them with trend data to provide actionable advice for the next session.
+ * 
+ * @param {Object} params - Input metrics for the calculation.
+ * @param {Object} params.cognitiveTracks - Specific skill metrics (patternRecognition, focusStability, etc.).
+ * @param {Object} params.neuralTrend - Current power trend (improving/declining).
+ * @param {Object} params.pressureState - Current mental load state.
+ * @param {Object} params.adaptiveDifficulty - Recommended difficulty state.
+ * @returns {Object} A coaching insight object with headline, summary, focus, and detail.
+ */
 export function generateCoachingInsight({
   cognitiveTracks,
   neuralTrend,

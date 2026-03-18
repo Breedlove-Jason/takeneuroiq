@@ -1,6 +1,21 @@
-import { getPlayerName } from './playerIdentity.js';
+/**
+ * Manages player session tracking, persistence, and leaderboard calculations.
+ *
+ * This module handles:
+ * - Loading and saving sessions from localStorage.
+ * - Calculating Neural Power (a composite performance score).
+ * - Categorizing sessions into difficulty buckets.
+ * - Generating leaderboard rankings based on top performance.
+ */
+import {getPlayerName} from './playerIdentity.js';
+
 const STORAGE_KEY = 'takeneuroiq_sessions';
 
+/**
+ * Loads session data from browser local storage.
+ * 
+ * @returns {Array} List of previously recorded session objects.
+ */
 function loadSessions() {
   try {
     if (typeof localStorage === 'undefined') return [];
@@ -15,6 +30,9 @@ function loadSessions() {
   }
 }
 
+/**
+ * Persists current sessions array to local storage.
+ */
 function saveSessions() {
   try {
     if (typeof localStorage === 'undefined') return;
@@ -24,12 +42,25 @@ function saveSessions() {
   }
 }
 
+/**
+ * Dispatches a custom event when session data is updated to notify
+ * other application components (e.g., analytics).
+ */
 function notifySessionUpdate() {
   window.dispatchEvent(new Event('takeneuroiq:sessions-updated'));
 }
 
 const sessions = loadSessions();
 
+/**
+ * Determines a human-readable performance label for a given session.
+ * 
+ * Labels range from 'Novice Run' to 'Neural Surge' based on score, 
+ * accuracy (solve rate), and best streak.
+ * 
+ * @param {Object} session - The session to label.
+ * @returns {string} The display label for the session.
+ */
 function getSessionLabel(session) {
   const score = session.score ?? 0;
   const bestStreak = session.bestStreak ?? session.streak ?? 0;
@@ -57,6 +88,13 @@ function getSessionLabel(session) {
   return 'Novice Run';
 }
 
+/**
+ * Categorizes the difficulty level achieved during a session based on 
+ * performance metrics like score, solve rate, and best streak.
+ * 
+ * @param {Object} session - The session to bucket.
+ * @returns {string} The name of the difficulty bucket (e.g., 'Focus Mode', 'Expert Mode').
+ */
 function getDifficultyBucket(session) {
   const score = session.score ?? 0;
   const bestStreak = session.bestStreak ?? session.streak ?? 0;
@@ -83,6 +121,18 @@ function getDifficultyBucket(session) {
 
   return 'Adaptive';
 }
+/**
+ * Calculates a composite score called 'Neural Power' for a given session.
+ * 
+ * Neural Power is derived from:
+ * - Base game score
+ * - Accuracy percentage (solve rate)
+ * - Best streak length
+ * - Reliability factor: adjusts for sample size (requires ~10 puzzles for full confidence)
+ * 
+ * @param {Object} session - The session metrics to process.
+ * @returns {number} The calculated Neural Power (rounded integer).
+ */
 function calculateNeuralPower(session) {
   if (!session) return 0;
   
@@ -98,8 +148,7 @@ function calculateNeuralPower(session) {
   const accuracyScore = accuracy * 500;
 
   // Reliability factor so tiny sample sizes don't inflate scores
-  const sampleSize = attempted;
-  const reliability = Math.min(sampleSize / 10, 1);
+  const reliability = Math.min(attempted / 10, 1);
   // full confidence after ~10 puzzles
 
   const adjustedAccuracyScore = accuracyScore * reliability;
@@ -109,6 +158,14 @@ function calculateNeuralPower(session) {
   return Number.isFinite(power) ? power : 0;
 }
 
+/**
+ * Normalizes and records a new session into the persistent data store.
+ * 
+ * This adds unique IDs, timestamps, and calculates derived metrics like 
+ * Neural Power before saving and notifying the rest of the app.
+ * 
+ * @param {Object} session - The raw session data from the game run.
+ */
 export function recordSession(session) {
   const normalizedSession = {
     id: crypto.randomUUID(),
@@ -132,9 +189,17 @@ export function recordSession(session) {
   saveSessions();
 }
 
+/**
+ * Retrieves the current list of recorded sessions.
+ * 
+ * @returns {Array} All recorded session objects.
+ */
 export function getSessions() {
   return sessions;
 }
+/**
+ * Clears all recorded sessions from memory and local storage.
+ */
 export function clearSessions() {
   sessions.length = 0;
 
@@ -154,6 +219,15 @@ function getPower(s) {
   return calculateNeuralPower(s);
 }
 
+/**
+ * Processes a list of sessions to generate leaderboard data.
+ * 
+ * Groups sessions by player name and selects the best run (highest Neural Power) 
+ * for each. Returns the top 5 players sorted by performance.
+ * 
+ * @param {Array} sourceSessions - Optional list of sessions; defaults to tracked ones.
+ * @returns {Array} Top 5 sessions with rank, name, and normalized metrics.
+ */
 export function getLeaderboardSessions(sourceSessions = sessions) {
   const bestRunsByPlayer = Object.values(
     sourceSessions.reduce((acc, session) => {

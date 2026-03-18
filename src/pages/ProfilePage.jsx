@@ -18,7 +18,12 @@ import {
 } from "recharts";
 import { getPlayerName, setPlayerName } from "../game/playerIdentity";
 import { useSessionData } from "../hooks/useSessionData";
-import ProfileAnalytics from "../components/ProfileAnalytics";
+import ProfileAnalytics, {
+  statColors,
+  IdentityCoreStats,
+  PerformanceSnapshot,
+  AgentSummary,
+} from "../components/ProfileAnalytics";
 import { buildSessionAnalytics } from "../analytics/sessionAnalytics";
 
 function formatSessionTime(timestamp) {
@@ -41,8 +46,6 @@ function ProfilePage() {
     height: 0,
   });
 
-  const recentSessions = [...sessions].slice(-5).reverse();
-
   const {
     cognitiveTracks = {
       patternRecognition: 0,
@@ -56,23 +59,9 @@ function ProfilePage() {
     coachingInsight = { summary: "", detail: "" },
   } = analytics || {};
 
-  const agentSummary = analytics
-    ? `${coachingInsight.summary} ${coachingInsight.detail}`.trim()
-    : "Complete your first session to unlock AI coaching insights.";
+  const recentSessions = [...sessions].slice(-5).reverse();
 
-  const normalizedNameInput = nameInput.trim();
-  const canSavePlayerName =
-    normalizedNameInput.length > 0 && normalizedNameInput !== playerName;
-  const bestNeuralPower =
-    sessions.length > 0
-      ? Math.max(...sessions.map((session) => session.neuralPower ?? 0))
-      : 0;
-
-  const bestScore =
-    sessions.length > 0
-      ? Math.max(...sessions.map((session) => session.score ?? 0))
-      : 0;
-
+  // Helper to calculate session accuracy for the table and trends.
   const getSessionAccuracy = (session) => {
     if (
       typeof session.puzzlesAttempted === "number" &&
@@ -83,76 +72,24 @@ function ProfilePage() {
         (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
       );
     }
-
     return session.accuracy ?? 0;
   };
 
-  const bestStreak =
-    sessions.length > 0
-      ? Math.max(
-          ...sessions.map(
-            (session) => session.bestStreak ?? session.streak ?? 0,
-          ),
-        )
-      : 0;
+  const normalizedNameInput = nameInput.trim();
+  const canSavePlayerName =
+    normalizedNameInput.length > 0 && normalizedNameInput !== playerName;
 
   const currentRank = sessions.length > 0 ? "Active" : "Unranked";
-  const totalSessions = sessions.length;
-  const totalPuzzlesSolved = sessions.reduce(
-    (sum, session) =>
-      sum + (session.puzzlesCorrect ?? session.correctAnswers ?? 0),
-    0,
-  );
 
-  const totalPuzzlesAttempted = sessions.reduce(
-    (sum, session) =>
-      sum + (session.puzzlesAttempted ?? session.puzzlesSeen ?? 0),
-    0,
-  );
-
-  const solveRate =
-    totalPuzzlesAttempted > 0
-      ? Math.round((totalPuzzlesSolved / totalPuzzlesAttempted) * 100)
-      : 0;
-
-  const averageScore =
-    sessions.length > 0
-      ? Math.round(
-          sessions.reduce((sum, s) => sum + (s.score ?? 0), 0) /
-            sessions.length,
-        )
-      : 0;
-
-  const averageAccuracy =
-    sessions.length > 0
-      ? Math.round(
-          sessions.reduce((sum, s) => {
-            if (
-              typeof s.puzzlesAttempted === "number" &&
-              s.puzzlesAttempted > 0 &&
-              typeof s.puzzlesCorrect === "number"
-            ) {
-              return (
-                sum + Math.round((s.puzzlesCorrect / s.puzzlesAttempted) * 100)
-              );
-            }
-
-            return sum + (s.accuracy ?? 0);
-          }, 0) / sessions.length,
-        )
-      : 0;
-
+  // Re-calculate derived metrics used for charts and sub-labels.
   function weightedAverage(values) {
     if (!values.length) return 0;
-
     const weights = values.map((_, index) => index + 1);
     const weightedSum = values.reduce(
       (sum, value, index) => sum + value * weights[index],
       0,
     );
-
     const weightTotal = weights.reduce((a, b) => a + b, 0);
-
     return weightedSum / weightTotal;
   }
 
@@ -173,6 +110,7 @@ function ProfilePage() {
         .map((session) => session.score ?? 0),
     ),
   );
+
   const weightedStreak = Math.round(
     weightedAverage(
       recentSessions
@@ -182,6 +120,32 @@ function ProfilePage() {
     ),
   );
 
+  const totalPuzzlesSolved = sessions.reduce(
+    (sum, session) =>
+      sum + (session.puzzlesCorrect ?? session.correctAnswers ?? 0),
+    0,
+  );
+
+  const totalPuzzlesAttempted = sessions.reduce(
+    (sum, session) =>
+      sum + (session.puzzlesAttempted ?? session.puzzlesSeen ?? 0),
+    0,
+  );
+
+  const solveRate =
+    totalPuzzlesAttempted > 0
+      ? Math.round((totalPuzzlesSolved / totalPuzzlesAttempted) * 100)
+      : 0;
+
+  const bestStreak =
+    sessions.length > 0
+      ? Math.max(
+          ...sessions.map(
+            (session) => session.bestStreak ?? session.streak ?? 0,
+          ),
+        )
+      : 0;
+
   const precisionScore = Math.min(
     Math.round((weightedAccuracy + solveRate) / 2),
     100,
@@ -190,16 +154,14 @@ function ProfilePage() {
     Math.round(((bestStreak + weightedStreak) / 2 / 12) * 100),
     100,
   );
-
   const throughputScore = Math.min(
     Math.round((weightedScore / 1200) * 100),
     100,
   );
+
   const consistencyScore = (() => {
     if (sessions.length < 2) return 50;
-
     const recentSessionSlice = recentSessions.slice().reverse();
-
     const recentScores = recentSessionSlice.map(
       (session) => session.score ?? 0,
     );
@@ -247,48 +209,35 @@ function ProfilePage() {
     if (sessions.length < 2) {
       return "Not enough sessions yet to detect a score trend.";
     }
-
     const recentScores = recentSessions
       .slice()
       .reverse()
       .map((session) => session.score ?? 0);
-
     const firstScore = recentScores[0];
     const lastScore = recentScores[recentScores.length - 1];
     const difference = lastScore - firstScore;
-
-    if (difference >= 100) {
+    if (difference >= 100)
       return "Score trend rising. Recent runs show stronger scoring output.";
-    }
-
-    if (difference <= -100) {
+    if (difference <= -100)
       return "Score trend dipping. Recent sessions suggest reduced scoring efficiency.";
-    }
-
     return "Score trend stable. Performance output is holding near current baseline.";
   })();
+
   const accuracyTrend = (() => {
     if (sessions.length < 2) {
       return "Not enough sessions yet to detect an accuracy trend.";
     }
-
     const recentAccuracies = recentSessions
       .slice()
       .reverse()
       .map((session) => session.accuracy ?? 0);
-
     const firstAccuracy = recentAccuracies[0];
     const lastAccuracy = recentAccuracies[recentAccuracies.length - 1];
     const difference = lastAccuracy - firstAccuracy;
-
-    if (difference >= 5) {
+    if (difference >= 5)
       return "Accuracy trend rising. Precision control is improving across recent runs.";
-    }
-
-    if (difference <= -5) {
+    if (difference <= -5)
       return "Accuracy trend slipping. Precision consistency is dropping under current conditions.";
-    }
-
     return "Accuracy trend stable. Precision output is holding near current baseline.";
   })();
 
@@ -296,32 +245,19 @@ function ProfilePage() {
     if (sessions.length < 2) {
       return "Not enough sessions yet to detect streak stability.";
     }
-
     const recentStreaks = recentSessions
       .slice()
       .reverse()
       .map((session) => session.bestStreak ?? session.streak ?? 0);
-
     const minStreak = Math.min(...recentStreaks);
     const maxStreak = Math.max(...recentStreaks);
     const spread = maxStreak - minStreak;
-
-    if (spread <= 2) {
+    if (spread <= 2)
       return "Streak stability strong. Cognitive momentum is holding consistently across recent runs.";
-    }
-
-    if (spread >= 6) {
+    if (spread >= 6)
       return "Streak stability volatile. Momentum is fluctuating noticeably between sessions.";
-    }
-
     return "Streak stability moderate. Momentum control is forming but not yet fully consistent.";
   })();
-
-  const scoreBarMax = Math.max(bestScore, 1500);
-  const bestScorePercent = Math.min((bestScore / scoreBarMax) * 100, 100);
-  const averageScorePercent = Math.min((averageScore / scoreBarMax) * 100, 100);
-  const averageAccuracyPercent = Math.min(averageAccuracy, 100);
-  const bestStreakPercent = Math.min((bestStreak / 20) * 100, 100);
   const handleResetData = () => {
     const confirmed = window.confirm(
       "Clear all TakeNeuroIQ session history and leaderboard data?",
@@ -440,136 +376,49 @@ function ProfilePage() {
                 Identity Core
               </h2>
 
-              <div className="mt-4 space-y-4">
-                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Player
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-white">
-                    {playerName}
-                  </p>
-
-                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                    <input
-                      type="text"
-                      value={nameInput}
-                      onChange={(event) => setNameInput(event.target.value)}
-                      onKeyDown={handlePlayerNameKeyDown}
-                      placeholder="Enter player name"
-                      className="w-full rounded-xl border border-cyan-400/20 bg-slate-900/80 px-4 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSavePlayerName}
-                      disabled={!canSavePlayerName}
-                      className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                        canSavePlayerName
-                          ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
-                          : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
-                      }`}
-                    >
-                      Save Name
-                    </button>
-                  </div>
-
-                  {nameSaved && (
-                    <p className="mt-2 text-sm font-medium text-emerald-300">
-                      Player name saved.
+                <div className="mt-4 space-y-4">
+                  <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                      Player
                     </p>
-                  )}
-                </div>
+                    <p className="mt-2 text-lg font-semibold text-white">
+                      {playerName}
+                    </p>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Best Score
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-cyan-300">
-                        {bestScore}
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Best Streak
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-emerald-300">
-                        {bestStreak}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Best Neural Power
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-yellow-300">
-                        {bestNeuralPower}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Avg Score
-                      </p>
-
-                    <p className="mt-2 text-2xl font-bold text-fuchsia-300">
-                        {averageScore}
-                      </p>
-
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                      <input
+                        type="text"
+                        value={nameInput}
+                        onChange={(event) => setNameInput(event.target.value)}
+                        onKeyDown={handlePlayerNameKeyDown}
+                        placeholder="Enter player name"
+                        className="w-full rounded-xl border border-cyan-400/20 bg-slate-900/80 px-4 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSavePlayerName}
+                        disabled={!canSavePlayerName}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                          canSavePlayerName
+                            ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
+                            : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
+                        }`}
+                      >
+                        Save Name
+                      </button>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Avg Accuracy
+                    {nameSaved && (
+                      <p className="mt-2 text-sm font-medium text-emerald-300">
+                        Player name saved.
                       </p>
-                      <p className="mt-2 text-2xl font-bold text-cyan-300">
-                        {averageAccuracy}%
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Puzzles Solved
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-emerald-300">
-                        {totalPuzzlesSolved}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Total Attempts
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-cyan-300">
-                        {totalPuzzlesAttempted}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Solve Rate
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-fuchsia-300">
-                        {solveRate}%
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4 col-span-2">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                        Sessions Played
-                      </p>
-                      <p className="mt-2 text-2xl font-bold text-white">
-                        {totalSessions}
-                      </p>
-                    </div>
+                    )}
                   </div>
-                </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Agent Summary
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {agentSummary}
-                  </p>
+                  <IdentityCoreStats />
+
+                  <AgentSummary coachingInsight={coachingInsight} />
                 </div>
-              </div>
             </div>
 
             <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
@@ -634,77 +483,7 @@ function ProfilePage() {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
-              <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                <FontAwesomeIcon
-                  icon={faChartLine}
-                  className="text-fuchsia-300"
-                />
-                Performance Snapshot
-              </h2>
-
-              <div className="mt-5 space-y-4">
-                <div>
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Best Score</span>
-                    <span className="font-semibold text-cyan-300">
-                      {bestScore}
-                    </span>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-cyan-400 transition-all duration-500"
-                      style={{ width: `${bestScorePercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Average Score</span>
-                    <span className="font-semibold text-fuchsia-300">
-                      {averageScore}
-                    </span>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-fuchsia-400 transition-all duration-500"
-                      style={{ width: `${averageScorePercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Average Accuracy</span>
-                    <span className="font-semibold text-emerald-300">
-                      {averageAccuracy}%
-                    </span>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-emerald-400 transition-all duration-500"
-                      style={{ width: `${averageAccuracyPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Best Streak</span>
-                    <span className="font-semibold text-yellow-300">
-                      {bestStreak}
-                    </span>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-yellow-400 transition-all duration-500"
-                      style={{ width: `${bestStreakPercent}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PerformanceSnapshot />
 
             <ProfileAnalytics
               cognitiveTracks={cognitiveTracks}

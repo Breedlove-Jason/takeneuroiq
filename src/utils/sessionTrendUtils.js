@@ -1,3 +1,20 @@
+/**
+ * Utility functions for transforming raw session data into trend-ready metrics.
+ * 
+ * Includes functions for data normalization, trend calculation, and pressure state detection.
+ */
+
+/**
+ * Transforms a raw session list into an array of objects for visualization and analysis.
+ * 
+ * - Filters for valid objects
+ * - Sorts sessions by timestamp (oldest to newest)
+ * - Normalizes metrics (Neural Power, Score, Accuracy, Best Streak)
+ * - Adds a display label (e.g., 'S1', 'S2') and a formatted date
+ * 
+ * @param {Array} sessions - The list of player sessions to normalize.
+ * @returns {Array} A list of trend-ready data points for charts and analytics.
+ */
 export function buildNeuralPowerTrendData(sessions = []) {
   if (!Array.isArray(sessions) || sessions.length === 0) {
     return [];
@@ -36,6 +53,13 @@ export function buildNeuralPowerTrendData(sessions = []) {
     });
 }
 
+/**
+ * Calculates the overall performance trend between the first and last session in a data set.
+ * 
+ * @param {Array} trendData - The list of normalized trend data points.
+ * @returns {Object} An object containing the trend direction (improving, declining, stable) 
+ *                   and the total change in Neural Power.
+ */
 export function calculateNeuralTrend(trendData = []) {
   if (!Array.isArray(trendData) || trendData.length < 2) {
     return { direction: "neutral", change: 0 };
@@ -57,6 +81,16 @@ export function calculateNeuralTrend(trendData = []) {
   return { direction, change };
 }
 
+/**
+ * Detects 'Cognitive Pressure' by analyzing the last few sessions for stability issues.
+ * 
+ * Uses moving averages of accuracy, streaks, and scores to determine if a user 
+ * is 'Locked In' (strong, stable performance) or 'Under Pressure' (accuracy 
+ * is high but streaks are failing).
+ * 
+ * @param {Array} trendData - The list of normalized trend data points.
+ * @returns {Object} A pressure state object with state, label, and detail message.
+ */
 export function calculatePressureState(trendData = []) {
   if (!Array.isArray(trendData) || trendData.length < 3) {
     return {

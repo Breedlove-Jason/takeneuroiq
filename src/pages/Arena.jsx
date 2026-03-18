@@ -4,6 +4,29 @@ import patternPuzzles from "../game/patternPuzzles";
 import { getRandomPuzzle, checkAnswer } from "../game/puzzleEngine";
 import { recordSession } from "../game/sessionTracker";
 
+/**
+ * Helper function to get a random index
+ * @param {number} length - The length of the array
+ * @returns {number} A random index within the array bounds
+ */
+function getRandomIndex(length) {
+  return Math.floor(Math.random() * length);
+}
+
+/**
+ * Arena Component
+ *
+ * The primary gameplay container for the 'Pattern Rush' challenge.
+ *
+ * Responsibilities:
+ * - Managing the game loop (timer, puzzle rotation, answer handling).
+ * - Tracking real-time performance metrics (score, streak, accuracy).
+ * - Recording session data to the global tracker upon game completion.
+ * - Providing visual feedback (correct/incorrect) and game-over states.
+ *
+ * @param {Object} props - Component properties.
+ * @param {string} props.theme - Current UI theme ('cyber' or 'light').
+ */
 function Arena({ theme }) {
   const isCyber = theme === "cyber";
 
@@ -38,8 +61,31 @@ function Arena({ theme }) {
         puzzlesCorrect: correctAnswers,
         timestamp: Date.now(),
       });
+    }
+  }, [
+    timeLeft,
+    gameOver,
+    totalAnswers,
+    correctAnswers,
+    score,
+    bestStreak,
+    puzzlesSeen,
+  ]);
 
-      setGameOver(true);
+  useEffect(
+    () => {
+      // Intentionally accessing gameOver without including in dependencies
+      // to avoid cascading renders. gameOver prevents re-execution when true.
+      if (timeLeft <= 0 && !gameOver) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setGameOver(true);
+      }
+    },
+    [timeLeft], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  useEffect(() => {
+    if (gameOver) {
       return;
     }
 
@@ -48,15 +94,14 @@ function Arena({ theme }) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, gameOver]);
+  }, [gameOver]);
 
   function loadNextPuzzle(currentId) {
     const availablePuzzles = patternPuzzles.filter(
       (puzzle) => puzzle.id !== currentId,
     );
 
-    const nextPuzzle =
-      availablePuzzles[Math.floor(Math.random() * availablePuzzles.length)];
+    const nextPuzzle = availablePuzzles[getRandomIndex(availablePuzzles.length)];
 
     setCurrentPuzzle(nextPuzzle);
     setPuzzlesSeen((prev) => prev + 1);
@@ -225,13 +270,13 @@ function Arena({ theme }) {
             </div>
           </div>
 
-          <div
-            className={`mt-6 rounded-[24px] border p-6 md:p-10 ${
-              isCyber
-                ? "border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]"
-                : "border-slate-200 bg-white"
-            }`}
-          >
+            <div
+              className={`mt-6 rounded-3xl border p-6 md:p-10 ${
+                isCyber
+                  ? "border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]"
+                  : "border-slate-200 bg-white"
+              }`}
+            >
             {gameOver ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <p

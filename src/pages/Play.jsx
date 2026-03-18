@@ -1,15 +1,24 @@
 // src/pages/Play.jsx
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   faShapes,
   faScaleBalanced,
   faBrain,
 } from "@fortawesome/free-solid-svg-icons";
 
+/**
+ * Play Page Component
+ * 
+ * Provides a selection screen for different game modes (challenges).
+ * Currently, all modes link to the 'Arena' where the primary 'Pattern Rush' 
+ * game logic resides.
+ * 
+ * @param {Object} props - Component properties.
+ * @param {string} props.theme - Current UI theme ('cyber' or 'light').
+ */
 function Play({ theme }) {
   const isCyber = theme === "cyber";
-  const navigate = useNavigate();
 
   const challenges = [
     {

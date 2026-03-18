@@ -1,3 +1,12 @@
+/**
+ * Static collection of pattern-based puzzles used in the TakeNeuroIQ game.
+ * Each puzzle object contains:
+ * - id: Unique identifier
+ * - title: Display title or instructions
+ * - grid: 3x3 array of shapes with one 'missing' slot
+ * - choices: Available shape options for the user
+ * - correctAnswer: The shape that correctly completes the grid
+ */
 const patternPuzzles = [
   {
     id: 1,
