@@ -19,7 +19,6 @@ import {
 import { getPlayerName, setPlayerName } from "../game/playerIdentity";
 import { useSessionData } from "../hooks/useSessionData";
 import ProfileAnalytics, {
-  statColors,
   IdentityCoreStats,
   PerformanceSnapshot,
   AgentSummary,
