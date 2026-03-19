@@ -47,6 +47,27 @@ const adaptiveConfidenceColorMap = {
   high: "text-emerald-300",
 };
 
+const adaptiveCoachingMessageMap = {
+  recover: "Slow down and lock in accuracy before pushing speed.",
+  steady: "Stay consistent. Your current pace is well balanced.",
+  challenge: "You are in a strong rhythm. Push for precision and streaks.",
+};
+
+const adaptiveFeedbackMap = {
+  recover: {
+    correct: "Correct. Rebuild the pattern one step at a time.",
+    incorrect: "Missed. Slow down and focus on the next pattern.",
+  },
+  steady: {
+    correct: "Correct. Your rhythm is holding steady.",
+    incorrect: "Incorrect. Reset and stay consistent.",
+  },
+  challenge: {
+    correct: "Correct. Strong read. Keep pressing your advantage.",
+    incorrect: "Missed. Stay sharp. The next one will be tougher.",
+  },
+};
+
 function Arena({ theme }) {
   const isCyber = theme === "cyber";
 
@@ -69,6 +90,9 @@ function Arena({ theme }) {
   });
   const currentPuzzleDifficulty =
     currentPuzzle?.difficulty || currentPuzzle?.difficultyBucket || "medium";
+  const nextTargetDifficulty =
+    liveAdaptiveDifficulty.targetDifficulty?.toUpperCase() || "MEDIUM";
+  const currentPuzzleDifficultyLabel = currentPuzzleDifficulty.toUpperCase();
   const adaptiveStateLabel =
     adaptiveStateLabelMap[liveAdaptiveDifficulty.state] ?? "Stable Load";
 
@@ -78,6 +102,10 @@ function Arena({ theme }) {
   const adaptiveConfidenceColor =
     adaptiveConfidenceColorMap[liveAdaptiveDifficulty.confidence] ??
     "text-slate-300";
+
+  const adaptiveCoachingMessage =
+    adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
+    "Stay consistent and keep building momentum.";
 
   useEffect(() => {
     if (gameOver) return;
@@ -169,15 +197,19 @@ function Arena({ theme }) {
 
     setTotalAnswers(nextTotalAnswers);
 
+    const stateFeedback =
+      adaptiveFeedbackMap[liveAdaptiveDifficulty.state] ??
+      adaptiveFeedbackMap.steady;
+
     if (isCorrect) {
       setScore((prev) => prev + 100);
       setStreak(nextStreak);
       setBestStreak(nextBestStreak);
       setCorrectAnswers(nextCorrectAnswers);
-      setFeedback("Correct");
+      setFeedback(stateFeedback.correct);
     } else {
       setStreak(0);
-      setFeedback("Incorrect");
+      setFeedback(stateFeedback.incorrect);
     }
 
     const nextLiveAdaptiveDifficulty = calculateLiveAdaptiveDifficulty({
@@ -572,9 +604,9 @@ function Arena({ theme }) {
               </div>
             </div>
             <div className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 p-5 shadow-[0_0_24px_rgba(34,211,238,0.08)]">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                Live Adaptive Signal
-              </p>
+<p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
+  Cognitive State
+</p>
 
               <div className="mt-2 flex items-center justify-between gap-4">
                 <div>
@@ -584,24 +616,35 @@ function Arena({ theme }) {
                   <p className="mt-1 text-sm text-slate-400">
                     {liveAdaptiveDifficulty.reason}
                   </p>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                    {adaptiveCoachingMessage}
+                  </p>
                 </div>
+                <div className="text-right space-y-2">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                      Current
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-slate-300">
+                      {currentPuzzleDifficultyLabel}
+                    </p>
+                  </div>
 
-                <div className="text-right">
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                    Target
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-slate-200">
-                    {liveAdaptiveDifficulty.targetDifficulty.toUpperCase()}
-                  </p>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                      Next Target
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-slate-200">
+                      {nextTargetDifficulty}
+                    </p>
+                  </div>
+
                   <p
-                    className={`mt-1 text-xs font-medium ${adaptiveConfidenceColor}`}
+                    className={`text-xs font-medium ${adaptiveConfidenceColor}`}
                   >
                     {liveAdaptiveDifficulty.confidence.toUpperCase()} confidence
                   </p>
-                  <p className="mt-1 text-[11px] text-slate-500">
-                    Current puzzle: {currentPuzzleDifficulty.toUpperCase()}
-                  </p>
-                </div>
+                </div>{" "}
               </div>
             </div>
 
