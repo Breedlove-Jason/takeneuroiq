@@ -131,13 +131,23 @@ function Arena({ theme }) {
     return () => clearInterval(timer);
   }, [gameOver]);
 
-  function loadNextPuzzle(currentId) {
+  function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
     const availablePuzzles = patternPuzzles.filter(
       (puzzle) => puzzle.id !== currentId,
     );
 
-    const nextPuzzle =
-      availablePuzzles[getRandomIndex(availablePuzzles.length)];
+    const difficultyMatchedPuzzles = availablePuzzles.filter(
+      (puzzle) =>
+        (puzzle.difficulty || puzzle.difficultyBucket || 'medium') ===
+        preferredDifficulty,
+    );
+
+    const puzzlePool =
+      difficultyMatchedPuzzles.length > 0
+        ? difficultyMatchedPuzzles
+        : availablePuzzles;
+
+    const nextPuzzle = puzzlePool[getRandomIndex(puzzlePool.length)];
 
     setCurrentPuzzle(nextPuzzle);
     setPuzzlesSeen((prev) => prev + 1);
@@ -179,20 +189,23 @@ function Arena({ theme }) {
     setTimeout(() => {
       setFeedback('');
       if (!gameOver) {
-        loadNextPuzzle(currentPuzzle.id);
+        loadNextPuzzle(
+          currentPuzzle.id,
+          nextLiveAdaptiveDifficulty.targetDifficulty,
+        );
       }
     }, 700);
   }
 
   function resetGame() {
     const newPuzzle = getRandomPuzzle();
+    setCurrentPuzzle(newPuzzle);
     setLiveAdaptiveDifficulty({
       state: 'steady',
       targetDifficulty: 'medium',
       confidence: 'low',
       reason: 'Not enough live data yet.',
     });
-    setCurrentPuzzle(newPuzzle);
     setScore(0);
     setStreak(0);
     setBestStreak(0);
@@ -555,7 +568,7 @@ function Arena({ theme }) {
                 {score.toString().padStart(4, '0')}
               </div>
             </div>
-            <div className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 p-4 shadow-[0_0_24px_rgba(34,211,238,0.08)]">
+          <div className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 p-5 shadow-[0_0_24px_rgba(34,211,238,0.08)]">
               <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
                 Live Adaptive Signal
               </p>
