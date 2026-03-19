@@ -3,6 +3,7 @@
  * Each puzzle object contains:
  * - id: Unique identifier
  * - title: Display title or instructions
+ * - difficulty: First-pass challenge tier (easy, medium, hard)
  * - grid: 3x3 array of shapes with one 'missing' slot
  * - choices: Available shape options for the user
  * - correctAnswer: The shape that correctly completes the grid
@@ -10,6 +11,7 @@
 const patternPuzzles = [
   {
     id: 1,
+    difficulty: "easy",
     title: "Identify the missing pattern",
     grid: [
       "square",
@@ -27,6 +29,7 @@ const patternPuzzles = [
   },
   {
     id: 2,
+    difficulty: "easy",
     title: "Find the missing symbol",
     grid: [
       "circle",
@@ -44,6 +47,7 @@ const patternPuzzles = [
   },
   {
     id: 3,
+    difficulty: "easy",
     title: "Complete the sequence grid",
     grid: [
       "triangle",
@@ -61,6 +65,7 @@ const patternPuzzles = [
   },
   {
     id: 4,
+    difficulty: "medium",
     title: "Complete the rotating pattern",
     grid: [
       "triangle",
@@ -78,6 +83,7 @@ const patternPuzzles = [
   },
   {
     id: 5,
+    difficulty: "medium",
     title: "Identify the pattern",
     grid: [
       "diamond",
@@ -95,6 +101,7 @@ const patternPuzzles = [
   },
   {
     id: 6,
+    difficulty: "medium",
     title: "Complete the sequence",
     grid: [
       "circle",
@@ -112,6 +119,7 @@ const patternPuzzles = [
   },
   {
     id: 7,
+    difficulty: "hard",
     title: "Shape Grid",
     grid: [
       "diamond",
@@ -129,6 +137,7 @@ const patternPuzzles = [
   },
   {
     id: 8,
+    difficulty: "hard",
     title: "Complete the pattern",
     grid: [
       "square",
@@ -146,6 +155,7 @@ const patternPuzzles = [
   },
   {
     id: 9,
+    difficulty: "hard",
     title: "Final logic puzzle",
     grid: [
       "circle",
@@ -160,6 +170,60 @@ const patternPuzzles = [
     ],
     choices: ["circle", "triangle", "diamond", "square"],
     correctAnswer: "diamond",
+  },
+  {
+    id: 10,
+    difficulty: "easy",
+    title: "Find the Circle",
+    grid: [
+      "square",
+      "square",
+      "square",
+      "triangle",
+      "triangle",
+      "triangle",
+      "circle",
+      "missing",
+      "circle",
+    ],
+    choices: ["circle", "square", "triangle", "diamond"],
+    correctAnswer: "circle",
+  },
+  {
+    id: 11,
+    difficulty: "medium",
+    title: "Complete the Circle sequence",
+    grid: [
+      "circle",
+      "triangle",
+      "square",
+      "triangle",
+      "square",
+      "circle",
+      "square",
+      "circle",
+      "missing",
+    ],
+    choices: ["circle", "square", "triangle", "diamond"],
+    correctAnswer: "triangle",
+  },
+  {
+    id: 12,
+    difficulty: "hard",
+    title: "Master Circle Pattern",
+    grid: [
+      "diamond",
+      "circle",
+      "square",
+      "circle",
+      "square",
+      "diamond",
+      "square",
+      "diamond",
+      "missing",
+    ],
+    choices: ["circle", "square", "triangle", "diamond"],
+    correctAnswer: "circle",
   },
 ];
 
