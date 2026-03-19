@@ -36,12 +36,10 @@ function ProfileAnalytics({
   sessions = [],
   cognitiveTracks: propCognitiveTracks,
   neuralTrend: propNeuralTrend,
-  pressureState: sharedPressureState,
+  pressureState: propPressureState,
   adaptiveDifficulty: propAdaptiveDifficulty,
   coachingInsight: propCoachingInsight,
 }) {
-
-  // Build the full history once, then derive the recent window used by the summary cards.
   const neuralPowerTrendData = buildNeuralPowerTrendData(sessions);
   const recentTrendData = neuralPowerTrendData.slice(-5);
   const neuralTrend = propNeuralTrend ?? {
@@ -49,7 +47,7 @@ function ProfileAnalytics({
     change: 0,
   };
   const trendSessionCount = recentTrendData.length;
-  const pressureState = sharedPressureState ?? {
+  const pressureState = propPressureState ?? {
     state: 'neutral',
     label: 'Not Enough Data',
     detail: 'Complete a few more sessions to detect pressure patterns.',
@@ -91,14 +89,16 @@ function ProfileAnalytics({
 
   const cognitiveTracks = propCognitiveTracks ?? {
     patternRecognition: 0,
+    focusStability: 0,
     processingSpeed: 0,
     consistency: 0,
   };
 
   // Normalize the track names expected by the coaching engine.
-  const precisionScore = cognitiveTracks.patternRecognition;
-  const throughputScore = cognitiveTracks.processingSpeed;
-  const consistencyScore = cognitiveTracks.consistency;
+  const precisionScore = cognitiveTracks.patternRecognition ?? 0;
+  const focusStabilityScore = cognitiveTracks.focusStability ?? 0;
+  const throughputScore = cognitiveTracks.processingSpeed ?? 0;
+  const consistencyScore = cognitiveTracks.consistency ?? 0;
 
   const adaptiveDifficulty = propAdaptiveDifficulty ?? {
     state: 'steady',
@@ -111,7 +111,7 @@ function ProfileAnalytics({
   const localCoachingInsight = generateCoachingInsight({
     cognitiveTracks: {
       patternRecognition: precisionScore,
-      focusStability: consistencyScore,
+      focusStability: focusStabilityScore,
       processingSpeed: throughputScore,
       consistency: consistencyScore,
     },
@@ -373,8 +373,8 @@ const trendStats = [
             {trendDisplay.symbol} {trendDisplay.label}
           </div>
         </div>
-        <div className="h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-72 min-h-72 w-full">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={288}>
             <LineChart data={neuralPowerTrendData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" />

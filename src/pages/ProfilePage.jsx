@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUserAstronaut,
   faClockRotateLeft,
@@ -7,7 +7,7 @@ import {
   faChartLine,
   faBolt,
   faLayerGroup,
-} from "@fortawesome/free-solid-svg-icons";
+} from '@fortawesome/free-solid-svg-icons';
 import {
   Radar,
   RadarChart,
@@ -15,22 +15,35 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-} from "recharts";
-import { getPlayerName, setPlayerName } from "../game/playerIdentity";
-import { useSessionData } from "../hooks/useSessionData";
+} from 'recharts';
+import { getPlayerName, setPlayerName } from '../game/playerIdentity';
+import { useSessionData } from '../hooks/useSessionData';
 import ProfileAnalytics, {
   IdentityCoreStats,
   PerformanceSnapshot,
   AgentSummary,
-} from "../components/ProfileAnalytics";
-import { buildSessionAnalytics } from "../analytics/sessionAnalytics";
+} from '../components/ProfileAnalytics';
+import { buildSessionAnalytics } from '../analytics/sessionAnalytics';
 
 function formatSessionTime(timestamp) {
-  if (!timestamp) return "—";
-  return new Date(timestamp).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
+  if (!timestamp) return '—';
+  return new Date(timestamp).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
   });
+}
+
+function formatNeuralTrendLabel(direction) {
+  switch (direction) {
+    case 'improving':
+      return 'Improving';
+    case 'declining':
+      return 'Needs Recovery';
+    case 'stable':
+      return 'Stable';
+    default:
+      return 'Neutral';
+  }
 }
 
 function ProfilePage() {
@@ -38,12 +51,7 @@ function ProfilePage() {
   const [nameInput, setNameInput] = useState(() => getPlayerName());
   const [nameSaved, setNameSaved] = useState(false);
   const { sessions, resetSessions } = useSessionData();
-  const analytics = buildSessionAnalytics(sessions);
-  const chartContainerRef = useRef(null);
-  const [chartDimensions, setChartDimensions] = useState({
-    width: 0,
-    height: 0,
-  });
+  const analytics = buildSessionAnalytics(sessions) ?? {};
 
   const {
     cognitiveTracks = {
@@ -52,41 +60,24 @@ function ProfilePage() {
       processingSpeed: 0,
       consistency: 0,
     },
-    neuralTrend = { direction: "neutral", change: 0 },
-    pressureState = { state: "neutral", label: "Stable Load", detail: "" },
-    adaptiveDifficulty = { state: "steady", label: "Steady Mode" },
-    coachingInsight = { summary: "", detail: "" },
-  } = analytics || {};
+    neuralTrend = { direction: 'neutral', change: 0 },
+    pressureState = { state: 'neutral', label: 'Stable Load', detail: '' },
+    adaptiveDifficulty = {
+      state: 'steady',
+      label: 'Steady Mode',
+      description: '',
+      targetDifficulty: 'medium',
+    },
+    coachingInsight = { headline: '', summary: '', focus: '', detail: '' },
+  } = analytics;
 
-  const neuralTrendLabelMap = {
-    rising: "Improving",
-    steady: "Stable",
-    falling: "Needs Recovery",
-    neutral: "Neutral",
-  };
-
-  const pressureStateDetailMap = {
-    "locked-in": "Your recent sessions show strong control under pressure.",
-    "under-pressure":
-      "Your recent sessions suggest strain is affecting consistency.",
-    stable: "Your recent sessions are balanced and controlled.",
-    neutral: "Complete more sessions to reveal your pressure profile.",
-  };
-
-  const adaptiveDifficultyDetailMap = {
-    challenge: "You are ready for harder patterns and faster escalation.",
-    steady: "Your current difficulty pacing looks well matched.",
-    recover: "A lighter difficulty window may help rebuild momentum.",
-  };
-
-  const neuralTrendLabel =
-    neuralTrendLabelMap[neuralTrend.direction] ?? "Neutral";
+  const neuralTrendLabel = formatNeuralTrendLabel(neuralTrend.direction);
   const pressureStateDetail =
-    pressureStateDetailMap[pressureState.state] ??
-    "Complete more sessions to reveal your pressure profile.";
+    pressureState.detail ??
+    'Complete more sessions to reveal your pressure profile.';
   const adaptiveDifficultyDetail =
-    adaptiveDifficultyDetailMap[adaptiveDifficulty.state] ??
-    "Keep training to generate a stronger adaptive signal.";
+    adaptiveDifficulty.description ??
+    'Keep training to generate a stronger adaptive signal.';
 
   const precisionScore = cognitiveTracks.patternRecognition ?? 0;
   const momentumScore = cognitiveTracks.focusStability ?? 0;
@@ -94,10 +85,10 @@ function ProfilePage() {
   const consistencyScore = cognitiveTracks.consistency ?? 0;
 
   const radarData = [
-    { skill: "Precision", value: precisionScore },
-    { skill: "Momentum", value: momentumScore },
-    { skill: "Throughput", value: throughputScore },
-    { skill: "Consistency", value: consistencyScore },
+    { skill: 'Precision', value: precisionScore },
+    { skill: 'Momentum', value: momentumScore },
+    { skill: 'Throughput', value: throughputScore },
+    { skill: 'Consistency', value: consistencyScore },
   ];
 
   const recentSessions = [...sessions].slice(-5).reverse();
@@ -105,9 +96,9 @@ function ProfilePage() {
   // Helper to calculate session accuracy for the table and trends.
   const getSessionAccuracy = (session) => {
     if (
-      typeof session.puzzlesAttempted === "number" &&
+      typeof session.puzzlesAttempted === 'number' &&
       session.puzzlesAttempted > 0 &&
-      typeof session.puzzlesCorrect === "number"
+      typeof session.puzzlesCorrect === 'number'
     ) {
       return Math.round(
         (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
@@ -120,11 +111,11 @@ function ProfilePage() {
   const canSavePlayerName =
     normalizedNameInput.length > 0 && normalizedNameInput !== playerName;
 
-  const currentRank = sessions.length > 0 ? "Active" : "Unranked";
+  const currentRank = sessions.length > 0 ? 'Active' : 'Unranked';
 
   const handleResetData = () => {
     const confirmed = window.confirm(
-      "Clear all TakeNeuroIQ session history and leaderboard data?",
+      'Clear all TakeNeuroIQ session history and leaderboard data?',
     );
 
     if (!confirmed) return;
@@ -141,7 +132,7 @@ function ProfilePage() {
     setNameSaved(true);
   };
   const handlePlayerNameKeyDown = (event) => {
-    if (event.key !== "Enter") return;
+    if (event.key !== 'Enter') return;
 
     event.preventDefault();
 
@@ -157,34 +148,6 @@ function ProfilePage() {
 
     return () => window.clearTimeout(timeout);
   }, [nameSaved]);
-
-  useEffect(() => {
-    const chartContainer = chartContainerRef.current;
-    if (!chartContainer) return undefined;
-
-    const updateChartDimensions = () => {
-      const nextWidth = chartContainer.clientWidth;
-      const nextHeight = chartContainer.clientHeight;
-
-      setChartDimensions((previousDimensions) => {
-        if (
-          previousDimensions.width === nextWidth &&
-          previousDimensions.height === nextHeight
-        ) {
-          return previousDimensions;
-        }
-
-        return { width: nextWidth, height: nextHeight };
-      });
-    };
-
-    updateChartDimensions();
-
-    const observer = new ResizeObserver(updateChartDimensions);
-    observer.observe(chartContainer);
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <section className="min-h-screen px-6 py-10">
@@ -264,8 +227,8 @@ function ProfilePage() {
                       disabled={!canSavePlayerName}
                       className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                         canSavePlayerName
-                          ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
-                          : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
+                          ? 'border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200'
+                          : 'cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500'
                       }`}
                     >
                       Save Name
@@ -347,16 +310,15 @@ function ProfilePage() {
               </p>
             </div>
 
-            <PerformanceSnapshot sessions={sessions}/>
+            <PerformanceSnapshot sessions={sessions} />
 
             <ProfileAnalytics
+              sessions={sessions}
               cognitiveTracks={cognitiveTracks}
               neuralTrend={neuralTrend}
               pressureState={pressureState}
               adaptiveDifficulty={adaptiveDifficulty}
               coachingInsight={coachingInsight}
-              analytics={analytics}
-              sessions={sessions}
             />
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
@@ -365,40 +327,33 @@ function ProfilePage() {
                 Cognitive Skill Signals
               </h2>
 
-              <div
-                ref={chartContainerRef}
-                className="mt-5 h-80 min-h-[20rem] w-full min-w-0"
-              >
-                {chartDimensions.width > 0 && chartDimensions.height > 0 ? (
-                  <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                    minWidth={0}
-                    minHeight={320}
-                  >
-                    <RadarChart data={radarData}>
-                      <PolarGrid stroke="rgba(148, 163, 184, 0.25)" />
-                      <PolarAngleAxis
-                        dataKey="skill"
-                        tick={{ fill: "#cbd5e1", fontSize: 12 }}
-                      />
-                      <PolarRadiusAxis
-                        angle={30}
-                        domain={[0, 100]}
-                        tick={{ fill: "#64748b", fontSize: 10 }}
-                      />
-                      <Radar
-                        name="Cognitive Profile"
-                        dataKey="value"
-                        stroke="#a855f7"
-                        fill="#a855f7"
-                        fillOpacity={0.35}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full w-full rounded-2xl bg-slate-800/60" />
-                )}
+              <div className="mt-5 h-80 min-h-[20rem] w-full min-w-0">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  minWidth={0}
+                  minHeight={320}
+                >
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke="rgba(148, 163, 184, 0.25)" />
+                    <PolarAngleAxis
+                      dataKey="skill"
+                      tick={{ fill: '#cbd5e1', fontSize: 12 }}
+                    />
+                    <PolarRadiusAxis
+                      angle={30}
+                      domain={[0, 100]}
+                      tick={{ fill: '#64748b', fontSize: 10 }}
+                    />
+                    <Radar
+                      name="Cognitive Profile"
+                      dataKey="value"
+                      stroke="#a855f7"
+                      fill="#a855f7"
+                      fillOpacity={0.35}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
               </div>
 
               <div className="mt-5 space-y-4">
@@ -481,7 +436,7 @@ function ProfilePage() {
                   <span>Streak</span>
                   <span>Run Data</span>
                   <span>When</span>
-                </div>{" "}
+                </div>{' '}
                 {recentSessions.length > 0 ? (
                   recentSessions.map((session, index) => (
                     <div
@@ -489,7 +444,7 @@ function ProfilePage() {
                       className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
                     >
                       <span className="font-semibold text-white">
-                        {session.mode || "Pattern Rush"}
+                        {session.mode || 'Pattern Rush'}
                       </span>
                       <span>{session.score ?? 0}</span>
                       <span>{getSessionAccuracy(session)}%</span>
