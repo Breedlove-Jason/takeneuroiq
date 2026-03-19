@@ -279,7 +279,7 @@ function ProfilePage() {
                   )}
                 </div>
 
-                <IdentityCoreStats />
+                <IdentityCoreStats sessions={sessions} />
 
                 <AgentSummary coachingInsight={coachingInsight} />
               </div>
@@ -347,7 +347,7 @@ function ProfilePage() {
               </p>
             </div>
 
-            <PerformanceSnapshot />
+            <PerformanceSnapshot sessions={sessions}/>
 
             <ProfileAnalytics
               cognitiveTracks={cognitiveTracks}
@@ -355,6 +355,8 @@ function ProfilePage() {
               pressureState={pressureState}
               adaptiveDifficulty={adaptiveDifficulty}
               coachingInsight={coachingInsight}
+              analytics={analytics}
+              sessions={sessions}
             />
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">

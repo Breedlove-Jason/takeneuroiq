@@ -1,5 +1,4 @@
 import { buildNeuralPowerTrendData } from "../utils/sessionTrendUtils";
-import { useSessionData } from "../hooks/useSessionData";
 import {
   LineChart,
   Line,
@@ -34,13 +33,13 @@ import { faChartLine } from "@fortawesome/free-solid-svg-icons";
  * @param {Object} [props.coachingInsight] - Override for coaching insight text.
  */
 function ProfileAnalytics({
+  sessions = [],
   cognitiveTracks: propCognitiveTracks,
   neuralTrend: propNeuralTrend,
   pressureState: sharedPressureState,
   adaptiveDifficulty: propAdaptiveDifficulty,
   coachingInsight: propCoachingInsight,
 }) {
-  const { sessions } = useSessionData();
 
   // Build the full history once, then derive the recent window used by the summary cards.
   const neuralPowerTrendData = buildNeuralPowerTrendData(sessions);
@@ -441,7 +440,9 @@ function getSessionAccuracy(session) {
  * Calculates a set of performance metrics from session history.
  */
 function calculatePerformanceMetrics(sessions) {
-  if (!sessions || sessions.length === 0) {
+  const safeSessions = Array.isArray(sessions) ? sessions : [];
+
+  if (safeSessions.length === 0) {
     return {
       bestScore: 0,
       bestStreak: 0,
@@ -455,18 +456,18 @@ function calculatePerformanceMetrics(sessions) {
     };
   }
 
-  const bestScore = Math.max(...sessions.map((s) => s.score ?? 0));
+  const bestScore = Math.max(...safeSessions.map((s) => s.score ?? 0));
   const bestStreak = Math.max(
-    ...sessions.map((s) => s.bestStreak ?? s.streak ?? 0),
+    ...safeSessions.map((s) => s.bestStreak ?? s.streak ?? 0),
   );
-  const bestNeuralPower = Math.max(...sessions.map((s) => s.neuralPower ?? 0));
-  const totalSessions = sessions.length;
+  const bestNeuralPower = Math.max(...safeSessions.map((s) => s.neuralPower ?? 0));
+  const totalSessions = safeSessions.length;
 
-  const totalPuzzlesSolved = sessions.reduce(
+  const totalPuzzlesSolved = safeSessions.reduce(
     (sum, s) => sum + (s.puzzlesCorrect ?? s.correctAnswers ?? 0),
     0,
   );
-  const totalPuzzlesAttempted = sessions.reduce(
+  const totalPuzzlesAttempted = safeSessions.reduce(
     (sum, s) => sum + (s.puzzlesAttempted ?? s.puzzlesSeen ?? 0),
     0,
   );
@@ -477,11 +478,11 @@ function calculatePerformanceMetrics(sessions) {
       : 0;
 
   const averageScore = Math.round(
-    sessions.reduce((sum, s) => sum + (s.score ?? 0), 0) / totalSessions,
+    safeSessions.reduce((sum, s) => sum + (s.score ?? 0), 0) / totalSessions,
   );
 
   const averageAccuracy = Math.round(
-    sessions.reduce((sum, s) => sum + getSessionAccuracy(s), 0) / totalSessions,
+    safeSessions.reduce((sum, s) => sum + getSessionAccuracy(s), 0) / totalSessions,
   );
 
   return {
@@ -500,8 +501,7 @@ function calculatePerformanceMetrics(sessions) {
 /**
  * Renders the Identity Core stats grid.
  */
-export function IdentityCoreStats() {
-  const { sessions } = useSessionData();
+export function IdentityCoreStats({sessions = []}) {
   const metrics = calculatePerformanceMetrics(sessions);
 
   const stats = [
@@ -573,8 +573,7 @@ export function IdentityCoreStats() {
 /**
  * Renders the Performance Snapshot section.
  */
-export function PerformanceSnapshot() {
-  const { sessions } = useSessionData();
+export function PerformanceSnapshot({ sessions = [] }) {
   const metrics = calculatePerformanceMetrics(sessions);
 
   const scoreBarMax = Math.max(metrics.bestScore, 1500);
