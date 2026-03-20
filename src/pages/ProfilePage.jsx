@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState, useEffect, useMemo } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserAstronaut,
   faClockRotateLeft,
@@ -7,7 +7,7 @@ import {
   faChartLine,
   faBolt,
   faLayerGroup,
-} from '@fortawesome/free-solid-svg-icons';
+} from "@fortawesome/free-solid-svg-icons";
 import {
   Radar,
   RadarChart,
@@ -15,49 +15,49 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-} from 'recharts';
-import { getPlayerName, setPlayerName } from '../game/playerIdentity';
-import { useSessionData } from '../hooks/useSessionData';
+} from "recharts";
+import { getPlayerName, setPlayerName } from "../game/playerIdentity";
+import { useSessionData } from "../hooks/useSessionData";
 import ProfileAnalytics, {
   IdentityCoreStats,
   PerformanceSnapshot,
   AgentSummary,
-} from '../components/ProfileAnalytics';
-import { buildSessionAnalytics } from '../analytics/sessionAnalytics';
+} from "../components/ProfileAnalytics";
+import { buildSessionAnalytics } from "../analytics/sessionAnalytics";
 
 function formatSessionTime(timestamp) {
-  if (!timestamp) return '—';
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  if (!timestamp) return "—";
+  return new Date(timestamp).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
   });
 }
 
 const adaptiveStateHistoryLabelMap = {
-  recover: 'Recovery Mode',
-  steady: 'Stable Load',
-  challenge: 'Challenge Mode',
+  recover: "Recovery Mode",
+  steady: "Stable Load",
+  challenge: "Challenge Mode",
 };
 
 const adaptiveStateHistoryColorMap = {
-  recover: 'text-yellow-300',
-  steady: 'text-cyan-300',
-  challenge: 'text-fuchsia-300',
+  recover: "text-yellow-300",
+  steady: "text-cyan-300",
+  challenge: "text-fuchsia-300",
 };
 
 const recentSessionsGridColumns =
-  'grid-cols-[minmax(7rem,1.25fr)_minmax(4.5rem,0.8fr)_minmax(4rem,0.7fr)_minmax(4.5rem,0.8fr)_minmax(6.75rem,1.2fr)_minmax(7rem,1fr)_minmax(5.5rem,0.9fr)]';
+  "grid-cols-[minmax(7rem,1.25fr)_minmax(4.5rem,0.8fr)_minmax(4rem,0.7fr)_minmax(4.5rem,0.8fr)_minmax(6.75rem,1.2fr)_minmax(7rem,1fr)_minmax(5.5rem,0.9fr)]";
 
 function formatNeuralTrendLabel(direction) {
   switch (direction) {
-    case 'improving':
-      return 'Improving';
-    case 'declining':
-      return 'Needs Recovery';
-    case 'stable':
-      return 'Stable';
+    case "improving":
+      return "Improving";
+    case "declining":
+      return "Needs Recovery";
+    case "stable":
+      return "Stable";
     default:
-      return 'Neutral';
+      return "Neutral";
   }
 }
 
@@ -75,45 +75,161 @@ function ProfilePage() {
       processingSpeed: 0,
       consistency: 0,
     },
-    neuralTrend = { direction: 'neutral', change: 0 },
-    pressureState = { state: 'neutral', label: 'Stable Load', detail: '' },
+    neuralTrend = { direction: "neutral", change: 0 },
+    pressureState = { state: "neutral", label: "Stable Load", detail: "" },
     adaptiveDifficulty = {
-      state: 'steady',
-      label: 'Steady Mode',
-      description: '',
-      targetDifficulty: 'medium',
+      state: "steady",
+      label: "Steady Mode",
+      description: "",
+      targetDifficulty: "medium",
     },
-    coachingInsight = { headline: '', summary: '', focus: '', detail: '' },
+    coachingInsight = { headline: "", summary: "", focus: "", detail: "" },
   } = analytics;
 
   const neuralTrendLabel = formatNeuralTrendLabel(neuralTrend.direction);
   const pressureStateDetail =
     pressureState.detail ??
-    'Complete more sessions to reveal your pressure profile.';
+    "Complete more sessions to reveal your pressure profile.";
   const adaptiveDifficultyDetail =
     adaptiveDifficulty.description ??
-    'Keep training to generate a stronger adaptive signal.';
-
+    "Keep training to generate a stronger adaptive signal.";
   const precisionScore = cognitiveTracks.patternRecognition ?? 0;
   const momentumScore = cognitiveTracks.focusStability ?? 0;
   const throughputScore = cognitiveTracks.processingSpeed ?? 0;
   const consistencyScore = cognitiveTracks.consistency ?? 0;
 
   const radarData = [
-    { skill: 'Precision', value: precisionScore },
-    { skill: 'Momentum', value: momentumScore },
-    { skill: 'Throughput', value: throughputScore },
-    { skill: 'Consistency', value: consistencyScore },
+    { skill: "Precision", value: precisionScore },
+    { skill: "Momentum", value: momentumScore },
+    { skill: "Throughput", value: throughputScore },
+    { skill: "Consistency", value: consistencyScore },
   ];
+
+  const latestAdaptiveState = useMemo(() => {
+    if (!sessions || sessions.length === 0) return null;
+
+    const recentAdaptiveSession = [...sessions]
+      .slice()
+      .reverse()
+      .find((session) => session?.liveAdaptiveDifficulty?.state);
+
+    return recentAdaptiveSession?.liveAdaptiveDifficulty?.state || null;
+  }, [sessions]);
+
+  const adaptiveInsightStyles = {
+    challenge: {
+      border: "border-violet-500/30",
+      glow: "shadow-violet-500/10",
+      label: "text-violet-300",
+    },
+    steady: {
+      border: "border-cyan-500/20",
+      glow: "shadow-cyan-500/10",
+      label: "text-cyan-300",
+    },
+    recover: {
+      border: "border-amber-500/30",
+      glow: "shadow-amber-500/10",
+      label: "text-amber-300",
+    },
+    default: {
+      border: "border-cyan-500/20",
+      glow: "shadow-cyan-500/10",
+      label: "text-cyan-300",
+    },
+  };
+
+  const adaptiveInsightBadges = {
+    challenge: {
+      text: "Challenge",
+      className:
+        "bg-violet-500/15 text-violet-200 border border-violet-400/30",
+    },
+    steady: {
+      text: "Steady",
+      className: "bg-cyan-500/15 text-cyan-200 border border-cyan-400/30",
+    },
+    recover: {
+      text: "Recovery",
+      className: "bg-amber-500/15 text-amber-200 border border-amber-400/30",
+    },
+    default: {
+      text: "Adaptive",
+      className: "bg-slate-500/15 text-slate-200 border border-slate-400/20",
+    },
+  };
+
+  const adaptiveInsightBadge =
+    adaptiveInsightBadges[latestAdaptiveState] ?? adaptiveInsightBadges.default;
+
+  const adaptiveInsightTone =
+    adaptiveInsightStyles[latestAdaptiveState] ?? adaptiveInsightStyles.default;
+
+
+  const adaptiveInsight = useMemo(() => {
+    if (!sessions || sessions.length === 0) {
+      return "Complete more sessions to unlock adaptive insights.";
+
+    }
+
+    const recentAdaptiveSessions = [...sessions]
+      .slice(-5)
+      .filter((session) => session?.liveAdaptiveDifficulty?.state);
+
+    if (recentAdaptiveSessions.length === 0) {
+      return "Adaptive insight will appear once more session difficulty patterns are recorded.";
+    }
+
+    const states = recentAdaptiveSessions.map(
+      (session) => session.liveAdaptiveDifficulty.state,
+    );
+
+    const counts = states.reduce(
+      (acc, state) => {
+        acc[state] = (acc[state] || 0) + 1;
+        return acc;
+      },
+      { recover: 0, steady: 0, challenge: 0 },
+    );
+
+    const latestState = states[states.length - 1];
+    const previousState = states.length > 1 ? states[states.length - 2] : null;
+
+    if (counts.challenge >= 3) {
+      return "You're leaning into higher challenge and holding your ground. Keep pushing.";
+    }
+
+    if (counts.recover >= 3) {
+      return "Your system is asking for a reset. Pull back slightly and rebuild your rhythm.";
+    }
+
+    if (counts.steady >= 3) {
+      return "You're locked into a steady rhythm. This is where real growth compounds.";
+    }
+
+    if (previousState === "recover" && latestState === "steady") {
+      return "You're recovering well and settling back into control.";
+    }
+
+    if (previousState === "steady" && latestState === "challenge") {
+      return "You're stepping up. The system sees you ready for more.";
+    }
+
+    if (previousState === "challenge" && latestState === "recover") {
+      return "You pushed hard. Now your system is dialing things back to recover.";
+    }
+
+    return "Your pattern is still forming, but your system is actively adapting to your performance.";
+  }, [sessions]);
 
   const recentSessions = [...sessions].slice(-5).reverse();
 
   // Helper to calculate session accuracy for the table and trends.
   const getSessionAccuracy = (session) => {
     if (
-      typeof session.puzzlesAttempted === 'number' &&
+      typeof session.puzzlesAttempted === "number" &&
       session.puzzlesAttempted > 0 &&
-      typeof session.puzzlesCorrect === 'number'
+      typeof session.puzzlesCorrect === "number"
     ) {
       return Math.round(
         (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
@@ -126,11 +242,11 @@ function ProfilePage() {
   const canSavePlayerName =
     normalizedNameInput.length > 0 && normalizedNameInput !== playerName;
 
-  const currentRank = sessions.length > 0 ? 'Active' : 'Unranked';
+  const currentRank = sessions.length > 0 ? "Active" : "Unranked";
 
   const handleResetData = () => {
     const confirmed = window.confirm(
-      'Clear all TakeNeuroIQ session history and leaderboard data?',
+      "Clear all TakeNeuroIQ session history and leaderboard data?",
     );
 
     if (!confirmed) return;
@@ -143,11 +259,11 @@ function ProfilePage() {
 
     const savedName = setPlayerName(nameInput);
     setPlayerNameState(savedName);
-    setNameInput(savedName);
+    setPlayerName(savedName);
     setNameSaved(true);
   };
   const handlePlayerNameKeyDown = (event) => {
-    if (event.key !== 'Enter') return;
+    if (event.key !== "Enter") return;
 
     event.preventDefault();
 
@@ -242,8 +358,8 @@ function ProfilePage() {
                       disabled={!canSavePlayerName}
                       className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                         canSavePlayerName
-                          ? 'border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200'
-                          : 'cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500'
+                          ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
+                          : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
                       }`}
                     >
                       Save Name
@@ -325,6 +441,27 @@ function ProfilePage() {
               </p>
             </div>
 
+            <div
+              className={`mb-6 rounded-2xl border bg-slate-900/70 px-5 py-4 shadow-lg ${adaptiveInsightTone.border} ${adaptiveInsightTone.glow}`}
+            >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div
+                    className={`text-xs font-semibold uppercase tracking-[0.2em] ${adaptiveInsightTone.label}`}
+                  >
+                    Adaptive Insight
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${adaptiveInsightBadge.className}`}
+                  >
+                    {adaptiveInsightBadge.text}
+                  </span>
+                </div>
+              <p className="text-sm text-slate-200 md:text-base">
+                {adaptiveInsight}
+              </p>
+            </div>
+
             <PerformanceSnapshot sessions={sessions} />
 
             <ProfileAnalytics
@@ -353,12 +490,12 @@ function ProfilePage() {
                     <PolarGrid stroke="rgba(148, 163, 184, 0.25)" />
                     <PolarAngleAxis
                       dataKey="skill"
-                      tick={{ fill: '#cbd5e1', fontSize: 12 }}
+                      tick={{ fill: "#cbd5e1", fontSize: 12 }}
                     />
                     <PolarRadiusAxis
                       angle={30}
                       domain={[0, 100]}
-                      tick={{ fill: '#64748b', fontSize: 10 }}
+                      tick={{ fill: "#64748b", fontSize: 10 }}
                     />
                     <Radar
                       name="Cognitive Profile"
@@ -449,13 +586,13 @@ function ProfilePage() {
                     <div className="space-y-3 p-3 md:hidden">
                       {recentSessions.map((session, index) => {
                         const adaptiveStateKey =
-                          session.liveAdaptiveDifficulty?.state ?? 'steady';
+                          session.liveAdaptiveDifficulty?.state ?? "steady";
                         const adaptiveStateLabel =
                           adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
-                          'Stable Load';
+                          "Stable Load";
                         const adaptiveStateColor =
                           adaptiveStateHistoryColorMap[adaptiveStateKey] ??
-                          'text-cyan-300';
+                          "text-cyan-300";
 
                         return (
                           <div
@@ -465,7 +602,7 @@ function ProfilePage() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="font-semibold text-white">
-                                  {session.mode || 'Pattern Rush'}
+                                  {session.mode || "Pattern Rush"}
                                 </p>
                                 <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
                                   {formatSessionTime(session.timestamp)}
@@ -536,13 +673,13 @@ function ProfilePage() {
 
                       {recentSessions.map((session, index) => {
                         const adaptiveStateKey =
-                          session.liveAdaptiveDifficulty?.state ?? 'steady';
+                          session.liveAdaptiveDifficulty?.state ?? "steady";
                         const adaptiveStateLabel =
                           adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
-                          'Stable Load';
+                          "Stable Load";
                         const adaptiveStateColor =
                           adaptiveStateHistoryColorMap[adaptiveStateKey] ??
-                          'text-cyan-300';
+                          "text-cyan-300";
 
                         return (
                           <div
@@ -550,7 +687,7 @@ function ProfilePage() {
                             className={`grid ${recentSessionsGridColumns} items-center gap-x-4 border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70`}
                           >
                             <span className="font-semibold text-white">
-                              {session.mode || 'Pattern Rush'}
+                              {session.mode || "Pattern Rush"}
                             </span>
                             <span className="text-center tabular-nums">
                               {session.score ?? 0}
