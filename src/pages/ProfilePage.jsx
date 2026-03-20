@@ -22,6 +22,8 @@ import ProfileAnalytics, {
   IdentityCoreStats,
   PerformanceSnapshot,
   AgentSummary,
+  adaptiveStateHistoryLabelMap,
+  adaptiveStateHistoryColorMap,
 } from '../components/ProfileAnalytics';
 import { buildSessionAnalytics } from '../analytics/sessionAnalytics';
 
@@ -429,39 +431,56 @@ function ProfilePage() {
               </h2>
 
               <div className="mt-4 rounded-2xl border border-slate-700/60">
-                <div className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <div className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Mode</span>
                   <span>Score</span>
                   <span>Accuracy</span>
                   <span>Streak</span>
                   <span>Run Data</span>
+                  <span>Adaptive State</span>
                   <span>When</span>
                 </div>{' '}
                 {recentSessions.length > 0 ? (
-                  recentSessions.map((session, index) => (
-                    <div
-                      key={`${session.score ?? 0}-${index}`}
-                      className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
-                    >
-                      <span className="font-semibold text-white">
-                        {session.mode || 'Pattern Rush'}
-                      </span>
-                      <span>{session.score ?? 0}</span>
-                      <span>{getSessionAccuracy(session)}%</span>
-                      <span>{session.bestStreak ?? session.streak ?? 0}</span>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-fuchsia-300">
-                          {session.label}
+                  recentSessions.map((session, index) => {
+                    const adaptiveStateKey =
+                      session.liveAdaptiveDifficulty?.state ?? 'steady';
+                    const adaptiveStateLabel =
+                      adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
+                      'Stable Load';
+                    const adaptiveStateColor =
+                      adaptiveStateHistoryColorMap[adaptiveStateKey] ??
+                      'text-cyan-300';
+
+                    return (
+                      <div
+                        key={`${session.score ?? 0}-${index}`}
+                        className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                      >
+                        <span className="font-semibold text-white">
+                          {session.mode || 'Pattern Rush'}
                         </span>
-                        <span className="font-bold text-yellow-300">
-                          NP: {session.neuralPower ?? 0}
+                        <span>{session.score ?? 0}</span>
+                        <span>{getSessionAccuracy(session)}%</span>
+                        <span>{session.bestStreak ?? session.streak ?? 0}</span>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-fuchsia-300">
+                            {session.label}
+                          </span>
+                          <span className="font-bold text-yellow-300">
+                            NP: {session.neuralPower ?? 0}
+                          </span>
+                        </div>
+                        <span
+                          className={`text-sm font-semibold ${adaptiveStateColor}`}
+                        >
+                          {adaptiveStateLabel}
+                        </span>
+                        <span className="text-slate-400">
+                          {formatSessionTime(session.timestamp)}
                         </span>
                       </div>
-                      <span className="text-slate-400">
-                        {formatSessionTime(session.timestamp)}
-                      </span>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
                     No recorded sessions yet. Complete a run to build your
