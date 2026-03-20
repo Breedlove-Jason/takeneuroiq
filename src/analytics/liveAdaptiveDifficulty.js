@@ -3,13 +3,14 @@ export function calculateLiveAdaptiveDifficulty({
   puzzlesCorrect = 0,
   currentStreak = 0,
   averageReactionTime = 0,
+  recentAnswerHistory = [],
 }) {
   if (puzzlesAttempted < 3) {
     return {
-      state: "steady",
-      targetDifficulty: "medium",
-      confidence: "low",
-      reason: "Not enough live data yet.",
+      state: 'steady',
+      targetDifficulty: 'medium',
+      confidence: 'low',
+      reason: 'Not enough live data yet.',
     };
   }
 
@@ -19,30 +20,47 @@ export function calculateLiveAdaptiveDifficulty({
   const isFast = hasReactionData && averageReactionTime <= 3200;
   const isSlow = hasReactionData && averageReactionTime > 4200;
 
-  if (accuracy >= 0.8 && currentStreak >= 3 && (!hasReactionData || isFast)) {
+  const recentAttempts = recentAnswerHistory.length;
+  const recentCorrect = recentAnswerHistory.filter(Boolean).length;
+  const recentAccuracy =
+    recentAttempts > 0 ? recentCorrect / recentAttempts : accuracy;
+
+  const strongRecentForm = recentAttempts >= 3 && recentAccuracy >= 0.8;
+  const weakRecentForm = recentAttempts >= 3 && recentAccuracy <= 0.4;
+
+  if (
+    strongRecentForm &&
+    accuracy >= 0.75 &&
+    currentStreak >= 2 &&
+    (!hasReactionData || isFast)
+  ) {
     return {
-      state: "challenge",
-      targetDifficulty: "hard",
-      confidence: currentStreak >= 4 ? "high" : "medium",
-      reason:
-        "High accuracy and strong streak indicate readiness for harder patterns.",
+      state: 'challenge',
+      targetDifficulty: 'hard',
+      confidence:
+        currentStreak >= 4 || recentAccuracy >= 0.9 ? 'high' : 'medium',
+      reason: 'Recent answers show strong accuracy and momentum.',
     };
   }
 
-  if (accuracy <= 0.55 || (currentStreak === 0 && (isSlow || accuracy < 0.7))) {
+  if (
+    weakRecentForm ||
+    accuracy <= 0.55 ||
+    (currentStreak === 0 && (isSlow || recentAccuracy < 0.6))
+  ) {
     return {
-      state: "recover",
-      targetDifficulty: "easy",
-      confidence: "medium",
+      state: 'recover',
+      targetDifficulty: 'easy',
+      confidence: 'medium',
       reason:
-        "Recent misses suggest reducing intensity to rebuild consistency.",
+        'Recent misses suggest reducing intensity to rebuild consistency.',
     };
   }
 
   return {
-    state: "steady",
-    targetDifficulty: "medium",
-    confidence: "medium",
-    reason: "Current performance is stable.",
+    state: 'steady',
+    targetDifficulty: 'medium',
+    confidence: 'medium',
+    reason: 'Recent performance is stable.',
   };
 }
