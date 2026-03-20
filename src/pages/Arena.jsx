@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import PuzzleShape from '../components/PuzzleShape';
 import patternPuzzles from '../game/patternPuzzles';
 import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
@@ -68,6 +68,12 @@ const adaptiveFeedbackMap = {
   },
 };
 
+const adaptiveShiftMessageMap = {
+  easy: 'Adaptive shift: easing difficulty',
+  medium: 'Adaptive shift: stabilizing load',
+  hard: 'Adaptive shift: increasing challenge',
+};
+
 function getAdaptiveFeedback(adaptiveState, isCorrect) {
   const feedbackSet =
     adaptiveFeedbackMap[adaptiveState] ?? adaptiveFeedbackMap.steady;
@@ -95,6 +101,10 @@ function Arena({ theme }) {
     reason: 'Not enough live data yet.',
   });
   const [recentAnswerHistory, setRecentAnswerHistory] = useState([]);
+  const [adaptiveShiftMessage, setAdaptiveShiftMessage] = useState('');
+  const previousTargetDifficultyRef = useRef(
+    liveAdaptiveDifficulty.targetDifficulty,
+  );
   const currentPuzzleDifficulty =
     currentPuzzle?.difficulty || currentPuzzle?.difficultyBucket || 'medium';
   const nextTargetDifficulty =
@@ -169,6 +179,31 @@ function Arena({ theme }) {
 
     return () => clearInterval(timer);
   }, [gameOver]);
+
+  useEffect(() => {
+    const previousTarget = previousTargetDifficultyRef.current;
+    const currentTarget = liveAdaptiveDifficulty.targetDifficulty;
+
+    if (
+      previousTarget &&
+      currentTarget &&
+      previousTarget !== currentTarget
+    ) {
+      setAdaptiveShiftMessage(
+        adaptiveShiftMessageMap[currentTarget] || 'Adaptive shift detected',
+      );
+
+      const timeout = setTimeout(() => {
+        setAdaptiveShiftMessage('');
+      }, 1600);
+
+      previousTargetDifficultyRef.current = currentTarget;
+
+      return () => clearTimeout(timeout);
+    }
+
+    previousTargetDifficultyRef.current = currentTarget;
+  }, [liveAdaptiveDifficulty.targetDifficulty]);
 
   function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
     const availablePuzzles = patternPuzzles.filter(
@@ -264,6 +299,7 @@ function Arena({ theme }) {
     setPuzzlesSeen(1);
     setTimeLeft(45);
     setRecentAnswerHistory([]);
+    setAdaptiveShiftMessage('');
     setGameOver(false);
   }
   const accuracy =
@@ -638,6 +674,12 @@ function Arena({ theme }) {
                 </div>
                 <div className="text-right space-y-2">
                   <div>
+
+              {adaptiveShiftMessage ? (
+                <p className="mt-4 text-xs font-medium text-cyan-300">
+                  {adaptiveShiftMessage}
+                </p>
+              ) : null}
                     <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
                       Current
                     </p>
