@@ -22,8 +22,6 @@ import ProfileAnalytics, {
   IdentityCoreStats,
   PerformanceSnapshot,
   AgentSummary,
-  adaptiveStateHistoryLabelMap,
-  adaptiveStateHistoryColorMap,
 } from '../components/ProfileAnalytics';
 import { buildSessionAnalytics } from '../analytics/sessionAnalytics';
 
@@ -34,6 +32,21 @@ function formatSessionTime(timestamp) {
     day: 'numeric',
   });
 }
+
+const adaptiveStateHistoryLabelMap = {
+  recover: 'Recovery Mode',
+  steady: 'Stable Load',
+  challenge: 'Challenge Mode',
+};
+
+const adaptiveStateHistoryColorMap = {
+  recover: 'text-yellow-300',
+  steady: 'text-cyan-300',
+  challenge: 'text-fuchsia-300',
+};
+
+const recentSessionsGridColumns =
+  'grid-cols-[minmax(7rem,1.25fr)_minmax(4.5rem,0.8fr)_minmax(4rem,0.7fr)_minmax(4.5rem,0.8fr)_minmax(6.75rem,1.2fr)_minmax(7rem,1fr)_minmax(5.5rem,0.9fr)]';
 
 function formatNeuralTrendLabel(direction) {
   switch (direction) {
@@ -431,58 +444,146 @@ function ProfilePage() {
               </h2>
 
               <div className="mt-4 rounded-2xl border border-slate-700/60">
-                <div className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr_1fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  <span>Mode</span>
-                  <span>Score</span>
-                  <span>Accuracy</span>
-                  <span>Streak</span>
-                  <span>Run Data</span>
-                  <span>Adaptive State</span>
-                  <span>When</span>
-                </div>{' '}
                 {recentSessions.length > 0 ? (
-                  recentSessions.map((session, index) => {
-                    const adaptiveStateKey =
-                      session.liveAdaptiveDifficulty?.state ?? 'steady';
-                    const adaptiveStateLabel =
-                      adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
-                      'Stable Load';
-                    const adaptiveStateColor =
-                      adaptiveStateHistoryColorMap[adaptiveStateKey] ??
-                      'text-cyan-300';
+                  <>
+                    <div className="space-y-3 p-3 md:hidden">
+                      {recentSessions.map((session, index) => {
+                        const adaptiveStateKey =
+                          session.liveAdaptiveDifficulty?.state ?? 'steady';
+                        const adaptiveStateLabel =
+                          adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
+                          'Stable Load';
+                        const adaptiveStateColor =
+                          adaptiveStateHistoryColorMap[adaptiveStateKey] ??
+                          'text-cyan-300';
 
-                    return (
+                        return (
+                          <div
+                            key={`${session.score ?? 0}-${index}`}
+                            className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-white">
+                                  {session.mode || 'Pattern Rush'}
+                                </p>
+                                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
+                                  {formatSessionTime(session.timestamp)}
+                                </p>
+                              </div>
+                              <span
+                                className={`rounded-full border border-slate-700 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${adaptiveStateColor}`}
+                              >
+                                {adaptiveStateLabel}
+                              </span>
+                            </div>
+
+                            <div className="mt-4 grid grid-cols-3 gap-3">
+                              <div className="rounded-xl bg-slate-950/40 p-3 text-center">
+                                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                  Score
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
+                                  {session.score ?? 0}
+                                </p>
+                              </div>
+                              <div className="rounded-xl bg-slate-950/40 p-3 text-center">
+                                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                  ACC
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
+                                  {getSessionAccuracy(session)}%
+                                </p>
+                              </div>
+                              <div className="rounded-xl bg-slate-950/40 p-3 text-center">
+                                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                  Streak
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
+                                  {session.bestStreak ?? session.streak ?? 0}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 rounded-xl bg-slate-950/40 p-3">
+                              <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                Run Data
+                              </p>
+                              <p className="mt-1 truncate font-semibold text-fuchsia-300">
+                                {session.label}
+                              </p>
+                              <p className="mt-1 text-sm font-bold text-yellow-300">
+                                NP: {session.neuralPower ?? 0}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="hidden md:block">
                       <div
-                        key={`${session.score ?? 0}-${index}`}
-                        className="grid grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_1.4fr_1fr_1fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
+                        className={`grid ${recentSessionsGridColumns} items-center gap-x-4 bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400`}
                       >
-                        <span className="font-semibold text-white">
-                          {session.mode || 'Pattern Rush'}
-                        </span>
-                        <span>{session.score ?? 0}</span>
-                        <span>{getSessionAccuracy(session)}%</span>
-                        <span>{session.bestStreak ?? session.streak ?? 0}</span>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-fuchsia-300">
-                            {session.label}
-                          </span>
-                          <span className="font-bold text-yellow-300">
-                            NP: {session.neuralPower ?? 0}
-                          </span>
-                        </div>
-                        <span
-                          className={`text-sm font-semibold ${adaptiveStateColor}`}
-                        >
-                          {adaptiveStateLabel}
-                        </span>
-                        <span className="text-slate-400">
-                          {formatSessionTime(session.timestamp)}
-                        </span>
+                        <span className="text-left">Mode</span>
+                        <span className="text-center">Score</span>
+                        <span className="text-center">ACC</span>
+                        <span className="text-center">Streak</span>
+                        <span className="text-left">Run Data</span>
+                        <span className="text-left">Adaptive State</span>
+                        <span className="text-left">When</span>
                       </div>
-                    );
-                  })
+
+                      {recentSessions.map((session, index) => {
+                        const adaptiveStateKey =
+                          session.liveAdaptiveDifficulty?.state ?? 'steady';
+                        const adaptiveStateLabel =
+                          adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
+                          'Stable Load';
+                        const adaptiveStateColor =
+                          adaptiveStateHistoryColorMap[adaptiveStateKey] ??
+                          'text-cyan-300';
+
+                        return (
+                          <div
+                            key={`${session.score ?? 0}-${index}`}
+                            className={`grid ${recentSessionsGridColumns} items-center gap-x-4 border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70`}
+                          >
+                            <span className="font-semibold text-white">
+                              {session.mode || 'Pattern Rush'}
+                            </span>
+                            <span className="text-center tabular-nums">
+                              {session.score ?? 0}
+                            </span>
+                            <span className="text-center tabular-nums">
+                              {getSessionAccuracy(session)}%
+                            </span>
+                            <span className="text-center tabular-nums">
+                              {session.bestStreak ?? session.streak ?? 0}
+                            </span>
+                            <div className="flex min-w-0 flex-col">
+                              <span className="truncate font-semibold text-fuchsia-300">
+                                {session.label}
+                              </span>
+                              <span className="font-bold text-yellow-300">
+                                NP: {session.neuralPower ?? 0}
+                              </span>
+                            </div>
+                            <span
+                              className={`text-xs font-semibold leading-tight ${adaptiveStateColor}`}
+                            >
+                              {adaptiveStateLabel}
+                            </span>
+                            <span className="text-sm text-slate-400">
+                              {formatSessionTime(session.timestamp)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
                 ) : (
-                  <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
+                  <div className="px-4 py-10 text-center text-sm text-slate-400">
                     No recorded sessions yet. Complete a run to build your
                     profile history.
                   </div>

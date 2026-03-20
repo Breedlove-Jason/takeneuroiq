@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 function Header({ theme, setTheme }) {
   const isCyber = theme === "cyber";
   const [playerName, setPlayerName] = useState(() => getPlayerName());
-    useEffect(() => {
+  useEffect(() => {
     const handlePlayerIdentityUpdated = () => {
       setPlayerName(getPlayerName());
     };
@@ -31,8 +31,8 @@ function Header({ theme, setTheme }) {
           : "border-slate-200 bg-white/80 text-slate-900"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link to="/" className="flex items-center gap-3">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+        <Link to="/" className="flex items-center justify-center gap-3 lg:justify-start">
           <img
             src={logo}
             alt="TakeNeuroIQ"
@@ -48,9 +48,9 @@ function Header({ theme, setTheme }) {
           </span>
         </Link>
 
-        <div className="flex items-center gap-8">
+        <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
           <nav
-            className={`flex items-center gap-2 text-sm font-medium ${
+            className={`flex flex-wrap items-center justify-center gap-2 text-sm font-medium lg:justify-start ${
               isCyber ? "text-slate-300" : "text-slate-600"
             }`}
           >
@@ -110,42 +110,44 @@ function Header({ theme, setTheme }) {
             </Link>
           </nav>
 
-          <div
-            className={`rounded-xl border px-3 py-2 text-sm font-semibold ${
-              isCyber
-                ? "border-cyan-400/20 bg-slate-900/70 text-cyan-300"
-                : "border-slate-300 bg-white/80 text-slate-700"
-            }`}
-          >
-            {playerName}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center lg:justify-end">
+            <div
+              className={`rounded-xl border px-3 py-2 text-center text-sm font-semibold sm:text-left ${
+                isCyber
+                  ? "border-cyan-400/20 bg-slate-900/70 text-cyan-300"
+                  : "border-slate-300 bg-white/80 text-slate-700"
+              }`}
+            >
+              {playerName}
+            </div>
+
+            <button
+              onClick={() => setTheme(isCyber ? "white" : "cyber")}
+              className={`relative flex items-center justify-center gap-3 self-center rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${
+                isCyber
+                  ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-300"
+                  : "border-fuchsia-400/30 bg-fuchsia-500/10 text-fuchsia-400"
+              }`}
+            >
+              <span className={isCyber ? "text-cyan-300" : "text-slate-400"}>
+                Cyber
+              </span>
+
+              <span className="relative flex h-6 w-14 items-center rounded-full bg-slate-900/80 px-1">
+                <span
+                  className={`absolute h-4 w-4 rounded-full transition-all duration-300 ${
+                    isCyber
+                      ? "left-1 bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]"
+                      : "left-9 bg-fuchsia-400 shadow-[0_0_12px_rgba(217,70,239,0.8)]"
+                  }`}
+                />
+              </span>
+
+              <span className={!isCyber ? "text-fuchsia-400" : "text-slate-400"}>
+                White
+              </span>
+            </button>
           </div>
-
-          <button
-            onClick={() => setTheme(isCyber ? "white" : "cyber")}
-            className={`relative flex items-center gap-3 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition ${
-              isCyber
-                ? "border-cyan-400/40 bg-cyan-400/10 text-cyan-300"
-                : "border-fuchsia-400/30 bg-fuchsia-500/10 text-fuchsia-400"
-            }`}
-          >
-            <span className={isCyber ? "text-cyan-300" : "text-slate-400"}>
-              Cyber
-            </span>
-
-            <span className="relative flex h-6 w-14 items-center rounded-full bg-slate-900/80 px-1">
-              <span
-                className={`absolute h-4 w-4 rounded-full transition-all duration-300 ${
-                  isCyber
-                    ? "left-1 bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.8)]"
-                    : "left-9 bg-fuchsia-400 shadow-[0_0_12px_rgba(217,70,239,0.8)]"
-                }`}
-              />
-            </span>
-
-            <span className={!isCyber ? "text-fuchsia-400" : "text-slate-400"}>
-              White
-            </span>
-          </button>
         </div>
       </div>
     </header>

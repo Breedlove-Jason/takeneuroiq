@@ -10,6 +10,8 @@ import { useSessionData } from "../hooks/useSessionData";
 
 function LeaderboardPage() {
   const { sessions, leaderboardData } = useSessionData();
+  const leaderboardGridColumns =
+    'grid-cols-[minmax(4rem,0.7fr)_minmax(8rem,1.5fr)_minmax(4.5rem,0.9fr)_minmax(4.5rem,0.9fr)_minmax(4.5rem,0.9fr)_minmax(6rem,1fr)_minmax(6.5rem,1fr)]';
 
   const getPlayerAccuracy = (player) => {
     if (
@@ -130,46 +132,120 @@ function LeaderboardPage() {
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-slate-700/60">
-              <div className="grid grid-cols-[0.8fr_1.4fr_1fr_1fr_1fr_1.2fr_1.2fr] bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                <span>Rank</span>
-                <span>Player</span>
-                <span>Score</span>
-                <span>Accuracy</span>
-                <span>Streak</span>
-                <span>Label</span>
-                <span>Difficulty</span>
-              </div>
-
               {leaderboardData.length > 0 ? (
-                leaderboardData.map((player, index) => (
-                  <div
-                    key={
-                      player.id ??
-                      `${player.name}-${player.score}-${player.timestamp ?? index}`
-                    }
-                    className="grid grid-cols-[0.8fr_1.4fr_1fr_1fr_1fr_1.2fr_1.2fr] items-center border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70"
-                  >
-                    <span className="font-bold text-cyan-300">
-                      #{player.rank}
-                    </span>
+                <>
+                  <div className="space-y-3 p-3 md:hidden">
+                    {leaderboardData.map((player, index) => (
+                      <div
+                        key={
+                          player.id ??
+                          `${player.name}-${player.score}-${player.timestamp ?? index}`
+                        }
+                        className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
+                              Rank #{player.rank}
+                            </p>
+                            <p className="mt-1 truncate text-base font-semibold text-white">
+                              {player.name}
+                            </p>
+                          </div>
+                          <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-300">
+                            {player.difficultyBucket ?? "Adaptive"}
+                          </span>
+                        </div>
 
-                    <span className="font-semibold text-white">
-                      {player.name}
-                    </span>
+                        <div className="mt-4 grid grid-cols-3 gap-3">
+                          <div className="rounded-xl bg-slate-950/40 p-3 text-center">
+                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                              Score
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
+                              {player.score}
+                            </p>
+                          </div>
+                          <div className="rounded-xl bg-slate-950/40 p-3 text-center">
+                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                              ACC
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
+                              {getPlayerAccuracy(player)}%
+                            </p>
+                          </div>
+                          <div className="rounded-xl bg-slate-950/40 p-3 text-center">
+                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                              Streak
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
+                              {player.bestStreak ?? player.streak ?? 0}
+                            </p>
+                          </div>
+                        </div>
 
-                    <span>{player.score}</span>
-                    <span>{getPlayerAccuracy(player)}%</span>
-                    <span>{player.bestStreak ?? player.streak ?? 0}</span>
-                    <span className="font-semibold text-fuchsia-300">
-                      {player.label}
-                    </span>
-                    <span className="text-cyan-300 font-semibold">
-                      {player.difficultyBucket ?? "Adaptive"}
-                    </span>
+                        <div className="mt-4 rounded-xl bg-slate-950/40 p-3">
+                          <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                            Label
+                          </p>
+                          <p className="mt-1 truncate font-semibold text-fuchsia-300">
+                            {player.label}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))
+
+                  <div className="hidden md:block">
+                    <div
+                      className={`grid ${leaderboardGridColumns} items-center gap-x-4 bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400`}
+                    >
+                      <span className="text-left">Rank</span>
+                      <span className="text-left">Player</span>
+                      <span className="text-center">Score</span>
+                      <span className="text-center">ACC</span>
+                      <span className="text-center">Streak</span>
+                      <span className="text-left">Label</span>
+                      <span className="text-left">Difficulty</span>
+                    </div>
+
+                    {leaderboardData.map((player, index) => (
+                      <div
+                        key={
+                          player.id ??
+                          `${player.name}-${player.score}-${player.timestamp ?? index}`
+                        }
+                        className={`grid ${leaderboardGridColumns} items-center gap-x-4 border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70`}
+                      >
+                        <span className="font-bold text-cyan-300">
+                          #{player.rank}
+                        </span>
+
+                        <span className="font-semibold text-white">
+                          {player.name}
+                        </span>
+
+                        <span className="text-center tabular-nums">
+                          {player.score}
+                        </span>
+                        <span className="text-center tabular-nums">
+                          {getPlayerAccuracy(player)}%
+                        </span>
+                        <span className="text-center tabular-nums">
+                          {player.bestStreak ?? player.streak ?? 0}
+                        </span>
+                        <span className="truncate font-semibold text-fuchsia-300">
+                          {player.label}
+                        </span>
+                        <span className="font-semibold text-cyan-300">
+                          {player.difficultyBucket ?? "Adaptive"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
-                <div className="border-t border-slate-800 px-4 py-10 text-center text-sm text-slate-400">
+                <div className="px-4 py-10 text-center text-sm text-slate-400">
                   No arena sessions recorded yet. Complete a run to populate the
                   leaderboard.
                 </div>

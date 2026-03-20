@@ -12,18 +12,6 @@ import { generateCoachingInsight } from "../analytics/coachingEngine";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 
-export const adaptiveStateHistoryLabelMap = {
-  recover: "Recovery Mode",
-  steady: "Stable Load",
-  challenge: "Challenge Mode",
-};
-
-export const adaptiveStateHistoryColorMap = {
-  recover: "text-yellow-300",
-  steady: "text-cyan-300",
-  challenge: "text-fuchsia-300",
-};
-
 
 /**
  * ProfileAnalytics Component
