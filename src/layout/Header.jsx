@@ -31,7 +31,7 @@ function Header({ theme, setTheme }) {
           : "border-slate-200 bg-white/80 text-slate-900"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
         <Link to="/" className="flex items-center justify-center gap-3 lg:justify-start">
           <img
             src={logo}

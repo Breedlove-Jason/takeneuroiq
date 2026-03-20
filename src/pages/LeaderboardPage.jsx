@@ -11,7 +11,7 @@ import { useSessionData } from "../hooks/useSessionData";
 function LeaderboardPage() {
   const { sessions, leaderboardData } = useSessionData();
   const leaderboardGridColumns =
-    'grid-cols-[minmax(4rem,0.7fr)_minmax(8rem,1.5fr)_minmax(4.5rem,0.9fr)_minmax(4.5rem,0.9fr)_minmax(4.5rem,0.9fr)_minmax(6rem,1fr)_minmax(6.5rem,1fr)]';
+    'grid-cols-[minmax(4rem,0.6fr)_minmax(10rem,1.8fr)_minmax(5rem,1fr)_minmax(5rem,1fr)_minmax(5rem,1fr)_minmax(7rem,1.2fr)_minmax(7rem,1.2fr)]';
 
   const getPlayerAccuracy = (player) => {
     if (
@@ -83,8 +83,8 @@ function LeaderboardPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-cyan-400/20 bg-slate-800/70 px-4 py-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Top Score
                 </p>
@@ -93,20 +93,20 @@ function LeaderboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-fuchsia-400/20 bg-slate-800/70 px-4 py-3">
+              <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Best Accuracy
                 </p>
-                <p className="mt-2 text-2xl font-bold text-fuchsia-300">
+                <p className="mt-2 text-2xl font-bold text-cyan-300">
                   {bestAccuracy}%
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-emerald-400/20 bg-slate-800/70 px-4 py-3">
+              <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
                   Longest Streak
                 </p>
-                <p className="mt-2 text-2xl font-bold text-emerald-300">
+                <p className="mt-2 text-2xl font-bold text-cyan-300">
                   {longestStreak}
                 </p>
               </div>
