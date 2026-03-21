@@ -570,6 +570,9 @@ function ProfilePage() {
                     {adaptiveTensionInsight.text}
                   </p>
                 )}
+                <p className="pt-1 text-[10px] uppercase tracking-[0.18em] text-slate-600 md:text-[11px]">
+                  Updated from your 5 most recent sessions
+                </p>
               </div>{' '}
             </div>
 
