@@ -105,6 +105,7 @@ function Arena({ theme }) {
   const previousTargetDifficultyRef = useRef(
     liveAdaptiveDifficulty.targetDifficulty,
   );
+  const hasRecordedSessionRef = useRef(false);
   const currentPuzzleDifficulty =
     currentPuzzle?.difficulty || currentPuzzle?.difficultyBucket || 'medium';
   const nextTargetDifficulty =
@@ -125,48 +126,36 @@ function Arena({ theme }) {
     'Stay consistent and keep building momentum.';
 
   useEffect(() => {
-    if (gameOver) return;
+    if (!gameOver || hasRecordedSessionRef.current) return;
 
-    if (timeLeft <= 0) {
-      const accuracyValue =
-        totalAnswers === 0
-          ? 0
-          : Math.round((correctAnswers / totalAnswers) * 100);
+    const accuracyValue =
+      totalAnswers === 0
+        ? 0
+        : Math.round((correctAnswers / totalAnswers) * 100);
 
-      recordSession({
-        score,
-        accuracy: accuracyValue,
-        bestStreak,
-        puzzlesSeen,
-        correctAnswers,
-        puzzlesAttempted: totalAnswers,
-        puzzlesCorrect: correctAnswers,
-        recentAnswerHistory,
-        timestamp: Date.now(),
-        liveAdaptiveDifficulty,
-      });
-    }
+    recordSession({
+      score,
+      accuracy: accuracyValue,
+      bestStreak,
+      puzzlesSeen,
+      correctAnswers,
+      puzzlesAttempted: totalAnswers,
+      puzzlesCorrect: correctAnswers,
+      recentAnswerHistory,
+      timestamp: Date.now(),
+      liveAdaptiveDifficulty,
+    });
+    hasRecordedSessionRef.current = true;
   }, [
-    timeLeft,
     gameOver,
     totalAnswers,
     correctAnswers,
     score,
     bestStreak,
     puzzlesSeen,
+    recentAnswerHistory,
+    liveAdaptiveDifficulty,
   ]);
-
-  useEffect(
-    () => {
-      // Intentionally accessing gameOver without including in dependencies
-      // to avoid cascading renders. gameOver prevents re-execution when true.
-      if (timeLeft <= 0 && !gameOver) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setGameOver(true);
-      }
-    },
-    [timeLeft], // eslint-disable-line react-hooks/exhaustive-deps
-  );
 
   useEffect(() => {
     if (gameOver) {
@@ -174,32 +163,19 @@ function Arena({ theme }) {
     }
 
     const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setGameOver(true);
+          return 0;
+        }
+
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
   }, [gameOver]);
-
-  useEffect(() => {
-    const previousTarget = previousTargetDifficultyRef.current;
-    const currentTarget = liveAdaptiveDifficulty.targetDifficulty;
-
-    if (previousTarget && currentTarget && previousTarget !== currentTarget) {
-      setAdaptiveShiftMessage(
-        adaptiveShiftMessageMap[currentTarget] || 'Adaptive shift detected',
-      );
-
-      const timeout = setTimeout(() => {
-        setAdaptiveShiftMessage('');
-      }, 1600);
-
-      previousTargetDifficultyRef.current = currentTarget;
-
-      return () => clearTimeout(timeout);
-    }
-
-    previousTargetDifficultyRef.current = currentTarget;
-  }, [liveAdaptiveDifficulty.targetDifficulty]);
 
   function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
     const availablePuzzles = patternPuzzles.filter(
@@ -248,6 +224,20 @@ function Arena({ theme }) {
       nextLiveAdaptiveDifficulty.state,
       isCorrect,
     );
+    const previousTarget = previousTargetDifficultyRef.current;
+    const nextTarget = nextLiveAdaptiveDifficulty.targetDifficulty;
+
+    if (previousTarget && nextTarget && previousTarget !== nextTarget) {
+      setAdaptiveShiftMessage(
+        adaptiveShiftMessageMap[nextTarget] || 'Adaptive shift detected',
+      );
+
+      setTimeout(() => {
+        setAdaptiveShiftMessage('');
+      }, 1600);
+    }
+
+    previousTargetDifficultyRef.current = nextTarget;
 
     if (isCorrect) {
       setScore((prev) => prev + 100);
@@ -279,6 +269,7 @@ function Arena({ theme }) {
 
   function resetGame() {
     const newPuzzle = getRandomPuzzle();
+    hasRecordedSessionRef.current = false;
     setCurrentPuzzle(newPuzzle);
     setLiveAdaptiveDifficulty({
       state: 'steady',

@@ -521,7 +521,8 @@ function ProfilePage() {
             </div>
 
             <div
-              className={`mb-6 rounded-2xl border bg-slate-900/70 px-5 py-4 shadow-lg ${adaptiveInsightTone.border} ${adaptiveInsightTone.glow}`}
+              key={latestAdaptiveState + adaptiveInsight}
+              className={`mb-6 rounded-2xl border bg-slate-900/70 px-5 py-4 shadow-lg ${adaptiveInsightTone.border} ${adaptiveInsightTone.glow} transition-all duration-500 ease-out animate-[fadeIn_0.4s_ease-out]`}
             >
               <div className="mb-2 flex items-center justify-between gap-3">
                 <div
