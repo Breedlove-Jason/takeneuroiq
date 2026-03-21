@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserAstronaut,
@@ -70,6 +71,18 @@ function ProfilePage() {
   const { sessions, resetSessions } = useSessionData();
   const analytics = buildSessionAnalytics(sessions) ?? {};
 
+  const navigate = useNavigate();
+  const handleStartRecommendedSession = () => {
+    navigate("/arena", {
+      state: {
+        recommendedSession: {
+          source: "profile-adaptive-coaching",
+          adaptiveState: latestAdaptiveState || "steady",
+          recommendation: adaptiveRecommendation,
+        },
+      },
+    });
+  };
   const {
     cognitiveTracks = {
       patternRecognition: 0,
@@ -311,6 +324,14 @@ function ProfilePage() {
 
     return null;
   }, [latestAdaptiveState, neuralTrend]);
+  const adaptiveActionLabels = {
+    challenge: "Push Higher Difficulty",
+    steady: "Maintain Your Rhythm",
+    recover: "Run Recovery Session",
+    default: "Start Session",
+  };
+  const adaptiveActionLabel =
+    adaptiveActionLabels[latestAdaptiveState] || adaptiveActionLabels.default;
 
   const adaptiveRecommendation = useMemo(() => {
     if (!latestAdaptiveState) {
@@ -619,17 +640,20 @@ function ProfilePage() {
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 md:text-[11px]">
                     Recommended Next Focus
                   </div>
-                  <p
-                    className={`text-xs font-medium md:text-sm ${adaptiveRecommendationClass}`}
-                  >
-                    {adaptiveRecommendation}
-                  </p>
                 </div>
 
-                <p className="pt-1 text-[10px] uppercase tracking-[0.18em] text-slate-600 md:text-[11px]">
-                  Updated from your 5 most recent sessions
+                <p
+                  className={`text-xs font-medium md:text-sm ${adaptiveRecommendationClass}`}
+                >
+                  {adaptiveRecommendation}
                 </p>
-              </div>{" "}
+                <button
+                  onClick={handleStartRecommendedSession}
+                  className="mt-1 inline-flex items-center rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200 transition hover:border-cyan-400/40 hover:text-white"
+                >
+                  {adaptiveActionLabel}
+                </button>
+              </div>
             </div>
 
             <PerformanceSnapshot sessions={sessions} />
