@@ -1,21 +1,21 @@
 function HowItWorks() {
   const steps = [
     {
-      title: "Choose a Challenge",
+      title: 'Choose a Challenge',
       description:
-        "Jump into pattern, logic, memory, and speed-based games designed to test different cognitive skills.",
+        'Jump into pattern, logic, memory, and speed-based games designed to test different cognitive skills.',
     },
     {
-      title: "Play and Score",
+      title: 'Play and Score',
       description:
-        "Complete fast-paced challenges, earn a score, and see how your performance stacks up.",
+        'Complete fast-paced challenges, earn a score, and see how your performance stacks up.',
     },
     {
-      title: "Climb the Leaderboard",
+      title: 'Climb the Leaderboard',
       description:
-        "Track your progress, challenge others, and rise through the ranks in competitive brain games.",
+        'Track your progress, challenge others, and rise through the ranks in competitive brain games.',
     },
-  ]
+  ];
 
   return (
     <section className="px-6 py-24">
@@ -30,7 +30,8 @@ function HowItWorks() {
           </h2>
 
           <p className="mt-4 text-slate-300">
-            Fast rounds, real competition, and a platform designed to make intelligence feel alive.
+            Fast rounds, real competition, and a platform designed to make
+            intelligence feel alive.
           </p>
         </div>
 
@@ -52,7 +53,7 @@ function HowItWorks() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-export default HowItWorks
+export default HowItWorks;

@@ -1,6 +1,6 @@
 /**
  * Engine for calculating specific cognitive skill 'tracks' based on session history.
- * 
+ *
  * Tracks include:
  * - Pattern Recognition: Derived from accuracy and solve rates.
  * - Focus Stability: Derived from streaks and accuracy.
@@ -10,7 +10,7 @@
 
 /**
  * Entry point for building cognitive track metrics.
- * 
+ *
  * @param {Array} sessions - The list of player sessions to analyze.
  * @returns {Object} Calculated metrics for each cognitive track.
  */
@@ -20,12 +20,12 @@ export function buildCognitiveTracks(sessions = []) {
 
 /**
  * Core logic for calculating cognitive tracks from raw session metrics.
- * 
- * Uses mathematical models to normalize scores, handle variance, 
+ *
+ * Uses mathematical models to normalize scores, handle variance,
  * and clamp values within a 0-100 range for consistency.
- * 
+ *
  * @param {Array} sessions - The list of session objects.
- * @returns {Object} An object containing patternRecognition, focusStability, 
+ * @returns {Object} An object containing patternRecognition, focusStability,
  *                   processingSpeed, and consistency scores.
  */
 export function calculateCognitiveTracks(sessions = []) {
@@ -39,7 +39,7 @@ export function calculateCognitiveTracks(sessions = []) {
   }
 
   const validSessions = sessions.filter(
-    (session) => session && typeof session === "object"
+    (session) => session && typeof session === 'object',
   );
 
   if (validSessions.length === 0) {
@@ -62,7 +62,9 @@ export function calculateCognitiveTracks(sessions = []) {
   const accuracies = validSessions.map((session) => session.accuracy || 0);
   const streaks = validSessions.map((session) => session.bestStreak || 0);
   const scores = validSessions.map((session) => session.score || 0);
-  const attempted = validSessions.map((session) => session.puzzlesAttempted || 0);
+  const attempted = validSessions.map(
+    (session) => session.puzzlesAttempted || 0,
+  );
   const correct = validSessions.map((session) => session.puzzlesCorrect || 0);
 
   const solveRates = validSessions.map((session) => {
@@ -74,17 +76,11 @@ export function calculateCognitiveTracks(sessions = []) {
   });
 
   const patternRecognition = clamp(
-    average([
-      average(accuracies),
-      average(solveRates),
-    ])
+    average([average(accuracies), average(solveRates)]),
   );
 
   const focusStability = clamp(
-    average([
-      average(streaks) * 10,
-      average(accuracies),
-    ])
+    average([average(streaks) * 10, average(accuracies)]),
   );
 
   const processingSpeed = clamp(
@@ -92,7 +88,7 @@ export function calculateCognitiveTracks(sessions = []) {
       average(scores) / 12,
       average(correct) * 8,
       average(attempted) * 4,
-    ])
+    ]),
   );
 
   const scoreMean = average(scores);
@@ -104,7 +100,7 @@ export function calculateCognitiveTracks(sessions = []) {
   const normalizedVariancePenalty = Math.min(scoreVariance / 2000, 40);
 
   const consistency = clamp(
-    average(accuracies) - normalizedVariancePenalty + average(streaks) * 2
+    average(accuracies) - normalizedVariancePenalty + average(streaks) * 2,
   );
 
   return {

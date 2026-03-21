@@ -16,7 +16,8 @@ function Hero() {
 
         <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">
           TakeNeuroIQ turns brain testing into a high-energy competitive arena.
-          Solve logic, memory, pattern, and speed challenges while climbing the global leaderboard.
+          Solve logic, memory, pattern, and speed challenges while climbing the
+          global leaderboard.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -30,7 +31,7 @@ function Hero() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-export default Hero
+export default Hero;

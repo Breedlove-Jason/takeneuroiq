@@ -1,6 +1,6 @@
-import Hero from "../components/Hero"
-import HowItWorks from "../components/HowItWorks"
-import FeatureHighlights from "../components/FeatureHighlights"
+import Hero from '../components/Hero';
+import HowItWorks from '../components/HowItWorks';
+import FeatureHighlights from '../components/FeatureHighlights';
 
 function Home({ theme }) {
   return (
@@ -9,7 +9,7 @@ function Home({ theme }) {
       <HowItWorks />
       <FeatureHighlights />
     </main>
-  )
+  );
 }
 
-export default Home
+export default Home;

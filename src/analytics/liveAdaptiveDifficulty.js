@@ -7,10 +7,10 @@ export function calculateLiveAdaptiveDifficulty({
 }) {
   if (puzzlesAttempted < 3) {
     return {
-      state: "steady",
-      targetDifficulty: "medium",
-      confidence: "low",
-      reason: "Not enough live data yet.",
+      state: 'steady',
+      targetDifficulty: 'medium',
+      confidence: 'low',
+      reason: 'Not enough live data yet.',
     };
   }
 
@@ -38,8 +38,7 @@ export function calculateLiveAdaptiveDifficulty({
   const recentAttempts = recentAnswerHistory.length;
   const strongRecentForm =
     recentAttempts >= 3 && weightedRecentAccuracy >= 0.78;
-  const weakRecentForm =
-    recentAttempts >= 3 && weightedRecentAccuracy <= 0.42;
+  const weakRecentForm = recentAttempts >= 3 && weightedRecentAccuracy <= 0.42;
 
   if (
     strongRecentForm &&
@@ -48,13 +47,13 @@ export function calculateLiveAdaptiveDifficulty({
     (!hasReactionData || isFast)
   ) {
     return {
-      state: "challenge",
-      targetDifficulty: "hard",
+      state: 'challenge',
+      targetDifficulty: 'hard',
       confidence:
         currentStreak >= 4 || weightedRecentAccuracy >= 0.88
-          ? "high"
-          : "medium",
-      reason: "Recent answers show strong accuracy and growing momentum.",
+          ? 'high'
+          : 'medium',
+      reason: 'Recent answers show strong accuracy and growing momentum.',
     };
   }
 
@@ -64,17 +63,18 @@ export function calculateLiveAdaptiveDifficulty({
     (currentStreak === 0 && (isSlow || weightedRecentAccuracy < 0.58))
   ) {
     return {
-      state: "recover",
-      targetDifficulty: "easy",
-      confidence: "medium",
-      reason: "Recent misses suggest reducing intensity to rebuild consistency.",
+      state: 'recover',
+      targetDifficulty: 'easy',
+      confidence: 'medium',
+      reason:
+        'Recent misses suggest reducing intensity to rebuild consistency.',
     };
   }
 
   return {
-    state: "steady",
-    targetDifficulty: "medium",
-    confidence: "medium",
-    reason: "Recent performance is stable.",
+    state: 'steady',
+    targetDifficulty: 'medium',
+    confidence: 'medium',
+    reason: 'Recent performance is stable.',
   };
 }

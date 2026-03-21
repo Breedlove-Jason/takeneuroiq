@@ -1,4 +1,4 @@
-import { buildNeuralPowerTrendData } from "../utils/sessionTrendUtils";
+import { buildNeuralPowerTrendData } from '../utils/sessionTrendUtils';
 import {
   LineChart,
   Line,
@@ -7,24 +7,23 @@ import {
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
-} from "recharts";
-import { generateCoachingInsight } from "../analytics/coachingEngine";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartLine } from "@fortawesome/free-solid-svg-icons";
-
+} from 'recharts';
+import { generateCoachingInsight } from '../analytics/coachingEngine';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * ProfileAnalytics Component
- * 
+ *
  * Displays a comprehensive dashboard of a player's performance and cognitive health.
- * 
+ *
  * Features:
  * - Neural Power Trend Chart: Visualizes improvement over time using Recharts.
  * - Cognitive Tracks: Radar-like or bar displays of specific skill categories.
  * - Pressure State: Feedback on how the user handles sustained load.
  * - Coaching Insights: Dynamically generated text based on performance data.
  * - Adaptive Difficulty: Recommendation for the next session's challenge level.
- * 
+ *
  * @param {Object} props - Component properties.
  * @param {Object} [props.cognitiveTracks] - Override for cognitive track data.
  * @param {Object} [props.neuralTrend] - Override for neural trend data.
@@ -202,35 +201,35 @@ function ProfileAnalytics({
   const adaptiveDisplay =
     adaptiveToneMap[adaptiveDifficulty.state] || adaptiveToneMap.steady;
 
-      // Centralize the stat card content so shared colors stay in sync with the UI.
-      const trendStats = [
-  {
-    label: "Sessions",
-    value: trendSessionCount,
-    colorClass: "text-cyan-200",
-  },
-  {
-    label: "Start NP",
-    value: trendStartPower,
-    colorClass: "text-yellow-400",
-  },
-  {
-    label: "Latest NP",
-    value: trendLatestPower,
-    colorClass: "text-yellow-400",
-  },
-  {
-    label: "Delta",
-    value: `${neuralTrend.change > 0 ? "+" : ""}${neuralTrend.change}`,
-    colorClass: trendDisplay.className,
-  },
-  {
-    label: "Vs Lifetime",
-    value: `${recentVsLifetimeDelta > 0 ? "+" : ""}${recentVsLifetimeDelta}`,
-    colorClass:
-      recentVsLifetimeDelta >= 0 ? "text-emerald-300" : "text-rose-300",
-  },
-];
+  // Centralize the stat card content so shared colors stay in sync with the UI.
+  const trendStats = [
+    {
+      label: 'Sessions',
+      value: trendSessionCount,
+      colorClass: 'text-cyan-200',
+    },
+    {
+      label: 'Start NP',
+      value: trendStartPower,
+      colorClass: 'text-yellow-400',
+    },
+    {
+      label: 'Latest NP',
+      value: trendLatestPower,
+      colorClass: 'text-yellow-400',
+    },
+    {
+      label: 'Delta',
+      value: `${neuralTrend.change > 0 ? '+' : ''}${neuralTrend.change}`,
+      colorClass: trendDisplay.className,
+    },
+    {
+      label: 'Vs Lifetime',
+      value: `${recentVsLifetimeDelta > 0 ? '+' : ''}${recentVsLifetimeDelta}`,
+      colorClass:
+        recentVsLifetimeDelta >= 0 ? 'text-emerald-300' : 'text-rose-300',
+    },
+  ];
 
   if (neuralPowerTrendData.length === 0) {
     return (
@@ -280,7 +279,9 @@ function ProfileAnalytics({
                   <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
                     {stat.label}
                   </p>
-                  <p className={`mt-3 text-lg font-semibold ${stat.colorClass}`}>
+                  <p
+                    className={`mt-3 text-lg font-semibold ${stat.colorClass}`}
+                  >
                     {stat.value}
                   </p>
                 </div>
@@ -374,7 +375,12 @@ function ProfileAnalytics({
           </div>
         </div>
         <div className="h-72 min-h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={288}>
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            minHeight={288}
+          >
             <LineChart data={neuralPowerTrendData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" />
@@ -425,9 +431,9 @@ function ProfileAnalytics({
  */
 function getSessionAccuracy(session) {
   if (
-    typeof session.puzzlesAttempted === "number" &&
+    typeof session.puzzlesAttempted === 'number' &&
     session.puzzlesAttempted > 0 &&
-    typeof session.puzzlesCorrect === "number"
+    typeof session.puzzlesCorrect === 'number'
   ) {
     return Math.round(
       (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
@@ -460,7 +466,9 @@ function calculatePerformanceMetrics(sessions) {
   const bestStreak = Math.max(
     ...safeSessions.map((s) => s.bestStreak ?? s.streak ?? 0),
   );
-  const bestNeuralPower = Math.max(...safeSessions.map((s) => s.neuralPower ?? 0));
+  const bestNeuralPower = Math.max(
+    ...safeSessions.map((s) => s.neuralPower ?? 0),
+  );
   const totalSessions = safeSessions.length;
 
   const totalPuzzlesSolved = safeSessions.reduce(
@@ -482,7 +490,8 @@ function calculatePerformanceMetrics(sessions) {
   );
 
   const averageAccuracy = Math.round(
-    safeSessions.reduce((sum, s) => sum + getSessionAccuracy(s), 0) / totalSessions,
+    safeSessions.reduce((sum, s) => sum + getSessionAccuracy(s), 0) /
+      totalSessions,
   );
 
   return {
@@ -501,50 +510,50 @@ function calculatePerformanceMetrics(sessions) {
 /**
  * Renders the Identity Core stats grid.
  */
-export function IdentityCoreStats({sessions = []}) {
+export function IdentityCoreStats({ sessions = [] }) {
   const metrics = calculatePerformanceMetrics(sessions);
 
   const stats = [
-    { label: "Best Score", value: metrics.bestScore, color: "text-cyan-400" },
+    { label: 'Best Score', value: metrics.bestScore, color: 'text-cyan-400' },
     {
-      label: "Best Streak",
+      label: 'Best Streak',
       value: metrics.bestStreak,
-      color: "text-green-400",
+      color: 'text-green-400',
     },
     {
-      label: "Best Neural Power",
+      label: 'Best Neural Power',
       value: metrics.bestNeuralPower,
-      color: "text-yellow-400",
+      color: 'text-yellow-400',
     },
     {
-      label: "Avg Score",
+      label: 'Avg Score',
       value: metrics.averageScore,
-      color: "text-cyan-400",
+      color: 'text-cyan-400',
     },
     {
-      label: "Avg Accuracy",
+      label: 'Avg Accuracy',
       value: `${metrics.averageAccuracy}%`,
-      color: "text-blue-400",
+      color: 'text-blue-400',
     },
     {
-      label: "Puzzles Solved",
+      label: 'Puzzles Solved',
       value: metrics.totalPuzzlesSolved,
-      color: "text-green-400",
+      color: 'text-green-400',
     },
     {
-      label: "Total Attempts",
+      label: 'Total Attempts',
       value: metrics.totalPuzzlesAttempted,
-      color: "text-cyan-300",
+      color: 'text-cyan-300',
     },
     {
-      label: "Solve Rate",
+      label: 'Solve Rate',
       value: `${metrics.solveRate}%`,
-      color: "text-fuchsia-300",
+      color: 'text-fuchsia-300',
     },
     {
-      label: "Sessions Played",
+      label: 'Sessions Played',
       value: metrics.totalSessions,
-      color: "text-cyan-200",
+      color: 'text-cyan-200',
       fullWidth: true,
     },
   ];
@@ -555,7 +564,7 @@ export function IdentityCoreStats({sessions = []}) {
         <div
           key={stat.label}
           className={`rounded-2xl border border-slate-800 bg-slate-800/60 p-4 ${
-            stat.fullWidth ? "col-span-2" : ""
+            stat.fullWidth ? 'col-span-2' : ''
           }`}
         >
           <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
@@ -590,39 +599,39 @@ export function PerformanceSnapshot({ sessions = [] }) {
 
   const snapshots = [
     {
-      label: "Best Score",
+      label: 'Best Score',
       value: metrics.bestScore,
       percent: bestScorePercent,
-      color: "text-cyan-400",
-      barColor: "bg-cyan-400",
+      color: 'text-cyan-400',
+      barColor: 'bg-cyan-400',
     },
     {
-      label: "Average Score",
+      label: 'Average Score',
       value: metrics.averageScore,
       percent: averageScorePercent,
-      color: "text-green-300",
-      barColor: "bg-green-300",
+      color: 'text-green-300',
+      barColor: 'bg-green-300',
     },
     {
-      label: "Average Accuracy",
+      label: 'Average Accuracy',
       value: `${metrics.averageAccuracy}%`,
       percent: averageAccuracyPercent,
-      color: "text-violet-300",
-      barColor: "bg-violet-400",
+      color: 'text-violet-300',
+      barColor: 'bg-violet-400',
     },
     {
-      label: "Best Streak",
+      label: 'Best Streak',
       value: metrics.bestStreak,
       percent: bestStreakPercent,
-      color: "text-fuchsia-300",
-      barColor: "bg-fuchsia-400",
+      color: 'text-fuchsia-300',
+      barColor: 'bg-fuchsia-400',
     },
     {
-      label: "Best Power",
+      label: 'Best Power',
       value: metrics.bestNeuralPower,
       percent: Math.min((metrics.bestNeuralPower / 100) * 100, 100),
-      color: "text-yellow-300",
-      barColor: "bg-yellow-400",
+      color: 'text-yellow-300',
+      barColor: 'bg-yellow-400',
     },
   ];
 
@@ -661,7 +670,7 @@ export function PerformanceSnapshot({ sessions = [] }) {
 export function AgentSummary({ coachingInsight }) {
   const summary = coachingInsight
     ? `${coachingInsight.summary} ${coachingInsight.detail}`.trim()
-    : "Complete your first session to unlock AI coaching insights.";
+    : 'Complete your first session to unlock AI coaching insights.';
 
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">

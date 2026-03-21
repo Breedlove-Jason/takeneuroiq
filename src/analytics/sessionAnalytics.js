@@ -1,6 +1,6 @@
 /**
  * Orchestrator for processing raw session data into actionable cognitive analytics.
- * 
+ *
  * This module aggregates data from various engines to build a comprehensive
  * profile of the user's performance, including:
  * - Cognitive Tracks: specific skill performance (pattern recognition, focus, etc.)
@@ -9,20 +9,20 @@
  * - Adaptive Difficulty: recommendations for next session's intensity
  * - Coaching Insights: personalized feedback based on the above metrics
  */
-import { calculateAdaptiveDifficulty } from "./adaptiveDifficulty";
-import { generateCoachingInsight } from "./coachingEngine";
-import { buildCognitiveTracks } from "./cognitiveTracks";
+import { calculateAdaptiveDifficulty } from './adaptiveDifficulty';
+import { generateCoachingInsight } from './coachingEngine';
+import { buildCognitiveTracks } from './cognitiveTracks';
 import {
   buildNeuralPowerTrendData,
   calculateNeuralTrend,
   calculatePressureState,
-} from "../utils/sessionTrendUtils";
+} from '../utils/sessionTrendUtils';
 
 /**
  * Builds a complete analytics report from a history of player sessions.
- * 
+ *
  * @param {Array} sessions - The list of raw session objects to analyze.
- * @returns {Object|null} A report object containing tracks, trends, states, and insights, 
+ * @returns {Object|null} A report object containing tracks, trends, states, and insights,
  *                        or null if no sessions are provided.
  */
 export function buildSessionAnalytics(sessions) {

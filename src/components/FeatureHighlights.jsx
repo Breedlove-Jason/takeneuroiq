@@ -1,27 +1,27 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faTrophy, faBolt, faBrain } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrophy, faBolt, faBrain } from '@fortawesome/free-solid-svg-icons';
 
 function FeatureHighlights() {
   const features = [
     {
       icon: faTrophy,
-      title: "Compete Globally",
+      title: 'Compete Globally',
       description:
-        "Challenge other players, improve your ranking, and climb a leaderboard built for competitive brain games.",
+        'Challenge other players, improve your ranking, and climb a leaderboard built for competitive brain games.',
     },
     {
       icon: faBolt,
-      title: "Daily Brain Challenges",
+      title: 'Daily Brain Challenges',
       description:
-        "Come back each day for fresh puzzles, fast rounds, and new chances to test your speed and reasoning.",
+        'Come back each day for fresh puzzles, fast rounds, and new chances to test your speed and reasoning.',
     },
     {
       icon: faBrain,
-      title: "Track Cognitive Skills",
+      title: 'Track Cognitive Skills',
       description:
-        "See how you perform across logic, pattern recognition, memory, and processing speed over time.",
+        'See how you perform across logic, pattern recognition, memory, and processing speed over time.',
     },
-  ]
+  ];
 
   return (
     <section className="px-6 py-24">
@@ -36,7 +36,8 @@ function FeatureHighlights() {
           </h2>
 
           <p className="mt-4 text-slate-300">
-            More than a test. TakeNeuroIQ transforms intelligence challenges into a modern, replayable experience.
+            More than a test. TakeNeuroIQ transforms intelligence challenges
+            into a modern, replayable experience.
           </p>
         </div>
 
@@ -62,7 +63,7 @@ function FeatureHighlights() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-export default FeatureHighlights
+export default FeatureHighlights;

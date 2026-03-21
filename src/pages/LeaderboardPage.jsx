@@ -1,12 +1,12 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTrophy,
   faMedal,
   faChartLine,
   faBolt,
   faBrain,
-} from "@fortawesome/free-solid-svg-icons";
-import { useSessionData } from "../hooks/useSessionData";
+} from '@fortawesome/free-solid-svg-icons';
+import { useSessionData } from '../hooks/useSessionData';
 
 function LeaderboardPage() {
   const { sessions, leaderboardData } = useSessionData();
@@ -15,9 +15,9 @@ function LeaderboardPage() {
 
   const getPlayerAccuracy = (player) => {
     if (
-      typeof player.puzzlesAttempted === "number" &&
+      typeof player.puzzlesAttempted === 'number' &&
       player.puzzlesAttempted > 0 &&
-      typeof player.puzzlesCorrect === "number"
+      typeof player.puzzlesCorrect === 'number'
     ) {
       return Math.round(
         (player.puzzlesCorrect / player.puzzlesAttempted) * 100,
@@ -153,7 +153,7 @@ function LeaderboardPage() {
                             </p>
                           </div>
                           <span className="rounded-full border border-slate-700 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-300">
-                            {player.difficultyBucket ?? "Adaptive"}
+                            {player.difficultyBucket ?? 'Adaptive'}
                           </span>
                         </div>
 
@@ -238,7 +238,7 @@ function LeaderboardPage() {
                           {player.label}
                         </span>
                         <span className="font-semibold text-cyan-300">
-                          {player.difficultyBucket ?? "Adaptive"}
+                          {player.difficultyBucket ?? 'Adaptive'}
                         </span>
                       </div>
                     ))}

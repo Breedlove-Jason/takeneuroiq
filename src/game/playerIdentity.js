@@ -1,5 +1,5 @@
-const PLAYER_NAME_KEY = "takeneuroiq_player_name";
-const DEFAULT_PLAYER_NAME = "Arena Runner";
+const PLAYER_NAME_KEY = 'takeneuroiq_player_name';
+const DEFAULT_PLAYER_NAME = 'Arena Runner';
 
 export function getPlayerName() {
   try {
@@ -11,7 +11,7 @@ export function getPlayerName() {
 
     return storedName.trim();
   } catch (error) {
-    console.error("Failed to load TakeNeuroIQ player name:", error);
+    console.error('Failed to load TakeNeuroIQ player name:', error);
     return DEFAULT_PLAYER_NAME;
   }
 }
@@ -21,18 +21,18 @@ function notifyPlayerIdentityUpdate() {
 }
 
 export function setPlayerName(name) {
-  const normalizedName = String(name ?? "").trim();
+  const normalizedName = String(name ?? '').trim();
 
   if (!normalizedName) {
     return DEFAULT_PLAYER_NAME;
   }
 
   try {
-    localStorage.setItem(PLAYER_NAME_KEY, normalizedName)
+    localStorage.setItem(PLAYER_NAME_KEY, normalizedName);
     notifyPlayerIdentityUpdate();
     return normalizedName;
   } catch (error) {
-    console.error("Failed to save TakeNeuroIQ player name:", error);
+    console.error('Failed to save TakeNeuroIQ player name:', error);
     return DEFAULT_PLAYER_NAME;
   }
 }
@@ -42,7 +42,7 @@ export function clearPlayerName() {
     localStorage.removeItem(PLAYER_NAME_KEY);
     notifyPlayerIdentityUpdate();
   } catch (error) {
-    console.error("Failed to clear TakeNeuroIQ player name:", error);
+    console.error('Failed to clear TakeNeuroIQ player name:', error);
   }
 }
 

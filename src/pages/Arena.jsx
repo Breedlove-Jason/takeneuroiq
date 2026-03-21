@@ -184,11 +184,7 @@ function Arena({ theme }) {
     const previousTarget = previousTargetDifficultyRef.current;
     const currentTarget = liveAdaptiveDifficulty.targetDifficulty;
 
-    if (
-      previousTarget &&
-      currentTarget &&
-      previousTarget !== currentTarget
-    ) {
+    if (previousTarget && currentTarget && previousTarget !== currentTarget) {
       setAdaptiveShiftMessage(
         adaptiveShiftMessageMap[currentTarget] || 'Adaptive shift detected',
       );
@@ -674,12 +670,11 @@ function Arena({ theme }) {
                 </div>
                 <div className="text-right space-y-2">
                   <div>
-
-              {adaptiveShiftMessage ? (
-                <p className="mt-4 text-xs font-medium text-cyan-300">
-                  {adaptiveShiftMessage}
-                </p>
-              ) : null}
+                    {adaptiveShiftMessage ? (
+                      <p className="mt-4 text-xs font-medium text-cyan-300">
+                        {adaptiveShiftMessage}
+                      </p>
+                    ) : null}
                     <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
                       Current
                     </p>
