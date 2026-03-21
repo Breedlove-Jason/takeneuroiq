@@ -7,6 +7,8 @@ import {
   faChartLine,
   faBolt,
   faLayerGroup,
+  faWaveSquare,
+  faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   Radar,
@@ -168,6 +170,13 @@ function ProfilePage() {
     },
   };
 
+  const adaptiveInsightIcons = {
+    challenge: faBolt,
+    steady: faWaveSquare,
+    recover: faShieldHalved,
+    default: faWaveSquare,
+  };
+
   const adaptiveInsightBadge =
     adaptiveInsightBadges[latestAdaptiveState] ?? adaptiveInsightBadges.default;
 
@@ -175,6 +184,8 @@ function ProfilePage() {
     adaptiveInsightSubtextMap[latestAdaptiveState] ||
     adaptiveInsightSubtextMap.default;
 
+  const adaptiveInsightIcon =
+    adaptiveInsightIcons[latestAdaptiveState] || adaptiveInsightIcons.default;
   const adaptiveInsightTone =
     adaptiveInsightStyles[latestAdaptiveState] ?? adaptiveInsightStyles.default;
 
@@ -524,12 +535,17 @@ function ProfilePage() {
               key={latestAdaptiveState + adaptiveInsight}
               className={`mb-6 rounded-2xl border bg-slate-900/70 px-5 py-4 shadow-lg ${adaptiveInsightTone.border} ${adaptiveInsightTone.glow} transition-all duration-500 ease-out animate-[fadeIn_0.4s_ease-out]`}
             >
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <div
-                  className={`text-xs font-semibold uppercase tracking-[0.2em] ${adaptiveInsightTone.label}`}
-                >
-                  Adaptive Insight
-                </div>
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <div
+                        className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] ${adaptiveInsightTone.label}`}
+                      >
+                                    <FontAwesomeIcon
+                                      icon={adaptiveInsightIcon}
+                                      className="text-sm opacity-90"
+                                      fixedWidth
+                                    />
+                        <span>Adaptive Insight</span>
+                      </div>
 
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${adaptiveInsightBadge.className}`}
