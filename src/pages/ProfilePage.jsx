@@ -116,6 +116,16 @@ function ProfilePage() {
     return recentAdaptiveSession?.liveAdaptiveDifficulty?.state || null;
   }, [sessions]);
 
+  const adaptiveInsightSubtextMap = {
+    challenge:
+      "Recent session behavior shows the system increasing difficulty in response to stronger performance.",
+    steady:
+      "Recent session behavior shows stable control, balanced output, and manageable pressure.",
+    recover:
+      "Recent session behavior shows signs of strain, so the system is easing intensity to protect consistency.",
+    default: "Adaptive feedback updates as more session behavior is recorded.",
+  };
+
   const adaptiveInsightStyles = {
     challenge: {
       border: "border-violet-500/30",
@@ -142,8 +152,7 @@ function ProfilePage() {
   const adaptiveInsightBadges = {
     challenge: {
       text: "Challenge",
-      className:
-        "bg-violet-500/15 text-violet-200 border border-violet-400/30",
+      className: "bg-violet-500/15 text-violet-200 border border-violet-400/30",
     },
     steady: {
       text: "Steady",
@@ -162,14 +171,55 @@ function ProfilePage() {
   const adaptiveInsightBadge =
     adaptiveInsightBadges[latestAdaptiveState] ?? adaptiveInsightBadges.default;
 
+  const adaptiveInsightSubtext =
+    adaptiveInsightSubtextMap[latestAdaptiveState] ||
+    adaptiveInsightSubtextMap.default;
+
   const adaptiveInsightTone =
     adaptiveInsightStyles[latestAdaptiveState] ?? adaptiveInsightStyles.default;
 
+  const adaptiveInsightTrend = useMemo(() => {
+    if (!sessions || sessions.length === 0)
+      return "No recent adaptive pattern yet.";
+
+    const recentStates = [...sessions]
+      .slice(-5)
+      .map((session) => session?.liveAdaptiveDifficulty?.state)
+      .filter(Boolean);
+
+    if (recentStates.length === 0) {
+      return "No recent adaptive pattern yet.";
+    }
+
+    const labelMap = {
+      recover: "Recovery",
+      steady: "Steady",
+      challenge: "Challenge",
+    };
+
+    const labeledStates = recentStates.map((state) => labelMap[state] || state);
+
+    const compressed = [];
+    for (const state of labeledStates) {
+      const last = compressed[compressed.length - 1];
+
+      if (last && last.label === state) {
+        last.count += 1;
+      } else {
+        compressed.push({ label: state, count: 1 });
+      }
+    }
+
+    return compressed
+      .map((item) =>
+        item.count > 1 ? `${item.label} × ${item.count}` : item.label,
+      )
+      .join(" → ");
+  }, [sessions]);
 
   const adaptiveInsight = useMemo(() => {
     if (!sessions || sessions.length === 0) {
       return "Complete more sessions to unlock adaptive insights.";
-
     }
 
     const recentAdaptiveSessions = [...sessions]
@@ -221,6 +271,27 @@ function ProfilePage() {
 
     return "Your pattern is still forming, but your system is actively adapting to your performance.";
   }, [sessions]);
+
+  const adaptiveTensionInsight = useMemo(() => {
+    if (!latestAdaptiveState || !neuralTrendLabel) return null;
+
+    // normalize trend text if needed
+    const trend = neuralTrendLabel.toLowerCase();
+
+    if (latestAdaptiveState === "challenge" && trend.includes("declin")) {
+      return "You're pushing into higher difficulty, but performance is starting to strain. Consider stabilizing before pushing further.";
+    }
+
+    if (latestAdaptiveState === "recover" && trend.includes("improv")) {
+      return "Recovery is working. Your system is regaining stability and control.";
+    }
+
+    if (latestAdaptiveState === "steady" && trend.includes("improv")) {
+      return "You're building strength in a stable zone. This is ideal for long-term growth.";
+    }
+
+    return null;
+  }, [latestAdaptiveState, neuralTrendLabel]);
 
   const recentSessions = [...sessions].slice(-5).reverse();
 
@@ -444,22 +515,35 @@ function ProfilePage() {
             <div
               className={`mb-6 rounded-2xl border bg-slate-900/70 px-5 py-4 shadow-lg ${adaptiveInsightTone.border} ${adaptiveInsightTone.glow}`}
             >
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <div
-                    className={`text-xs font-semibold uppercase tracking-[0.2em] ${adaptiveInsightTone.label}`}
-                  >
-                    Adaptive Insight
-                  </div>
-
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${adaptiveInsightBadge.className}`}
-                  >
-                    {adaptiveInsightBadge.text}
-                  </span>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div
+                  className={`text-xs font-semibold uppercase tracking-[0.2em] ${adaptiveInsightTone.label}`}
+                >
+                  Adaptive Insight
                 </div>
-              <p className="text-sm text-slate-200 md:text-base">
-                {adaptiveInsight}
-              </p>
+
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${adaptiveInsightBadge.className}`}
+                >
+                  {adaptiveInsightBadge.text}
+                </span>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-slate-200 md:text-base">
+                  {adaptiveInsight}
+                </p>
+                <p className="text-xs leading-6 text-slate-400 md:text-sm">
+                  {adaptiveInsightSubtext}
+                </p>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 md:text-xs">
+                  Recent pattern: {adaptiveInsightTrend}
+                </p>
+                {adaptiveTensionInsight && (
+                  <p className="text-xs text-rose-300/80 md:text-sm">
+                    {adaptiveTensionInsight}
+                  </p>
+                )}
+              </div>{" "}
             </div>
 
             <PerformanceSnapshot sessions={sessions} />
