@@ -120,16 +120,12 @@ function ProfilePage() {
     { skill: "Consistency", value: consistencyScore },
   ];
 
-  const latestAdaptiveState = useMemo(() => {
-    if (!sessions || sessions.length === 0) return null;
-
-    const recentAdaptiveSession = [...sessions]
+  const latestAdaptiveState =
+    sessions
       .slice()
       .reverse()
-      .find((session) => session?.liveAdaptiveDifficulty?.state);
-
-    return recentAdaptiveSession?.liveAdaptiveDifficulty?.state || null;
-  }, [sessions]);
+      .find((session) => session?.liveAdaptiveDifficulty?.state)
+      ?.liveAdaptiveDifficulty?.state || null;
 
   const adaptiveInsightSubtextMap = {
     challenge:
@@ -296,34 +292,33 @@ function ProfilePage() {
     return "Your pattern is still forming, but your system is actively adapting to your performance.";
   }, [sessions]);
 
-  const adaptiveTensionInsight = useMemo(() => {
-    if (!latestAdaptiveState || !neuralTrend) return null;
-
+  let adaptiveTensionInsight = null;
+  if (latestAdaptiveState && neuralTrend) {
     const trend = (neuralTrend.direction ?? "").toLowerCase();
 
     if (latestAdaptiveState === "challenge" && trend.includes("declin")) {
-      return {
+      adaptiveTensionInsight = {
         text: "You're pushing into higher difficulty, but performance is starting to strain. Consider stabilizing before pushing further.",
         className: "text-rose-300/80",
       };
-    }
-
-    if (latestAdaptiveState === "recover" && trend.includes("improv")) {
-      return {
+    } else if (
+      latestAdaptiveState === "recover" &&
+      trend.includes("improv")
+    ) {
+      adaptiveTensionInsight = {
         text: "Recovery is working. Your system is regaining stability and control.",
         className: "text-emerald-300/80",
       };
-    }
-
-    if (latestAdaptiveState === "steady" && trend.includes("improv")) {
-      return {
+    } else if (
+      latestAdaptiveState === "steady" &&
+      trend.includes("improv")
+    ) {
+      adaptiveTensionInsight = {
         text: "You're building strength in a stable zone. This is ideal for long-term growth.",
         className: "text-cyan-300/80",
       };
     }
-
-    return null;
-  }, [latestAdaptiveState, neuralTrend]);
+  }
   const adaptiveActionLabels = {
     challenge: "Push Higher Difficulty",
     steady: "Maintain Your Rhythm",
@@ -333,40 +328,37 @@ function ProfilePage() {
   const adaptiveActionLabel =
     adaptiveActionLabels[latestAdaptiveState] || adaptiveActionLabels.default;
 
-  const adaptiveRecommendation = useMemo(() => {
-    if (!latestAdaptiveState) {
-      return "Complete more sessions to unlock personalized coaching recommendations.";
-    }
-
-    const trend =
-      typeof neuralTrend === "string" ? neuralTrend.toLowerCase() : "";
+  let adaptiveRecommendation =
+    "Keep training. The system will sharpen its guidance as more performance data comes in.";
+  if (!latestAdaptiveState) {
+    adaptiveRecommendation =
+      "Complete more sessions to unlock personalized coaching recommendations.";
+  } else {
+    const trend = (neuralTrend?.direction ?? "").toLowerCase();
 
     if (latestAdaptiveState === "challenge" && trend.includes("declin")) {
-      return "Run a shorter session and prioritize accuracy before pushing intensity higher again.";
+      adaptiveRecommendation =
+        "Run a shorter session and prioritize accuracy before pushing intensity higher again.";
+    } else if (latestAdaptiveState === "challenge") {
+      adaptiveRecommendation =
+        "Keep pushing, but stay sharp. Maintain accuracy as difficulty rises.";
+    } else if (latestAdaptiveState === "steady" && trend.includes("improv")) {
+      adaptiveRecommendation =
+        "You're in a strong growth zone. Try increasing difficulty and protecting consistency.";
+    } else if (latestAdaptiveState === "steady") {
+      adaptiveRecommendation =
+        "Stay in rhythm and aim for cleaner streaks before forcing a harder jump.";
+    } else if (
+      latestAdaptiveState === "recover" &&
+      trend.includes("improv")
+    ) {
+      adaptiveRecommendation =
+        "Recovery is working. Keep the pace controlled and rebuild confidence through clean reps.";
+    } else if (latestAdaptiveState === "recover") {
+      adaptiveRecommendation =
+        "Slow down, focus on accuracy, and let your stability recover before chasing speed.";
     }
-
-    if (latestAdaptiveState === "challenge") {
-      return "Keep pushing, but stay sharp. Maintain accuracy as difficulty rises.";
-    }
-
-    if (latestAdaptiveState === "steady" && trend.includes("improv")) {
-      return "You're in a strong growth zone. Try increasing difficulty and protecting consistency.";
-    }
-
-    if (latestAdaptiveState === "steady") {
-      return "Stay in rhythm and aim for cleaner streaks before forcing a harder jump.";
-    }
-
-    if (latestAdaptiveState === "recover" && trend.includes("improv")) {
-      return "Recovery is working. Keep the pace controlled and rebuild confidence through clean reps.";
-    }
-
-    if (latestAdaptiveState === "recover") {
-      return "Slow down, focus on accuracy, and let your stability recover before chasing speed.";
-    }
-
-    return "Keep training. The system will sharpen its guidance as more performance data comes in.";
-  }, [latestAdaptiveState, neuralTrend]);
+  }
   const adaptiveRecommendationTone = {
     challenge: "text-violet-200/90",
     steady: "text-cyan-200/90",

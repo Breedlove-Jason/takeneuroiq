@@ -1,5 +1,11 @@
 import { calculatePressureState } from "../src/utils/sessionTrendUtils.js";
 
+const exitWithCode = (code) => {
+  if (typeof globalThis.process?.exit === "function") {
+    globalThis.process.exit(code);
+  }
+};
+
 async function test() {
   console.log("🧪 Testing calculatePressureState from src/utils/sessionTrendUtils.js...");
 
@@ -23,10 +29,10 @@ async function test() {
     assert(calculatePressureState([{ accuracy: 70, bestStreak: 5, score: 500 }, { accuracy: 70, bestStreak: 5, score: 500 }, { accuracy: 70, bestStreak: 5, score: 500 }]).state === "stable", "Returns stable for other cases");
 
     console.log(`\n📊 Results: ${passed} passed, ${failed} failed`);
-    if (failed > 0) process.exit(1);
+    if (failed > 0) exitWithCode(1);
   } catch (e) {
     console.error("Error during test:", e);
-    process.exit(1);
+    exitWithCode(1);
   }
 }
 

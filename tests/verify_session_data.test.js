@@ -1,5 +1,11 @@
 // Verification script for useSessionData.js normalization logic
 
+const exitWithCode = (code) => {
+  if (typeof globalThis.process?.exit === 'function') {
+    globalThis.process.exit(code);
+  }
+};
+
 // Mocking the normalization logic from useSessionData.js
 function normalizeSession(session) {
   const puzzlesAttempted = session.puzzlesAttempted ?? session.puzzlesSeen ?? 0;
@@ -149,5 +155,5 @@ if (failed === 0) {
   console.log('🎉 Normalization logic is robust and backward compatible!');
 } else {
   console.log('⚠️ Verification failed. Please review the logic.');
-  process.exit(1);
+  exitWithCode(1);
 }
