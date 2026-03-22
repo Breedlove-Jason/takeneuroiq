@@ -111,6 +111,17 @@ const recommendedDifficultyLabels = {
   hard: 'HARD',
 };
 
+const recommendedSessionReasonMap = {
+  challenge:
+    'The system detected strong recent performance and is opening at a higher challenge level.',
+  steady:
+    'The system detected balanced recent performance and is opening at a stable training level.',
+  recover:
+    'The system detected a need for controlled recovery and is easing the opening difficulty.',
+  default:
+    'The system is using your recent training behavior to shape this session.',
+};
+
 const adaptiveStateToDifficultyMap = {
   recover: 'easy',
   steady: 'medium',
@@ -133,6 +144,10 @@ function Arena({ theme }) {
     adaptiveStateToDifficultyMap[recommendedSession?.adaptiveState] || 'medium';
   const recommendedOpeningDifficulty =
     recommendedDifficultyLabels[initialTargetDifficulty] || 'MEDIUM';
+
+  const recommendedSessionReason =
+    recommendedSessionReasonMap[recommendedSession?.adaptiveState] ||
+    recommendedSessionReasonMap.default;
   const initialAdaptiveReason = recommendedSession
     ? 'Session initialized from adaptive coaching recommendation.'
     : 'Not enough live data yet.';
@@ -152,6 +167,11 @@ function Arena({ theme }) {
   const [puzzlesSeen, setPuzzlesSeen] = useState(1);
   const [timeLeft, setTimeLeft] = useState(45);
   const [gameOver, setGameOver] = useState(false);
+  const [showRecommendedBanner, setShowRecommendedBanner] = useState(
+    Boolean(recommendedSession),
+  );
+  const [isBannerHiding, setIsBannerHiding] = useState(false);
+  const hasHandledRecommendedSessionRef = useRef(false);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || 'steady',
@@ -187,6 +207,12 @@ function Arena({ theme }) {
   const adaptiveCoachingMessage =
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
     'Stay consistent and keep building momentum.';
+  
+  const liveCoachingToneMap = {
+  recover: "border-amber-500/20 bg-amber-500/5 text-amber-200",
+  steady: "border-cyan-500/20 bg-cyan-500/5 text-cyan-200",
+  challenge: "border-violet-500/20 bg-violet-500/5 text-violet-200",
+};
 
   useEffect(() => {
     gameOverRef.current = gameOver;
@@ -254,6 +280,29 @@ function Arena({ theme }) {
 
     return () => clearInterval(timer);
   }, [gameOver]);
+
+  // Replace the old banner effect with the new animation-aware version
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!recommendedSession || hasHandledRecommendedSessionRef.current) {
+      return;
+    }
+
+    hasHandledRecommendedSessionRef.current = true;
+
+    setShowRecommendedBanner(true);
+    setIsBannerHiding(false);
+
+    const hideTimer = setTimeout(() => {
+      setIsBannerHiding(true);
+      setTimeout(() => {
+        setShowRecommendedBanner(false);
+      }, 500);
+    }, 3500);
+
+    return () => clearTimeout(hideTimer);
+  }, [recommendedSession]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
     const availablePuzzles = patternPuzzles.filter(
@@ -430,11 +479,11 @@ function Arena({ theme }) {
               : 'border-slate-200 bg-white shadow-sm'
           }`}
         >
-          {recommendedSession && (
+          {recommendedSession && showRecommendedBanner && (
             <div
-              className={`mb-4 rounded-2xl border bg-slate-900/70 px-4 py-3 shadow-lg ${
+              className={`mb-4 rounded-2xl border bg-slate-900/70 px-4 py-3 shadow-lg transition-all duration-500 ${
                 recommendedSessionTone.border
-              }`}
+              } ${isBannerHiding ? '-translate-y-2.5 opacity-0' : 'translate-y-0 opacity-100'}`}
             >
               <div className="mb-2 flex items-center justify-between gap-3">
                 <div
@@ -458,6 +507,9 @@ function Arena({ theme }) {
               <div className="space-y-2">
                 <p className="text-sm text-slate-200 md:text-base">
                   {recommendedSession.recommendation}
+                </p>
+                <p className="text-xs leading-6 text-slate-400 md:text-sm">
+                  {recommendedSessionReason}
                 </p>
                 <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 md:text-xs">
                   Opening difficulty: {recommendedOpeningDifficulty}
@@ -688,6 +740,16 @@ function Arena({ theme }) {
                   >
                     {feedback || 'Live Round'}
                   </div>
+                </div>
+                <div
+                  className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingToneMap[liveAdaptiveDifficulty.state] || liveCoachingToneMap.default}`}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Live Coaching
+                  </p>
+                  <p className="mt-2 text-sm md:text-base">
+                    {adaptiveCoachingMessage}
+                  </p>
                 </div>
 
                 <div
