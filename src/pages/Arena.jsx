@@ -112,6 +112,12 @@ const recommendedSessionLabels = {
   default: 'Adaptive',
 };
 
+const recommendedAlignmentToneMap = {
+  aligned: 'text-emerald-300',
+  shifted: 'text-amber-300',
+  inactive: 'text-slate-400',
+};
+
 const recommendedDifficultyLabels = {
   easy: 'EASY',
   medium: 'MEDIUM',
@@ -246,9 +252,34 @@ function Arena({ theme }) {
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
     'Stay consistent and keep building momentum.';
 
+  const isRecommendedSessionAligned =
+    !recommendedSession?.adaptiveState ||
+    recommendedSession.adaptiveState === liveAdaptiveDifficulty.state;
+
+  const recommendedSessionAlignmentLabel = !recommendedSession?.adaptiveState
+    ? 'No recommended session active'
+    : isRecommendedSessionAligned
+      ? 'Aligned with recommended training state'
+      : 'Shifted away from recommended training state';
+
+  const recommendedSessionAlignmentTone = !recommendedSession?.adaptiveState
+    ? recommendedAlignmentToneMap.inactive
+    : isRecommendedSessionAligned
+      ? recommendedAlignmentToneMap.aligned
+      : recommendedAlignmentToneMap.shifted;
+
   const liveCoachingTone =
     liveCoachingToneMap[liveAdaptiveDifficulty.state] ||
     liveCoachingToneMap.default;
+
+  const liveCoachingPressureClass =
+    streak >= 6
+      ? 'shadow-[0_0_32px_rgba(217,70,239,0.22)] scale-[1.01]'
+      : streak >= 4
+        ? 'shadow-[0_0_22px_rgba(34,211,238,0.14)] scale-[1.005]'
+        : streak >= 2
+          ? 'shadow-[0_0_14px_rgba(34,211,238,0.08)]'
+          : '';
 
   function dismissRecommendedBanner() {
     if (!recommendedSession || isBannerHiding || !showRecommendedBanner) {
@@ -400,8 +431,15 @@ function Arena({ theme }) {
       clearTimeout(badgeTimer);
     };
   }, [recommendedSessionKey]);
-
+  
   // Handlers
+  function applyLiveAdaptiveDifficulty(nextDifficulty) {
+    if (nextDifficulty.state !== liveAdaptiveDifficulty.state) {
+      setShowCoachingReason(false);
+    }
+    setLiveAdaptiveDifficulty(nextDifficulty);
+  }
+
   function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
     const availablePuzzles = patternPuzzles.filter(
       (puzzle) => puzzle.id !== currentId,
@@ -484,7 +522,7 @@ function Arena({ theme }) {
       setFeedback(adaptiveFeedback);
     }
 
-    setLiveAdaptiveDifficulty(nextLiveAdaptiveDifficulty);
+    applyLiveAdaptiveDifficulty(nextLiveAdaptiveDifficulty);
 
     setRecentAnswerHistory((prev) => {
       return [...prev, isCorrect].slice(-5);
@@ -509,7 +547,7 @@ function Arena({ theme }) {
     const newPuzzle = getRandomPuzzle();
     hasRecordedSessionRef.current = false;
     setCurrentPuzzle(newPuzzle);
-    setLiveAdaptiveDifficulty({
+    applyLiveAdaptiveDifficulty({
       state: initialAdaptiveState,
       targetDifficulty: initialTargetDifficulty,
       confidence: 'low',
@@ -841,9 +879,10 @@ function Arena({ theme }) {
                   </div>
                 </div>
                 <div
-                  className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingTone}`}
+                  className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingTone} ${liveCoachingPressureClass}`}
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                           Live Coaching
@@ -858,89 +897,86 @@ function Arena({ theme }) {
                         </button>
                       </div>
 
-                      {recommendedStartLabel && showRecommendedStartBadge && (
-                        <span className="inline-flex items-center rounded-full border border-slate-500/20 bg-slate-800/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300">
-                          {recommendedStartLabel}
-                        </span>
+                      <p className="mt-2 text-sm leading-6 md:text-[15px]">
+                        {adaptiveCoachingMessage}
+                      </p>
+
+                      {showCoachingReason && (
+                        <p className="mt-2 text-xs leading-5 text-slate-400 md:text-sm">
+                          {liveAdaptiveDifficulty.reason}
+                        </p>
                       )}
                     </div>
 
-                  {showCoachingReason && (
-                    <p className="mt-2 text-xs text-slate-400 md:text-sm">
-                      {liveAdaptiveDifficulty.reason}
-                    </p>
-                  )}
-
-                  <div className="mt-2 space-y-2">
-                    <p className="text-sm md:text-base">
-                      {adaptiveCoachingMessage}
-                    </p>
-
-                    {showCoachingReason && (
-                      <p className="text-xs leading-6 text-slate-400 md:text-sm">
-                        {liveAdaptiveDifficulty.reason}
-                      </p>
+                    {recommendedStartLabel && showRecommendedStartBadge && (
+                      <span className="mt-0.5 inline-flex shrink-0 items-center rounded-full border border-slate-500/20 bg-slate-800/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300">
+                        {recommendedStartLabel}
+                      </span>
                     )}
                   </div>
                 </div>
 
-                <div
-                  className={`mt-8 rounded-2xl border p-8 md:p-12 ${
-                    isCyber
-                      ? 'border-cyan-400/15 bg-[#0c1526]'
-                      : 'border-slate-200 bg-slate-50'
-                  }`}
-                >
-                  <div className="grid grid-cols-3 gap-4 md:gap-6">
-                    {currentPuzzle.grid.map((item, index) => (
-                      <div
-                        key={`${item}-${index}`}
-                        className={`flex aspect-square items-center justify-center rounded-2xl border ${
-                          isCyber
-                            ? 'border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]'
-                            : 'border-slate-200 bg-white'
-                        }`}
-                      >
-                        <PuzzleShape shape={item} />
-                      </div>
-                    ))}
+                <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
+                  <div
+                    className={`rounded-2xl border p-6 md:p-8 ${
+                      isCyber
+                        ? 'border-cyan-400/15 bg-[#0c1526]'
+                        : 'border-slate-200 bg-slate-50'
+                    }`}
+                  >
+                    <div className="grid grid-cols-3 gap-4 md:gap-5">
+                      {currentPuzzle.grid.map((item, index) => (
+                        <div
+                          key={`${item}-${index}`}
+                          className={`flex aspect-square items-center justify-center rounded-2xl border ${
+                            isCyber
+                              ? 'border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]'
+                              : 'border-slate-200 bg-white'
+                          }`}
+                        >
+                          <PuzzleShape shape={item} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="mt-8 grid gap-4 md:grid-cols-2">
-                  {currentPuzzle.choices.map((choice) => (
-                    <button
-                      key={choice}
-                      onClick={() => handleAnswer(choice)}
-                      disabled={gameOver}
-                      className={`group rounded-2xl border px-5 py-4 text-left transition ${
-                        gameOver ? 'cursor-not-allowed opacity-50' : ''
-                      } ${
-                        isCyber
-                          ? 'border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]'
-                          : 'border-slate-200 bg-white text-slate-900 hover:border-cyan-300'
-                      }`}
-                    >
-                      <span
-                        className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                          isCyber
-                            ? 'text-cyan-400 group-hover:text-fuchsia-300'
-                            : 'text-cyan-600'
-                        }`}
-                      >
-                        Response
-                      </span>
-                      <div className="mt-3 flex items-center justify-center">
-                        <PuzzleShape shape={choice} />
-                      </div>
-                    </button>
-                  ))}
+                  <div className="xl:sticky xl:top-6">
+                    <div className="grid content-start gap-4">
+                      {currentPuzzle.choices.map((choice) => (
+                        <button
+                          key={choice}
+                          onClick={() => handleAnswer(choice)}
+                          disabled={gameOver}
+                          className={`group rounded-2xl border px-5 py-4 text-left transition ${
+                            gameOver ? 'cursor-not-allowed opacity-50' : ''
+                          } ${
+                            isCyber
+                              ? 'border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]'
+                              : 'border-slate-200 bg-white text-slate-900 hover:border-cyan-300'
+                          }`}
+                        >
+                          <span
+                            className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                              isCyber
+                                ? 'text-cyan-400 group-hover:text-fuchsia-300'
+                                : 'text-cyan-600'
+                            }`}
+                          >
+                            Response
+                          </span>
+                          <div className="mt-3 flex items-center justify-center">
+                            <PuzzleShape shape={choice} />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </>
             )}
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-4">
+          <div className="mt-6 grid gap-4 xl:grid-cols-[180px_minmax(0,1.45fr)_180px_180px]">
             <div
               className={`rounded-2xl border px-5 py-4 ${
                 isCyber
@@ -963,27 +999,32 @@ function Arena({ theme }) {
                 {score.toString().padStart(4, '0')}
               </div>
             </div>
+
             <div className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 p-5 shadow-[0_0_24px_rgba(34,211,238,0.08)]">
               <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
                 Cognitive State
               </p>
 
-              <div className="mt-2 flex items-center justify-between gap-4">
+              <div className="mt-2 flex items-start justify-between gap-4">
                 <div>
                   <p className={`text-lg font-semibold ${adaptiveStateColor}`}>
                     {adaptiveStateLabel}
                   </p>
-                  <p className="mt-1 text-sm text-slate-400">
+                  <p className={`mt-1 text-xs font-medium ${recommendedSessionAlignmentTone}`}>
+                    {recommendedSessionAlignmentLabel}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-400">
                     {liveAdaptiveDifficulty.reason}
                   </p>
                   <p className="mt-2 text-xs leading-5 text-slate-500">
                     {adaptiveCoachingMessage}
                   </p>
                 </div>
+
                 <div className="text-right space-y-2">
                   <div>
                     {adaptiveShiftMessage ? (
-                      <p className="mt-4 text-xs font-medium text-cyan-300">
+                      <p className="mb-2 text-xs font-medium text-cyan-300">
                         {adaptiveShiftMessage}
                       </p>
                     ) : null}
@@ -1004,49 +1045,78 @@ function Arena({ theme }) {
                     </p>
                   </div>
 
-                  <p
-                    className={`text-xs font-medium ${adaptiveConfidenceColor}`}
-                  >
+                  <p className={`text-xs font-medium ${adaptiveConfidenceColor}`}>
                     {liveAdaptiveDifficulty.confidence.toUpperCase()} confidence
                   </p>
                 </div>
               </div>
             </div>
 
-            <div
-              className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
-                isCyber
-                  ? streak >= 6
-                    ? 'border-fuchsia-400/90 bg-fuchsia-500/25 shadow-[0_0_48px_rgba(217,70,239,0.60),0_0_90px_rgba(217,70,239,0.28)]'
-                    : streak >= 4
-                      ? 'border-fuchsia-400/60 bg-fuchsia-500/18 shadow-[0_0_32px_rgba(217,70,239,0.40)]'
-                      : streak >= 2
-                        ? 'border-fuchsia-400/35 bg-fuchsia-500/10 shadow-[0_0_18px_rgba(217,70,239,0.22)]'
-                        : 'border-fuchsia-400/20 bg-fuchsia-500/5'
-                  : 'border-slate-200 bg-slate-50'
-              }`}
-            >
-              <p
-                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-400' : 'text-slate-500'
-                }`}
-              >
-                Streak
-              </p>
+            <div className="grid gap-4">
               <div
-                className={`mt-2 font-mono text-2xl font-bold transition-all duration-300 ${
+                className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
                   isCyber
                     ? streak >= 6
-                      ? 'text-fuchsia-100 drop-shadow-[0_0_16px_rgba(217,70,239,0.70)]'
+                      ? 'border-fuchsia-400/90 bg-fuchsia-500/25 shadow-[0_0_48px_rgba(217,70,239,0.60),0_0_90px_rgba(217,70,239,0.28)]'
                       : streak >= 4
-                        ? 'text-fuchsia-200 drop-shadow-[0_0_10px_rgba(217,70,239,0.45)]'
+                        ? 'border-fuchsia-400/60 bg-fuchsia-500/18 shadow-[0_0_32px_rgba(217,70,239,0.40)]'
                         : streak >= 2
-                          ? 'text-fuchsia-300 drop-shadow-[0_0_6px_rgba(217,70,239,0.25)]'
-                          : 'text-fuchsia-300'
-                    : 'text-slate-800'
+                          ? 'border-fuchsia-400/35 bg-fuchsia-500/10 shadow-[0_0_18px_rgba(217,70,239,0.22)]'
+                          : 'border-fuchsia-400/20 bg-fuchsia-500/5'
+                    : 'border-slate-200 bg-slate-50'
                 }`}
               >
-                x{streak.toString().padStart(2, '0')}
+                <p
+                  className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                    isCyber ? 'text-slate-400' : 'text-slate-500'
+                  }`}
+                >
+                  Streak
+                </p>
+                <div
+                  className={`mt-2 font-mono text-2xl font-bold transition-all duration-300 ${
+                    isCyber
+                      ? streak >= 6
+                        ? 'text-fuchsia-100 drop-shadow-[0_0_16px_rgba(217,70,239,0.70)]'
+                        : streak >= 4
+                          ? 'text-fuchsia-200 drop-shadow-[0_0_10px_rgba(217,70,239,0.45)]'
+                          : streak >= 2
+                            ? 'text-fuchsia-300 drop-shadow-[0_0_6px_rgba(217,70,239,0.25)]'
+                            : 'text-fuchsia-300'
+                      : 'text-slate-800'
+                  }`}
+                >
+                  x{streak.toString().padStart(2, '0')}
+                </div>
+              </div>
+
+              <div
+                className={`rounded-2xl border px-5 py-4 ${
+                  isCyber
+                    ? comboMultiplier >= 3
+                      ? 'border-fuchsia-400/30 bg-fuchsia-500/10 shadow-[0_0_20px_rgba(217,70,239,0.12)]'
+                      : 'border-cyan-400/20 bg-cyan-400/5'
+                    : 'border-slate-200 bg-slate-50'
+                }`}
+              >
+                <p
+                  className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                    isCyber ? 'text-slate-400' : 'text-slate-500'
+                  }`}
+                >
+                  Combo
+                </p>
+                <div
+                  className={`mt-2 font-mono text-2xl font-bold ${
+                    isCyber
+                      ? comboMultiplier >= 3
+                        ? 'text-fuchsia-300'
+                        : 'text-cyan-300'
+                      : 'text-slate-800'
+                  }`}
+                >
+                  {comboMultiplier === null ? '--' : `x${comboMultiplier}`}
+                </div>
               </div>
             </div>
 
@@ -1070,35 +1140,6 @@ function Arena({ theme }) {
                 }`}
               >
                 {accuracy}
-              </div>
-            </div>
-
-            <div
-              className={`rounded-2xl border px-5 py-4 ${
-                isCyber
-                  ? comboMultiplier >= 3
-                    ? 'border-fuchsia-400/30 bg-fuchsia-500/10 shadow-[0_0_20px_rgba(217,70,239,0.12)]'
-                    : 'border-cyan-400/20 bg-cyan-400/5'
-                  : 'border-slate-200 bg-slate-50'
-              }`}
-            >
-              <p
-                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-400' : 'text-slate-500'
-                }`}
-              >
-                Combo
-              </p>
-              <div
-                className={`mt-2 font-mono text-2xl font-bold ${
-                  isCyber
-                    ? comboMultiplier >= 3
-                      ? 'text-fuchsia-300'
-                      : 'text-cyan-300'
-                    : 'text-slate-800'
-                }`}
-              >
-                {comboMultiplier === null ? '--' : `x${comboMultiplier}`}
               </div>
             </div>
           </div>
