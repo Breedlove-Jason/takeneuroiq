@@ -11,9 +11,21 @@ import patternPuzzles from './patternPuzzles';
  *
  * @returns {Object} A puzzle object containing grid, choices, and correctAnswer.
  */
-export function getRandomPuzzle() {
-  const index = Math.floor(Math.random() * patternPuzzles.length);
-  return patternPuzzles[index];
+export function getRandomPuzzle(preferredDifficulty = null) {
+  const normalizedDifficulty = preferredDifficulty?.toLowerCase?.() || null;
+
+  const filteredPuzzles = normalizedDifficulty
+    ? patternPuzzles.filter(
+        (puzzle) =>
+          (puzzle.difficulty || puzzle.difficultyBucket || "medium") ===
+          normalizedDifficulty,
+      )
+    : patternPuzzles;
+
+  const puzzlePool =
+    filteredPuzzles.length > 0 ? filteredPuzzles : patternPuzzles;
+
+  return puzzlePool[Math.floor(Math.random() * puzzlePool.length)];
 }
 
 /**

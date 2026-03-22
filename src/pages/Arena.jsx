@@ -105,6 +105,12 @@ const recommendedSessionLabels = {
   default: 'Adaptive',
 };
 
+const recommendedDifficultyLabels = {
+  easy: 'EASY',
+  medium: 'MEDIUM',
+  hard: 'HARD',
+};
+
 const adaptiveStateToDifficultyMap = {
   recover: 'easy',
   steady: 'medium',
@@ -125,6 +131,8 @@ function Arena({ theme }) {
   const initialAdaptiveState = recommendedSession?.adaptiveState || 'steady';
   const initialTargetDifficulty =
     adaptiveStateToDifficultyMap[recommendedSession?.adaptiveState] || 'medium';
+  const recommendedOpeningDifficulty =
+    recommendedDifficultyLabels[initialTargetDifficulty] || 'MEDIUM';
   const initialAdaptiveReason = recommendedSession
     ? 'Session initialized from adaptive coaching recommendation.'
     : 'Not enough live data yet.';
@@ -447,9 +455,14 @@ function Arena({ theme }) {
                 </span>
               </div>
 
-              <p className="text-sm text-slate-200 md:text-base">
-                {recommendedSession.recommendation}
-              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-slate-200 md:text-base">
+                  {recommendedSession.recommendation}
+                </p>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 md:text-xs">
+                  Opening difficulty: {recommendedOpeningDifficulty}
+                </p>
+              </div>
             </div>
           )}
 
