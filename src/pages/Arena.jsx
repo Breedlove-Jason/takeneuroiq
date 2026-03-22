@@ -75,6 +75,13 @@ const adaptiveShiftMessageMap = {
   hard: 'Adaptive shift: increasing challenge',
 };
 
+const liveCoachingToneMap = {
+  recover: 'border-amber-500/20 bg-amber-500/5 text-amber-200',
+  steady: 'border-cyan-500/20 bg-cyan-500/5 text-cyan-200',
+  challenge: 'border-violet-500/20 bg-violet-500/5 text-violet-200',
+  default: 'border-slate-700/70 bg-slate-800/40 text-slate-200',
+};
+
 const recommendedSessionStyles = {
   challenge: {
     border: 'border-violet-500/30',
@@ -134,11 +141,29 @@ function getAdaptiveFeedback(adaptiveState, isCorrect) {
   return isCorrect ? feedbackSet.correct : feedbackSet.incorrect;
 }
 
+function getFeedbackBadgeClass(feedback, isCyber) {
+  if (feedback.startsWith('Correct')) {
+    return 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20';
+  }
+
+  if (feedback.startsWith('Incorrect') || feedback.startsWith('Missed')) {
+    return 'bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20';
+  }
+
+  return isCyber
+    ? 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20'
+    : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200';
+}
+
 function Arena({ theme }) {
+  // Navigation/session context
   const isCyber = theme === 'cyber';
 
   const location = useLocation();
   const recommendedSession = location.state?.recommendedSession ?? null;
+  const recommendedSessionKey = recommendedSession
+    ? `${recommendedSession.source || 'direct'}-${recommendedSession.adaptiveState || 'steady'}-${recommendedSession.recommendation || ''}`
+    : null;
   const initialAdaptiveState = recommendedSession?.adaptiveState || 'steady';
   const initialTargetDifficulty =
     adaptiveStateToDifficultyMap[recommendedSession?.adaptiveState] || 'medium';
@@ -154,9 +179,17 @@ function Arena({ theme }) {
   const recommendedSessionTone =
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
+  const recommendedStartLabel = recommendedSession
+    ? `Recommended start: ${
+        recommendedSessionLabels[recommendedSession.adaptiveState] ||
+        recommendedSessionLabels.default
+      }`
+    : null;
   const initialPuzzle = useMemo(() => {
     return getRandomPuzzle(initialTargetDifficulty);
   }, [initialTargetDifficulty]);
+
+  // Core game state
   const [currentPuzzle, setCurrentPuzzle] = useState(initialPuzzle);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -170,8 +203,11 @@ function Arena({ theme }) {
   const [showRecommendedBanner, setShowRecommendedBanner] = useState(
     Boolean(recommendedSession),
   );
+  const [showCoachingReason, setShowCoachingReason] = useState(false);
   const [isBannerHiding, setIsBannerHiding] = useState(false);
-  const hasHandledRecommendedSessionRef = useRef(false);
+  const [showRecommendedStartBadge, setShowRecommendedStartBadge] = useState(
+    Boolean(recommendedSession),
+  );
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || 'steady',
@@ -185,6 +221,8 @@ function Arena({ theme }) {
   const isTransitioningRef = useRef(false);
   const adaptiveShiftTimeoutRef = useRef(null);
   const feedbackTimeoutRef = useRef(null);
+  const recommendedBannerHideTimeoutRef = useRef(null);
+  const recommendedBannerRemoveTimeoutRef = useRef(null);
   const previousTargetDifficultyRef = useRef(
     liveAdaptiveDifficulty.targetDifficulty,
   );
@@ -207,13 +245,30 @@ function Arena({ theme }) {
   const adaptiveCoachingMessage =
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
     'Stay consistent and keep building momentum.';
-  
-  const liveCoachingToneMap = {
-  recover: "border-amber-500/20 bg-amber-500/5 text-amber-200",
-  steady: "border-cyan-500/20 bg-cyan-500/5 text-cyan-200",
-  challenge: "border-violet-500/20 bg-violet-500/5 text-violet-200",
-};
 
+  const liveCoachingTone =
+    liveCoachingToneMap[liveAdaptiveDifficulty.state] ||
+    liveCoachingToneMap.default;
+
+  function dismissRecommendedBanner() {
+    if (!recommendedSession || isBannerHiding || !showRecommendedBanner) {
+      return;
+    }
+
+    if (recommendedBannerHideTimeoutRef.current) {
+      clearTimeout(recommendedBannerHideTimeoutRef.current);
+    }
+    if (recommendedBannerRemoveTimeoutRef.current) {
+      clearTimeout(recommendedBannerRemoveTimeoutRef.current);
+    }
+
+    setIsBannerHiding(true);
+    recommendedBannerRemoveTimeoutRef.current = setTimeout(() => {
+      setShowRecommendedBanner(false);
+    }, 500);
+  }
+
+  // Effects
   useEffect(() => {
     gameOverRef.current = gameOver;
   }, [gameOver]);
@@ -225,6 +280,12 @@ function Arena({ theme }) {
       }
       if (feedbackTimeoutRef.current) {
         clearTimeout(feedbackTimeoutRef.current);
+      }
+      if (recommendedBannerHideTimeoutRef.current) {
+        clearTimeout(recommendedBannerHideTimeoutRef.current);
+      }
+      if (recommendedBannerRemoveTimeoutRef.current) {
+        clearTimeout(recommendedBannerRemoveTimeoutRef.current);
       }
     };
   }, []);
@@ -281,29 +342,66 @@ function Arena({ theme }) {
     return () => clearInterval(timer);
   }, [gameOver]);
 
-  // Replace the old banner effect with the new animation-aware version
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (!recommendedSession || hasHandledRecommendedSessionRef.current) {
+    if (recommendedBannerHideTimeoutRef.current) {
+      clearTimeout(recommendedBannerHideTimeoutRef.current);
+      recommendedBannerHideTimeoutRef.current = null;
+    }
+    if (recommendedBannerRemoveTimeoutRef.current) {
+      clearTimeout(recommendedBannerRemoveTimeoutRef.current);
+      recommendedBannerRemoveTimeoutRef.current = null;
+    }
+
+    if (!recommendedSessionKey) {
       return;
     }
 
-    hasHandledRecommendedSessionRef.current = true;
-
-    setShowRecommendedBanner(true);
-    setIsBannerHiding(false);
-
-    const hideTimer = setTimeout(() => {
+    const bannerShowTimer = setTimeout(() => {
+      setShowRecommendedBanner(true);
+      setIsBannerHiding(false);
+    }, 0);
+    recommendedBannerHideTimeoutRef.current = setTimeout(() => {
       setIsBannerHiding(true);
-      setTimeout(() => {
-        setShowRecommendedBanner(false);
-      }, 500);
     }, 3500);
+    recommendedBannerRemoveTimeoutRef.current = setTimeout(() => {
+      setShowRecommendedBanner(false);
+    }, 4000);
 
-    return () => clearTimeout(hideTimer);
-  }, [recommendedSession]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+    return () => {
+      clearTimeout(bannerShowTimer);
+      if (recommendedBannerHideTimeoutRef.current) {
+        clearTimeout(recommendedBannerHideTimeoutRef.current);
+        recommendedBannerHideTimeoutRef.current = null;
+      }
+      if (recommendedBannerRemoveTimeoutRef.current) {
+        clearTimeout(recommendedBannerRemoveTimeoutRef.current);
+        recommendedBannerRemoveTimeoutRef.current = null;
+      }
+    };
+  }, [recommendedSessionKey]);
 
+  useEffect(() => {
+    if (!recommendedSessionKey) {
+      const hideTimer = setTimeout(() => {
+        setShowRecommendedStartBadge(false);
+      }, 0);
+      return () => clearTimeout(hideTimer);
+    }
+
+    const showTimer = setTimeout(() => {
+      setShowRecommendedStartBadge(true);
+    }, 0);
+    const badgeTimer = setTimeout(() => {
+      setShowRecommendedStartBadge(false);
+    }, 6500);
+
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(badgeTimer);
+    };
+  }, [recommendedSessionKey]);
+
+  // Handlers
   function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
     const availablePuzzles = patternPuzzles.filter(
       (puzzle) => puzzle.id !== currentId,
@@ -332,6 +430,7 @@ function Arena({ theme }) {
   function handleAnswer(selectedAnswer) {
     if (gameOverRef.current || isTransitioningRef.current) return;
     isTransitioningRef.current = true;
+    dismissRecommendedBanner();
 
     const isCorrect = checkAnswer(currentPuzzle, selectedAnswer);
 
@@ -481,39 +580,48 @@ function Arena({ theme }) {
         >
           {recommendedSession && showRecommendedBanner && (
             <div
-              className={`mb-4 rounded-2xl border bg-slate-900/70 px-4 py-3 shadow-lg transition-all duration-500 ${
-                recommendedSessionTone.border
-              } ${isBannerHiding ? '-translate-y-2.5 opacity-0' : 'translate-y-0 opacity-100'}`}
+              className={`overflow-hidden transition-all duration-500 ${
+                isBannerHiding
+                  ? 'mb-0 max-h-0 -translate-y-4 opacity-0'
+                  : 'mb-4 max-h-60 translate-y-0 opacity-100'
+              }`}
             >
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <div
-                  className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${
-                    recommendedSessionTone.label
-                  }`}
-                >
-                  Recommended Session
+              <div
+                className={`rounded-2xl border bg-slate-900/70 px-4 py-3 shadow-lg transition-all duration-500 ${
+                  recommendedSessionTone.border
+                } ${isBannerHiding ? 'scale-[0.98]' : 'scale-100'}`}
+              >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div
+                    className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${
+                      recommendedSessionTone.label
+                    }`}
+                  >
+                    Recommended Session
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                      recommendedSessionTone.badge
+                    }`}
+                  >
+                    {recommendedSessionLabels[
+                      recommendedSession.adaptiveState
+                    ] || recommendedSessionLabels.default}
+                  </span>
                 </div>
 
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
-                    recommendedSessionTone.badge
-                  }`}
-                >
-                  {recommendedSessionLabels[recommendedSession.adaptiveState] ||
-                    recommendedSessionLabels.default}
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm text-slate-200 md:text-base">
-                  {recommendedSession.recommendation}
-                </p>
-                <p className="text-xs leading-6 text-slate-400 md:text-sm">
-                  {recommendedSessionReason}
-                </p>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 md:text-xs">
-                  Opening difficulty: {recommendedOpeningDifficulty}
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-slate-200 md:text-base">
+                    {recommendedSession.recommendation}
+                  </p>
+                  <p className="text-xs leading-6 text-slate-400 md:text-sm">
+                    {recommendedSessionReason}
+                  </p>
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 md:text-xs">
+                    Opening difficulty: {recommendedOpeningDifficulty}
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -727,29 +835,53 @@ function Arena({ theme }) {
                   </div>
 
                   <div
-                    className={`hidden rounded-full px-3 py-1 text-xs font-semibold md:inline-flex ${
-                      feedback.startsWith('Correct')
-                        ? 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20'
-                        : feedback.startsWith('Incorrect') ||
-                            feedback.startsWith('Missed')
-                          ? 'bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20'
-                          : isCyber
-                            ? 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20'
-                            : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200'
-                    }`}
+                    className={`hidden rounded-full px-3 py-1 text-xs font-semibold md:inline-flex ${getFeedbackBadgeClass(feedback, isCyber)}`}
                   >
                     {feedback || 'Live Round'}
                   </div>
                 </div>
                 <div
-                  className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingToneMap[liveAdaptiveDifficulty.state] || liveCoachingToneMap.default}`}
+                  className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingTone}`}
                 >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    Live Coaching
-                  </p>
-                  <p className="mt-2 text-sm md:text-base">
-                    {adaptiveCoachingMessage}
-                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                          Live Coaching
+                        </p>
+
+                        <button
+                          onClick={() => setShowCoachingReason((prev) => !prev)}
+                          className="text-slate-500 transition hover:text-slate-200"
+                          aria-label="Toggle coaching explanation"
+                        >
+                          ⓘ
+                        </button>
+                      </div>
+
+                      {recommendedStartLabel && showRecommendedStartBadge && (
+                        <span className="inline-flex items-center rounded-full border border-slate-500/20 bg-slate-800/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300">
+                          {recommendedStartLabel}
+                        </span>
+                      )}
+                    </div>
+
+                  {showCoachingReason && (
+                    <p className="mt-2 text-xs text-slate-400 md:text-sm">
+                      {liveAdaptiveDifficulty.reason}
+                    </p>
+                  )}
+
+                  <div className="mt-2 space-y-2">
+                    <p className="text-sm md:text-base">
+                      {adaptiveCoachingMessage}
+                    </p>
+
+                    {showCoachingReason && (
+                      <p className="text-xs leading-6 text-slate-400 md:text-sm">
+                        {liveAdaptiveDifficulty.reason}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div
