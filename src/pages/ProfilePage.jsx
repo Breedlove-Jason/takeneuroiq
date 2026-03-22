@@ -353,7 +353,7 @@ function ProfilePage() {
       trend.includes("improv")
     ) {
       adaptiveRecommendation =
-        "Recovery is working. Keep the pace controlled and rebuild confidence through clean reps.";
+        "Rebuild with controlled reps, then prepare to step back into a steadier training rhythm.";
     } else if (latestAdaptiveState === "recover") {
       adaptiveRecommendation =
         "Slow down, focus on accuracy, and let your stability recover before chasing speed.";

@@ -120,17 +120,6 @@ function getAdaptiveFeedback(adaptiveState, isCorrect) {
 function Arena({ theme }) {
   const isCyber = theme === 'cyber';
 
-  const initialPuzzle = useMemo(() => getRandomPuzzle(), []);
-  const [currentPuzzle, setCurrentPuzzle] = useState(initialPuzzle);
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
-  const [feedback, setFeedback] = useState('');
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [totalAnswers, setTotalAnswers] = useState(0);
-  const [puzzlesSeen, setPuzzlesSeen] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(45);
-  const [gameOver, setGameOver] = useState(false);
   const location = useLocation();
   const recommendedSession = location.state?.recommendedSession ?? null;
   const initialAdaptiveState = recommendedSession?.adaptiveState || 'steady';
@@ -142,9 +131,22 @@ function Arena({ theme }) {
   const recommendedSessionTone =
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
+  const initialPuzzle = useMemo(() => {
+    return getRandomPuzzle(initialTargetDifficulty);
+  }, [initialTargetDifficulty]);
+  const [currentPuzzle, setCurrentPuzzle] = useState(initialPuzzle);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [totalAnswers, setTotalAnswers] = useState(0);
+  const [puzzlesSeen, setPuzzlesSeen] = useState(1);
+  const [timeLeft, setTimeLeft] = useState(45);
+  const [gameOver, setGameOver] = useState(false);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
-    state: initialAdaptiveState,
+    state: recommendedSession?.adaptiveState || 'steady',
     targetDifficulty: initialTargetDifficulty,
     confidence: 'low',
     reason: initialAdaptiveReason,
