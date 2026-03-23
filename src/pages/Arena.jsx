@@ -6,6 +6,8 @@ import { recordSession } from '../game/sessionTracker';
 import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDifficulty.js';
 import { useLocation } from 'react-router-dom';
 import { evaluateSessionOutcome } from "../analytics/sessionOutcomeEvaluator";
+import { classifyCognitiveIdentity } from "../analytics/cognitiveIdentity";
+
 /**
  * Helper function to get a random index
  * @param {number} length - The length of the array
@@ -206,6 +208,7 @@ function Arena({ theme }) {
   const [didBreakRecommendedAlignment, setDidBreakRecommendedAlignment] =
     useState(false);
   const [sessionOutcome, setSessionOutcome] = useState(null);
+  const [cognitiveIdentity, setCognitiveIdentity] = useState(null);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || 'steady',
@@ -321,7 +324,7 @@ function Arena({ theme }) {
         ? 0
         : Math.round((correctAnswers / totalAnswers) * 100);
 
-    const finalSessionData = {
+    const computedFinalSessionData = {
       score,
       accuracy: accuracyValue,
       bestStreak,
@@ -338,12 +341,15 @@ function Arena({ theme }) {
     };
 
     const outcomeTimer = setTimeout(() => {
-      const evaluatedOutcome = evaluateSessionOutcome(finalSessionData);
+      const evaluatedOutcome = evaluateSessionOutcome(computedFinalSessionData);
       setSessionOutcome(evaluatedOutcome);
+      const identity = classifyCognitiveIdentity(computedFinalSessionData);
+      setCognitiveIdentity(identity);
 
       recordSession({
-        ...finalSessionData,
+        ...computedFinalSessionData,
         sessionOutcome: evaluatedOutcome,
+        cognitiveIdentity: identity,
       });
     }, 0);
     hasRecordedSessionRef.current = true;
@@ -570,6 +576,7 @@ function Arena({ theme }) {
     isTransitioningRef.current = false;
     setGameOver(false);
     setSessionOutcome(null);
+    setCognitiveIdentity(null);
   }
   const accuracy =
     totalAnswers === 0
@@ -813,6 +820,9 @@ function Arena({ theme }) {
                 {sessionOutcome && (
                   <div
                     className={`mt-4 rounded-2xl border ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow} p-4`}
+                    data-cognitive-identity={
+                      cognitiveIdentity?.label ?? 'unknown'
+                    }
                   >
                     <div className="mb-2 flex items-center justify-between gap-3">
                       <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">
@@ -832,6 +842,20 @@ function Arena({ theme }) {
                     <p className="mt-1 text-sm leading-relaxed text-slate-300">
                       {sessionOutcome.summary}
                     </p>
+
+                    {cognitiveIdentity && (
+                      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                          Cognitive Identity
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-white">
+                          {cognitiveIdentity.label}
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
+                          {cognitiveIdentity.description}
+                        </p>
+                      </div>
+                    )}
 
                     <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
                       <div className="flex flex-col">
