@@ -50,7 +50,7 @@ const adaptiveStateHistoryColorMap = {
 };
 
 const recentSessionsGridColumns =
-  "grid-cols-[minmax(7rem,1.25fr)_minmax(4.5rem,0.8fr)_minmax(4rem,0.7fr)_minmax(4.5rem,0.8fr)_minmax(6.75rem,1.2fr)_minmax(7rem,1fr)_minmax(5.5rem,0.9fr)]";
+  "grid-cols-[minmax(7rem,1.25fr)_minmax(4.5rem,0.8fr)_minmax(4rem,0.7fr)_minmax(4.5rem,0.8fr)_minmax(6.75rem,1.2fr)_minmax(5rem,0.9fr)_minmax(7rem,1fr)_minmax(5.5rem,0.9fr)]";
 
 function formatNeuralTrendLabel(direction) {
   switch (direction) {
@@ -72,7 +72,7 @@ function ProfilePage() {
   const { sessions, resetSessions } = useSessionData();
   const cognitiveIdentitySummary = summarizeCognitiveIdentity(sessions);
   const recentSessions = sessions.slice(-5);
-  const _recentCognitiveIdentitySummary = summarizeCognitiveIdentity(recentSessions);
+  const recentCognitiveIdentitySummary = summarizeCognitiveIdentity(recentSessions);
   const analytics = buildSessionAnalytics(sessions) ?? {};
 
   const navigate = useNavigate();
@@ -843,6 +843,17 @@ function ProfilePage() {
                                 NP: {session.neuralPower ?? 0}
                               </p>
                             </div>
+                            <div className="mt-3">
+                              {session.cognitiveIdentity?.label ? (
+                                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-300">
+                                  {session.cognitiveIdentity.label}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-slate-500">
+                                  Unclassified
+                                </span>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
@@ -857,6 +868,7 @@ function ProfilePage() {
                         <span className="text-center">ACC</span>
                         <span className="text-center">Streak</span>
                         <span className="text-left">Run Data</span>
+                        <span className="text-left">Identity</span>
                         <span className="text-left">Adaptive State</span>
                         <span className="text-left">When</span>
                       </div>
@@ -895,6 +907,17 @@ function ProfilePage() {
                               <span className="font-bold text-yellow-300">
                                 NP: {session.neuralPower ?? 0}
                               </span>
+                            </div>
+                            <div className="px-4 py-3">
+                              {session.cognitiveIdentity?.label ? (
+                                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-300">
+                                  {session.cognitiveIdentity.label}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-slate-500">
+                                  Unclassified
+                                </span>
+                              )}
                             </div>
                             <span
                               className={`text-xs font-semibold leading-tight ${adaptiveStateColor}`}
@@ -943,6 +966,15 @@ function ProfilePage() {
                 <p className="mt-3 text-sm leading-6 text-slate-300">
                   {adaptiveDifficultyDetail}
                 </p>
+                {typeof adaptiveDifficulty?.recentSampleSize === "number" && (
+                  <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
+                    {adaptiveDifficulty.recentSampleSize > 0
+                      ? `Based on last ${adaptiveDifficulty.recentSampleSize} adaptive session${
+                          adaptiveDifficulty.recentSampleSize === 1 ? "" : "s"
+                        }`
+                      : "No adaptive session history yet"}
+                  </p>
+                )}
               </div>
 
               <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
@@ -960,22 +992,49 @@ function ProfilePage() {
                   <FontAwesomeIcon icon={faBrain} className="text-violet-300" />
                   Cognitive Identity
                 </h2>
-                <p className="mt-3 text-sm font-semibold text-violet-300">
-                  {cognitiveIdentitySummary.dominantIdentity?.label || "Not enough data yet"}
-                </p>
-                <>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {cognitiveIdentitySummary.dominantIdentity?.description ||
-                      "Complete more sessions to establish your dominant training identity."}
-                  </p>
 
-                  {cognitiveIdentitySummary.dominantIdentity && (
-                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
-                      {cognitiveIdentitySummary.dominantIdentity.count} classified session
-                      {cognitiveIdentitySummary.dominantIdentity.count === 1 ? "" : "s"}
+                <div className="mt-3 space-y-4">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                      All-Time Identity
                     </p>
-                  )}
-                </>
+                    <p className="mt-1 text-sm font-semibold text-violet-300">
+                      {cognitiveIdentitySummary.dominantIdentity?.label || "Not enough data yet"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {cognitiveIdentitySummary.dominantIdentity?.description ||
+                        "Complete more sessions to establish your dominant training identity."}
+                    </p>
+
+                    {cognitiveIdentitySummary.dominantIdentity && (
+                      <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
+                        {cognitiveIdentitySummary.dominantIdentity.count} classified session
+                        {cognitiveIdentitySummary.dominantIdentity.count === 1 ? "" : "s"}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="border-t border-white/10 pt-4">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                      Recent Trend
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-cyan-300">
+                      {recentCognitiveIdentitySummary.dominantIdentity?.label || "No recent trend yet"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {recentCognitiveIdentitySummary.dominantIdentity?.description ||
+                        "Complete a few more sessions to detect a recent training trend."}
+                    </p>
+
+                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
+                      {recentCognitiveIdentitySummary.totalClassifiedSessions > 0
+                        ? `Based on last ${recentCognitiveIdentitySummary.totalClassifiedSessions} classified session${
+                            recentCognitiveIdentitySummary.totalClassifiedSessions === 1 ? "" : "s"
+                          }`
+                        : "No recent classified identity data yet"}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

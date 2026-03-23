@@ -9,7 +9,6 @@
  * - Adaptive Difficulty: recommendations for next session's intensity
  * - Coaching Insights: personalized feedback based on the above metrics
  */
-import { calculateAdaptiveDifficulty } from './adaptiveDifficulty';
 import { generateCoachingInsight } from './coachingEngine';
 import { buildCognitiveTracks } from './cognitiveTracks';
 import {
@@ -35,11 +34,7 @@ export function buildSessionAnalytics(sessions) {
   const neuralTrend = calculateNeuralTrend(trendData);
   const pressureState = calculatePressureState(trendData);
 
-  const adaptiveDifficulty = calculateAdaptiveDifficulty({
-    neuralTrend,
-    pressureState,
-    cognitiveTracks,
-  });
+  const adaptiveDifficulty = deriveAdaptiveDifficultyFromSessions(sessions);
 
   const coachingInsight = generateCoachingInsight({
     cognitiveTracks,
@@ -56,3 +51,77 @@ export function buildSessionAnalytics(sessions) {
     coachingInsight,
   };
 }
+
+const ADAPTIVE_STATE_METADATA = {
+  recover: {
+    state: 'recover',
+    label: 'Recovery Mode',
+    description: 'Ease intensity slightly to stabilize performance and rebuild consistency.',
+    targetDifficulty: 'easy',
+  },
+  steady: {
+    state: 'steady',
+    label: 'Steady Mode',
+    description: 'Maintain balanced difficulty to reinforce skill growth without overload.',
+    targetDifficulty: 'medium',
+  },
+  challenge: {
+    state: 'challenge',
+    label: 'Challenge Mode',
+    description: 'Performance is strong. Raise complexity to push growth and maintain engagement.',
+    targetDifficulty: 'hard',
+  },
+};
+
+function deriveAdaptiveDifficultyFromSessions(sessions = []) {
+  if (!Array.isArray(sessions) || sessions.length === 0) {
+    return getAdaptiveStateMetadata(null, 0);
+  }
+
+  const recentValidSessions = sessions
+    .filter((session) => session?.liveAdaptiveDifficulty?.state)
+    .slice(-5);
+  const recentSampleSize = recentValidSessions.length;
+
+  if (recentValidSessions.length === 0) {
+    return getAdaptiveStateMetadata(null, 0);
+  }
+
+  const stateCounts = {};
+  const lastOccurrence = {};
+
+  recentValidSessions.forEach((session, index) => {
+    const state = session.liveAdaptiveDifficulty.state;
+    stateCounts[state] = (stateCounts[state] || 0) + 1;
+    lastOccurrence[state] = index;
+  });
+
+  let dominantState = null;
+  let highestCount = -1;
+
+  for (const [state, count] of Object.entries(stateCounts)) {
+    if (
+      dominantState === null ||
+      count > highestCount ||
+      (count === highestCount &&
+        (lastOccurrence[state] ?? 0) > (lastOccurrence[dominantState] ?? -1))
+    ) {
+      dominantState = state;
+      highestCount = count;
+    }
+  }
+
+    return getAdaptiveStateMetadata(dominantState, recentSampleSize);
+}
+
+function getAdaptiveStateMetadata(state, recentSampleSize = 0) {
+  const metadata = ADAPTIVE_STATE_METADATA[state] ?? ADAPTIVE_STATE_METADATA.steady;
+  return {
+    state: metadata.state,
+    label: metadata.label,
+    description: metadata.description,
+    targetDifficulty: metadata.targetDifficulty,
+    recentSampleSize,
+  };
+}
+
