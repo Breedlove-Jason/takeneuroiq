@@ -214,6 +214,8 @@ function Arena({ theme }) {
   const [showRecommendedStartBadge, setShowRecommendedStartBadge] = useState(
     Boolean(recommendedSession),
   );
+  const [didBreakRecommendedAlignment, setDidBreakRecommendedAlignment] =
+    useState(false);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || 'steady',
@@ -258,15 +260,15 @@ function Arena({ theme }) {
 
   const recommendedSessionAlignmentLabel = !recommendedSession?.adaptiveState
     ? 'No recommended session active'
-    : isRecommendedSessionAligned
-      ? 'Aligned with recommended training state'
-      : 'Shifted away from recommended training state';
+    : didBreakRecommendedAlignment || !isRecommendedSessionAligned
+      ? 'Shifted away from recommended training state'
+      : 'Aligned with recommended training state';
 
   const recommendedSessionAlignmentTone = !recommendedSession?.adaptiveState
     ? recommendedAlignmentToneMap.inactive
-    : isRecommendedSessionAligned
-      ? recommendedAlignmentToneMap.aligned
-      : recommendedAlignmentToneMap.shifted;
+    : didBreakRecommendedAlignment || !isRecommendedSessionAligned
+      ? recommendedAlignmentToneMap.shifted
+      : recommendedAlignmentToneMap.aligned;
 
   const liveCoachingTone =
     liveCoachingToneMap[liveAdaptiveDifficulty.state] ||
@@ -431,7 +433,7 @@ function Arena({ theme }) {
       clearTimeout(badgeTimer);
     };
   }, [recommendedSessionKey]);
-  
+
   // Handlers
   function applyLiveAdaptiveDifficulty(nextDifficulty) {
     if (nextDifficulty.state !== liveAdaptiveDifficulty.state) {
@@ -495,6 +497,13 @@ function Arena({ theme }) {
     );
     const previousTarget = previousTargetDifficultyRef.current;
     const nextTarget = nextLiveAdaptiveDifficulty.targetDifficulty;
+
+    if (
+      recommendedSession?.adaptiveState &&
+      recommendedSession.adaptiveState !== nextLiveAdaptiveDifficulty.state
+    ) {
+      setDidBreakRecommendedAlignment(true);
+    }
 
     if (previousTarget && nextTarget && previousTarget !== nextTarget) {
       setAdaptiveShiftMessage(
@@ -563,6 +572,7 @@ function Arena({ theme }) {
     setTimeLeft(45);
     setRecentAnswerHistory([]);
     setAdaptiveShiftMessage('');
+    setDidBreakRecommendedAlignment(false);
     isTransitioningRef.current = false;
     setGameOver(false);
   }
