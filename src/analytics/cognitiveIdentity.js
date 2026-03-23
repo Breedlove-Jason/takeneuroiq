@@ -5,8 +5,6 @@ export function classifyCognitiveIdentity(session = {}) {
     bestStreak = 0,
     puzzlesAttempted = 0,
     puzzlesCorrect = 0,
-    isRecommendedSessionAligned = false,
-    didBreakRecommendedAlignment = false,
   } = session;
 
   const safeAccuracy = Number(accuracy) || 0;
@@ -19,12 +17,15 @@ export function classifyCognitiveIdentity(session = {}) {
     safeAttempted > 0 ? safeCorrect / safeAttempted : 0;
 
   const stayedAligned =
-    isRecommendedSessionAligned && !didBreakRecommendedAlignment;
+    !!session.isRecommendedSessionAligned && !session.didBreakRecommendedAlignment;
 
   const drifted =
-    isRecommendedSessionAligned && didBreakRecommendedAlignment;
+    !!session.isRecommendedSessionAligned && !!session.didBreakRecommendedAlignment;
 
-  if (stayedAligned && safeAccuracy >= 85 && safeBestStreak >= 4) {
+  // We only want to classify as "Stable" or "Precision" if they actually followed a recommendation.
+  // Otherwise, default to Adaptive Learner or Climber based on raw performance.
+
+  if (stayedAligned && safeAccuracy >= 85 && safeBestStreak >= 4 && safeAttempted >= 8) {
     return {
       identityKey: "precision_runner",
       label: "Precision Runner",
@@ -33,7 +34,7 @@ export function classifyCognitiveIdentity(session = {}) {
     };
   }
 
-  if (stayedAligned && (safeNeuralPower >= 75 || completionRate >= 0.8)) {
+  if (stayedAligned && (safeNeuralPower >= 75 || completionRate >= 0.8) && safeAttempted >= 6) {
     return {
       identityKey: "stabilizer",
       label: "Stabilizer",
@@ -57,6 +58,14 @@ export function classifyCognitiveIdentity(session = {}) {
       label: "Overreacher",
       description:
         "You pushed beyond the ideal lane and performance became less stable.",
+    };
+  }
+
+  if (!session.isRecommendedSessionAligned && safeAccuracy >= 80 && safeAttempted >= 8) {
+    return {
+      identityKey: "independent_striker",
+      label: "Independent Striker",
+      description: "You found your own rhythm and maintained high precision without explicit guidance.",
     };
   }
 

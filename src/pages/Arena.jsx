@@ -248,7 +248,7 @@ function Arena({ theme }) {
     'Stay consistent and keep building momentum.';
 
   const isRecommendedSessionAligned =
-    !recommendedSession?.adaptiveState ||
+    Boolean(recommendedSession?.adaptiveState) &&
     recommendedSession.adaptiveState === liveAdaptiveDifficulty.state;
 
   const recommendedSessionAlignmentLabel = !recommendedSession?.adaptiveState
@@ -341,13 +341,26 @@ function Arena({ theme }) {
     };
 
     const outcomeTimer = setTimeout(() => {
-      const evaluatedOutcome = evaluateSessionOutcome(computedFinalSessionData);
+      const computedFinalSessionDataWithLatest = {
+        ...computedFinalSessionData,
+        score,
+        accuracy: accuracyValue,
+        bestStreak,
+        puzzlesSeen,
+        correctAnswers,
+        puzzlesAttempted: totalAnswers,
+        puzzlesCorrect: correctAnswers,
+        recentAnswerHistory,
+        liveAdaptiveDifficulty,
+      };
+
+      const evaluatedOutcome = evaluateSessionOutcome(computedFinalSessionDataWithLatest);
       setSessionOutcome(evaluatedOutcome);
-      const identity = classifyCognitiveIdentity(computedFinalSessionData);
+      const identity = classifyCognitiveIdentity(computedFinalSessionDataWithLatest);
       setCognitiveIdentity(identity);
 
       recordSession({
-        ...computedFinalSessionData,
+        ...computedFinalSessionDataWithLatest,
         sessionOutcome: evaluatedOutcome,
         cognitiveIdentity: identity,
       });

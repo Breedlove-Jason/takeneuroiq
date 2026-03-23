@@ -27,6 +27,7 @@ import ProfileAnalytics, {
   AgentSummary,
 } from "../components/ProfileAnalytics";
 import { buildSessionAnalytics } from "../analytics/sessionAnalytics";
+import { summarizeCognitiveIdentity } from "../analytics/cognitiveIdentitySummary";
 
 function formatSessionTime(timestamp) {
   if (!timestamp) return "—";
@@ -69,6 +70,9 @@ function ProfilePage() {
   const [nameInput, setNameInput] = useState(() => getPlayerName());
   const [nameSaved, setNameSaved] = useState(false);
   const { sessions, resetSessions } = useSessionData();
+  const cognitiveIdentitySummary = summarizeCognitiveIdentity(sessions);
+  const recentSessions = sessions.slice(-5);
+  const _recentCognitiveIdentitySummary = summarizeCognitiveIdentity(recentSessions);
   const analytics = buildSessionAnalytics(sessions) ?? {};
 
   const navigate = useNavigate();
@@ -369,7 +373,7 @@ function ProfilePage() {
     adaptiveRecommendationTone[latestAdaptiveState] ||
     adaptiveRecommendationTone.default;
 
-  const recentSessions = [...sessions].slice(-5).reverse();
+  const recentSessionsDisplay = [...recentSessions].reverse();
 
   // Helper to calculate session accuracy for the table and trends.
   const getSessionAccuracy = (session) => {
@@ -767,10 +771,10 @@ function ProfilePage() {
               </h2>
 
               <div className="mt-4 rounded-2xl border border-slate-700/60">
-                {recentSessions.length > 0 ? (
+                {recentSessionsDisplay.length > 0 ? (
                   <>
                     <div className="space-y-3 p-3 md:hidden">
-                      {recentSessions.map((session, index) => {
+                      {recentSessionsDisplay.map((session, index) => {
                         const adaptiveStateKey =
                           session.liveAdaptiveDifficulty?.state ?? "steady";
                         const adaptiveStateLabel =
@@ -857,7 +861,7 @@ function ProfilePage() {
                         <span className="text-left">When</span>
                       </div>
 
-                      {recentSessions.map((session, index) => {
+                      {recentSessionsDisplay.map((session, index) => {
                         const adaptiveStateKey =
                           session.liveAdaptiveDifficulty?.state ?? "steady";
                         const adaptiveStateLabel =
@@ -914,7 +918,7 @@ function ProfilePage() {
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-3xl border border-emerald-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
@@ -949,6 +953,29 @@ function ProfilePage() {
                 <p className="mt-3 text-sm leading-6 text-slate-300">
                   {pressureStateDetail}
                 </p>
+              </div>
+
+              <div className="rounded-3xl border border-violet-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+                  <FontAwesomeIcon icon={faBrain} className="text-violet-300" />
+                  Cognitive Identity
+                </h2>
+                <p className="mt-3 text-sm font-semibold text-violet-300">
+                  {cognitiveIdentitySummary.dominantIdentity?.label || "Not enough data yet"}
+                </p>
+                <>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    {cognitiveIdentitySummary.dominantIdentity?.description ||
+                      "Complete more sessions to establish your dominant training identity."}
+                  </p>
+
+                  {cognitiveIdentitySummary.dominantIdentity && (
+                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
+                      {cognitiveIdentitySummary.dominantIdentity.count} classified session
+                      {cognitiveIdentitySummary.dominantIdentity.count === 1 ? "" : "s"}
+                    </p>
+                  )}
+                </>
               </div>
             </div>
           </div>
