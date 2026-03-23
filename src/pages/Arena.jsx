@@ -5,7 +5,7 @@ import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
 import { recordSession } from '../game/sessionTracker';
 import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDifficulty.js';
 import { useLocation } from 'react-router-dom';
-
+import { evaluateSessionOutcome } from "../analytics/sessionOutcomeEvaluator";
 /**
  * Helper function to get a random index
  * @param {number} length - The length of the array
@@ -49,23 +49,23 @@ const adaptiveConfidenceColorMap = {
 };
 
 const adaptiveCoachingMessageMap = {
-  recover: 'Slow down and lock in accuracy before pushing speed.',
-  steady: 'Stay consistent. Your current pace is well balanced.',
-  challenge: 'You are in a strong rhythm. Push for precision and streaks.',
+  recover: 'Focus on accuracy over speed.',
+  steady: 'Stay consistent. You have a good rhythm.',
+  challenge: 'Strong momentum. Keep pressing.',
 };
 
 const adaptiveFeedbackMap = {
   recover: {
-    correct: 'Correct. Rebuild the pattern one step at a time.',
-    incorrect: 'Missed. Slow down and focus on the next pattern.',
+    correct: 'Correct. Rebuilding stability.',
+    incorrect: 'Incorrect. Focus on the next one.',
   },
   steady: {
-    correct: 'Correct. Your rhythm is holding steady.',
-    incorrect: 'Incorrect. Reset and stay consistent.',
+    correct: 'Correct. Nice rhythm.',
+    incorrect: 'Incorrect. Reset and stay steady.',
   },
   challenge: {
-    correct: 'Correct. Strong read. Keep pressing your advantage.',
-    incorrect: 'Missed. Stay sharp. The next one will be tougher.',
+    correct: 'Correct. Exceptional read.',
+    incorrect: 'Incorrect. Stay sharp.',
   },
 };
 
@@ -170,7 +170,6 @@ function Arena({ theme }) {
   const recommendedSessionKey = recommendedSession
     ? `${recommendedSession.source || 'direct'}-${recommendedSession.adaptiveState || 'steady'}-${recommendedSession.recommendation || ''}`
     : null;
-  const initialAdaptiveState = recommendedSession?.adaptiveState || 'steady';
   const initialTargetDifficulty =
     adaptiveStateToDifficultyMap[recommendedSession?.adaptiveState] || 'medium';
   const recommendedOpeningDifficulty =
@@ -185,12 +184,6 @@ function Arena({ theme }) {
   const recommendedSessionTone =
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
-  const recommendedStartLabel = recommendedSession
-    ? `Recommended start: ${
-        recommendedSessionLabels[recommendedSession.adaptiveState] ||
-        recommendedSessionLabels.default
-      }`
-    : null;
   const initialPuzzle = useMemo(() => {
     return getRandomPuzzle(initialTargetDifficulty);
   }, [initialTargetDifficulty]);
@@ -209,13 +202,10 @@ function Arena({ theme }) {
   const [showRecommendedBanner, setShowRecommendedBanner] = useState(
     Boolean(recommendedSession),
   );
-  const [showCoachingReason, setShowCoachingReason] = useState(false);
   const [isBannerHiding, setIsBannerHiding] = useState(false);
-  const [showRecommendedStartBadge, setShowRecommendedStartBadge] = useState(
-    Boolean(recommendedSession),
-  );
   const [didBreakRecommendedAlignment, setDidBreakRecommendedAlignment] =
     useState(false);
+  const [sessionOutcome, setSessionOutcome] = useState(null);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || 'steady',
@@ -331,7 +321,7 @@ function Arena({ theme }) {
         ? 0
         : Math.round((correctAnswers / totalAnswers) * 100);
 
-    recordSession({
+    const finalSessionData = {
       score,
       accuracy: accuracyValue,
       bestStreak,
@@ -342,8 +332,23 @@ function Arena({ theme }) {
       recentAnswerHistory,
       timestamp: Date.now(),
       liveAdaptiveDifficulty,
-    });
+      isRecommendedSessionAligned,
+      recommendedSessionAlignmentLabel,
+      didBreakRecommendedAlignment,
+    };
+
+    const outcomeTimer = setTimeout(() => {
+      const evaluatedOutcome = evaluateSessionOutcome(finalSessionData);
+      setSessionOutcome(evaluatedOutcome);
+
+      recordSession({
+        ...finalSessionData,
+        sessionOutcome: evaluatedOutcome,
+      });
+    }, 0);
     hasRecordedSessionRef.current = true;
+
+    return () => clearTimeout(outcomeTimer);
   }, [
     gameOver,
     totalAnswers,
@@ -353,6 +358,9 @@ function Arena({ theme }) {
     puzzlesSeen,
     recentAnswerHistory,
     liveAdaptiveDifficulty,
+    isRecommendedSessionAligned,
+    recommendedSessionAlignmentLabel,
+    didBreakRecommendedAlignment,
   ]);
 
   useEffect(() => {
@@ -413,34 +421,17 @@ function Arena({ theme }) {
     };
   }, [recommendedSessionKey]);
 
-  useEffect(() => {
-    if (!recommendedSessionKey) {
-      const hideTimer = setTimeout(() => {
-        setShowRecommendedStartBadge(false);
-      }, 0);
-      return () => clearTimeout(hideTimer);
-    }
-
-    const showTimer = setTimeout(() => {
-      setShowRecommendedStartBadge(true);
-    }, 0);
-    const badgeTimer = setTimeout(() => {
-      setShowRecommendedStartBadge(false);
-    }, 6500);
-
-    return () => {
-      clearTimeout(showTimer);
-      clearTimeout(badgeTimer);
-    };
-  }, [recommendedSessionKey]);
-
   // Handlers
   function applyLiveAdaptiveDifficulty(nextDifficulty) {
-    if (nextDifficulty.state !== liveAdaptiveDifficulty.state) {
-      setShowCoachingReason(false);
-    }
     setLiveAdaptiveDifficulty(nextDifficulty);
   }
+
+  const handleStartRecommendedSession = () => {
+    const recommendedDifficulty =
+      sessionOutcome?.nextRecommendedDifficulty || 'medium';
+
+    resetGame(recommendedDifficulty);
+  };
 
   function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
     const availablePuzzles = patternPuzzles.filter(
@@ -552,13 +543,16 @@ function Arena({ theme }) {
     }, 700);
   }
 
-  function resetGame() {
-    const newPuzzle = getRandomPuzzle();
+  function resetGame(nextDifficulty = initialTargetDifficulty) {
+    const newPuzzle = getRandomPuzzle(nextDifficulty);
     hasRecordedSessionRef.current = false;
     setCurrentPuzzle(newPuzzle);
     applyLiveAdaptiveDifficulty({
-      state: initialAdaptiveState,
-      targetDifficulty: initialTargetDifficulty,
+      state:
+        Object.keys(adaptiveStateToDifficultyMap).find(
+          (state) => adaptiveStateToDifficultyMap[state] === nextDifficulty,
+        ) || 'steady',
+      targetDifficulty: nextDifficulty,
       confidence: 'low',
       reason: initialAdaptiveReason,
     });
@@ -575,6 +569,7 @@ function Arena({ theme }) {
     setDidBreakRecommendedAlignment(false);
     isTransitioningRef.current = false;
     setGameOver(false);
+    setSessionOutcome(null);
   }
   const accuracy =
     totalAnswers === 0
@@ -592,29 +587,64 @@ function Arena({ theme }) {
             : 1;
   function getPerformanceMessage() {
     if (totalAnswers === 0) {
-      return 'No response data captured. Re-enter the arena to begin analysis.';
+      return 'No response data captured.';
     }
 
     const accuracyValue = Math.round((correctAnswers / totalAnswers) * 100);
 
     if (accuracyValue >= 90 && bestStreak >= 6) {
-      return 'Exceptional neural stability detected. Your pattern recognition remained precise even under time pressure.';
+      return 'Exceptional stability. Pattern recognition remained precise under pressure.';
     }
 
     if (accuracyValue >= 80 && bestStreak >= 4) {
-      return 'Strong cognitive performance recorded. Pattern recognition remained reliable throughout the round.';
+      return 'Strong performance. Reliable recognition throughout the round.';
     }
 
     if (accuracyValue >= 70) {
-      return 'Good analytical performance. Your recognition accuracy remained solid, but streak interruptions reduced momentum.';
+      return 'Good analytical performance with solid accuracy.';
     }
 
     if (accuracyValue >= 60) {
-      return 'Moderate stability detected. Your pattern recognition is developing, but response timing created inconsistency.';
+      return 'Moderate stability. Pattern recognition is developing.';
     }
 
-    return 'Analysis indicates unstable pattern response under pressure. Additional challenge reps recommended.';
+    return 'Unstable response under pressure. Additional reps recommended.';
   }
+
+  const outcomeToneStyles = {
+    positive: {
+      border: 'border-emerald-400/30',
+      bg: 'bg-emerald-500/10',
+      label: 'text-emerald-300',
+      shadow: 'shadow-[0_0_28px_rgba(52,211,153,0.18)]',
+    },
+    supportive: {
+      border: 'border-cyan-400/30',
+      bg: 'bg-cyan-500/10',
+      label: 'text-cyan-300',
+      shadow: 'shadow-[0_0_28px_rgba(34,211,238,0.16)]',
+    },
+    alert: {
+      border: 'border-yellow-400/30',
+      bg: 'bg-yellow-500/10',
+      label: 'text-yellow-300',
+      shadow: 'shadow-[0_0_28px_rgba(250,204,21,0.16)]',
+    },
+    caution: {
+      border: 'border-red-400/30',
+      bg: 'bg-red-500/10',
+      label: 'text-red-300',
+      shadow: 'shadow-[0_0_28px_rgba(248,113,113,0.18)]',
+    },
+    neutral: {
+      border: 'border-slate-500/30',
+      bg: 'bg-slate-500/10',
+      label: 'text-slate-300',
+      shadow: 'shadow-[0_0_18px_rgba(148,163,184,0.10)]',
+    },
+  };
+  const toneStyle =
+    outcomeToneStyles[sessionOutcome?.tone] || outcomeToneStyles.neutral;
 
   return (
     <div className="px-6 py-10">
@@ -780,6 +810,49 @@ function Arena({ theme }) {
                   {getPerformanceMessage()}
                 </p>
 
+                {sessionOutcome && (
+                  <div
+                    className={`mt-4 rounded-2xl border ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow} p-4`}
+                  >
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">
+                        Session Insight
+                      </h3>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${toneStyle.label} bg-white/5 border border-white/10`}
+                      >
+                        {sessionOutcome.alignmentLabel}
+                      </span>
+                    </div>
+
+                    <p className="text-lg font-bold text-white">
+                      {sessionOutcome.title}
+                    </p>
+
+                    <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                      {sessionOutcome.summary}
+                    </p>
+
+                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                          Next Recommendation
+                        </span>
+                        <span className="text-sm font-bold text-cyan-300 uppercase tracking-widest mt-0.5">
+                          {sessionOutcome.nextRecommendedDifficulty}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={handleStartRecommendedSession}
+                        className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 shadow-lg shadow-cyan-400/20"
+                      >
+                        Start Session
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-10 grid w-full max-w-3xl gap-4 md:grid-cols-3">
                   <div
                     className={`rounded-2xl border px-5 py-6 ${
@@ -867,63 +940,43 @@ function Arena({ theme }) {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p
-                      className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                      className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
                         isCyber ? 'text-slate-500' : 'text-slate-500'
                       }`}
                     >
                       Puzzle Feed
                     </p>
                     <h2
-                      className={`mt-2 text-xl font-semibold ${
+                      className={`mt-1 text-lg font-semibold ${
                         isCyber ? 'text-white' : 'text-slate-900'
                       }`}
                     >
                       {currentPuzzle.title}
                     </h2>
                   </div>
-
-                  <div
-                    className={`hidden rounded-full px-3 py-1 text-xs font-semibold md:inline-flex ${getFeedbackBadgeClass(feedback, isCyber)}`}
-                  >
-                    {feedback || 'Live Round'}
-                  </div>
                 </div>
                 <div
                   className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingTone} ${liveCoachingPressureClass}`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    <div className="flex items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                           Live Coaching
                         </p>
 
-                        <button
-                          onClick={() => setShowCoachingReason((prev) => !prev)}
-                          className="text-slate-500 transition hover:text-slate-200"
-                          aria-label="Toggle coaching explanation"
-                        >
-                          ⓘ
-                        </button>
+                        <p className="mt-1 text-sm leading-relaxed">
+                          {adaptiveCoachingMessage}
+                        </p>
                       </div>
 
-                      <p className="mt-2 text-sm leading-6 md:text-[15px]">
-                        {adaptiveCoachingMessage}
-                      </p>
-
-                      {showCoachingReason && (
-                        <p className="mt-2 text-xs leading-5 text-slate-400 md:text-sm">
-                          {liveAdaptiveDifficulty.reason}
-                        </p>
+                      {feedback && (
+                        <div
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getFeedbackBadgeClass(feedback, isCyber)}`}
+                        >
+                          {feedback}
+                        </div>
                       )}
                     </div>
-
-                    {recommendedStartLabel && showRecommendedStartBadge && (
-                      <span className="mt-0.5 inline-flex shrink-0 items-center rounded-full border border-slate-500/20 bg-slate-800/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-300">
-                        {recommendedStartLabel}
-                      </span>
-                    )}
-                  </div>
                 </div>
 
                 <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
@@ -986,7 +1039,7 @@ function Arena({ theme }) {
             )}
           </div>
 
-          <div className="mt-6 grid gap-4 xl:grid-cols-[180px_minmax(0,1.45fr)_180px_180px]">
+          <div className="mt-6 grid gap-4 xl:grid-cols-[180px_1fr_180px_180px]">
             <div
               className={`rounded-2xl border px-5 py-4 ${
                 isCyber
@@ -995,14 +1048,14 @@ function Arena({ theme }) {
               }`}
             >
               <p
-                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
                   isCyber ? 'text-slate-400' : 'text-slate-500'
                 }`}
               >
                 Score
               </p>
               <div
-                className={`mt-2 font-mono text-2xl font-bold ${
+                className={`mt-1 font-mono text-2xl font-bold ${
                   isCyber ? 'text-cyan-300' : 'text-slate-800'
                 }`}
               >
@@ -1010,54 +1063,47 @@ function Arena({ theme }) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 p-5 shadow-[0_0_24px_rgba(34,211,238,0.08)]">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                Cognitive State
-              </p>
+            <div className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 px-5 py-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                  Cognitive State
+                </p>
+                <div className="flex items-center gap-3">
+                  {adaptiveShiftMessage && (
+                    <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider animate-pulse">
+                      {adaptiveShiftMessage}
+                    </span>
+                  )}
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${adaptiveConfidenceColor}`}>
+                    {liveAdaptiveDifficulty.confidence} confidence
+                  </span>
+                </div>
+              </div>
 
-              <div className="mt-2 flex items-start justify-between gap-4">
+              <div className="mt-2 flex items-center justify-between gap-4">
                 <div>
-                  <p className={`text-lg font-semibold ${adaptiveStateColor}`}>
-                    {adaptiveStateLabel}
-                  </p>
-                  <p className={`mt-1 text-xs font-medium ${recommendedSessionAlignmentTone}`}>
-                    {recommendedSessionAlignmentLabel}
-                  </p>
-                  <p className="mt-2 text-sm text-slate-400">
+                  <div className="flex items-center gap-3">
+                    <p className={`text-lg font-bold ${adaptiveStateColor}`}>
+                      {adaptiveStateLabel}
+                    </p>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/5 ${recommendedSessionAlignmentTone} border border-white/10`}>
+                      {isRecommendedSessionAligned && !didBreakRecommendedAlignment ? 'Aligned' : 'Shifted'}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400 line-clamp-1">
                     {liveAdaptiveDifficulty.reason}
-                  </p>
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
-                    {adaptiveCoachingMessage}
                   </p>
                 </div>
 
-                <div className="text-right space-y-2">
-                  <div>
-                    {adaptiveShiftMessage ? (
-                      <p className="mb-2 text-xs font-medium text-cyan-300">
-                        {adaptiveShiftMessage}
-                      </p>
-                    ) : null}
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                      Current
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-300">
-                      {currentPuzzleDifficultyLabel}
-                    </p>
+                <div className="flex gap-4 border-l border-white/10 pl-4">
+                  <div className="text-center">
+                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">Current</p>
+                    <p className="text-sm font-bold text-slate-300">{currentPuzzleDifficultyLabel}</p>
                   </div>
-
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                      Next Target
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-200">
-                      {nextTargetDifficulty}
-                    </p>
+                  <div className="text-center">
+                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">Target</p>
+                    <p className="text-sm font-bold text-slate-200">{nextTargetDifficulty}</p>
                   </div>
-
-                  <p className={`text-xs font-medium ${adaptiveConfidenceColor}`}>
-                    {liveAdaptiveDifficulty.confidence.toUpperCase()} confidence
-                  </p>
                 </div>
               </div>
             </div>
@@ -1067,33 +1113,25 @@ function Arena({ theme }) {
                 className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
                   isCyber
                     ? streak >= 6
-                      ? 'border-fuchsia-400/90 bg-fuchsia-500/25 shadow-[0_0_48px_rgba(217,70,239,0.60),0_0_90px_rgba(217,70,239,0.28)]'
+                      ? 'border-fuchsia-400/90 bg-fuchsia-500/25'
                       : streak >= 4
-                        ? 'border-fuchsia-400/60 bg-fuchsia-500/18 shadow-[0_0_32px_rgba(217,70,239,0.40)]'
+                        ? 'border-fuchsia-400/60 bg-fuchsia-500/18'
                         : streak >= 2
-                          ? 'border-fuchsia-400/35 bg-fuchsia-500/10 shadow-[0_0_18px_rgba(217,70,239,0.22)]'
+                          ? 'border-fuchsia-400/35 bg-fuchsia-500/10'
                           : 'border-fuchsia-400/20 bg-fuchsia-500/5'
                     : 'border-slate-200 bg-slate-50'
                 }`}
               >
                 <p
-                  className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                  className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
                     isCyber ? 'text-slate-400' : 'text-slate-500'
                   }`}
                 >
                   Streak
                 </p>
                 <div
-                  className={`mt-2 font-mono text-2xl font-bold transition-all duration-300 ${
-                    isCyber
-                      ? streak >= 6
-                        ? 'text-fuchsia-100 drop-shadow-[0_0_16px_rgba(217,70,239,0.70)]'
-                        : streak >= 4
-                          ? 'text-fuchsia-200 drop-shadow-[0_0_10px_rgba(217,70,239,0.45)]'
-                          : streak >= 2
-                            ? 'text-fuchsia-300 drop-shadow-[0_0_6px_rgba(217,70,239,0.25)]'
-                            : 'text-fuchsia-300'
-                      : 'text-slate-800'
+                  className={`mt-1 font-mono text-2xl font-bold ${
+                    isCyber ? 'text-fuchsia-300' : 'text-slate-800'
                   }`}
                 >
                   x{streak.toString().padStart(2, '0')}
@@ -1104,20 +1142,20 @@ function Arena({ theme }) {
                 className={`rounded-2xl border px-5 py-4 ${
                   isCyber
                     ? comboMultiplier >= 3
-                      ? 'border-fuchsia-400/30 bg-fuchsia-500/10 shadow-[0_0_20px_rgba(217,70,239,0.12)]'
+                      ? 'border-fuchsia-400/30 bg-fuchsia-500/10'
                       : 'border-cyan-400/20 bg-cyan-400/5'
                     : 'border-slate-200 bg-slate-50'
                 }`}
               >
                 <p
-                  className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                  className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
                     isCyber ? 'text-slate-400' : 'text-slate-500'
                   }`}
                 >
                   Combo
                 </p>
                 <div
-                  className={`mt-2 font-mono text-2xl font-bold ${
+                  className={`mt-1 font-mono text-2xl font-bold ${
                     isCyber
                       ? comboMultiplier >= 3
                         ? 'text-fuchsia-300'
@@ -1138,14 +1176,14 @@ function Arena({ theme }) {
               }`}
             >
               <p
-                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
                   isCyber ? 'text-slate-400' : 'text-slate-500'
                 }`}
               >
                 Accuracy
               </p>
               <div
-                className={`mt-2 font-mono text-2xl font-bold ${
+                className={`mt-1 font-mono text-2xl font-bold ${
                   isCyber ? 'text-cyan-300' : 'text-slate-800'
                 }`}
               >

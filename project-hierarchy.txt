@@ -1,0 +1,53 @@
+takeneuroiq/
+├── AGENTS.md
+├── README.md
+├── business-strategy.txt
+├── eslint.config.js
+├── index.html
+├── package.json
+├── postcss.config.js
+├── TakeNeuroIQ-Founder- Brief.pdf
+├── vite.config.js
+├── src/
+│   ├── App.jsx
+│   ├── main.jsx
+│   ├── index.css
+│   ├── analytics/
+│   │   ├── adaptiveDifficulty.js
+│   │   ├── coachingEngine.js
+│   │   ├── cognitiveTracks.js
+│   │   ├── liveAdaptiveDifficulty.js
+│   │   ├── sessionAnalytics.js
+│   │   └── sessionOutcomeEvaluator.js
+│   ├── assets/
+│   │   └── logo.png
+│   ├── components/
+│   │   ├── FeatureHighlights.jsx
+│   │   ├── Hero.jsx
+│   │   ├── HowItWorks.jsx
+│   │   ├── ProfileAnalytics.jsx
+│   │   └── PuzzleShape.jsx
+│   ├── game/
+│   │   ├── patternPuzzles.js
+│   │   ├── playerIdentity.js
+│   │   ├── puzzleEngine.js
+│   │   ├── puzzleGenerator.js
+│   │   ├── sessionTracker.js
+│   ├── hooks/
+│   │   └── useSessionData.js
+│   ├── layout/
+│   │   └── Header.jsx
+│   ├── pages/
+│   │   ├── Arena.jsx
+│   │   ├── Home.jsx
+│   │   ├── LeaderboardPage.jsx
+│   │   ├── Play.jsx
+│   │   └── ProfilePage.jsx
+│   ├── utils/
+│   │   └── sessionTrendUtils.js
+├── tests/
+│   ├── sessionTracker.test.js
+│   ├── verify_logic.js
+│   └── verify_session_data.test.js
+
+
