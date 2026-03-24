@@ -887,6 +887,12 @@ function Arena({ theme }) {
                       </div>
                     )}
 
+                    {cognitiveIdentity?.shiftSignal && (
+                      <p className="mt-2 text-xs leading-5 text-slate-400">
+                        {cognitiveIdentity.shiftSignal}
+                      </p>
+                    )}
+
                     <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">

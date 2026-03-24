@@ -7,25 +7,40 @@ export function summarizeCognitiveIdentity(sessions = []) {
       identityCounts: {},
       totalClassifiedSessions: 0,
       recentIdentitySession: null,
+      identityShift: {
+        key: "insufficient_data",
+        label: "Not enough data",
+        description: "Complete more classified sessions to detect an identity shift.",
+      },
     };
   }
 
   const identityCounts = {};
 
-  sessions.forEach((session) => {
+  const getClassifiedIdentity = (session) => {
     let identity = session?.cognitiveIdentity;
 
     if (!identity?.identityKey || !identity?.label) {
       identity = classifyCognitiveIdentity(session);
     }
 
-    const identityKey = identity?.identityKey;
-    const identityLabel = identity?.label;
-    const identityDescription = identity?.description;
+    if (!identity?.identityKey || !identity?.label) {
+      return null;
+    }
 
-    if (!identityKey || !identityLabel) {
+    return identity;
+  };
+
+  sessions.forEach((session) => {
+    const identity = getClassifiedIdentity(session);
+
+    if (!identity) {
       return;
     }
+
+    const identityKey = identity.identityKey;
+    const identityLabel = identity.label;
+    const identityDescription = identity.description;
 
     if (!identityCounts[identityKey]) {
       identityCounts[identityKey] = {
@@ -47,6 +62,82 @@ export function summarizeCognitiveIdentity(sessions = []) {
     .reverse()
     .find((session) => session?.cognitiveIdentity?.identityKey) ?? null;
 
+  const recentClassifiedIdentities = [];
+  for (let index = sessions.length - 1; index >= 0 && recentClassifiedIdentities.length < 5; index -= 1) {
+    const identity = getClassifiedIdentity(sessions[index]);
+    if (identity) {
+      recentClassifiedIdentities.push(identity);
+    }
+  }
+
+  const recentIdentityCounts = {};
+  recentClassifiedIdentities.forEach((identity) => {
+    if (!recentIdentityCounts[identity.identityKey]) {
+      recentIdentityCounts[identity.identityKey] = {
+        identityKey: identity.identityKey,
+        label: identity.label,
+        description: identity.description,
+        count: 0,
+      };
+    }
+    recentIdentityCounts[identity.identityKey].count += 1;
+  });
+  const recentIdentityList = Object.values(recentIdentityCounts).sort(
+    (a, b) => b.count - a.count,
+  );
+  const recentDominantIdentity = recentIdentityList[0] || null;
+
+  const identityShift = (() => {
+    if (!identityList[0] || !recentDominantIdentity) {
+      return {
+        key: "insufficient_data",
+        label: "Not enough data",
+        description: "Complete more classified sessions to detect an identity shift.",
+      };
+    }
+
+    const allTimeKey = identityList[0].identityKey;
+    const recentKey = recentDominantIdentity.identityKey;
+
+    if (allTimeKey === recentKey) {
+      return {
+        key: "stable",
+        label: "Stable",
+        description: "Your recent training pattern is consistent with your longer-term identity.",
+      };
+    }
+
+    if (recentKey === "climber") {
+      return {
+        key: "climbing",
+        label: "Climbing",
+        description: "Your recent sessions suggest more upward challenge tolerance than your longer-term pattern.",
+      };
+    }
+
+    if (recentKey === "recovery_builder") {
+      return {
+        key: "recovery",
+        label: "Recovery Trend",
+        description: "Your recent sessions suggest stabilization or recalibration compared with your longer-term pattern.",
+      };
+    }
+
+    if (recentKey === "overreacher") {
+      return {
+        key: "volatile",
+        label: "Volatile",
+        description: "Your recent sessions show more instability than your longer-term pattern.",
+      };
+    }
+
+    return {
+      key: "shifting",
+      label: "Shifting",
+      description: "Your recent sessions suggest an evolving training pattern.",
+    };
+  })();
+
   return {
     dominantIdentity: identityList[0] || null,
     identityCounts,
@@ -55,5 +146,6 @@ export function summarizeCognitiveIdentity(sessions = []) {
       0,
     ),
     recentIdentitySession,
+    identityShift,
   };
 }

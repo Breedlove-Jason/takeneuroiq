@@ -32,6 +32,7 @@ export function classifyCognitiveIdentity(session = {}) {
       description:
         "You stayed controlled, accurate, and efficient throughout the session.",
       primarySignal: "Stable precision inside target range.",
+      shiftSignal: "This run reinforced a stable high-control pattern.",
     };
   }
 
@@ -42,6 +43,7 @@ export function classifyCognitiveIdentity(session = {}) {
       description:
         "You trained inside the recommended lane and kept your performance steady.",
       primarySignal: "Controlled performance stayed inside the training lane.",
+      shiftSignal: "This run reinforced consistency inside the recommended lane.",
     };
   }
 
@@ -52,6 +54,7 @@ export function classifyCognitiveIdentity(session = {}) {
       description:
         "You pushed upward and still held onto strong performance.",
       primarySignal: "Strong upward challenge tolerance detected.",
+      shiftSignal: "This run suggests upward adaptation toward harder challenge.",
     };
   }
 
@@ -62,6 +65,7 @@ export function classifyCognitiveIdentity(session = {}) {
       description:
         "You pushed beyond the ideal lane and performance became less stable.",
       primarySignal: "Challenge exceeded stable performance range.",
+      shiftSignal: "This run suggests instability under rising challenge pressure.",
     };
   }
 
@@ -72,6 +76,7 @@ export function classifyCognitiveIdentity(session = {}) {
       description: "You found your own rhythm and maintained high precision without explicit guidance.",
       primarySignal:
         "Strong self-directed performance emerged outside guidance.",
+      shiftSignal: "This run suggests strong self-directed deviation from guidance.",
     };
   }
 
@@ -82,6 +87,7 @@ export function classifyCognitiveIdentity(session = {}) {
       description:
         "This session looked more like recalibration than pure performance growth.",
       primarySignal: "Recovery pattern detected across this session.",
+      shiftSignal: "This run suggests a temporary shift toward recalibration.",
     };
   }
 
@@ -91,5 +97,6 @@ export function classifyCognitiveIdentity(session = {}) {
     description:
       "Your session signals were mixed, but the system is learning how you respond best.",
     primarySignal: "Mixed signals suggest an emerging training pattern.",
+    shiftSignal: "This run adds mixed data to an evolving pattern.",
   };
 }

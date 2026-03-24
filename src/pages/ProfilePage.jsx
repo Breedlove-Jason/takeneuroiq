@@ -187,7 +187,6 @@ function ProfilePage() {
       .find((session) => session?.liveAdaptiveDifficulty?.state)
       ?.liveAdaptiveDifficulty?.state || null;
 
-  const recentPrimarySignalSession = cognitiveIdentitySummary.recentIdentitySession;
 
   const adaptiveInsightSubtextMap = {
     challenge:
@@ -1117,13 +1116,26 @@ function ProfilePage() {
                     </p>
                   </div>
 
-                  {recentPrimarySignalSession?.cognitiveIdentity?.primarySignal && (
+                  <div className="border-t border-white/10 pt-4">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                      Identity Shift
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-cyan-300">
+                      {cognitiveIdentitySummary.identityShift?.label || "Not enough data"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {cognitiveIdentitySummary.identityShift?.description ||
+                        "Complete more classified sessions to detect an identity shift."}
+                    </p>
+                  </div>
+
+                  {cognitiveIdentitySummary.recentIdentitySession?.cognitiveIdentity?.primarySignal && (
                     <div className="border-t border-white/10 pt-4">
                       <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
                         Recent Primary Signal
                       </p>
                       <p className="mt-2 text-sm leading-6 text-cyan-200">
-                        {recentPrimarySignalSession.cognitiveIdentity.primarySignal}
+                        {cognitiveIdentitySummary.recentIdentitySession.cognitiveIdentity.primarySignal}
                       </p>
                     </div>
                   )}
