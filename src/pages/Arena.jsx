@@ -632,6 +632,12 @@ function Arena({ theme }) {
   }
 
   const outcomeToneStyles = {
+    gold: {
+      border: 'border-amber-300/45',
+      bg: 'bg-amber-500/12',
+      label: 'text-amber-200',
+      shadow: 'shadow-[0_0_30px_rgba(251,191,36,0.24)]',
+    },
     positive: {
       border: 'border-emerald-400/30',
       bg: 'bg-emerald-500/10',

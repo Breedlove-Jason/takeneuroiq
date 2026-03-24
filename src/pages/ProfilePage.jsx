@@ -56,6 +56,7 @@ function formatCognitiveIdentityLabel(label) {
   if (!label) return label;
   if (label === "Recovery Builder") return "Recovery";
   if (label === "Adaptive Learner") return "Adaptive";
+  if (label === "Independent Striker") return "Striker";
   return label;
 }
 
@@ -93,6 +94,23 @@ function getIdentityBadgeClasses(identityKey) {
   }
 }
 
+function getSessionOutcomeToneClasses(tone) {
+  switch (tone) {
+    case "gold":
+      return "text-amber-300";
+    case "positive":
+      return "text-emerald-300";
+    case "supportive":
+      return "text-cyan-300";
+    case "alert":
+      return "text-yellow-300";
+    case "caution":
+      return "text-red-300";
+    default:
+      return "text-fuchsia-300";
+  }
+}
+
 function ProfilePage() {
   const [playerName, setPlayerNameState] = useState(() => getPlayerName());
   const [nameInput, setNameInput] = useState(() => getPlayerName());
@@ -101,6 +119,16 @@ function ProfilePage() {
   const cognitiveIdentitySummary = summarizeCognitiveIdentity(sessions);
   const recentSessions = sessions.slice(-5);
   const recentCognitiveIdentitySummary = summarizeCognitiveIdentity(recentSessions);
+  const isRecentTrendSameAsAllTime = Boolean(
+    (cognitiveIdentitySummary.dominantIdentity?.identityKey &&
+      recentCognitiveIdentitySummary.dominantIdentity?.identityKey &&
+      cognitiveIdentitySummary.dominantIdentity.identityKey ===
+        recentCognitiveIdentitySummary.dominantIdentity.identityKey) ||
+      (cognitiveIdentitySummary.dominantIdentity?.label &&
+        recentCognitiveIdentitySummary.dominantIdentity?.label &&
+        cognitiveIdentitySummary.dominantIdentity.label ===
+          recentCognitiveIdentitySummary.dominantIdentity.label),
+  );
   const analytics = buildSessionAnalytics(sessions) ?? {};
 
   const navigate = useNavigate();
@@ -158,6 +186,8 @@ function ProfilePage() {
       .reverse()
       .find((session) => session?.liveAdaptiveDifficulty?.state)
       ?.liveAdaptiveDifficulty?.state || null;
+
+  const recentPrimarySignalSession = cognitiveIdentitySummary.recentIdentitySession;
 
   const adaptiveInsightSubtextMap = {
     challenge:
@@ -864,7 +894,11 @@ function ProfilePage() {
                               <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
                                 Run Data
                               </p>
-                              <p className="mt-1 truncate font-semibold text-fuchsia-300">
+                              <p
+                                className={`mt-1 truncate font-semibold ${getSessionOutcomeToneClasses(
+                                  session.sessionOutcome?.tone,
+                                )}`}
+                              >
                                 {session.label}
                               </p>
                               <p className="mt-1 text-sm font-bold text-yellow-300">
@@ -889,9 +923,9 @@ function ProfilePage() {
                       })}
                     </div>
 
-                    <div className="hidden md:block">
+                    <div className="hidden overflow-x-auto md:block">
                       <div
-                        className={`grid ${recentSessionsGridColumns} items-center gap-x-4 border-b border-slate-700/50 bg-slate-800/40 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500`}
+                        className={`grid min-w-[56rem] ${recentSessionsGridColumns} items-center gap-x-4 border-b border-slate-700/50 bg-slate-800/40 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500`}
                       >
                         <span className="text-left">Mode</span>
                         <span className="text-center">Score</span>
@@ -916,9 +950,9 @@ function ProfilePage() {
                         return (
                           <div
                             key={`${session.score ?? 0}-${index}`}
-                            className={`grid ${recentSessionsGridColumns} group items-center gap-x-4 border-t border-slate-800/50 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-cyan-400/[0.03]`}
+                            className={`grid min-w-[56rem] ${recentSessionsGridColumns} group items-center gap-x-4 border-t border-slate-800/50 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-cyan-400/[0.03]`}
                           >
-                            <span className="font-bold text-white group-hover:text-cyan-400 transition-colors">
+                            <span className="truncate font-bold text-white transition-colors group-hover:text-cyan-400">
                               {session.mode || "Pattern Rush"}
                             </span>
                             <span className="text-center font-mono text-cyan-100/80 tabular-nums">
@@ -931,17 +965,21 @@ function ProfilePage() {
                               {session.bestStreak ?? session.streak ?? 0}
                             </span>
                             <div className="flex min-w-0 flex-col">
-                              <span className="truncate text-xs font-semibold text-slate-300">
+                              <span
+                                className={`truncate text-xs font-semibold ${getSessionOutcomeToneClasses(
+                                  session.sessionOutcome?.tone,
+                                )}`}
+                              >
                                 {session.label}
                               </span>
                               <span className="text-[10px] font-bold text-yellow-300/70">
                                 NP: {session.neuralPower ?? 0}
                               </span>
                             </div>
-                            <div className="flex items-center">
+                            <div className="flex min-w-0 items-center">
                               {session.cognitiveIdentity?.label ? (
                                 <span
-                                  className={`inline-block text-xs font-semibold tracking-[0.04em] whitespace-nowrap ${getIdentityBadgeClasses(
+                                  className={`inline-block truncate text-xs font-semibold tracking-[0.04em] ${getIdentityBadgeClasses(
                                     session.cognitiveIdentity.identityKey,
                                   )}`}
                                 >
@@ -1057,13 +1095,17 @@ function ProfilePage() {
                       Recent Trend
                     </p>
                     <p className="mt-1 text-sm font-semibold text-cyan-300">
-                      {formatCognitiveIdentityLabel(
-                        recentCognitiveIdentitySummary.dominantIdentity?.label,
-                      ) || "No recent trend yet"}
+                      {isRecentTrendSameAsAllTime
+                        ? "Holding steady"
+                        : formatCognitiveIdentityLabel(
+                            recentCognitiveIdentitySummary.dominantIdentity?.label,
+                          ) || "No recent trend yet"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-300">
-                      {recentCognitiveIdentitySummary.dominantIdentity?.description ||
-                        "Complete a few more sessions to detect a recent training trend."}
+                      {isRecentTrendSameAsAllTime
+                        ? "Recent sessions are reinforcing your established all-time identity."
+                        : recentCognitiveIdentitySummary.dominantIdentity?.description ||
+                          "Complete a few more sessions to detect a recent training trend."}
                     </p>
 
                     <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
@@ -1074,6 +1116,17 @@ function ProfilePage() {
                         : "No recent classified identity data yet"}
                     </p>
                   </div>
+
+                  {recentPrimarySignalSession?.cognitiveIdentity?.primarySignal && (
+                    <div className="border-t border-white/10 pt-4">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                        Recent Primary Signal
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-cyan-200">
+                        {recentPrimarySignalSession.cognitiveIdentity.primarySignal}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -17,6 +17,8 @@ export function evaluateSessionOutcome(session = {}) {
   const safeBestStreak = Number(bestStreak) || 0;
 
   const completionQuality = safeAttempted > 0 ? safeCorrect / safeAttempted : 0;
+  const isPerfectSession =
+    safeAttempted > 0 ? safeCorrect === safeAttempted : safeAccuracy === 100;
 
   const performedStrongly =
     safeAccuracy >= 82 ||
@@ -59,6 +61,19 @@ export function evaluateSessionOutcome(session = {}) {
     stayedAligned,
     partiallyAligned,
   });
+
+  if (isPerfectSession) {
+    return {
+      outcomeType: 'perfect_session',
+      tone: 'gold',
+      title: 'Perfect execution',
+      summary: stayedAligned
+        ? '100% accuracy while staying aligned with the recommended lane. Exceptional control and precision.'
+        : '100% accuracy with flawless pattern execution. Challenge ceiling should move upward.',
+      alignmentLabel: recommendedSessionAlignmentLabel || 'Perfect',
+      nextRecommendedDifficulty: 'hard',
+    };
+  }
 
   if (stayedAligned && performedStrongly) {
     return {

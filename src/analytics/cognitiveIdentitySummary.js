@@ -6,6 +6,7 @@ export function summarizeCognitiveIdentity(sessions = []) {
       dominantIdentity: null,
       identityCounts: {},
       totalClassifiedSessions: 0,
+      recentIdentitySession: null,
     };
   }
 
@@ -42,6 +43,10 @@ export function summarizeCognitiveIdentity(sessions = []) {
     (a, b) => b.count - a.count,
   );
 
+  const recentIdentitySession = [...sessions]
+    .reverse()
+    .find((session) => session?.cognitiveIdentity?.identityKey) ?? null;
+
   return {
     dominantIdentity: identityList[0] || null,
     identityCounts,
@@ -49,5 +54,6 @@ export function summarizeCognitiveIdentity(sessions = []) {
       (total, item) => total + item.count,
       0,
     ),
+    recentIdentitySession,
   };
 }
