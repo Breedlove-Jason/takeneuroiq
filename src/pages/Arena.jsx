@@ -870,6 +870,17 @@ function Arena({ theme }) {
                       </div>
                     )}
 
+                    {cognitiveIdentity?.primarySignal && (
+                      <div className="mt-3 border-t border-white/10 pt-3">
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                          Primary Signal
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-cyan-200">
+                          {cognitiveIdentity.primarySignal}
+                        </p>
+                      </div>
+                    )}
+
                     <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">

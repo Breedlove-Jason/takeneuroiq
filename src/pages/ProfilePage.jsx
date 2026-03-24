@@ -977,7 +977,7 @@ function ProfilePage() {
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 min-[1800px]:grid-cols-4">
               <div className="rounded-3xl border border-emerald-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
