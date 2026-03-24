@@ -54,7 +54,7 @@ const recentSessionsGridColumns =
 
 function formatCognitiveIdentityLabel(label) {
   if (!label) return label;
-  if (label === "Recovery Builder") return "Recovery";
+  if (label === "Recovery Builder") return "Rebuilding";
   if (label === "Adaptive Learner") return "Adaptive";
   if (label === "Independent Striker") return "Striker";
   return label;
@@ -994,7 +994,7 @@ function ProfilePage() {
                               )}
                             </div>
                             <span
-                              className={`text-[10px] font-bold uppercase tracking-tight ${adaptiveStateColor}`}
+                              className={`text-[11px] font-semibold uppercase tracking-tight ${adaptiveStateColor}`}
                             >
                               {adaptiveStateLabel}
                             </span>
