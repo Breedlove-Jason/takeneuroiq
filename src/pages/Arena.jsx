@@ -893,6 +893,18 @@ function Arena({ theme }) {
                       </p>
                     )}
 
+                    {sessionOutcome?.trainingDirection && (
+                      <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                        <span className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                          Training Direction
+                        </span>
+
+                        <span className="rounded-full bg-white/5 px-3 py-1 text-sm font-semibold uppercase tracking-[0.15em] text-white">
+                          {sessionOutcome.trainingDirection}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">

@@ -54,9 +54,14 @@ const recentSessionsGridColumns =
 
 function formatCognitiveIdentityLabel(label) {
   if (!label) return label;
-  if (label === "Recovery Builder") return "Rebuilding";
-  if (label === "Adaptive Learner") return "Adaptive";
-  if (label === "Independent Striker") return "Striker";
+  const normalizedLabel = label.trim().toLowerCase();
+  if (normalizedLabel === "recovery builder" || normalizedLabel === "recovery") {
+    return "Rebuilding";
+  }
+  if (normalizedLabel === "adaptive learner" || normalizedLabel === "learner") {
+    return "Adaptive";
+  }
+  if (normalizedLabel === "independent striker") return "Striker";
   return label;
 }
 
@@ -129,7 +134,28 @@ function ProfilePage() {
         cognitiveIdentitySummary.dominantIdentity.label ===
           recentCognitiveIdentitySummary.dominantIdentity.label),
   );
+  const recentTrendLabel = formatCognitiveIdentityLabel(
+    recentCognitiveIdentitySummary.dominantIdentity?.label,
+  );
+  const recentTrendDescription =
+    recentCognitiveIdentitySummary.dominantIdentity?.description;
   const analytics = buildSessionAnalytics(sessions) ?? {};
+
+  const getIdentityDisplayLabel = (cognitiveIdentity) => {
+    const identityKey = cognitiveIdentity?.identityKey;
+    const label = cognitiveIdentity?.label;
+
+    switch (identityKey) {
+      case "independent_striker":
+        return "Striker";
+      case "recovery_builder":
+        return "Recovery";
+      case "precision_runner":
+        return "Precision";
+      default:
+        return label || "Unclassified";
+    }
+  };
 
   const navigate = useNavigate();
   const handleStartRecommendedSession = () => {
@@ -982,8 +1008,8 @@ function ProfilePage() {
                                     session.cognitiveIdentity.identityKey,
                                   )}`}
                                 >
-                                  {formatCognitiveIdentityLabel(
-                                    session.cognitiveIdentity.label,
+                                  {getIdentityDisplayLabel(
+                                    session.cognitiveIdentity,
                                   )}
                                 </span>
                               ) : (
@@ -1094,17 +1120,15 @@ function ProfilePage() {
                       Recent Trend
                     </p>
                     <p className="mt-1 text-sm font-semibold text-cyan-300">
-                      {isRecentTrendSameAsAllTime
-                        ? "Holding steady"
-                        : formatCognitiveIdentityLabel(
-                            recentCognitiveIdentitySummary.dominantIdentity?.label,
-                          ) || "No recent trend yet"}
+                      {recentTrendLabel || "No recent trend yet"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-300">
-                      {isRecentTrendSameAsAllTime
-                        ? "Recent sessions are reinforcing your established all-time identity."
-                        : recentCognitiveIdentitySummary.dominantIdentity?.description ||
-                          "Complete a few more sessions to detect a recent training trend."}
+                      {!recentTrendLabel
+                        ? "Complete a few more sessions to detect a recent training trend."
+                        : isRecentTrendSameAsAllTime
+                          ? "Recent sessions are reinforcing your established all-time identity."
+                          : recentTrendDescription ||
+                            "Complete a few more sessions to detect a recent training trend."}
                     </p>
 
                     <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">

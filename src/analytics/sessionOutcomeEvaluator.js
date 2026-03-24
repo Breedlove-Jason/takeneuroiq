@@ -28,6 +28,17 @@ export function evaluateSessionOutcome(session = {}) {
   const performedPoorly =
     safeAccuracy < 60 && completionQuality < 0.6 && safeBestStreak <= 2;
 
+  const trainingDirectionMap = {
+    perfect_session: 'Push',
+    aligned_growth: 'Push',
+    aligned_recovery: 'Recover',
+    pushed_beyond_lane: 'Hold',
+    drifted_under_pressure: 'Recover',
+    independent_win: 'Hold',
+    misaligned_strain: 'Recover',
+    mixed_session: 'Hold',
+  };
+
   const stayedAligned =
     isRecommendedSessionAligned && !didBreakRecommendedAlignment;
 
@@ -72,6 +83,7 @@ export function evaluateSessionOutcome(session = {}) {
         : '100% accuracy with flawless pattern execution. Challenge ceiling should move upward.',
       alignmentLabel: recommendedSessionAlignmentLabel || 'Perfect',
       nextRecommendedDifficulty: 'hard',
+      trainingDirection: trainingDirectionMap.perfect_session,
     };
   }
 
@@ -84,6 +96,7 @@ export function evaluateSessionOutcome(session = {}) {
         'You stayed in the recommended lane and handled the challenge well. Ideal progression path confirmed.',
       alignmentLabel: recommendedSessionAlignmentLabel || 'Aligned',
       nextRecommendedDifficulty,
+      trainingDirection: trainingDirectionMap.aligned_growth,
     };
   }
 
@@ -96,6 +109,7 @@ export function evaluateSessionOutcome(session = {}) {
         'You stayed inside the recommended lane during a performance dip. This supports your long-term stability.',
       alignmentLabel: recommendedSessionAlignmentLabel || 'Aligned',
       nextRecommendedDifficulty,
+      trainingDirection: trainingDirectionMap.aligned_recovery,
     };
   }
 
@@ -108,6 +122,7 @@ export function evaluateSessionOutcome(session = {}) {
         'You moved past the recommendation and still performed well. System will adjust your challenge range.',
       alignmentLabel: recommendedSessionAlignmentLabel || 'Partially aligned',
       nextRecommendedDifficulty,
+      trainingDirection: trainingDirectionMap.pushed_beyond_lane,
     };
   }
 
@@ -120,6 +135,7 @@ export function evaluateSessionOutcome(session = {}) {
         'You drifted from the recommended lane and performance dropped. Focus on lane discipline.',
       alignmentLabel: recommendedSessionAlignmentLabel || 'Partially aligned',
       nextRecommendedDifficulty,
+      trainingDirection: trainingDirectionMap.drifted_under_pressure,
     };
   }
 
@@ -132,6 +148,7 @@ export function evaluateSessionOutcome(session = {}) {
         'A strong result outside the recommended lane. We will factor this into your next recommendation.',
       alignmentLabel: recommendedSessionAlignmentLabel || 'Not aligned',
       nextRecommendedDifficulty,
+      trainingDirection: trainingDirectionMap.independent_win,
     };
   }
 
@@ -144,6 +161,7 @@ export function evaluateSessionOutcome(session = {}) {
         'This session was outside the recommended lane and created unnecessary strain. Try aligning for better results.',
       alignmentLabel: recommendedSessionAlignmentLabel || 'Not aligned',
       nextRecommendedDifficulty,
+      trainingDirection: trainingDirectionMap.misaligned_strain,
     };
   }
 
@@ -155,5 +173,6 @@ export function evaluateSessionOutcome(session = {}) {
       'Partial progress with mixed signals. System will continue refining your training pattern.',
     alignmentLabel: recommendedSessionAlignmentLabel || 'Mixed',
     nextRecommendedDifficulty,
+    trainingDirection: trainingDirectionMap.mixed_session,
   };
 }

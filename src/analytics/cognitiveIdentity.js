@@ -83,7 +83,7 @@ export function classifyCognitiveIdentity(session = {}) {
   if (safeAccuracy < 65 || completionRate < 0.6) {
     return {
       identityKey: "recovery_builder",
-      label: "recovery",
+      label: "Recovery Builder",
       description:
         "This session looked more like recalibration than pure performance growth.",
       primarySignal: "Recovery pattern detected across this session.",
@@ -93,7 +93,7 @@ export function classifyCognitiveIdentity(session = {}) {
 
   return {
     identityKey: "adaptive_learner",
-    label: "learner",
+    label: "Adaptive Learner",
     description:
       "Your session signals were mixed, but the system is learning how you respond best.",
     primarySignal: "Mixed signals suggest an emerging training pattern.",

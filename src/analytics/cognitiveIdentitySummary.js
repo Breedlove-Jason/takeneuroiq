@@ -20,7 +20,14 @@ export function summarizeCognitiveIdentity(sessions = []) {
   const getClassifiedIdentity = (session) => {
     let identity = session?.cognitiveIdentity;
 
-    if (!identity?.identityKey || !identity?.label) {
+    const rawLabel =
+      typeof identity?.label === "string" ? identity.label.trim() : "";
+    const hasValidLabel =
+      rawLabel &&
+      rawLabel.toLowerCase() !== "unknown" &&
+      rawLabel.toLowerCase() !== "unclassified";
+
+    if (!identity?.identityKey || !hasValidLabel || !identity?.description) {
       identity = classifyCognitiveIdentity(session);
     }
 
