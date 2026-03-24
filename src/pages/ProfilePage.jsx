@@ -55,10 +55,18 @@ const recentSessionsGridColumns =
 function formatCognitiveIdentityLabel(label) {
   if (!label) return label;
   const normalizedLabel = label.trim().toLowerCase();
-  if (normalizedLabel === "recovery builder" || normalizedLabel === "recovery") {
-    return "Rebuilding";
+  if (
+    normalizedLabel === "recovery builder" ||
+    normalizedLabel === "recovery" ||
+    normalizedLabel === "rebuilder" ||
+    normalizedLabel === "rebuilding"
+  ) {
+    return "Rebuilder";
   }
-  if (normalizedLabel === "adaptive learner" || normalizedLabel === "learner") {
+  if (
+    normalizedLabel === "adaptive learner" ||
+    normalizedLabel === "learner"
+  ) {
     return "Adaptive";
   }
   if (normalizedLabel === "independent striker") return "Striker";
