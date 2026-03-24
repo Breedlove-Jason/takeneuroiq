@@ -50,7 +50,14 @@ const adaptiveStateHistoryColorMap = {
 };
 
 const recentSessionsGridColumns =
-  "grid-cols-[minmax(7rem,1.25fr)_minmax(4.5rem,0.8fr)_minmax(4rem,0.7fr)_minmax(4.5rem,0.8fr)_minmax(6.75rem,1.2fr)_minmax(5rem,0.9fr)_minmax(7rem,1fr)_minmax(5.5rem,0.9fr)]";
+  "grid-cols-[minmax(6.5rem,1.2fr)_minmax(4rem,0.7fr)_minmax(3.5rem,0.6fr)_minmax(4rem,0.7fr)_minmax(6.5rem,1.1fr)_minmax(5.5rem,0.9fr)_minmax(7.5rem,1.2fr)_minmax(5.5rem,0.9fr)]";
+
+function formatCognitiveIdentityLabel(label) {
+  if (!label) return label;
+  if (label === "Recovery Builder") return "Recovery";
+  if (label === "Adaptive Learner") return "Adaptive";
+  return label;
+}
 
 function formatNeuralTrendLabel(direction) {
   switch (direction) {
@@ -62,6 +69,27 @@ function formatNeuralTrendLabel(direction) {
       return "Stable";
     default:
       return "Neutral";
+  }
+}
+
+function getIdentityBadgeClasses(identityKey) {
+  switch (identityKey) {
+    case "precision_runner":
+      return "text-cyan-300";
+    case "stabilizer":
+      return "text-emerald-300";
+    case "climber":
+      return "text-sky-300";
+    case "overreacher":
+      return "text-amber-300";
+    case "recovery_builder":
+      return "text-rose-300";
+    case "adaptive_learner":
+      return "text-violet-300";
+    case "independent_striker":
+      return "text-fuchsia-300";
+    default:
+      return "text-slate-300";
   }
 }
 
@@ -846,7 +874,9 @@ function ProfilePage() {
                             <div className="mt-3">
                               {session.cognitiveIdentity?.label ? (
                                 <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-300">
-                                  {session.cognitiveIdentity.label}
+                                  {formatCognitiveIdentityLabel(
+                                    session.cognitiveIdentity.label,
+                                  )}
                                 </span>
                               ) : (
                                 <span className="text-xs text-slate-500">
@@ -861,7 +891,7 @@ function ProfilePage() {
 
                     <div className="hidden md:block">
                       <div
-                        className={`grid ${recentSessionsGridColumns} items-center gap-x-4 bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400`}
+                        className={`grid ${recentSessionsGridColumns} items-center gap-x-4 border-b border-slate-700/50 bg-slate-800/40 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500`}
                       >
                         <span className="text-left">Mode</span>
                         <span className="text-center">Score</span>
@@ -886,45 +916,51 @@ function ProfilePage() {
                         return (
                           <div
                             key={`${session.score ?? 0}-${index}`}
-                            className={`grid ${recentSessionsGridColumns} items-center gap-x-4 border-t border-slate-800 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-slate-800/70`}
+                            className={`grid ${recentSessionsGridColumns} group items-center gap-x-4 border-t border-slate-800/50 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-cyan-400/[0.03]`}
                           >
-                            <span className="font-semibold text-white">
+                            <span className="font-bold text-white group-hover:text-cyan-400 transition-colors">
                               {session.mode || "Pattern Rush"}
                             </span>
-                            <span className="text-center tabular-nums">
+                            <span className="text-center font-mono text-cyan-100/80 tabular-nums">
                               {session.score ?? 0}
                             </span>
-                            <span className="text-center tabular-nums">
+                            <span className="text-center font-mono text-emerald-400/80 tabular-nums">
                               {getSessionAccuracy(session)}%
                             </span>
-                            <span className="text-center tabular-nums">
+                            <span className="text-center font-mono text-fuchsia-400/80 tabular-nums">
                               {session.bestStreak ?? session.streak ?? 0}
                             </span>
                             <div className="flex min-w-0 flex-col">
-                              <span className="truncate font-semibold text-fuchsia-300">
+                              <span className="truncate text-xs font-semibold text-slate-300">
                                 {session.label}
                               </span>
-                              <span className="font-bold text-yellow-300">
+                              <span className="text-[10px] font-bold text-yellow-300/70">
                                 NP: {session.neuralPower ?? 0}
                               </span>
                             </div>
-                            <div className="px-4 py-3">
+                            <div className="flex items-center">
                               {session.cognitiveIdentity?.label ? (
-                                <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-300">
-                                  {session.cognitiveIdentity.label}
+                                <span
+                                  className={`inline-block text-xs font-semibold tracking-[0.04em] whitespace-nowrap ${getIdentityBadgeClasses(
+                                    session.cognitiveIdentity.identityKey,
+                                  )}`}
+                                >
+                                  {formatCognitiveIdentityLabel(
+                                    session.cognitiveIdentity.label,
+                                  )}
                                 </span>
                               ) : (
-                                <span className="text-xs text-slate-500">
-                                  Unclassified
+                                <span className="text-[10px] font-semibold text-slate-600">
+                                  UNC
                                 </span>
                               )}
                             </div>
                             <span
-                              className={`text-xs font-semibold leading-tight ${adaptiveStateColor}`}
+                              className={`text-[10px] font-bold uppercase tracking-tight ${adaptiveStateColor}`}
                             >
                               {adaptiveStateLabel}
                             </span>
-                            <span className="text-sm text-slate-400">
+                            <span className="text-[11px] font-medium text-slate-500 group-hover:text-slate-400">
                               {formatSessionTime(session.timestamp)}
                             </span>
                           </div>
@@ -999,7 +1035,9 @@ function ProfilePage() {
                       All-Time Identity
                     </p>
                     <p className="mt-1 text-sm font-semibold text-violet-300">
-                      {cognitiveIdentitySummary.dominantIdentity?.label || "Not enough data yet"}
+                      {formatCognitiveIdentityLabel(
+                        cognitiveIdentitySummary.dominantIdentity?.label,
+                      ) || "Not enough data yet"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-300">
                       {cognitiveIdentitySummary.dominantIdentity?.description ||
@@ -1019,7 +1057,9 @@ function ProfilePage() {
                       Recent Trend
                     </p>
                     <p className="mt-1 text-sm font-semibold text-cyan-300">
-                      {recentCognitiveIdentitySummary.dominantIdentity?.label || "No recent trend yet"}
+                      {formatCognitiveIdentityLabel(
+                        recentCognitiveIdentitySummary.dominantIdentity?.label,
+                      ) || "No recent trend yet"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-300">
                       {recentCognitiveIdentitySummary.dominantIdentity?.description ||
