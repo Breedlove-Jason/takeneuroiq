@@ -5,8 +5,8 @@ import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
 import { recordSession } from '../game/sessionTracker';
 import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDifficulty.js';
 import { useLocation } from 'react-router-dom';
-import { evaluateSessionOutcome } from "../analytics/sessionOutcomeEvaluator";
-import { classifyCognitiveIdentity } from "../analytics/cognitiveIdentity";
+import { evaluateSessionOutcome } from '../analytics/sessionOutcomeEvaluator';
+import { classifyCognitiveIdentity } from '../analytics/cognitiveIdentity';
 
 /**
  * Helper function to get a random index
@@ -354,9 +354,13 @@ function Arena({ theme }) {
         liveAdaptiveDifficulty,
       };
 
-      const evaluatedOutcome = evaluateSessionOutcome(computedFinalSessionDataWithLatest);
+      const evaluatedOutcome = evaluateSessionOutcome(
+        computedFinalSessionDataWithLatest,
+      );
       setSessionOutcome(evaluatedOutcome);
-      const identity = classifyCognitiveIdentity(computedFinalSessionDataWithLatest);
+      const identity = classifyCognitiveIdentity(
+        computedFinalSessionDataWithLatest,
+      );
       setCognitiveIdentity(identity);
 
       recordSession({
@@ -830,7 +834,7 @@ function Arena({ theme }) {
 
                 <p
                   className={`mt-4 max-w-xl text-lg leading-8 ${
-                    isCyber ? 'text-slate-300' : 'text-slate-600'
+                    isCyber ? 'text-cyan-100' : 'text-slate-600'
                   }`}
                 >
                   {getPerformanceMessage()}
@@ -858,66 +862,66 @@ function Arena({ theme }) {
                       {sessionOutcome.title}
                     </p>
 
-                    <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                    <p className="mt-1 text-sm leading-relaxed text-cyan-100/90">
                       {sessionOutcome.summary}
                     </p>
 
                     {cognitiveIdentity && (
-                      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 space-y-1 shadow-[0_0_18px_rgba(15,118,207,0.08)]">
+                        <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/95">
                           Cognitive Identity
                         </p>
-                        <p className="mt-1 text-sm font-semibold text-white">
+                        <p className="text-sm font-semibold tracking-tight text-white">
                           {cognitiveIdentity.label}
                         </p>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
+                        <p className="text-xs leading-5 text-cyan-100/85">
                           {cognitiveIdentity.description}
                         </p>
                       </div>
                     )}
 
                     {cognitiveIdentity?.primarySignal && (
-                      <div className="mt-3 border-t border-white/10 pt-3">
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                      <div className="mt-3 border-t border-white/15 pt-4 space-y-1">
+                        <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/95">
                           Primary Signal
                         </p>
-                        <p className="mt-1 text-sm font-medium text-cyan-200">
+                        <p className="text-sm font-semibold tracking-tight text-cyan-100">
                           {cognitiveIdentity.primarySignal}
                         </p>
                       </div>
                     )}
 
                     {cognitiveIdentity?.shiftSignal && (
-                      <p className="mt-2 text-xs leading-5 text-slate-400">
+                      <p className="mt-2 text-xs leading-5 text-fuchsia-100/85">
                         {cognitiveIdentity.shiftSignal}
                       </p>
                     )}
 
                     {sessionOutcome?.trainingDirection && (
                       <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
-                        <span className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                        <span className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/95">
                           Training Direction
                         </span>
 
-                        <span className="rounded-full bg-white/5 px-3 py-1 text-sm font-semibold uppercase tracking-[0.15em] text-white">
+                        <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_0_18px_rgba(59,130,246,0.45)] ring-1 ring-white/20">
                           {sessionOutcome.trainingDirection}
                         </span>
                       </div>
                     )}
 
-                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/15 pt-3">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                        <span className="text-[10px] uppercase tracking-[0.3em] text-cyan-200/95 font-semibold">
                           Next Recommendation
                         </span>
-                        <span className="text-sm font-bold text-cyan-300 uppercase tracking-widest mt-0.5">
+                        <span className="text-base font-bold text-cyan-200 uppercase tracking-[0.35em] mt-0.5">
                           {sessionOutcome.nextRecommendedDifficulty}
                         </span>
                       </div>
 
                       <button
                         onClick={handleStartRecommendedSession}
-                        className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 shadow-lg shadow-cyan-400/20"
+                        className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-2 text-sm font-bold text-slate-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-cyan-300 hover:shadow-[0_10px_40px_rgba(34,211,238,0.45)] shadow-lg shadow-cyan-400/20"
                       >
                         Start Session
                       </button>
@@ -1030,25 +1034,25 @@ function Arena({ theme }) {
                 <div
                   className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingTone} ${liveCoachingPressureClass}`}
                 >
-                    <div className="flex items-center gap-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                          Live Coaching
-                        </p>
+                  <div className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Live Coaching
+                      </p>
 
-                        <p className="mt-1 text-sm leading-relaxed">
-                          {adaptiveCoachingMessage}
-                        </p>
-                      </div>
-
-                      {feedback && (
-                        <div
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getFeedbackBadgeClass(feedback, isCyber)}`}
-                        >
-                          {feedback}
-                        </div>
-                      )}
+                      <p className="mt-1 text-sm leading-relaxed">
+                        {adaptiveCoachingMessage}
+                      </p>
                     </div>
+
+                    {feedback && (
+                      <div
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getFeedbackBadgeClass(feedback, isCyber)}`}
+                      >
+                        {feedback}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
@@ -1146,7 +1150,9 @@ function Arena({ theme }) {
                       {adaptiveShiftMessage}
                     </span>
                   )}
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${adaptiveConfidenceColor}`}>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-wider ${adaptiveConfidenceColor}`}
+                  >
                     {liveAdaptiveDifficulty.confidence} confidence
                   </span>
                 </div>
@@ -1158,8 +1164,13 @@ function Arena({ theme }) {
                     <p className={`text-lg font-bold ${adaptiveStateColor}`}>
                       {adaptiveStateLabel}
                     </p>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/5 ${recommendedSessionAlignmentTone} border border-white/10`}>
-                      {isRecommendedSessionAligned && !didBreakRecommendedAlignment ? 'Aligned' : 'Shifted'}
+                    <span
+                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/5 ${recommendedSessionAlignmentTone} border border-white/10`}
+                    >
+                      {isRecommendedSessionAligned &&
+                      !didBreakRecommendedAlignment
+                        ? 'Aligned'
+                        : 'Shifted'}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-slate-400 line-clamp-1">
@@ -1169,12 +1180,20 @@ function Arena({ theme }) {
 
                 <div className="flex gap-4 border-l border-white/10 pl-4">
                   <div className="text-center">
-                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">Current</p>
-                    <p className="text-sm font-bold text-slate-300">{currentPuzzleDifficultyLabel}</p>
+                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">
+                      Current
+                    </p>
+                    <p className="text-sm font-bold text-slate-300">
+                      {currentPuzzleDifficultyLabel}
+                    </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">Target</p>
-                    <p className="text-sm font-bold text-slate-200">{nextTargetDifficulty}</p>
+                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">
+                      Target
+                    </p>
+                    <p className="text-sm font-bold text-slate-200">
+                      {nextTargetDifficulty}
+                    </p>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUserAstronaut,
   faClockRotateLeft,
@@ -10,7 +10,7 @@ import {
   faLayerGroup,
   faWaveSquare,
   faShieldHalved,
-} from "@fortawesome/free-solid-svg-icons";
+} from '@fortawesome/free-solid-svg-icons';
 import {
   Radar,
   RadarChart,
@@ -18,109 +18,106 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-} from "recharts";
-import { getPlayerName, setPlayerName } from "../game/playerIdentity";
-import { useSessionData } from "../hooks/useSessionData";
+} from 'recharts';
+import { getPlayerName, setPlayerName } from '../game/playerIdentity';
+import { useSessionData } from '../hooks/useSessionData';
 import ProfileAnalytics, {
   IdentityCoreStats,
   PerformanceSnapshot,
   AgentSummary,
-} from "../components/ProfileAnalytics";
-import { buildSessionAnalytics } from "../analytics/sessionAnalytics";
-import { summarizeCognitiveIdentity } from "../analytics/cognitiveIdentitySummary";
+} from '../components/ProfileAnalytics';
+import { buildSessionAnalytics } from '../analytics/sessionAnalytics';
+import { summarizeCognitiveIdentity } from '../analytics/cognitiveIdentitySummary';
 
 function formatSessionTime(timestamp) {
-  if (!timestamp) return "—";
-  return new Date(timestamp).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
+  if (!timestamp) return '—';
+  return new Date(timestamp).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
   });
 }
 
 const adaptiveStateHistoryLabelMap = {
-  recover: "Recovery Mode",
-  steady: "Stable Load",
-  challenge: "Challenge Mode",
+  recover: 'Recovery Mode',
+  steady: 'Stable Load',
+  challenge: 'Challenge Mode',
 };
 
 const adaptiveStateHistoryColorMap = {
-  recover: "text-yellow-300",
-  steady: "text-cyan-300",
-  challenge: "text-fuchsia-300",
+  recover: 'text-yellow-300',
+  steady: 'text-cyan-300',
+  challenge: 'text-fuchsia-300',
 };
 
 const recentSessionsGridColumns =
-  "grid-cols-[minmax(6.5rem,1.2fr)_minmax(4rem,0.7fr)_minmax(3.5rem,0.6fr)_minmax(4rem,0.7fr)_minmax(6.5rem,1.1fr)_minmax(5.5rem,0.9fr)_minmax(7.5rem,1.2fr)_minmax(5.5rem,0.9fr)]";
+  'grid-cols-[minmax(6.5rem,1.2fr)_minmax(4rem,0.7fr)_minmax(3.5rem,0.6fr)_minmax(4rem,0.7fr)_minmax(6.5rem,1.1fr)_minmax(5.5rem,0.9fr)_minmax(7.5rem,1.2fr)_minmax(5.5rem,0.9fr)]';
 
 function formatCognitiveIdentityLabel(label) {
   if (!label) return label;
   const normalizedLabel = label.trim().toLowerCase();
   if (
-    normalizedLabel === "recovery builder" ||
-    normalizedLabel === "recovery" ||
-    normalizedLabel === "rebuilder" ||
-    normalizedLabel === "rebuilding"
+    normalizedLabel === 'recovery builder' ||
+    normalizedLabel === 'recovery' ||
+    normalizedLabel === 'rebuilder' ||
+    normalizedLabel === 'rebuilding'
   ) {
-    return "Rebuilder";
+    return 'Rebuilder';
   }
-  if (
-    normalizedLabel === "adaptive learner" ||
-    normalizedLabel === "learner"
-  ) {
-    return "Adaptive";
+  if (normalizedLabel === 'adaptive learner' || normalizedLabel === 'learner') {
+    return 'Adaptive';
   }
-  if (normalizedLabel === "independent striker") return "Striker";
+  if (normalizedLabel === 'independent striker') return 'Striker';
   return label;
 }
 
 function formatNeuralTrendLabel(direction) {
   switch (direction) {
-    case "improving":
-      return "Improving";
-    case "declining":
-      return "Needs Recovery";
-    case "stable":
-      return "Stable";
+    case 'improving':
+      return 'Improving';
+    case 'declining':
+      return 'Needs Recovery';
+    case 'stable':
+      return 'Stable';
     default:
-      return "Neutral";
+      return 'Neutral';
   }
 }
 
 function getIdentityBadgeClasses(identityKey) {
   switch (identityKey) {
-    case "precision_runner":
-      return "text-cyan-300";
-    case "stabilizer":
-      return "text-emerald-300";
-    case "climber":
-      return "text-sky-300";
-    case "overreacher":
-      return "text-amber-300";
-    case "recovery_builder":
-      return "text-rose-300";
-    case "adaptive_learner":
-      return "text-violet-300";
-    case "independent_striker":
-      return "text-fuchsia-300";
+    case 'precision_runner':
+      return 'text-cyan-300';
+    case 'stabilizer':
+      return 'text-emerald-300';
+    case 'climber':
+      return 'text-sky-300';
+    case 'overreacher':
+      return 'text-amber-300';
+    case 'recovery_builder':
+      return 'text-rose-300';
+    case 'adaptive_learner':
+      return 'text-violet-300';
+    case 'independent_striker':
+      return 'text-fuchsia-300';
     default:
-      return "text-slate-300";
+      return 'text-slate-300';
   }
 }
 
 function getSessionOutcomeToneClasses(tone) {
   switch (tone) {
-    case "gold":
-      return "text-amber-300";
-    case "positive":
-      return "text-emerald-300";
-    case "supportive":
-      return "text-cyan-300";
-    case "alert":
-      return "text-yellow-300";
-    case "caution":
-      return "text-red-300";
+    case 'gold':
+      return 'text-amber-300';
+    case 'positive':
+      return 'text-emerald-300';
+    case 'supportive':
+      return 'text-cyan-300';
+    case 'alert':
+      return 'text-yellow-300';
+    case 'caution':
+      return 'text-red-300';
     default:
-      return "text-fuchsia-300";
+      return 'text-fuchsia-300';
   }
 }
 
@@ -131,7 +128,8 @@ function ProfilePage() {
   const { sessions, resetSessions } = useSessionData();
   const cognitiveIdentitySummary = summarizeCognitiveIdentity(sessions);
   const recentSessions = sessions.slice(-5);
-  const recentCognitiveIdentitySummary = summarizeCognitiveIdentity(recentSessions);
+  const recentCognitiveIdentitySummary =
+    summarizeCognitiveIdentity(recentSessions);
   const isRecentTrendSameAsAllTime = Boolean(
     (cognitiveIdentitySummary.dominantIdentity?.identityKey &&
       recentCognitiveIdentitySummary.dominantIdentity?.identityKey &&
@@ -150,36 +148,39 @@ function ProfilePage() {
   const recentTrainingDirection = useMemo(() => {
     const latestSession = [...sessions]
       .reverse()
-      .find((session) => session?.sessionOutcome || session?.liveAdaptiveDifficulty);
+      .find(
+        (session) => session?.sessionOutcome || session?.liveAdaptiveDifficulty,
+      );
 
-    const explicitDirection =
-      latestSession?.sessionOutcome?.trainingDirection?.trim().toLowerCase();
+    const explicitDirection = latestSession?.sessionOutcome?.trainingDirection
+      ?.trim()
+      .toLowerCase();
     if (explicitDirection) {
-      if (explicitDirection.includes("push")) return "Push";
-      if (explicitDirection.includes("recover")) return "Recover";
-      if (explicitDirection.includes("hold")) return "Hold";
+      if (explicitDirection.includes('push')) return 'Push';
+      if (explicitDirection.includes('recover')) return 'Recover';
+      if (explicitDirection.includes('hold')) return 'Hold';
     }
 
     const recommendedDifficulty =
       latestSession?.sessionOutcome?.nextRecommendedDifficulty ||
       latestSession?.liveAdaptiveDifficulty?.targetDifficulty;
-    if (recommendedDifficulty === "hard") return "Push";
-    if (recommendedDifficulty === "medium") return "Hold";
-    if (recommendedDifficulty === "easy") return "Recover";
+    if (recommendedDifficulty === 'hard') return 'Push';
+    if (recommendedDifficulty === 'medium') return 'Hold';
+    if (recommendedDifficulty === 'easy') return 'Recover';
 
     const adaptiveState = latestSession?.liveAdaptiveDifficulty?.state;
-    if (adaptiveState === "challenge") return "Push";
-    if (adaptiveState === "steady") return "Hold";
-    if (adaptiveState === "recover") return "Recover";
+    if (adaptiveState === 'challenge') return 'Push';
+    if (adaptiveState === 'steady') return 'Hold';
+    if (adaptiveState === 'recover') return 'Recover';
 
     return null;
   }, [sessions]);
   const recentTrainingDirectionBadgeClass =
-    recentTrainingDirection === "Push"
-      ? "border border-fuchsia-400/45 bg-fuchsia-500/20 text-fuchsia-100 shadow-[0_0_18px_rgba(217,70,239,0.45)] ring-1 ring-fuchsia-400/35"
-      : recentTrainingDirection === "Recover"
-        ? "border border-amber-400/45 bg-amber-500/20 text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.42)] ring-1 ring-amber-400/35"
-        : "border border-cyan-400/45 bg-cyan-500/20 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.45)] ring-1 ring-cyan-400/35";
+    recentTrainingDirection === 'Push'
+      ? 'border border-fuchsia-300/65 bg-fuchsia-500/30 text-white/90 shadow-[0_0_22px_rgba(217,70,239,0.55)] ring-1 ring-fuchsia-300/40'
+      : recentTrainingDirection === 'Recover'
+        ? 'border border-amber-300/65 bg-amber-500/30 text-white/90 shadow-[0_0_22px_rgba(251,191,36,0.5)] ring-1 ring-amber-300/40'
+        : 'border border-cyan-300/65 bg-cyan-500/30 text-white/90 shadow-[0_0_22px_rgba(34,211,238,0.55)] ring-1 ring-cyan-300/40';
   const analytics = buildSessionAnalytics(sessions) ?? {};
 
   const getIdentityDisplayLabel = (cognitiveIdentity) => {
@@ -187,24 +188,24 @@ function ProfilePage() {
     const label = cognitiveIdentity?.label;
 
     switch (identityKey) {
-      case "independent_striker":
-        return "Striker";
-      case "recovery_builder":
-        return "Recovery";
-      case "precision_runner":
-        return "Precision";
+      case 'independent_striker':
+        return 'Striker';
+      case 'recovery_builder':
+        return 'Recovery';
+      case 'precision_runner':
+        return 'Precision';
       default:
-        return label || "Unclassified";
+        return label || 'Unclassified';
     }
   };
 
   const navigate = useNavigate();
   const handleStartRecommendedSession = () => {
-    navigate("/arena", {
+    navigate('/arena', {
       state: {
         recommendedSession: {
-          source: "profile-adaptive-coaching",
-          adaptiveState: latestAdaptiveState || "steady",
+          source: 'profile-adaptive-coaching',
+          adaptiveState: latestAdaptiveState || 'steady',
           recommendation: adaptiveRecommendation,
         },
       },
@@ -217,34 +218,34 @@ function ProfilePage() {
       processingSpeed: 0,
       consistency: 0,
     },
-    neuralTrend = { direction: "neutral", change: 0 },
-    pressureState = { state: "neutral", label: "Stable Load", detail: "" },
+    neuralTrend = { direction: 'neutral', change: 0 },
+    pressureState = { state: 'neutral', label: 'Stable Load', detail: '' },
     adaptiveDifficulty = {
-      state: "steady",
-      label: "Steady Mode",
-      description: "",
-      targetDifficulty: "medium",
+      state: 'steady',
+      label: 'Steady Mode',
+      description: '',
+      targetDifficulty: 'medium',
     },
-    coachingInsight = { headline: "", summary: "", focus: "", detail: "" },
+    coachingInsight = { headline: '', summary: '', focus: '', detail: '' },
   } = analytics;
 
   const neuralTrendLabel = formatNeuralTrendLabel(neuralTrend.direction);
   const pressureStateDetail =
     pressureState.detail ??
-    "Complete more sessions to reveal your pressure profile.";
+    'Complete more sessions to reveal your pressure profile.';
   const adaptiveDifficultyDetail =
     adaptiveDifficulty.description ??
-    "Keep training to generate a stronger adaptive signal.";
+    'Keep training to generate a stronger adaptive signal.';
   const precisionScore = cognitiveTracks.patternRecognition ?? 0;
   const momentumScore = cognitiveTracks.focusStability ?? 0;
   const throughputScore = cognitiveTracks.processingSpeed ?? 0;
   const consistencyScore = cognitiveTracks.consistency ?? 0;
 
   const radarData = [
-    { skill: "Precision", value: precisionScore },
-    { skill: "Momentum", value: momentumScore },
-    { skill: "Throughput", value: throughputScore },
-    { skill: "Consistency", value: consistencyScore },
+    { skill: 'Precision', value: precisionScore },
+    { skill: 'Momentum', value: momentumScore },
+    { skill: 'Throughput', value: throughputScore },
+    { skill: 'Consistency', value: consistencyScore },
   ];
 
   const latestAdaptiveState =
@@ -254,56 +255,55 @@ function ProfilePage() {
       .find((session) => session?.liveAdaptiveDifficulty?.state)
       ?.liveAdaptiveDifficulty?.state || null;
 
-
   const adaptiveInsightSubtextMap = {
     challenge:
-      "Recent session behavior shows the system increasing difficulty in response to stronger performance.",
+      'Recent session behavior shows the system increasing difficulty in response to stronger performance.',
     steady:
-      "Recent session behavior shows stable control, balanced output, and manageable pressure.",
+      'Recent session behavior shows stable control, balanced output, and manageable pressure.',
     recover:
-      "Recent session behavior shows signs of strain, so the system is easing intensity to protect consistency.",
-    default: "Adaptive feedback updates as more session behavior is recorded.",
+      'Recent session behavior shows signs of strain, so the system is easing intensity to protect consistency.',
+    default: 'Adaptive feedback updates as more session behavior is recorded.',
   };
 
   const adaptiveInsightStyles = {
     challenge: {
-      border: "border-violet-500/30",
-      glow: "shadow-violet-500/10",
-      label: "text-violet-300",
+      border: 'border-violet-500/30',
+      glow: 'shadow-violet-500/10',
+      label: 'text-violet-300',
     },
     steady: {
-      border: "border-cyan-500/20",
-      glow: "shadow-cyan-500/10",
-      label: "text-cyan-300",
+      border: 'border-cyan-500/20',
+      glow: 'shadow-cyan-500/10',
+      label: 'text-cyan-300',
     },
     recover: {
-      border: "border-amber-500/30",
-      glow: "shadow-amber-500/10",
-      label: "text-amber-300",
+      border: 'border-amber-500/30',
+      glow: 'shadow-amber-500/10',
+      label: 'text-amber-300',
     },
     default: {
-      border: "border-cyan-500/20",
-      glow: "shadow-cyan-500/10",
-      label: "text-cyan-300",
+      border: 'border-cyan-500/20',
+      glow: 'shadow-cyan-500/10',
+      label: 'text-cyan-300',
     },
   };
 
   const adaptiveInsightBadges = {
     challenge: {
-      text: "Challenge",
-      className: "bg-violet-500/15 text-violet-200 border border-violet-400/30",
+      text: 'Challenge',
+      className: 'bg-violet-500/15 text-violet-200 border border-violet-400/30',
     },
     steady: {
-      text: "Steady",
-      className: "bg-cyan-500/15 text-cyan-200 border border-cyan-400/30",
+      text: 'Steady',
+      className: 'bg-cyan-500/15 text-cyan-200 border border-cyan-400/30',
     },
     recover: {
-      text: "Recovery",
-      className: "bg-amber-500/15 text-amber-200 border border-amber-400/30",
+      text: 'Recovery',
+      className: 'bg-amber-500/15 text-amber-200 border border-amber-400/30',
     },
     default: {
-      text: "Adaptive",
-      className: "bg-slate-500/15 text-slate-200 border border-slate-400/20",
+      text: 'Adaptive',
+      className: 'bg-slate-500/15 text-slate-200 border border-slate-400/20',
     },
   };
 
@@ -328,7 +328,7 @@ function ProfilePage() {
 
   const adaptiveInsightTrend = useMemo(() => {
     if (!sessions || sessions.length === 0)
-      return "No recent adaptive pattern yet.";
+      return 'No recent adaptive pattern yet.';
 
     const recentStates = [...sessions]
       .slice(-5)
@@ -336,13 +336,13 @@ function ProfilePage() {
       .filter(Boolean);
 
     if (recentStates.length === 0) {
-      return "No recent adaptive pattern yet.";
+      return 'No recent adaptive pattern yet.';
     }
 
     const labelMap = {
-      recover: "Recovery",
-      steady: "Steady",
-      challenge: "Challenge",
+      recover: 'Recovery',
+      steady: 'Steady',
+      challenge: 'Challenge',
     };
 
     const labeledStates = recentStates.map((state) => labelMap[state] || state);
@@ -362,12 +362,12 @@ function ProfilePage() {
       .map((item) =>
         item.count > 1 ? `${item.label} × ${item.count}` : item.label,
       )
-      .join(" → ");
+      .join(' → ');
   }, [sessions]);
 
   const adaptiveInsight = useMemo(() => {
     if (!sessions || sessions.length === 0) {
-      return "Complete more sessions to unlock adaptive insights.";
+      return 'Complete more sessions to unlock adaptive insights.';
     }
 
     const recentAdaptiveSessions = [...sessions]
@@ -375,7 +375,7 @@ function ProfilePage() {
       .filter((session) => session?.liveAdaptiveDifficulty?.state);
 
     if (recentAdaptiveSessions.length === 0) {
-      return "Adaptive insight will appear once more session difficulty patterns are recorded.";
+      return 'Adaptive insight will appear once more session difficulty patterns are recorded.';
     }
 
     const states = recentAdaptiveSessions.map(
@@ -398,100 +398,91 @@ function ProfilePage() {
     }
 
     if (counts.recover >= 3) {
-      return "Your system is asking for a reset. Pull back slightly and rebuild your rhythm.";
+      return 'Your system is asking for a reset. Pull back slightly and rebuild your rhythm.';
     }
 
     if (counts.steady >= 3) {
       return "You're locked into a steady rhythm. This is where real growth compounds.";
     }
 
-    if (previousState === "recover" && latestState === "steady") {
+    if (previousState === 'recover' && latestState === 'steady') {
       return "You're recovering well and settling back into control.";
     }
 
-    if (previousState === "steady" && latestState === "challenge") {
+    if (previousState === 'steady' && latestState === 'challenge') {
       return "You're stepping up. The system sees you ready for more.";
     }
 
-    if (previousState === "challenge" && latestState === "recover") {
-      return "You pushed hard. Now your system is dialing things back to recover.";
+    if (previousState === 'challenge' && latestState === 'recover') {
+      return 'You pushed hard. Now your system is dialing things back to recover.';
     }
 
-    return "Your pattern is still forming, but your system is actively adapting to your performance.";
+    return 'Your pattern is still forming, but your system is actively adapting to your performance.';
   }, [sessions]);
 
   let adaptiveTensionInsight = null;
   if (latestAdaptiveState && neuralTrend) {
-    const trend = (neuralTrend.direction ?? "").toLowerCase();
+    const trend = (neuralTrend.direction ?? '').toLowerCase();
 
-    if (latestAdaptiveState === "challenge" && trend.includes("declin")) {
+    if (latestAdaptiveState === 'challenge' && trend.includes('declin')) {
       adaptiveTensionInsight = {
         text: "You're pushing into higher difficulty, but performance is starting to strain. Consider stabilizing before pushing further.",
-        className: "text-rose-300/80",
+        className: 'text-rose-300/80',
       };
-    } else if (
-      latestAdaptiveState === "recover" &&
-      trend.includes("improv")
-    ) {
+    } else if (latestAdaptiveState === 'recover' && trend.includes('improv')) {
       adaptiveTensionInsight = {
-        text: "Recovery is working. Your system is regaining stability and control.",
-        className: "text-emerald-300/80",
+        text: 'Recovery is working. Your system is regaining stability and control.',
+        className: 'text-emerald-300/80',
       };
-    } else if (
-      latestAdaptiveState === "steady" &&
-      trend.includes("improv")
-    ) {
+    } else if (latestAdaptiveState === 'steady' && trend.includes('improv')) {
       adaptiveTensionInsight = {
         text: "You're building strength in a stable zone. This is ideal for long-term growth.",
-        className: "text-cyan-300/80",
+        className: 'text-cyan-300/80',
       };
     }
   }
   const adaptiveActionLabels = {
-    challenge: "Push Higher Difficulty",
-    steady: "Maintain Your Rhythm",
-    recover: "Run Recovery Session",
-    default: "Start Session",
+    challenge: 'Push Higher Difficulty',
+    steady: 'Maintain Your Rhythm',
+    recover: 'Run Recovery Session',
+    default: 'Start Session',
   };
   const adaptiveActionLabel =
     adaptiveActionLabels[latestAdaptiveState] || adaptiveActionLabels.default;
 
   let adaptiveRecommendation =
-    "Keep training. The system will sharpen its guidance as more performance data comes in.";
+    'Keep training. The system will sharpen its guidance as more performance data comes in.';
   if (!latestAdaptiveState) {
     adaptiveRecommendation =
-      "Complete more sessions to unlock personalized coaching recommendations.";
+      'Complete more sessions to unlock personalized coaching recommendations.';
   } else {
-    const trend = (neuralTrend?.direction ?? "").toLowerCase();
+    const trend = (neuralTrend?.direction ?? '').toLowerCase();
 
-    if (latestAdaptiveState === "challenge" && trend.includes("declin")) {
+    if (latestAdaptiveState === 'challenge' && trend.includes('declin')) {
       adaptiveRecommendation =
-        "Run a shorter session and prioritize accuracy before pushing intensity higher again.";
-    } else if (latestAdaptiveState === "challenge") {
+        'Run a shorter session and prioritize accuracy before pushing intensity higher again.';
+    } else if (latestAdaptiveState === 'challenge') {
       adaptiveRecommendation =
-        "Keep pushing, but stay sharp. Maintain accuracy as difficulty rises.";
-    } else if (latestAdaptiveState === "steady" && trend.includes("improv")) {
+        'Keep pushing, but stay sharp. Maintain accuracy as difficulty rises.';
+    } else if (latestAdaptiveState === 'steady' && trend.includes('improv')) {
       adaptiveRecommendation =
         "You're in a strong growth zone. Try increasing difficulty and protecting consistency.";
-    } else if (latestAdaptiveState === "steady") {
+    } else if (latestAdaptiveState === 'steady') {
       adaptiveRecommendation =
-        "Stay in rhythm and aim for cleaner streaks before forcing a harder jump.";
-    } else if (
-      latestAdaptiveState === "recover" &&
-      trend.includes("improv")
-    ) {
+        'Stay in rhythm and aim for cleaner streaks before forcing a harder jump.';
+    } else if (latestAdaptiveState === 'recover' && trend.includes('improv')) {
       adaptiveRecommendation =
-        "Rebuild with controlled reps, then prepare to step back into a steadier training rhythm.";
-    } else if (latestAdaptiveState === "recover") {
+        'Rebuild with controlled reps, then prepare to step back into a steadier training rhythm.';
+    } else if (latestAdaptiveState === 'recover') {
       adaptiveRecommendation =
-        "Slow down, focus on accuracy, and let your stability recover before chasing speed.";
+        'Slow down, focus on accuracy, and let your stability recover before chasing speed.';
     }
   }
   const adaptiveRecommendationTone = {
-    challenge: "text-violet-200/90",
-    steady: "text-cyan-200/90",
-    recover: "text-amber-200/90",
-    default: "text-slate-300/90",
+    challenge: 'text-violet-200/90',
+    steady: 'text-cyan-200/90',
+    recover: 'text-amber-200/90',
+    default: 'text-slate-300/90',
   };
   const adaptiveRecommendationClass =
     adaptiveRecommendationTone[latestAdaptiveState] ||
@@ -502,9 +493,9 @@ function ProfilePage() {
   // Helper to calculate session accuracy for the table and trends.
   const getSessionAccuracy = (session) => {
     if (
-      typeof session.puzzlesAttempted === "number" &&
+      typeof session.puzzlesAttempted === 'number' &&
       session.puzzlesAttempted > 0 &&
-      typeof session.puzzlesCorrect === "number"
+      typeof session.puzzlesCorrect === 'number'
     ) {
       return Math.round(
         (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
@@ -517,11 +508,11 @@ function ProfilePage() {
   const canSavePlayerName =
     normalizedNameInput.length > 0 && normalizedNameInput !== playerName;
 
-  const currentRank = sessions.length > 0 ? "Active" : "Unranked";
+  const currentRank = sessions.length > 0 ? 'Active' : 'Unranked';
 
   const handleResetData = () => {
     const confirmed = window.confirm(
-      "Clear all TakeNeuroIQ session history and leaderboard data?",
+      'Clear all TakeNeuroIQ session history and leaderboard data?',
     );
 
     if (!confirmed) return;
@@ -538,7 +529,7 @@ function ProfilePage() {
     setNameSaved(true);
   };
   const handlePlayerNameKeyDown = (event) => {
-    if (event.key !== "Enter") return;
+    if (event.key !== 'Enter') return;
 
     event.preventDefault();
 
@@ -633,8 +624,8 @@ function ProfilePage() {
                       disabled={!canSavePlayerName}
                       className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                         canSavePlayerName
-                          ? "border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200"
-                          : "cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500"
+                          ? 'border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200'
+                          : 'cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500'
                       }`}
                     >
                       Save Name
@@ -804,12 +795,12 @@ function ProfilePage() {
                     <PolarGrid stroke="rgba(148, 163, 184, 0.25)" />
                     <PolarAngleAxis
                       dataKey="skill"
-                      tick={{ fill: "#cbd5e1", fontSize: 12 }}
+                      tick={{ fill: '#cbd5e1', fontSize: 12 }}
                     />
                     <PolarRadiusAxis
                       angle={30}
                       domain={[0, 100]}
-                      tick={{ fill: "#64748b", fontSize: 10 }}
+                      tick={{ fill: '#64748b', fontSize: 10 }}
                     />
                     <Radar
                       name="Cognitive Profile"
@@ -900,13 +891,13 @@ function ProfilePage() {
                     <div className="space-y-3 p-3 md:hidden">
                       {recentSessionsDisplay.map((session, index) => {
                         const adaptiveStateKey =
-                          session.liveAdaptiveDifficulty?.state ?? "steady";
+                          session.liveAdaptiveDifficulty?.state ?? 'steady';
                         const adaptiveStateLabel =
                           adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
-                          "Stable Load";
+                          'Stable Load';
                         const adaptiveStateColor =
                           adaptiveStateHistoryColorMap[adaptiveStateKey] ??
-                          "text-cyan-300";
+                          'text-cyan-300';
 
                         return (
                           <div
@@ -916,7 +907,7 @@ function ProfilePage() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="font-semibold text-white">
-                                  {session.mode || "Pattern Rush"}
+                                  {session.mode || 'Pattern Rush'}
                                 </p>
                                 <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
                                   {formatSessionTime(session.timestamp)}
@@ -1005,13 +996,13 @@ function ProfilePage() {
 
                       {recentSessionsDisplay.map((session, index) => {
                         const adaptiveStateKey =
-                          session.liveAdaptiveDifficulty?.state ?? "steady";
+                          session.liveAdaptiveDifficulty?.state ?? 'steady';
                         const adaptiveStateLabel =
                           adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
-                          "Stable Load";
+                          'Stable Load';
                         const adaptiveStateColor =
                           adaptiveStateHistoryColorMap[adaptiveStateKey] ??
-                          "text-cyan-300";
+                          'text-cyan-300';
 
                         return (
                           <div
@@ -1019,7 +1010,7 @@ function ProfilePage() {
                             className={`grid min-w-[56rem] ${recentSessionsGridColumns} group items-center gap-x-4 border-t border-slate-800/50 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-cyan-400/[0.03]`}
                           >
                             <span className="truncate font-bold text-white transition-colors group-hover:text-cyan-400">
-                              {session.mode || "Pattern Rush"}
+                              {session.mode || 'Pattern Rush'}
                             </span>
                             <span className="text-center font-mono text-cyan-100/80 tabular-nums">
                               {session.score ?? 0}
@@ -1081,133 +1072,178 @@ function ProfilePage() {
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 min-[1800px]:grid-cols-4">
-              <div className="rounded-3xl border border-emerald-400/60 bg-slate-900/80 p-5 backdrop-blur-md shadow-[0_0_32px_rgba(16,185,129,0.25)] ring-1 ring-emerald-400/20">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-3xl border border-emerald-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(16,185,129,0.32)] ring-1 ring-emerald-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(16,185,129,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
                     icon={faChartLine}
-                    className="text-emerald-200 drop-shadow-[0_0_18px_rgba(16,185,129,0.8)]"
+                    className="text-emerald-100 drop-shadow-[0_0_18px_rgba(16,185,129,0.9)]"
                   />
                   Progression
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {neuralTrendLabel}
-                </p>
+                <div className="mt-3 space-y-2">
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-emerald-200/95">
+                    Neural Trend
+                  </p>
+                  <p className="text-xl font-extrabold tracking-tight text-emerald-100 drop-shadow-[0_0_16px_rgba(16,185,129,0.85)]">
+                    {neuralTrendLabel}
+                  </p>
+                  <p className="text-sm leading-6 text-emerald-100/90">
+                    Strength and rhythm remain calibrated for consistent
+                    progression.
+                  </p>
+                </div>
               </div>
 
-              <div className="rounded-3xl border border-cyan-400/60 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_32px_rgba(14,165,233,0.25)] ring-1 ring-cyan-400/20">
+                <div className="rounded-3xl border border-cyan-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(14,165,233,0.32)] ring-1 ring-cyan-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(14,165,233,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
                     icon={faLayerGroup}
-                    className="text-cyan-200 drop-shadow-[0_0_18px_rgba(14,165,233,0.8)]"
+                    className="text-cyan-100 drop-shadow-[0_0_18px_rgba(14,165,233,0.9)]"
                   />
                   Adaptive Layer
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {adaptiveDifficultyDetail}
-                </p>
-                {typeof adaptiveDifficulty?.recentSampleSize === "number" && (
-                  <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
-                    {adaptiveDifficulty.recentSampleSize > 0
-                      ? `Based on last ${adaptiveDifficulty.recentSampleSize} adaptive session${
-                          adaptiveDifficulty.recentSampleSize === 1 ? "" : "s"
-                        }`
-                      : "No adaptive session history yet"}
+                <div className="mt-3 space-y-2">
+                  <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-200/95">
+                    Mode Signal
                   </p>
-                )}
+                  <p className="text-xl font-extrabold tracking-tight text-cyan-100 drop-shadow-[0_0_16px_rgba(14,165,233,0.9)]">
+                    {adaptiveDifficulty.label || "Steady Mode"}
+                  </p>
+                  {typeof adaptiveDifficulty?.recentSampleSize === 'number' && (
+                    <p className="text-xs uppercase tracking-[0.18em] text-cyan-100/85">
+                      {adaptiveDifficulty.recentSampleSize > 0
+                        ? `Based on last ${adaptiveDifficulty.recentSampleSize} adaptive session${
+                            adaptiveDifficulty.recentSampleSize === 1 ? '' : 's'
+                          }`
+                        : 'No adaptive session history yet'}
+                    </p>
+                  )}
+                  <p className="text-sm leading-6 text-cyan-100/90">
+                    {adaptiveDifficultyDetail}
+                  </p>
+                </div>
               </div>
 
-              <div className="rounded-3xl border border-fuchsia-400/60 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_32px_rgba(236,72,153,0.3)] ring-1 ring-fuchsia-400/20">
+                <div className="rounded-3xl border border-fuchsia-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(236,72,153,0.35)] ring-1 ring-fuchsia-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(236,72,153,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon icon={faBolt} className="text-fuchsia-200 drop-shadow-[0_0_18px_rgba(236,72,153,0.8)]" />
+                  <FontAwesomeIcon
+                    icon={faBolt}
+                    className="text-fuchsia-100 drop-shadow-[0_0_18px_rgba(236,72,153,0.95)]"
+                  />
                   Momentum
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {pressureStateDetail}
-                </p>
+                <div className="mt-3 space-y-2">
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-fuchsia-200/95">
+                    Pressure State
+                  </p>
+                  <p className="text-xl font-extrabold tracking-tight text-fuchsia-100 drop-shadow-[0_0_16px_rgba(236,72,153,0.9)]">
+                    {pressureState.label || "Stable Load"}
+                  </p>
+                  <p className="text-sm leading-6 text-fuchsia-100/90">
+                    {pressureState.detail ?? 'Keep balancing accuracy while chasing momentum.'}
+                  </p>
+                </div>
+              </div>
               </div>
 
-              <div className="rounded-3xl border border-violet-400/50 bg-slate-900/80 p-5 backdrop-blur-md shadow-[0_0_40px_rgba(129,140,248,0.25)] ring-1 ring-white/10">
+              <div className="rounded-3xl border border-violet-300/80 bg-slate-900/78 p-5 backdrop-blur-md shadow-[0_0_50px_rgba(129,140,248,0.32)] ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_56px_rgba(129,140,248,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon icon={faBrain} className="text-violet-200 drop-shadow-[0_0_18px_rgba(129,140,248,0.85)]" />
+                  <FontAwesomeIcon
+                    icon={faBrain}
+                    className="text-violet-100 drop-shadow-[0_0_18px_rgba(129,140,248,0.95)]"
+                  />
                   Cognitive Identity
                 </h2>
 
                 <div className="mt-3 space-y-4">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <div className="space-y-1">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-violet-200/95">
                       All-Time Identity
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-violet-300">
+                    <p className="mt-1 text-sm font-semibold text-violet-100 tracking-tight">
                       {formatCognitiveIdentityLabel(
                         cognitiveIdentitySummary.dominantIdentity?.label,
-                      ) || "Not enough data yet"}
+                      ) || 'Not enough data yet'}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                    <p className="mt-2 text-sm leading-6 text-violet-100/90">
                       {cognitiveIdentitySummary.dominantIdentity?.description ||
-                        "Complete more sessions to establish your dominant training identity."}
+                        'Complete more sessions to establish your dominant training identity.'}
                     </p>
 
                     {cognitiveIdentitySummary.dominantIdentity && (
-                      <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
-                        {cognitiveIdentitySummary.dominantIdentity.count} classified session
-                        {cognitiveIdentitySummary.dominantIdentity.count === 1 ? "" : "s"}
+                      <p className="mt-3 text-xs uppercase tracking-[0.24em] text-violet-200/95">
+                        {cognitiveIdentitySummary.dominantIdentity.count}{' '}
+                        classified session
+                        {cognitiveIdentitySummary.dominantIdentity.count === 1
+                          ? ''
+                          : 's'}
                       </p>
                     )}
                   </div>
 
-                  <div className="border-t border-white/15 pt-4">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <div className="border-t border-white/15 pt-5 space-y-1">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/95">
                       Recent Trend
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-cyan-300">
-                      {recentTrendLabel || "No recent trend yet"}
+                    <p className="mt-1 text-sm font-semibold text-cyan-100 tracking-tight">
+                      {recentTrendLabel || 'No recent trend yet'}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                    <p className="mt-2 text-sm leading-6 text-cyan-100/90">
                       {!recentTrendLabel
-                        ? "Complete a few more sessions to detect a recent training trend."
+                        ? 'Complete a few more sessions to detect a recent training trend.'
                         : isRecentTrendSameAsAllTime
-                          ? "Recent sessions are reinforcing your established all-time identity."
+                          ? 'Recent sessions are reinforcing your established all-time identity.'
                           : recentTrendDescription ||
-                            "Complete a few more sessions to detect a recent training trend."}
+                            'Complete a few more sessions to detect a recent training trend.'}
                     </p>
 
-                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">
-                      {recentCognitiveIdentitySummary.totalClassifiedSessions > 0
+                    <p className="mt-3 text-xs uppercase tracking-[0.24em] text-cyan-200/95">
+                      {recentCognitiveIdentitySummary.totalClassifiedSessions >
+                      0
                         ? `Based on last ${recentCognitiveIdentitySummary.totalClassifiedSessions} classified session${
-                            recentCognitiveIdentitySummary.totalClassifiedSessions === 1 ? "" : "s"
+                            recentCognitiveIdentitySummary.totalClassifiedSessions ===
+                            1
+                              ? ''
+                              : 's'
                           }`
-                        : "No recent classified identity data yet"}
+                        : 'No recent classified identity data yet'}
                     </p>
                   </div>
 
-                  <div className="border-t border-white/15 pt-4">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <div className="border-t border-white/15 pt-5 space-y-1">
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/95">
                       Identity Shift
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-cyan-300">
-                      {cognitiveIdentitySummary.identityShift?.label || "Not enough data"}
+                    <p className="mt-1 text-sm font-semibold text-cyan-100 tracking-tight">
+                      {cognitiveIdentitySummary.identityShift?.label ||
+                        'Not enough data'}
                     </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                    <p className="mt-2 text-sm leading-6 text-cyan-100/90">
                       {cognitiveIdentitySummary.identityShift?.description ||
-                        "Complete more classified sessions to detect an identity shift."}
+                        'Complete more classified sessions to detect an identity shift.'}
                     </p>
                   </div>
 
-                  {cognitiveIdentitySummary.recentIdentitySession?.cognitiveIdentity?.primarySignal && (
-                      <div className="border-t border-white/15 pt-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  {cognitiveIdentitySummary.recentIdentitySession
+                    ?.cognitiveIdentity?.primarySignal && (
+                    <div className="border-t border-white/15 pt-5 space-y-1">
+                      <p className="text-[11px] uppercase tracking-[0.24em] text-slate-200/90">
                         Recent Primary Signal
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-cyan-200">
-                        {cognitiveIdentitySummary.recentIdentitySession.cognitiveIdentity.primarySignal}
+                      <p className="mt-2 text-sm leading-6 text-cyan-100 font-semibold tracking-tight">
+                        {
+                          cognitiveIdentitySummary.recentIdentitySession
+                            .cognitiveIdentity.primarySignal
+                        }
                       </p>
                     </div>
                   )}
 
                   {recentTrainingDirection && (
-                    <div className="border-t border-white/10 pt-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                    <div className="border-t border-white/15 pt-5 space-y-1">
+                      <p className="text-[11px] uppercase tracking-[0.24em] text-slate-200/90">
                         Recent Training Direction
                       </p>
 

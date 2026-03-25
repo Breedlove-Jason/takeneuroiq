@@ -1,4 +1,4 @@
-import { classifyCognitiveIdentity } from "./cognitiveIdentity";
+import { classifyCognitiveIdentity } from './cognitiveIdentity';
 
 export function summarizeCognitiveIdentity(sessions = []) {
   if (!Array.isArray(sessions) || sessions.length === 0) {
@@ -8,9 +8,10 @@ export function summarizeCognitiveIdentity(sessions = []) {
       totalClassifiedSessions: 0,
       recentIdentitySession: null,
       identityShift: {
-        key: "insufficient_data",
-        label: "Not enough data",
-        description: "Complete more classified sessions to detect an identity shift.",
+        key: 'insufficient_data',
+        label: 'Not enough data',
+        description:
+          'Complete more classified sessions to detect an identity shift.',
       },
     };
   }
@@ -21,11 +22,11 @@ export function summarizeCognitiveIdentity(sessions = []) {
     let identity = session?.cognitiveIdentity;
 
     const rawLabel =
-      typeof identity?.label === "string" ? identity.label.trim() : "";
+      typeof identity?.label === 'string' ? identity.label.trim() : '';
     const hasValidLabel =
       rawLabel &&
-      rawLabel.toLowerCase() !== "unknown" &&
-      rawLabel.toLowerCase() !== "unclassified";
+      rawLabel.toLowerCase() !== 'unknown' &&
+      rawLabel.toLowerCase() !== 'unclassified';
 
     if (!identity?.identityKey || !hasValidLabel || !identity?.description) {
       identity = classifyCognitiveIdentity(session);
@@ -65,12 +66,17 @@ export function summarizeCognitiveIdentity(sessions = []) {
     (a, b) => b.count - a.count,
   );
 
-  const recentIdentitySession = [...sessions]
-    .reverse()
-    .find((session) => session?.cognitiveIdentity?.identityKey) ?? null;
+  const recentIdentitySession =
+    [...sessions]
+      .reverse()
+      .find((session) => session?.cognitiveIdentity?.identityKey) ?? null;
 
   const recentClassifiedIdentities = [];
-  for (let index = sessions.length - 1; index >= 0 && recentClassifiedIdentities.length < 5; index -= 1) {
+  for (
+    let index = sessions.length - 1;
+    index >= 0 && recentClassifiedIdentities.length < 5;
+    index -= 1
+  ) {
     const identity = getClassifiedIdentity(sessions[index]);
     if (identity) {
       recentClassifiedIdentities.push(identity);
@@ -97,9 +103,10 @@ export function summarizeCognitiveIdentity(sessions = []) {
   const identityShift = (() => {
     if (!identityList[0] || !recentDominantIdentity) {
       return {
-        key: "insufficient_data",
-        label: "Not enough data",
-        description: "Complete more classified sessions to detect an identity shift.",
+        key: 'insufficient_data',
+        label: 'Not enough data',
+        description:
+          'Complete more classified sessions to detect an identity shift.',
       };
     }
 
@@ -108,40 +115,44 @@ export function summarizeCognitiveIdentity(sessions = []) {
 
     if (allTimeKey === recentKey) {
       return {
-        key: "stable",
-        label: "Stable",
-        description: "Your recent training pattern is consistent with your longer-term identity.",
+        key: 'stable',
+        label: 'Stable',
+        description:
+          'Your recent training pattern is consistent with your longer-term identity.',
       };
     }
 
-    if (recentKey === "climber") {
+    if (recentKey === 'climber') {
       return {
-        key: "climbing",
-        label: "Climbing",
-        description: "Your recent sessions suggest more upward challenge tolerance than your longer-term pattern.",
+        key: 'climbing',
+        label: 'Climbing',
+        description:
+          'Your recent sessions suggest more upward challenge tolerance than your longer-term pattern.',
       };
     }
 
-    if (recentKey === "recovery_builder") {
+    if (recentKey === 'recovery_builder') {
       return {
-        key: "recovery",
-        label: "Recovery Trend",
-        description: "Your recent sessions suggest stabilization or recalibration compared with your longer-term pattern.",
+        key: 'recovery',
+        label: 'Recovery Trend',
+        description:
+          'Your recent sessions suggest stabilization or recalibration compared with your longer-term pattern.',
       };
     }
 
-    if (recentKey === "overreacher") {
+    if (recentKey === 'overreacher') {
       return {
-        key: "volatile",
-        label: "Volatile",
-        description: "Your recent sessions show more instability than your longer-term pattern.",
+        key: 'volatile',
+        label: 'Volatile',
+        description:
+          'Your recent sessions show more instability than your longer-term pattern.',
       };
     }
 
     return {
-      key: "shifting",
-      label: "Shifting",
-      description: "Your recent sessions suggest an evolving training pattern.",
+      key: 'shifting',
+      label: 'Shifting',
+      description: 'Your recent sessions suggest an evolving training pattern.',
     };
   })();
 
