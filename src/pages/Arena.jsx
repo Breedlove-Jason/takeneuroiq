@@ -173,6 +173,12 @@ function Arena({ theme }) {
   const recommendedOpeningDifficulty =
     recommendedDifficultyLabels[initialTargetDifficulty] || 'MEDIUM';
 
+  const routePuzzleType = location.state?.puzzleType;
+  const initialPuzzleType =
+    Object.values(PUZZLE_TYPES).includes(routePuzzleType)
+      ? routePuzzleType
+      : DEFAULT_PUZZLE_TYPE;
+
   const recommendedSessionReason =
     recommendedSessionReasonMap[recommendedSession?.adaptiveState] ||
     recommendedSessionReasonMap.default;
@@ -183,14 +189,14 @@ function Arena({ theme }) {
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
   const initialPuzzle = useMemo(() => {
-    if (DEFAULT_PUZZLE_TYPE === PUZZLE_TYPES.SEQUENCE_SPRINT) {
+    if (initialPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       return getRandomSequenceSprintPuzzle(initialTargetDifficulty);
     }
     return getRandomPuzzle(initialTargetDifficulty);
-  }, [initialTargetDifficulty]);
+  }, [initialTargetDifficulty, initialPuzzleType]);
 
   // Core game state
-  const [activePuzzleType, setActivePuzzleType] = useState(DEFAULT_PUZZLE_TYPE);
+  const [activePuzzleType, setActivePuzzleType] = useState(initialPuzzleType);
   const [currentPuzzle, setCurrentPuzzle] = useState(initialPuzzle);
   const [sequenceSprintPuzzle, setSequenceSprintPuzzle] = useState(() =>
     getRandomSequenceSprintPuzzle(initialTargetDifficulty),
@@ -256,14 +262,6 @@ function Arena({ theme }) {
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
     'Stay consistent and keep building momentum.';
 
-  const getDevPuzzleTypeButtonClasses = (type) => {
-    const base =
-      'rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] transition-colors duration-200';
-    if (activePuzzleType === type) {
-      return `${base} ${isCyber ? 'border-cyan-400/80 bg-cyan-400 text-slate-950 shadow-[0_0_12px_rgba(34,211,238,0.35)]' : 'border-cyan-500 bg-cyan-600 text-white shadow-[0_0_12px_rgba(34,211,238,0.25)]'}`;
-    }
-    return `${base} ${isCyber ? 'border-white/15 bg-white/5 text-cyan-200/80 hover:border-cyan-400/70 hover:bg-cyan-400/10 hover:text-white' : 'border-slate-200 bg-slate-100 text-slate-600 hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-700'}`;
-  };
 
   const isRecommendedSessionAligned =
     Boolean(recommendedSession?.adaptiveState) &&
@@ -500,24 +498,6 @@ function Arena({ theme }) {
     setPuzzlesSeen((prev) => prev + 1);
   }
 
-  function handleChangePuzzleType(nextPuzzleType) {
-    if (nextPuzzleType === activePuzzleType) {
-      return;
-    }
-
-    const difficulty =
-      currentPuzzleDifficulty || liveAdaptiveDifficulty.targetDifficulty || 'medium';
-    const nextPuzzle = getNextPuzzleByType(nextPuzzleType, difficulty);
-
-    setActivePuzzleType(nextPuzzleType);
-    setSequenceSprintSelectedAnswer(null);
-    if (nextPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
-      setSequenceSprintPuzzle(nextPuzzle);
-    } else {
-      setCurrentPuzzle(nextPuzzle);
-    }
-    setPuzzlesSeen((prev) => prev + 1);
-  }
   function processAnswerResult({
     isCorrect,
     nextTotalAnswers,
@@ -878,30 +858,6 @@ function Arena({ theme }) {
               >
                 Solo Arena
               </div>
-            </div>
-          </div>
-
-          <div
-            className={`mt-4 flex items-center justify-between rounded-2xl border px-4 py-3 text-xs uppercase tracking-[0.35em] ${isCyber ? 'border-white/10 bg-slate-900/60 text-cyan-200' : 'border-slate-200 bg-slate-50 text-slate-600'} shadow-[0_10px_30px_rgba(0,0,0,0.12)]`}
-          >
-            <span className={`${isCyber ? 'text-cyan-200/80' : 'text-slate-500'}`}>
-              Dev Puzzle Type
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleChangePuzzleType(PUZZLE_TYPES.PATTERN_RUSH)}
-                className={getDevPuzzleTypeButtonClasses(PUZZLE_TYPES.PATTERN_RUSH)}
-              >
-                Pattern Rush
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangePuzzleType(PUZZLE_TYPES.SEQUENCE_SPRINT)}
-                className={getDevPuzzleTypeButtonClasses(PUZZLE_TYPES.SEQUENCE_SPRINT)}
-              >
-                Sequence Sprint
-              </button>
             </div>
           </div>
 

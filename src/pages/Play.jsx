@@ -2,9 +2,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import {
-  faShapes,
-  faScaleBalanced,
-  faBrain,
+  faWaveSquare,
+  faArrowTrendUp,
+  faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -22,43 +22,106 @@ function Play({ theme }) {
 
   const challenges = [
     {
-      icon: faShapes,
+      icon: faWaveSquare,
+      puzzleType: 'pattern_rush',
       title: 'Pattern Rush',
       description:
         'Spot sequences, decode visual patterns, and react fast under pressure.',
-      buttonText: 'Enter Pattern Rush',
+      buttonText: 'Launch Pattern Rush',
+      skills: ['Pattern Recognition', 'Visual Processing'],
+      cardTone: {
+        cyber:
+          'border-cyan-300/35 bg-[linear-gradient(160deg,rgba(34,211,238,0.18)_0%,rgba(8,16,30,0.88)_45%,rgba(4,9,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.22)] hover:border-cyan-300/75 hover:shadow-[0_0_50px_rgba(34,211,238,0.32)]',
+        light:
+          'border-cyan-300 bg-[linear-gradient(155deg,rgba(236,254,255,0.95)_0%,rgba(255,255,255,1)_55%,rgba(240,249,255,0.9)_100%)] shadow-[0_14px_32px_rgba(8,145,178,0.14)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(8,145,178,0.2)]',
+      },
+      iconTone: {
+        cyber:
+          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.55)]',
+        light: 'text-cyan-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-cyan-300 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:bg-cyan-200 hover:shadow-[0_0_34px_rgba(34,211,238,0.56)]',
+        light: 'bg-cyan-600 text-white hover:bg-cyan-500 shadow-sm',
+      },
+      tagTone: {
+        cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
+        light: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+      },
     },
     {
-      icon: faScaleBalanced,
-      title: 'Logic Duel',
+      icon: faArrowTrendUp,
+      puzzleType: 'sequence_sprint',
+      title: 'Sequence Sprint',
       description:
-        'Face reasoning-based puzzles built to test deduction, structure, and mental agility.',
-      buttonText: 'Enter Logic Duel',
+        'Read number patterns, predict what comes next, and respond under pressure.',
+      buttonText: 'Launch Sequence Sprint',
+      skills: ['Working Memory', 'Predictive Reasoning'],
+      cardTone: {
+        cyber:
+          'border-violet-300/35 bg-[linear-gradient(160deg,rgba(168,85,247,0.16)_0%,rgba(14,12,30,0.9)_48%,rgba(7,9,20,0.96)_100%)] shadow-[0_0_34px_rgba(168,85,247,0.2)] hover:border-violet-300/75 hover:shadow-[0_0_50px_rgba(168,85,247,0.32)]',
+        light:
+          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(250,245,255,0.9)_100%)] shadow-[0_14px_32px_rgba(124,58,237,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(124,58,237,0.2)]',
+      },
+      iconTone: {
+        cyber:
+          'text-violet-300 drop-shadow-[0_0_18px_rgba(168,85,247,0.58)]',
+        light: 'text-violet-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-[linear-gradient(90deg,rgba(167,139,250,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(167,139,250,0.4)] hover:brightness-110 hover:shadow-[0_0_36px_rgba(167,139,250,0.54)]',
+        light:
+          'bg-[linear-gradient(90deg,rgba(124,58,237,0.95)_0%,rgba(14,165,233,0.95)_100%)] text-white hover:brightness-110 shadow-sm',
+      },
+      tagTone: {
+        cyber: 'border-violet-300/30 bg-violet-400/10 text-violet-200',
+        light: 'border-violet-200 bg-violet-50 text-violet-700',
+      },
     },
     {
-      icon: faBrain,
+      icon: faShieldHalved,
       title: 'Memory Blitz',
       description:
         'Train recall speed and focus through short, intense memory-driven challenge rounds.',
-      buttonText: 'Enter Memory Blitz',
+      buttonText: 'Coming Soon',
+      cardTone: {
+        cyber:
+          'border-amber-300/20 bg-[linear-gradient(160deg,rgba(217,119,6,0.1)_0%,rgba(16,11,22,0.86)_50%,rgba(8,9,18,0.96)_100%)] shadow-[0_0_24px_rgba(217,119,6,0.14)] hover:border-amber-300/35',
+        light:
+          'border-amber-200 bg-[linear-gradient(155deg,rgba(255,251,235,0.92)_0%,rgba(255,255,255,1)_58%,rgba(255,247,237,0.86)_100%)] shadow-[0_12px_24px_rgba(217,119,6,0.12)] hover:border-amber-300',
+      },
+      iconTone: {
+        cyber:
+          'text-amber-300/80 drop-shadow-[0_0_14px_rgba(245,158,11,0.32)]',
+        light: 'text-amber-600',
+      },
     },
   ];
 
   return (
     <section className="px-6 py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto max-w-3xl text-center">
+          {isCyber && (
+            <div className="pointer-events-none absolute inset-x-10 -bottom-6 -top-8 -z-10 rounded-full bg-cyan-400/10 blur-3xl" />
+          )}
           <p
             className={`text-sm font-semibold uppercase tracking-[0.25em] ${
-              isCyber ? 'text-cyan-400' : 'text-cyan-600'
+              isCyber
+                ? 'text-cyan-300 drop-shadow-[0_0_12px_rgba(34,211,238,0.45)]'
+                : 'text-cyan-600'
             }`}
           >
-            Play
+            Neural Challenge Console
           </p>
 
           <h1
             className={`mt-4 text-4xl font-bold md:text-5xl ${
-              isCyber ? 'text-white' : 'text-slate-900'
+              isCyber
+                ? 'bg-[linear-gradient(90deg,#e0f2fe_0%,#67e8f9_45%,#c4b5fd_100%)] bg-clip-text text-transparent'
+                : 'text-slate-900'
             }`}
           >
             Choose your challenge arena
@@ -78,18 +141,18 @@ function Play({ theme }) {
           {challenges.map((challenge) => (
             <div
               key={challenge.title}
-              className={`rounded-2xl border p-8 backdrop-blur-sm transition ${
+              className={`group flex h-full flex-col rounded-2xl border p-8 backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 ${
                 isCyber
-                  ? 'border-cyan-400/10 bg-white/5 shadow-[0_0_30px_rgba(0,0,0,0.18)] hover:border-cyan-400/30'
-                  : 'border-slate-200 bg-white shadow-sm hover:border-cyan-300'
+                  ? challenge.cardTone.cyber
+                  : challenge.cardTone.light
               }`}
             >
               <div
-                className={`text-4xl ${
+                className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl border text-4xl transition-all duration-300 ${
                   isCyber
-                    ? 'text-cyan-400 drop-shadow-[0_0_16px_rgba(34,211,238,0.35)]'
-                    : 'text-cyan-600'
-                }`}
+                    ? 'border-white/15 bg-white/5 group-hover:scale-105'
+                    : 'border-slate-200 bg-white group-hover:scale-105'
+                } ${isCyber ? challenge.iconTone.cyber : challenge.iconTone.light}`}
               >
                 <FontAwesomeIcon icon={challenge.icon} />
               </div>
@@ -110,16 +173,50 @@ function Play({ theme }) {
                 {challenge.description}
               </p>
 
-              <Link
-                to="/arena"
-                className={`mt-6 inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold transition ${
-                  theme === 'cyber'
-                    ? 'bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.25)]'
-                    : 'bg-cyan-600 text-white hover:bg-cyan-500'
-                }`}
-              >
-                Launch Pattern Rush
-              </Link>
+              {challenge.skills && (
+                <div className="mt-5 flex flex-nowrap gap-2 overflow-x-auto pb-1">
+                  {challenge.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                        isCyber ? challenge.tagTone.cyber : challenge.tagTone.light
+                      }`}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {challenge.puzzleType ? (
+                <div className="mt-auto pt-[5px]">
+                  <Link
+                    to="/arena"
+                    state={{ puzzleType: challenge.puzzleType }}
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3 font-semibold transition-all duration-300 ${
+                      theme === 'cyber'
+                        ? challenge.buttonTone.cyber
+                        : challenge.buttonTone.light
+                    }`}
+                  >
+                    {challenge.buttonText}
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-auto pt-[5px]">
+                  <button
+                    type="button"
+                    disabled
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3 font-semibold transition-all duration-300 ${
+                      theme === 'cyber'
+                        ? 'cursor-not-allowed border border-amber-300/25 bg-amber-300/10 text-amber-200'
+                        : 'border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Coming Soon
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
