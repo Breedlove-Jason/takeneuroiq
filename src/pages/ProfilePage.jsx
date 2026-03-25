@@ -147,6 +147,39 @@ function ProfilePage() {
   );
   const recentTrendDescription =
     recentCognitiveIdentitySummary.dominantIdentity?.description;
+  const recentTrainingDirection = useMemo(() => {
+    const latestSession = [...sessions]
+      .reverse()
+      .find((session) => session?.sessionOutcome || session?.liveAdaptiveDifficulty);
+
+    const explicitDirection =
+      latestSession?.sessionOutcome?.trainingDirection?.trim().toLowerCase();
+    if (explicitDirection) {
+      if (explicitDirection.includes("push")) return "Push";
+      if (explicitDirection.includes("recover")) return "Recover";
+      if (explicitDirection.includes("hold")) return "Hold";
+    }
+
+    const recommendedDifficulty =
+      latestSession?.sessionOutcome?.nextRecommendedDifficulty ||
+      latestSession?.liveAdaptiveDifficulty?.targetDifficulty;
+    if (recommendedDifficulty === "hard") return "Push";
+    if (recommendedDifficulty === "medium") return "Hold";
+    if (recommendedDifficulty === "easy") return "Recover";
+
+    const adaptiveState = latestSession?.liveAdaptiveDifficulty?.state;
+    if (adaptiveState === "challenge") return "Push";
+    if (adaptiveState === "steady") return "Hold";
+    if (adaptiveState === "recover") return "Recover";
+
+    return null;
+  }, [sessions]);
+  const recentTrainingDirectionBadgeClass =
+    recentTrainingDirection === "Push"
+      ? "border border-fuchsia-400/45 bg-fuchsia-500/20 text-fuchsia-100 shadow-[0_0_18px_rgba(217,70,239,0.45)] ring-1 ring-fuchsia-400/35"
+      : recentTrainingDirection === "Recover"
+        ? "border border-amber-400/45 bg-amber-500/20 text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.42)] ring-1 ring-amber-400/35"
+        : "border border-cyan-400/45 bg-cyan-500/20 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.45)] ring-1 ring-cyan-400/35";
   const analytics = buildSessionAnalytics(sessions) ?? {};
 
   const getIdentityDisplayLabel = (cognitiveIdentity) => {
@@ -1049,11 +1082,11 @@ function ProfilePage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 min-[1800px]:grid-cols-4">
-              <div className="rounded-3xl border border-emerald-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+              <div className="rounded-3xl border border-emerald-400/60 bg-slate-900/80 p-5 backdrop-blur-md shadow-[0_0_32px_rgba(16,185,129,0.25)] ring-1 ring-emerald-400/20">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
                     icon={faChartLine}
-                    className="text-emerald-300"
+                    className="text-emerald-200 drop-shadow-[0_0_18px_rgba(16,185,129,0.8)]"
                   />
                   Progression
                 </h2>
@@ -1062,11 +1095,11 @@ function ProfilePage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+              <div className="rounded-3xl border border-cyan-400/60 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_32px_rgba(14,165,233,0.25)] ring-1 ring-cyan-400/20">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
                     icon={faLayerGroup}
-                    className="text-cyan-300"
+                    className="text-cyan-200 drop-shadow-[0_0_18px_rgba(14,165,233,0.8)]"
                   />
                   Adaptive Layer
                 </h2>
@@ -1084,9 +1117,9 @@ function ProfilePage() {
                 )}
               </div>
 
-              <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+              <div className="rounded-3xl border border-fuchsia-400/60 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_32px_rgba(236,72,153,0.3)] ring-1 ring-fuchsia-400/20">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon icon={faBolt} className="text-fuchsia-300" />
+                  <FontAwesomeIcon icon={faBolt} className="text-fuchsia-200 drop-shadow-[0_0_18px_rgba(236,72,153,0.8)]" />
                   Momentum
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-300">
@@ -1094,9 +1127,9 @@ function ProfilePage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-violet-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
+              <div className="rounded-3xl border border-violet-400/50 bg-slate-900/80 p-5 backdrop-blur-md shadow-[0_0_40px_rgba(129,140,248,0.25)] ring-1 ring-white/10">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon icon={faBrain} className="text-violet-300" />
+                  <FontAwesomeIcon icon={faBrain} className="text-violet-200 drop-shadow-[0_0_18px_rgba(129,140,248,0.85)]" />
                   Cognitive Identity
                 </h2>
 
@@ -1123,7 +1156,7 @@ function ProfilePage() {
                     )}
                   </div>
 
-                  <div className="border-t border-white/10 pt-4">
+                  <div className="border-t border-white/15 pt-4">
                     <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
                       Recent Trend
                     </p>
@@ -1148,7 +1181,7 @@ function ProfilePage() {
                     </p>
                   </div>
 
-                  <div className="border-t border-white/10 pt-4">
+                  <div className="border-t border-white/15 pt-4">
                     <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
                       Identity Shift
                     </p>
@@ -1162,13 +1195,29 @@ function ProfilePage() {
                   </div>
 
                   {cognitiveIdentitySummary.recentIdentitySession?.cognitiveIdentity?.primarySignal && (
-                    <div className="border-t border-white/10 pt-4">
+                      <div className="border-t border-white/15 pt-4">
                       <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
                         Recent Primary Signal
                       </p>
                       <p className="mt-2 text-sm leading-6 text-cyan-200">
                         {cognitiveIdentitySummary.recentIdentitySession.cognitiveIdentity.primarySignal}
                       </p>
+                    </div>
+                  )}
+
+                  {recentTrainingDirection && (
+                    <div className="border-t border-white/10 pt-4">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                        Recent Training Direction
+                      </p>
+
+                      <div className="mt-2">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${recentTrainingDirectionBadgeClass}`}
+                        >
+                          {recentTrainingDirection}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
