@@ -1,21 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import PuzzleShape from '../components/PuzzleShape';
-import patternPuzzles from '../game/patternPuzzles';
+import SequenceSprintPuzzle from '../components/SequenceSprintPuzzle';
 import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
+import { getRandomSequenceSprintPuzzle } from '../game/sequenceSprintPuzzles';
 import { recordSession } from '../game/sessionTracker';
 import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDifficulty.js';
 import { useLocation } from 'react-router-dom';
 import { evaluateSessionOutcome } from '../analytics/sessionOutcomeEvaluator';
 import { classifyCognitiveIdentity } from '../analytics/cognitiveIdentity';
-
-/**
- * Helper function to get a random index
- * @param {number} length - The length of the array
- * @returns {number} A random index within the array bounds
- */
-function getRandomIndex(length) {
-  return Math.floor(Math.random() * length);
-}
+import { PUZZLE_TYPES } from '../utils/puzzleTypeRegistry';
 
 /**
  * Arena Component
@@ -163,6 +156,9 @@ function getFeedbackBadgeClass(feedback, isCyber) {
     : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200';
 }
 
+// const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.PATTERN_RUSH;
+const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
+
 function Arena({ theme }) {
   // Navigation/session context
   const isCyber = theme === 'cyber';
@@ -187,11 +183,20 @@ function Arena({ theme }) {
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
   const initialPuzzle = useMemo(() => {
+    if (DEFAULT_PUZZLE_TYPE === PUZZLE_TYPES.SEQUENCE_SPRINT) {
+      return getRandomSequenceSprintPuzzle(initialTargetDifficulty);
+    }
     return getRandomPuzzle(initialTargetDifficulty);
   }, [initialTargetDifficulty]);
 
   // Core game state
+  const [activePuzzleType, setActivePuzzleType] = useState(DEFAULT_PUZZLE_TYPE);
   const [currentPuzzle, setCurrentPuzzle] = useState(initialPuzzle);
+  const [sequenceSprintPuzzle, setSequenceSprintPuzzle] = useState(() =>
+    getRandomSequenceSprintPuzzle(initialTargetDifficulty),
+  );
+  const [sequenceSprintSelectedAnswer, setSequenceSprintSelectedAnswer] =
+    useState(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
@@ -228,8 +233,12 @@ function Arena({ theme }) {
     liveAdaptiveDifficulty.targetDifficulty,
   );
   const hasRecordedSessionRef = useRef(false);
+  const activePuzzle =
+    activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+      ? sequenceSprintPuzzle
+      : currentPuzzle;
   const currentPuzzleDifficulty =
-    currentPuzzle?.difficulty || currentPuzzle?.difficultyBucket || 'medium';
+    activePuzzle?.difficulty || activePuzzle?.difficultyBucket || 'medium';
   const nextTargetDifficulty =
     liveAdaptiveDifficulty.targetDifficulty?.toUpperCase() || 'MEDIUM';
   const currentPuzzleDifficultyLabel = currentPuzzleDifficulty.toUpperCase();
@@ -246,6 +255,15 @@ function Arena({ theme }) {
   const adaptiveCoachingMessage =
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
     'Stay consistent and keep building momentum.';
+
+  const getDevPuzzleTypeButtonClasses = (type) => {
+    const base =
+      'rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] transition-colors duration-200';
+    if (activePuzzleType === type) {
+      return `${base} ${isCyber ? 'border-cyan-400/80 bg-cyan-400 text-slate-950 shadow-[0_0_12px_rgba(34,211,238,0.35)]' : 'border-cyan-500 bg-cyan-600 text-white shadow-[0_0_12px_rgba(34,211,238,0.25)]'}`;
+    }
+    return `${base} ${isCyber ? 'border-white/15 bg-white/5 text-cyan-200/80 hover:border-cyan-400/70 hover:bg-cyan-400/10 hover:text-white' : 'border-slate-200 bg-slate-100 text-slate-600 hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-700'}`;
+  };
 
   const isRecommendedSessionAligned =
     Boolean(recommendedSession?.adaptiveState) &&
@@ -275,6 +293,16 @@ function Arena({ theme }) {
         : streak >= 2
           ? 'shadow-[0_0_14px_rgba(34,211,238,0.08)]'
           : '';
+
+  function getNextPuzzleByType(puzzleType, difficulty) {
+    switch (puzzleType) {
+      case PUZZLE_TYPES.SEQUENCE_SPRINT:
+        return getRandomSequenceSprintPuzzle(difficulty);
+      case PUZZLE_TYPES.PATTERN_RUSH:
+      default:
+        return getRandomPuzzle(difficulty);
+    }
+  }
 
   function dismissRecommendedBanner() {
     if (!recommendedSession || isBannerHiding || !showRecommendedBanner) {
@@ -338,6 +366,8 @@ function Arena({ theme }) {
       isRecommendedSessionAligned,
       recommendedSessionAlignmentLabel,
       didBreakRecommendedAlignment,
+      puzzleType: activePuzzleType,
+      puzzleMetrics: {},
     };
 
     const outcomeTimer = setTimeout(() => {
@@ -352,6 +382,8 @@ function Arena({ theme }) {
         puzzlesCorrect: correctAnswers,
         recentAnswerHistory,
         liveAdaptiveDifficulty,
+        puzzleType: activePuzzleType,
+        puzzleMetrics: {},
       };
 
       const evaluatedOutcome = evaluateSessionOutcome(
@@ -384,6 +416,7 @@ function Arena({ theme }) {
     isRecommendedSessionAligned,
     recommendedSessionAlignmentLabel,
     didBreakRecommendedAlignment,
+    activePuzzleType,
   ]);
 
   useEffect(() => {
@@ -456,54 +489,46 @@ function Arena({ theme }) {
     resetGame(recommendedDifficulty);
   };
 
-  function loadNextPuzzle(currentId, preferredDifficulty = 'medium') {
-    const availablePuzzles = patternPuzzles.filter(
-      (puzzle) => puzzle.id !== currentId,
-    );
+  function loadNextPuzzle(preferredDifficulty = 'medium') {
+    const nextPuzzle = getNextPuzzleByType(activePuzzleType, preferredDifficulty);
+    if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
+      setSequenceSprintSelectedAnswer(null);
+      setSequenceSprintPuzzle(nextPuzzle);
+    } else {
+      setCurrentPuzzle(nextPuzzle);
+    }
+    setPuzzlesSeen((prev) => prev + 1);
+  }
 
-    if (availablePuzzles.length === 0) {
+  function handleChangePuzzleType(nextPuzzleType) {
+    if (nextPuzzleType === activePuzzleType) {
       return;
     }
 
-    const difficultyMatchedPuzzles = availablePuzzles.filter(
-      (puzzle) =>
-        (puzzle.difficulty || puzzle.difficultyBucket || 'medium') ===
-        preferredDifficulty,
-    );
+    const difficulty =
+      currentPuzzleDifficulty || liveAdaptiveDifficulty.targetDifficulty || 'medium';
+    const nextPuzzle = getNextPuzzleByType(nextPuzzleType, difficulty);
 
-    const puzzlePool =
-      difficultyMatchedPuzzles.length > 0
-        ? difficultyMatchedPuzzles
-        : availablePuzzles;
-
-    const nextPuzzle = puzzlePool[getRandomIndex(puzzlePool.length)];
-
-    setCurrentPuzzle(nextPuzzle);
+    setActivePuzzleType(nextPuzzleType);
+    setSequenceSprintSelectedAnswer(null);
+    if (nextPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
+      setSequenceSprintPuzzle(nextPuzzle);
+    } else {
+      setCurrentPuzzle(nextPuzzle);
+    }
     setPuzzlesSeen((prev) => prev + 1);
   }
-  function handleAnswer(selectedAnswer) {
-    if (gameOverRef.current || isTransitioningRef.current) return;
-    isTransitioningRef.current = true;
-    dismissRecommendedBanner();
-
-    const isCorrect = checkAnswer(currentPuzzle, selectedAnswer);
-
-    const nextTotalAnswers = totalAnswers + 1;
-    const nextCorrectAnswers = isCorrect ? correctAnswers + 1 : correctAnswers;
-    const nextStreak = isCorrect ? streak + 1 : 0;
-    const nextBestStreak = isCorrect
-      ? Math.max(bestStreak, nextStreak)
-      : bestStreak;
-
+  function processAnswerResult({
+    isCorrect,
+    nextTotalAnswers,
+    nextCorrectAnswers,
+    nextStreak,
+    nextBestStreak,
+    nextLiveAdaptiveDifficulty,
+    afterFeedback,
+    allowAfterFeedbackWhileGameOver = false,
+  }) {
     setTotalAnswers(nextTotalAnswers);
-
-    const nextLiveAdaptiveDifficulty = calculateLiveAdaptiveDifficulty({
-      puzzlesAttempted: nextTotalAnswers,
-      puzzlesCorrect: nextCorrectAnswers,
-      currentStreak: nextStreak,
-      averageReactionTime: 0,
-      recentAnswerHistory: [...recentAnswerHistory, isCorrect].slice(-5),
-    });
 
     const adaptiveFeedback = getAdaptiveFeedback(
       nextLiveAdaptiveDifficulty.state,
@@ -556,20 +581,69 @@ function Arena({ theme }) {
     }
     feedbackTimeoutRef.current = setTimeout(() => {
       setFeedback('');
-      if (!gameOverRef.current) {
-        loadNextPuzzle(
-          currentPuzzle.id,
-          nextLiveAdaptiveDifficulty.targetDifficulty,
-        );
+      if (allowAfterFeedbackWhileGameOver || !gameOverRef.current) {
+        afterFeedback?.(nextTarget);
       }
       isTransitioningRef.current = false;
     }, 700);
   }
+  function handleAnswer(selectedAnswer) {
+    if (gameOverRef.current || isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+    dismissRecommendedBanner();
 
-  function resetGame(nextDifficulty = initialTargetDifficulty) {
-    const newPuzzle = getRandomPuzzle(nextDifficulty);
+    if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
+      setSequenceSprintSelectedAnswer(selectedAnswer);
+    }
+
+    const isCorrect =
+      activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+        ? selectedAnswer === sequenceSprintPuzzle.answer
+        : checkAnswer(currentPuzzle, selectedAnswer);
+
+    const nextTotalAnswers = totalAnswers + 1;
+    const nextCorrectAnswers = isCorrect ? correctAnswers + 1 : correctAnswers;
+    const nextStreak = isCorrect ? streak + 1 : 0;
+    const nextBestStreak = isCorrect
+      ? Math.max(bestStreak, nextStreak)
+      : bestStreak;
+
+    const nextLiveAdaptiveDifficulty = calculateLiveAdaptiveDifficulty({
+      puzzlesAttempted: nextTotalAnswers,
+      puzzlesCorrect: nextCorrectAnswers,
+      currentStreak: nextStreak,
+      averageReactionTime: 0,
+      recentAnswerHistory: [...recentAnswerHistory, isCorrect].slice(-5),
+    });
+
+    processAnswerResult({
+      isCorrect,
+      nextTotalAnswers,
+      nextCorrectAnswers,
+      nextStreak,
+      nextBestStreak,
+      nextLiveAdaptiveDifficulty,
+      allowAfterFeedbackWhileGameOver:
+        activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT,
+      afterFeedback: (targetDifficulty) => {
+        loadNextPuzzle(targetDifficulty);
+      },
+    });
+  }
+
+  function resetGame(
+    nextDifficulty = initialTargetDifficulty,
+    nextPuzzleType = activePuzzleType,
+  ) {
+    setActivePuzzleType(nextPuzzleType);
+    const newPuzzle = getNextPuzzleByType(nextPuzzleType, nextDifficulty);
     hasRecordedSessionRef.current = false;
-    setCurrentPuzzle(newPuzzle);
+    if (nextPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
+      setSequenceSprintSelectedAnswer(null);
+      setSequenceSprintPuzzle(newPuzzle);
+    } else {
+      setCurrentPuzzle(newPuzzle);
+    }
     applyLiveAdaptiveDifficulty({
       state:
         Object.keys(adaptiveStateToDifficultyMap).find(
@@ -808,6 +882,30 @@ function Arena({ theme }) {
           </div>
 
           <div
+            className={`mt-4 flex items-center justify-between rounded-2xl border px-4 py-3 text-xs uppercase tracking-[0.35em] ${isCyber ? 'border-white/10 bg-slate-900/60 text-cyan-200' : 'border-slate-200 bg-slate-50 text-slate-600'} shadow-[0_10px_30px_rgba(0,0,0,0.12)]`}
+          >
+            <span className={`${isCyber ? 'text-cyan-200/80' : 'text-slate-500'}`}>
+              Dev Puzzle Type
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => handleChangePuzzleType(PUZZLE_TYPES.PATTERN_RUSH)}
+                className={getDevPuzzleTypeButtonClasses(PUZZLE_TYPES.PATTERN_RUSH)}
+              >
+                Pattern Rush
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangePuzzleType(PUZZLE_TYPES.SEQUENCE_SPRINT)}
+                className={getDevPuzzleTypeButtonClasses(PUZZLE_TYPES.SEQUENCE_SPRINT)}
+              >
+                Sequence Sprint
+              </button>
+            </div>
+          </div>
+
+          <div
             className={`mt-6 rounded-3xl border p-6 md:p-10 ${
               isCyber
                 ? 'border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]'
@@ -1027,7 +1125,9 @@ function Arena({ theme }) {
                         isCyber ? 'text-white' : 'text-slate-900'
                       }`}
                     >
-                      {currentPuzzle.title}
+                      {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+                        ? 'Sequence Sprint'
+                        : currentPuzzle.title}
                     </h2>
                   </div>
                 </div>
@@ -1055,62 +1155,74 @@ function Arena({ theme }) {
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
-                  <div
-                    className={`rounded-2xl border p-6 md:p-8 ${
-                      isCyber
-                        ? 'border-cyan-400/15 bg-[#0c1526]'
-                        : 'border-slate-200 bg-slate-50'
-                    }`}
-                  >
-                    <div className="grid grid-cols-3 gap-4 md:gap-5">
-                      {currentPuzzle.grid.map((item, index) => (
-                        <div
-                          key={`${item}-${index}`}
-                          className={`flex aspect-square items-center justify-center rounded-2xl border ${
-                            isCyber
-                              ? 'border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]'
-                              : 'border-slate-200 bg-white'
-                          }`}
-                        >
-                          <PuzzleShape shape={item} />
-                        </div>
-                      ))}
-                    </div>
+                {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ? (
+                  <div className="mt-6">
+                    <SequenceSprintPuzzle
+                      prompt={sequenceSprintPuzzle.prompt}
+                      sequence={sequenceSprintPuzzle.sequence}
+                      options={sequenceSprintPuzzle.options}
+                      selectedAnswer={sequenceSprintSelectedAnswer}
+                      onSelectAnswer={handleAnswer}
+                    />
                   </div>
-
-                  <div className="xl:sticky xl:top-6">
-                    <div className="grid content-start gap-4">
-                      {currentPuzzle.choices.map((choice) => (
-                        <button
-                          key={choice}
-                          onClick={() => handleAnswer(choice)}
-                          disabled={gameOver}
-                          className={`group rounded-2xl border px-5 py-4 text-left transition ${
-                            gameOver ? 'cursor-not-allowed opacity-50' : ''
-                          } ${
-                            isCyber
-                              ? 'border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]'
-                              : 'border-slate-200 bg-white text-slate-900 hover:border-cyan-300'
-                          }`}
-                        >
-                          <span
-                            className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                ) : (
+                  <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
+                    <div
+                      className={`rounded-2xl border p-6 md:p-8 ${
+                        isCyber
+                          ? 'border-cyan-400/15 bg-[#0c1526]'
+                          : 'border-slate-200 bg-slate-50'
+                      }`}
+                    >
+                      <div className="grid grid-cols-3 gap-4 md:gap-5">
+                        {currentPuzzle.grid.map((item, index) => (
+                          <div
+                            key={`${item}-${index}`}
+                            className={`flex aspect-square items-center justify-center rounded-2xl border ${
                               isCyber
-                                ? 'text-cyan-400 group-hover:text-fuchsia-300'
-                                : 'text-cyan-600'
+                                ? 'border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]'
+                                : 'border-slate-200 bg-white'
                             }`}
                           >
-                            Response
-                          </span>
-                          <div className="mt-3 flex items-center justify-center">
-                            <PuzzleShape shape={choice} />
+                            <PuzzleShape shape={item} />
                           </div>
-                        </button>
-                      ))}
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="xl:sticky xl:top-6">
+                      <div className="grid content-start gap-4">
+                        {currentPuzzle.choices.map((choice) => (
+                          <button
+                            key={choice}
+                            onClick={() => handleAnswer(choice)}
+                            disabled={gameOver}
+                            className={`group rounded-2xl border px-5 py-4 text-left transition ${
+                              gameOver ? 'cursor-not-allowed opacity-50' : ''
+                            } ${
+                              isCyber
+                                ? 'border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]'
+                                : 'border-slate-200 bg-white text-slate-900 hover:border-cyan-300'
+                            }`}
+                          >
+                            <span
+                              className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                                isCyber
+                                  ? 'text-cyan-400 group-hover:text-fuchsia-300'
+                                  : 'text-cyan-600'
+                              }`}
+                            >
+                              Response
+                            </span>
+                            <div className="mt-3 flex items-center justify-center">
+                              <PuzzleShape shape={choice} />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>

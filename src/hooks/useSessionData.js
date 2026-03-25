@@ -8,11 +8,15 @@ import {
 function normalizeSession(session) {
   const puzzlesAttempted = session.puzzlesAttempted ?? session.puzzlesSeen ?? 0;
   const puzzlesCorrect = session.puzzlesCorrect ?? session.correctAnswers ?? 0;
+  const puzzleType = session.puzzleType ?? 'pattern_rush';
+  const puzzleMetrics = session.puzzleMetrics ?? {};
 
   return {
     ...session,
     puzzlesAttempted,
     puzzlesCorrect,
+    puzzleType,
+    puzzleMetrics,
   };
 }
 
