@@ -28,6 +28,7 @@ import ProfileAnalytics, {
 } from '../components/ProfileAnalytics';
 import { buildSessionAnalytics } from '../analytics/sessionAnalytics';
 import { summarizeCognitiveIdentity } from '../analytics/cognitiveIdentitySummary';
+import { getPuzzleTypeMetadata } from '../utils/puzzleTypeRegistry';
 
 function formatSessionTime(timestamp) {
   if (!timestamp) return '—';
@@ -182,6 +183,11 @@ function ProfilePage() {
         ? 'border border-amber-300/65 bg-amber-500/30 text-white/90 shadow-[0_0_22px_rgba(251,191,36,0.5)] ring-1 ring-amber-300/40'
         : 'border border-cyan-300/65 bg-cyan-500/30 text-white/90 shadow-[0_0_22px_rgba(34,211,238,0.55)] ring-1 ring-cyan-300/40';
   const analytics = buildSessionAnalytics(sessions) ?? {};
+  const recentPuzzleTypeMeta = useMemo(() => {
+    const recentSession = cognitiveIdentitySummary.recentIdentitySession;
+    if (!recentSession?.puzzleType) return null;
+    return getPuzzleTypeMetadata(recentSession.puzzleType);
+  }, [cognitiveIdentitySummary.recentIdentitySession]);
 
   const getIdentityDisplayLabel = (cognitiveIdentity) => {
     const identityKey = cognitiveIdentity?.identityKey;
@@ -194,6 +200,8 @@ function ProfilePage() {
         return 'Recovery';
       case 'precision_runner':
         return 'Precision';
+      case 'adaptive_learner':
+        return 'Adapting';
       default:
         return label || 'Unclassified';
     }
@@ -890,6 +898,9 @@ function ProfilePage() {
                   <>
                     <div className="space-y-3 p-3 md:hidden">
                       {recentSessionsDisplay.map((session, index) => {
+                        const puzzleMeta = getPuzzleTypeMetadata(
+                          session.puzzleType,
+                        );
                         const adaptiveStateKey =
                           session.liveAdaptiveDifficulty?.state ?? 'steady';
                         const adaptiveStateLabel =
@@ -907,7 +918,7 @@ function ProfilePage() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="font-semibold text-white">
-                                  {session.mode || 'Pattern Rush'}
+                                  {puzzleMeta.label}
                                 </p>
                                 <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
                                   {formatSessionTime(session.timestamp)}
@@ -995,6 +1006,9 @@ function ProfilePage() {
                       </div>
 
                       {recentSessionsDisplay.map((session, index) => {
+                        const puzzleMeta = getPuzzleTypeMetadata(
+                          session.puzzleType,
+                        );
                         const adaptiveStateKey =
                           session.liveAdaptiveDifficulty?.state ?? 'steady';
                         const adaptiveStateLabel =
@@ -1003,6 +1017,8 @@ function ProfilePage() {
                         const adaptiveStateColor =
                           adaptiveStateHistoryColorMap[adaptiveStateKey] ??
                           'text-cyan-300';
+                        const puzzleModeLabel =
+                          puzzleMeta.shortLabel || puzzleMeta.label;
 
                         return (
                           <div
@@ -1010,7 +1026,7 @@ function ProfilePage() {
                             className={`grid min-w-[56rem] ${recentSessionsGridColumns} group items-center gap-x-4 border-t border-slate-800/50 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-cyan-400/[0.03]`}
                           >
                             <span className="truncate font-bold text-white transition-colors group-hover:text-cyan-400">
-                              {session.mode || 'Pattern Rush'}
+                              {puzzleModeLabel}
                             </span>
                             <span className="text-center font-mono text-cyan-100/80 tabular-nums">
                               {session.score ?? 0}
@@ -1254,6 +1270,16 @@ function ProfilePage() {
                           {recentTrainingDirection}
                         </span>
                       </div>
+                    </div>
+                  )}
+                  {recentPuzzleTypeMeta && (
+                    <div className="border-t border-white/15 pt-5 space-y-1">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-slate-200/90">
+                        Recent Puzzle Type
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-cyan-100 tracking-tight">
+                        {recentPuzzleTypeMeta.label}
+                      </p>
                     </div>
                   )}
                 </div>

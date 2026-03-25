@@ -8,7 +8,10 @@ import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDiffic
 import { useLocation } from 'react-router-dom';
 import { evaluateSessionOutcome } from '../analytics/sessionOutcomeEvaluator';
 import { classifyCognitiveIdentity } from '../analytics/cognitiveIdentity';
-import { PUZZLE_TYPES } from '../utils/puzzleTypeRegistry';
+import {
+  PUZZLE_TYPES,
+  getPuzzleTypeMetadata,
+} from '../utils/puzzleTypeRegistry';
 
 /**
  * Arena Component
@@ -243,6 +246,7 @@ function Arena({ theme }) {
     activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
       ? sequenceSprintPuzzle
       : currentPuzzle;
+  const activePuzzleMeta = getPuzzleTypeMetadata(activePuzzleType);
   const currentPuzzleDifficulty =
     activePuzzle?.difficulty || activePuzzle?.difficultyBucket || 'medium';
   const nextTargetDifficulty =
@@ -282,6 +286,22 @@ function Arena({ theme }) {
   const liveCoachingTone =
     liveCoachingToneMap[liveAdaptiveDifficulty.state] ||
     liveCoachingToneMap.default;
+
+  const sequenceSprintPuzzleMetrics = useMemo(() => {
+    if (activePuzzleType !== PUZZLE_TYPES.SEQUENCE_SPRINT) {
+      return {};
+    }
+
+    return {
+      sequenceLength: Array.isArray(activePuzzle?.sequence)
+        ? activePuzzle.sequence.length
+        : 0,
+      ruleType: activePuzzle?.rule ?? null,
+      optionCount: Array.isArray(activePuzzle?.options)
+        ? activePuzzle.options.length
+        : 0,
+    };
+  }, [activePuzzleType, activePuzzle]);
 
   const liveCoachingPressureClass =
     streak >= 6
@@ -365,11 +385,11 @@ function Arena({ theme }) {
       recommendedSessionAlignmentLabel,
       didBreakRecommendedAlignment,
       puzzleType: activePuzzleType,
-      puzzleMetrics: {},
+      puzzleMetrics: sequenceSprintPuzzleMetrics,
     };
 
     const outcomeTimer = setTimeout(() => {
-      const computedFinalSessionDataWithLatest = {
+       const computedFinalSessionDataWithLatest = {
         ...computedFinalSessionData,
         score,
         accuracy: accuracyValue,
@@ -381,7 +401,7 @@ function Arena({ theme }) {
         recentAnswerHistory,
         liveAdaptiveDifficulty,
         puzzleType: activePuzzleType,
-        puzzleMetrics: {},
+         puzzleMetrics: sequenceSprintPuzzleMetrics,
       };
 
       const evaluatedOutcome = evaluateSessionOutcome(
@@ -415,6 +435,7 @@ function Arena({ theme }) {
     recommendedSessionAlignmentLabel,
     didBreakRecommendedAlignment,
     activePuzzleType,
+    sequenceSprintPuzzleMetrics,
   ]);
 
   useEffect(() => {
@@ -808,8 +829,31 @@ function Arena({ theme }) {
                   isCyber ? 'text-cyan-400' : 'text-cyan-600'
                 }`}
               >
-                Pattern Rush
+                {activePuzzleMeta.label}
               </h1>
+              <p
+                className={`mt-2 text-sm leading-5 ${
+                  isCyber ? 'text-slate-200' : 'text-slate-500'
+                }`}
+              >
+                {activePuzzleMeta.description}
+              </p>
+              {activePuzzleMeta.cognitiveSkills?.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {activePuzzleMeta.cognitiveSkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold tracking-tight ${
+                        isCyber
+                          ? 'border-slate-500/40 bg-slate-900/40 text-slate-200'
+                          : 'border-slate-200 bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div
