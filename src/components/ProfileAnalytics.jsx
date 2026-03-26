@@ -1,4 +1,5 @@
 import { buildNeuralPowerTrendData } from '../utils/sessionTrendUtils';
+import { buildPuzzleFamilyCards } from '../analytics/puzzleFamilyAnalytics';
 import {
   LineChart,
   Line,
@@ -10,7 +11,14 @@ import {
 } from 'recharts';
 import { generateCoachingInsight } from '../analytics/coachingEngine';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartLine } from '@fortawesome/free-solid-svg-icons';
+import {
+  faChartLine,
+  faShapes,
+  faForward,
+  faBrain,
+  faBorderAll,
+  faCodeBranch,
+} from '@fortawesome/free-solid-svg-icons';
 
 /**
  * ProfileAnalytics Component
@@ -120,6 +128,8 @@ function ProfileAnalytics({
   });
 
   const coachingInsight = propCoachingInsight ?? localCoachingInsight;
+
+  const puzzleFamilyCards = buildPuzzleFamilyCards(sessions);
 
   const trendToneMap = {
     improving: {
@@ -422,6 +432,149 @@ function ProfileAnalytics({
           </ResponsiveContainer>
         </div>
       </div>
+
+      {puzzleFamilyCards.length > 0 ? (
+        <div className="rounded-2xl border border-cyan-500/20 bg-[linear-gradient(165deg,rgba(15,23,42,0.95)_0%,rgba(2,6,23,0.96)_100%)] p-4 shadow-[0_0_44px_rgba(8,47,73,0.32)]">
+          <div className="flex flex-col gap-1 rounded-xl border border-cyan-500/15 bg-cyan-500/5 px-3 py-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
+              Puzzle Family Performance
+            </p>
+            <p className="text-sm text-slate-300">
+              Family-level summaries, accuracy, and trend reads.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {puzzleFamilyCards.map((family) => {
+              const badgeClasses = getTrendBadgeClasses(family.trendState);
+              const familyVisual = getPuzzleFamilyVisual(family.puzzleType);
+              const familyTone = getFamilyCardTone(family.puzzleType);
+              const accuracyBadge = Number.isFinite(
+                family.averageAccuracy,
+              )
+                ? `${Math.round(family.averageAccuracy)}%`
+                : '0%';
+              const valueToneMap =
+                family.puzzleType === 'sequence_sprint'
+                  ? {
+                      averageScore: 'text-violet-200',
+                      bestScore: 'text-cyan-200',
+                      bestAccuracy: 'text-emerald-300',
+                      averageNeuralPower: 'text-fuchsia-200',
+                    }
+                  : family.puzzleType === 'pattern_rush'
+                    ? {
+                        averageScore: 'text-cyan-200',
+                        bestScore: 'text-violet-200',
+                        bestAccuracy: 'text-emerald-300',
+                        averageNeuralPower: 'text-fuchsia-200',
+                      }
+                    : {
+                        averageScore: 'text-cyan-200',
+                        bestScore: 'text-violet-200',
+                        bestAccuracy: 'text-emerald-300',
+                        averageNeuralPower: 'text-fuchsia-200',
+                      };
+              const statRows = [
+                {
+                  label: 'Avg Score',
+                  value: family.averageScore ?? 0,
+                  valueClass: valueToneMap.averageScore,
+                },
+                {
+                  label: 'Best Score',
+                  value: family.bestScore ?? 0,
+                  valueClass: valueToneMap.bestScore,
+                },
+                {
+                  label: 'Best Accuracy',
+                  value: `${family.bestAccuracy ?? 0}%`,
+                  valueClass: valueToneMap.bestAccuracy,
+                },
+                {
+                  label: 'Avg Neural Power',
+                  value: `${family.averageNeuralPower ?? 0} NP`,
+                  valueClass: valueToneMap.averageNeuralPower,
+                },
+              ];
+
+              return (
+                <div
+                  key={family.puzzleType ?? family.familyLabel}
+                  className={`flex flex-col gap-4 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyTone.card} ${badgeClasses.glow} ${familyVisual.accentRing}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className={familyVisual.iconWrap}>
+                        <FontAwesomeIcon icon={familyVisual.icon} className="text-lg" />
+                      </div>
+                      <div>
+                        <p
+                          className={`text-sm font-semibold uppercase tracking-[0.35em] ${familyVisual.accentText}`}
+                        >
+                          {family.familyLabel}
+                        </p>
+                        <p className={`text-xs ${familyTone.sessions}`}>
+                          {family.sessionsPlayed ?? 0} sessions played
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <span
+                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${badgeClasses.badge}`}
+                      >
+                        {family.trendState || 'Calibrating'}
+                      </span>
+                      <span
+                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${familyTone.avgBadge}`}
+                      >
+                        Avg {accuracyBadge}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {statRows.map((stat) => (
+                      <div
+                        key={`${family.familyLabel}-${stat.label}`}
+                        className={`flex flex-col gap-1 rounded-xl border p-3 ${familyTone.statCard}`}
+                      >
+                        <span className="text-[9px] uppercase tracking-[0.3em] text-slate-500">
+                          {stat.label}
+                        </span>
+                        <span
+                          className={`text-lg font-semibold ${stat.valueClass}`}
+                        >
+                          {stat.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div
+                    className={`rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 ${familyTone.trendCard} ${familyVisual.accentRing}`}
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.4em] text-slate-500">
+                      Trend Read
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-slate-200">
+                      {family.trendReason || 'Trend data is still calibrating.'}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-cyan-500/30 bg-cyan-500/5 p-4 text-sm text-slate-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
+            Puzzle Family Performance
+          </p>
+          <p className="mt-2 text-sm text-slate-300">
+            Complete any challenge to unlock neural family summaries.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -505,6 +658,109 @@ function calculatePerformanceMetrics(sessions) {
     solveRate,
     totalSessions,
   };
+}
+
+function getTrendBadgeClasses(trendState) {
+  const trendBadgeToneMap = {
+    Rising: {
+      badge: 'border-emerald-400/60 bg-emerald-500/10 text-emerald-200 shadow-[0_0_25px_rgba(16,185,129,0.35)]',
+      glow: 'shadow-[0_0_30px_rgba(16,185,129,0.2)]',
+    },
+    Steadying: {
+      badge: 'border-cyan-400/60 bg-cyan-500/10 text-cyan-200 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+      glow: 'shadow-[0_0_30px_rgba(6,182,212,0.2)]',
+    },
+    Rebuilding: {
+      badge: 'border-amber-400/60 bg-amber-500/10 text-amber-200 shadow-[0_0_25px_rgba(251,191,36,0.35)]',
+      glow: 'shadow-[0_0_30px_rgba(251,191,36,0.2)]',
+    },
+    Calibrating: {
+      badge: 'border-fuchsia-400/60 bg-fuchsia-500/10 text-fuchsia-200 shadow-[0_0_25px_rgba(236,72,153,0.35)]',
+      glow: 'shadow-[0_0_30px_rgba(236,72,153,0.2)]',
+    },
+    fallback: {
+      badge: 'border-slate-500/60 bg-slate-900/70 text-slate-200 shadow-[0_0_15px_rgba(15,23,42,0.6)]',
+      glow: 'shadow-[0_0_20px_rgba(15,23,42,0.3)]',
+    },
+  };
+
+  return trendBadgeToneMap[trendState] || trendBadgeToneMap.fallback;
+}
+
+function getFamilyCardTone(puzzleType) {
+  const familyToneMap = {
+    pattern_rush: {
+      card:
+        'border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]',
+      label: 'text-cyan-200',
+      sessions: 'text-cyan-300/80',
+      avgBadge: 'border-cyan-400/35 bg-cyan-500/10 text-cyan-200',
+      statCard: 'border-cyan-500/20 bg-cyan-500/5',
+      trendCard: 'border-cyan-500/20 bg-cyan-500/5',
+    },
+    sequence_sprint: {
+      card:
+        'border-violet-400/30 bg-[linear-gradient(160deg,rgba(168,85,247,0.12)_0%,rgba(12,9,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,85,247,0.18)]',
+      label: 'text-violet-200',
+      sessions: 'text-violet-300/80',
+      avgBadge: 'border-violet-400/35 bg-violet-500/10 text-violet-200',
+      statCard: 'border-violet-500/20 bg-violet-500/5',
+      trendCard: 'border-violet-500/20 bg-violet-500/5',
+    },
+    default: {
+      card:
+        'border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]',
+      label: 'text-slate-200',
+      sessions: 'text-slate-400',
+      avgBadge: 'border-slate-700/70 bg-slate-900/70 text-slate-200',
+      statCard: 'border-slate-800/70 bg-slate-900/60',
+      trendCard: 'border-slate-800/70 bg-slate-950/40',
+    },
+  };
+
+  return familyToneMap[puzzleType] || familyToneMap.default;
+}
+
+function getPuzzleFamilyVisual(puzzleType) {
+  const visualMap = {
+    pattern_rush: {
+      icon: faShapes,
+      iconWrap:
+        'flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200',
+      accentText: 'text-cyan-200',
+      accentRing: 'ring-1 ring-cyan-500/30',
+    },
+    sequence_sprint: {
+      icon: faForward,
+      iconWrap:
+        'flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200',
+      accentText: 'text-fuchsia-200',
+      accentRing: 'ring-1 ring-fuchsia-500/30',
+    },
+    grid_recall: {
+      icon: faBorderAll,
+      iconWrap:
+        'flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
+      accentText: 'text-emerald-200',
+      accentRing: 'ring-1 ring-emerald-500/30',
+    },
+    logic_gate: {
+      icon: faCodeBranch,
+      iconWrap:
+        'flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200',
+      accentText: 'text-amber-200',
+      accentRing: 'ring-1 ring-amber-500/30',
+    },
+    fallback: {
+      icon: faBrain,
+      iconWrap:
+        'flex h-10 w-10 items-center justify-center rounded-full border border-slate-600/40 bg-slate-900/60 text-slate-200',
+      accentText: 'text-slate-200',
+      accentRing: 'ring-1 ring-slate-600/30',
+    },
+  };
+
+  return visualMap[puzzleType] || visualMap.fallback;
 }
 
 /**
