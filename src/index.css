@@ -4,6 +4,8 @@
   --color-cyber-blue: #0ea5e9;
   --color-cyber-pink: #d946ef;
   --color-cyber-purple: #8b5cf6;
+  --color-cyber-yellow: #facc15;
+  --color-cyber-emerald: #10b981;
   --color-cyber-bg: #030712;
   --color-cyber-bg-accent: #0f172a;
 
@@ -50,6 +52,18 @@
   }
   .text-glow-pink {
     text-shadow: 0 0 10px rgba(217, 70, 239, 0.5), 0 0 20px rgba(217, 70, 239, 0.3);
+  }
+  .text-glow-yellow {
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.5), 0 0 20px rgba(250, 204, 21, 0.3);
+  }
+  .text-glow-emerald {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+  .text-glow-orange {
+    text-shadow: 0 0 10px rgba(251, 146, 60, 0.5), 0 0 20px rgba(251, 146, 60, 0.3);
+  }
+  .text-glow-red {
+    text-shadow: 0 0 10px rgba(248, 113, 113, 0.5), 0 0 20px rgba(248, 113, 113, 0.3);
   }
   .bg-grid-cyber {
     background-image: 

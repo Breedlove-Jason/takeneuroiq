@@ -88,14 +88,14 @@ function Play({ theme }) {
       buttonText: 'Coming Soon',
       cardTone: {
         cyber:
-          'border-amber-300/20 bg-[linear-gradient(160deg,rgba(217,119,6,0.1)_0%,rgba(16,11,22,0.86)_50%,rgba(8,9,18,0.96)_100%)] shadow-[0_0_24px_rgba(217,119,6,0.14)] hover:border-amber-300/35',
+          'border-yellow-400/20 bg-[linear-gradient(160deg,rgba(250,204,21,0.1)_0%,rgba(16,11,22,0.86)_50%,rgba(8,9,18,0.96)_100%)] shadow-[0_0_24px_rgba(250,204,21,0.14)] hover:border-yellow-400/35',
         light:
-          'border-amber-200 bg-[linear-gradient(155deg,rgba(255,251,235,0.92)_0%,rgba(255,255,255,1)_58%,rgba(255,247,237,0.86)_100%)] shadow-[0_12px_24px_rgba(217,119,6,0.12)] hover:border-amber-300',
+          'border-yellow-200 bg-[linear-gradient(155deg,rgba(255,251,235,0.92)_0%,rgba(255,255,255,1)_58%,rgba(255,247,237,0.86)_100%)] shadow-[0_12px_24px_rgba(234,179,8,0.12)] hover:border-yellow-300',
       },
       iconTone: {
         cyber:
-          'text-amber-300/80 drop-shadow-[0_0_14px_rgba(245,158,11,0.32)]',
-        light: 'text-amber-600',
+          'text-yellow-400 drop-shadow-[0_0_14px_rgba(250,204,21,0.4)]',
+        light: 'text-yellow-600',
       },
     },
   ];

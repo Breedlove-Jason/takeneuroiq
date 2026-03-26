@@ -1,4 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faTrophy,
+  faStar,
+  faWaveSquare,
+  faCircleExclamation,
+  faSkull,
+  faLayerGroup,
+  faChevronRight,
+  faArrowRight,
+  faRotateRight,
+  faBrain,
+  faBolt,
+  faBullseye,
+} from '@fortawesome/free-solid-svg-icons';
 import PuzzleShape from '../components/PuzzleShape';
 import SequenceSprintPuzzle from '../components/SequenceSprintPuzzle';
 import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
@@ -77,7 +92,7 @@ const adaptiveShiftMessageMap = {
 };
 
 const liveCoachingToneMap = {
-  recover: 'border-amber-500/20 bg-amber-500/5 text-amber-200',
+  recover: 'border-yellow-400/20 bg-yellow-400/5 text-yellow-200',
   steady: 'border-cyan-500/20 bg-cyan-500/5 text-cyan-200',
   challenge: 'border-violet-500/20 bg-violet-500/5 text-violet-200',
   default: 'border-slate-700/70 bg-slate-800/40 text-slate-200',
@@ -95,9 +110,9 @@ const recommendedSessionStyles = {
     badge: 'bg-cyan-500/15 text-cyan-200 border border-cyan-400/30',
   },
   recover: {
-    border: 'border-amber-500/30',
-    label: 'text-amber-300',
-    badge: 'bg-amber-500/15 text-amber-200 border border-amber-400/30',
+    border: 'border-yellow-500/30',
+    label: 'text-yellow-300',
+    badge: 'bg-yellow-500/15 text-yellow-200 border border-yellow-400/30',
   },
   default: {
     border: 'border-slate-700',
@@ -784,40 +799,46 @@ function Arena({ theme }) {
 
   const outcomeToneStyles = {
     gold: {
-      border: 'border-amber-300/45',
-      bg: 'bg-amber-500/12',
-      label: 'text-amber-200',
-      shadow: 'shadow-[0_0_30px_rgba(251,191,36,0.24)]',
+      border: 'border-yellow-400/50',
+      bg: 'bg-yellow-400/10',
+      label: 'text-yellow-300 text-glow-yellow',
+      shadow: 'shadow-[0_0_40px_rgba(250,204,21,0.25)]',
+      icon: faTrophy,
     },
     positive: {
-      border: 'border-emerald-400/30',
+      border: 'border-emerald-400/40',
       bg: 'bg-emerald-500/10',
-      label: 'text-emerald-300',
-      shadow: 'shadow-[0_0_28px_rgba(52,211,153,0.18)]',
+      label: 'text-emerald-300 text-glow-emerald',
+      shadow: 'shadow-[0_0_30px_rgba(16,185,129,0.18)]',
+      icon: faStar,
     },
     supportive: {
-      border: 'border-cyan-400/30',
+      border: 'border-cyan-400/40',
       bg: 'bg-cyan-500/10',
-      label: 'text-cyan-300',
-      shadow: 'shadow-[0_0_28px_rgba(34,211,238,0.16)]',
+      label: 'text-cyan-300 text-glow-blue',
+      shadow: 'shadow-[0_0_30px_rgba(6,182,212,0.16)]',
+      icon: faWaveSquare,
     },
     alert: {
-      border: 'border-yellow-400/30',
-      bg: 'bg-yellow-500/10',
-      label: 'text-yellow-300',
-      shadow: 'shadow-[0_0_28px_rgba(250,204,21,0.16)]',
+      border: 'border-orange-400/40',
+      bg: 'bg-orange-500/10',
+      label: 'text-orange-300 text-glow-orange',
+      shadow: 'shadow-[0_0_28px_rgba(251,146,60,0.15)]',
+      icon: faCircleExclamation,
     },
     caution: {
-      border: 'border-red-400/30',
+      border: 'border-red-400/40',
       bg: 'bg-red-500/10',
-      label: 'text-red-300',
+      label: 'text-red-300 text-glow-red',
       shadow: 'shadow-[0_0_28px_rgba(248,113,113,0.18)]',
+      icon: faSkull,
     },
     neutral: {
       border: 'border-slate-500/30',
       bg: 'bg-slate-500/10',
       label: 'text-slate-300',
       shadow: 'shadow-[0_0_18px_rgba(148,163,184,0.10)]',
+      icon: faLayerGroup,
     },
   };
   const toneStyle =
@@ -848,15 +869,16 @@ function Arena({ theme }) {
               >
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <div
-                    className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${
+                    className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${
                       recommendedSessionTone.label
                     }`}
                   >
+                    <FontAwesomeIcon icon={faBolt} className="animate-pulse" />
                     Recommended Session
                   </div>
 
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${
                       recommendedSessionTone.badge
                     }`}
                   >
@@ -883,21 +905,25 @@ function Arena({ theme }) {
 
           <div className="grid gap-4 md:grid-cols-3">
             <div
-              className={`rounded-2xl border px-5 py-4 ${
+              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
                 isCyber
-                  ? 'border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)]'
+                  ? 'border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)] hover:border-cyan-400/40'
                   : 'border-slate-200 bg-slate-50'
               }`}
             >
+              {isCyber && (
+                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-cyan-400/5 blur-xl transition-all group-hover:bg-cyan-400/10" />
+              )}
               <p
-                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
                   isCyber ? 'text-cyan-300 text-glow-blue' : 'text-slate-500'
                 }`}
               >
+                <FontAwesomeIcon icon={faBrain} className="text-[10px]" />
                 Challenge
               </p>
               <h1
-                className={`mt-2 text-2xl font-bold ${
+                className={`mt-2 text-2xl font-black tracking-tight ${
                   isCyber ? 'text-cyan-400' : 'text-cyan-600'
                 }`}
               >
@@ -915,9 +941,9 @@ function Arena({ theme }) {
                   {activePuzzleMeta.cognitiveSkills.map((skill) => (
                     <span
                       key={skill}
-                      className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold tracking-tight ${
+                      className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-black tracking-tight uppercase ${
                         isCyber
-                          ? 'border-slate-500/40 bg-slate-900/40 text-slate-200'
+                          ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200'
                           : 'border-slate-200 bg-slate-100 text-slate-600'
                       }`}
                     >
@@ -929,23 +955,31 @@ function Arena({ theme }) {
             </div>
 
             <div
-              className={`rounded-2xl border px-5 py-4 text-center ${
+              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 text-center transition-all duration-300 ${
                 isCyber
-                  ? 'border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)]'
+                  ? 'border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)] hover:border-fuchsia-400/40'
                   : 'border-slate-200 bg-slate-50'
               }`}
             >
+              {isCyber && (
+                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-fuchsia-400/5 blur-xl transition-all group-hover:bg-fuchsia-400/10" />
+              )}
               <p
-                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                className={`flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
                   isCyber ? 'text-fuchsia-300 text-glow-pink' : 'text-slate-500'
                 }`}
               >
+                <FontAwesomeIcon icon={faBolt} className="text-[10px]" />
                 Time Remaining
               </p>
               <div
-                className={`mt-2 font-mono text-3xl font-bold ${
+                className={`mt-2 font-mono text-3xl font-black ${
                   isCyber
-                    ? `text-fuchsia-400 ${timeLeft <= 5 ? 'animate-pulse text-red-400' : 'text-glow-pink'}`
+                    ? `text-fuchsia-400 ${
+                        timeLeft <= 5
+                          ? 'animate-pulse text-red-400'
+                          : 'text-glow-pink'
+                      }`
                     : 'text-slate-800'
                 }`}
               >
@@ -954,21 +988,25 @@ function Arena({ theme }) {
             </div>
 
             <div
-              className={`rounded-2xl border px-5 py-4 ${
+              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
                 isCyber
-                  ? 'border-cyan-400/20 bg-cyan-400/5'
+                  ? 'border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40'
                   : 'border-slate-200 bg-slate-50'
               }`}
             >
+              {isCyber && (
+                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-cyan-400/5 blur-xl transition-all group-hover:bg-cyan-400/10" />
+              )}
               <p
-                className={`text-xs font-semibold uppercase tracking-[0.25em] ${
+                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
                   isCyber ? 'text-slate-400' : 'text-slate-500'
                 }`}
               >
+                <FontAwesomeIcon icon={faLayerGroup} className="text-[10px]" />
                 Mode
               </p>
               <div
-                className={`mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${
+                className={`mt-2 inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
                   isCyber
                     ? 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20'
                     : 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
@@ -987,200 +1025,309 @@ function Arena({ theme }) {
             }`}
           >
             {gameOver ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <p
-                  className={`text-sm font-semibold uppercase tracking-[0.25em] ${
-                    isCyber ? 'text-fuchsia-400' : 'text-cyan-600'
-                  }`}
-                >
-                  Round Complete
-                </p>
+              <div className="relative flex flex-col items-center justify-center py-10 text-center">
+                {isCyber && (
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute inset-0 bg-grid-cyber opacity-[0.03]" />
+                    <div
+                      className={`absolute -top-32 -left-32 w-80 h-80 rounded-full blur-[120px] opacity-10 ${toneStyle.bg}`}
+                    />
+                    <div
+                      className={`absolute -bottom-32 -right-32 w-80 h-80 rounded-full blur-[120px] opacity-10 ${toneStyle.bg}`}
+                    />
+                  </div>
+                )}
 
-                <h2
-                  className={`mt-4 text-4xl font-bold ${
-                    isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
-                  }`}
-                >
-                  Pattern Rush Results
-                </h2>
+                <div className="relative z-10 flex flex-col items-center">
+                  <div
+                    className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border transition-all duration-700 ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow}`}
+                  >
+                    <FontAwesomeIcon
+                      icon={toneStyle.icon}
+                      className={`text-2xl ${toneStyle.label}`}
+                    />
+                  </div>
 
-                <p
-                  className={`mt-4 max-w-xl text-lg leading-8 ${
-                    isCyber ? 'text-cyan-100' : 'text-slate-600'
-                  }`}
-                >
-                  {getPerformanceMessage()}
-                </p>
+                  <p
+                    className={`text-sm font-semibold uppercase tracking-[0.3em] ${
+                      isCyber ? 'text-fuchsia-400' : 'text-cyan-600'
+                    }`}
+                  >
+                    Round Complete
+                  </p>
+
+                  <h2
+                    className={`mt-3 text-4xl font-black tracking-tight ${
+                      isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
+                    }`}
+                  >
+                    Pattern Rush{' '}
+                    <span className={isCyber ? 'text-cyan-400' : 'text-cyan-600'}>
+                      Results
+                    </span>
+                  </h2>
+
+                  <p
+                    className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
+                      isCyber ? 'text-cyan-100/90' : 'text-slate-600'
+                    }`}
+                  >
+                    {getPerformanceMessage()}
+                  </p>
+                </div>
 
                 {sessionOutcome && (
                   <div
-                    className={`mt-4 rounded-2xl border ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow} p-4`}
+                    className={`relative mt-8 w-full max-w-2xl overflow-hidden rounded-3xl border transition-all duration-500 ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow} p-6 md:p-8`}
                     data-cognitive-identity={
                       cognitiveIdentity?.label ?? 'unknown'
                     }
                   >
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-300">
-                        Session Insight
-                      </h3>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${toneStyle.label} bg-white/5 border border-white/10`}
-                      >
-                        {sessionOutcome.alignmentLabel}
-                      </span>
+                    {isCyber && (
+                      <div
+                        className={`absolute top-0 left-0 h-1 w-full bg-linear-to-r from-transparent via-${
+                          toneStyle.label.split('-')[1]
+                        }-400 to-transparent opacity-50`}
+                      />
+                    )}
+
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
+                      <div className="flex-1 text-left">
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-400/80">
+                            Session Insight
+                          </h3>
+                          <span
+                            className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${toneStyle.label} bg-white/5 border border-white/10`}
+                          >
+                            {sessionOutcome.alignmentLabel}
+                          </span>
+                        </div>
+
+                        <p
+                          className={`mt-4 text-3xl font-black tracking-tight text-white ${
+                            toneStyle.label.includes('text-glow')
+                              ? toneStyle.label.split(' ').pop()
+                              : ''
+                          }`}
+                        >
+                          {sessionOutcome.title}
+                        </p>
+
+                        <p className="mt-3 text-base leading-relaxed text-cyan-100/80">
+                          {sessionOutcome.summary}
+                        </p>
+                      </div>
+
+                      {cognitiveIdentity && (
+                        <div className="w-full md:w-64 shrink-0 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md shadow-inner">
+                          <div className="flex items-center gap-2 mb-3">
+                            <FontAwesomeIcon
+                              icon={faBrain}
+                              className="text-cyan-400 text-xs"
+                            />
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/90">
+                              Cognitive Identity
+                            </p>
+                          </div>
+                          <p className="text-xl font-black tracking-tight text-white">
+                            {cognitiveIdentity.label}
+                          </p>
+                          <p className="mt-2 text-xs leading-5 text-cyan-100/70 italic">
+                            "{cognitiveIdentity.description}"
+                          </p>
+
+                          {cognitiveIdentity?.primarySignal && (
+                            <div className="mt-4 border-t border-white/10 pt-4">
+                              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400/70">
+                                Primary Signal
+                              </p>
+                              <p className="mt-1 text-xs font-bold text-white uppercase tracking-wider">
+                                {cognitiveIdentity.primarySignal}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
-                    <p className="text-lg font-bold text-white">
-                      {sessionOutcome.title}
-                    </p>
-
-                    <p className="mt-1 text-sm leading-relaxed text-cyan-100/90">
-                      {sessionOutcome.summary}
-                    </p>
-
-                    {cognitiveIdentity && (
-                      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 space-y-1 shadow-[0_0_18px_rgba(15,118,207,0.08)]">
-                        <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/95">
-                          Cognitive Identity
-                        </p>
-                        <p className="text-sm font-semibold tracking-tight text-white">
-                          {cognitiveIdentity.label}
-                        </p>
-                        <p className="text-xs leading-5 text-cyan-100/85">
-                          {cognitiveIdentity.description}
-                        </p>
-                      </div>
-                    )}
-
-                    {cognitiveIdentity?.primarySignal && (
-                      <div className="mt-3 border-t border-white/15 pt-4 space-y-1">
-                        <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/95">
-                          Primary Signal
-                        </p>
-                        <p className="text-sm font-semibold tracking-tight text-cyan-100">
-                          {cognitiveIdentity.primarySignal}
-                        </p>
-                      </div>
-                    )}
-
                     {cognitiveIdentity?.shiftSignal && (
-                      <p className="mt-2 text-xs leading-5 text-fuchsia-100/85">
-                        {cognitiveIdentity.shiftSignal}
-                      </p>
-                    )}
-
-                    {sessionOutcome?.trainingDirection && (
-                      <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
-                        <span className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/95">
-                          Training Direction
-                        </span>
-
-                        <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-[0_0_18px_rgba(59,130,246,0.45)] ring-1 ring-white/20">
-                          {sessionOutcome.trainingDirection}
-                        </span>
+                      <div className="mt-4 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 px-4 py-2 text-left">
+                        <p className="text-xs leading-5 text-fuchsia-100/90 italic">
+                          <FontAwesomeIcon
+                            icon={faBolt}
+                            className="mr-2 text-[10px]"
+                          />
+                          {cognitiveIdentity.shiftSignal}
+                        </p>
                       </div>
                     )}
 
-                    <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/15 pt-3">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] uppercase tracking-[0.3em] text-cyan-200/95 font-semibold">
-                          Next Recommendation
-                        </span>
-                        <span className="text-base font-bold text-cyan-200 uppercase tracking-[0.35em] mt-0.5">
-                          {sessionOutcome.nextRecommendedDifficulty}
-                        </span>
-                      </div>
+                    <div className="mt-8 flex flex-wrap items-center justify-between gap-6 border-t border-white/10 pt-6">
+                      {sessionOutcome?.trainingDirection && (
+                        <div className="flex items-center gap-4">
+                          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-400/70">
+                            Direction
+                          </span>
+                          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-lg ring-1 ring-white/20">
+                            <FontAwesomeIcon
+                              icon={faArrowRight}
+                              className="text-[10px] text-cyan-400"
+                            />
+                            {sessionOutcome.trainingDirection}
+                          </span>
+                        </div>
+                      )}
 
-                      <button
-                        onClick={handleStartRecommendedSession}
-                        className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-2 text-sm font-bold text-slate-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-cyan-300 hover:shadow-[0_10px_40px_rgba(34,211,238,0.45)] shadow-lg shadow-cyan-400/20"
-                      >
-                        Start Session
-                      </button>
+                      <div className="flex items-center gap-6">
+                        <div className="text-right">
+                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400/70">
+                            Next Recommendation
+                          </p>
+                          <p className="text-sm font-black text-white uppercase tracking-widest mt-0.5">
+                            {sessionOutcome.nextRecommendedDifficulty}
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleStartRecommendedSession}
+                          className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-cyan-400 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:bg-cyan-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95"
+                        >
+                          <span>Start</span>
+                          <FontAwesomeIcon
+                            icon={faChevronRight}
+                            className="transition-transform group-hover:translate-x-1"
+                          />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
 
-                <div className="mt-10 grid w-full max-w-3xl gap-4 md:grid-cols-3">
+                <div className="mt-12 grid w-full max-w-3xl grid-cols-1 gap-4 md:grid-cols-3">
                   <div
-                    className={`rounded-2xl border px-5 py-6 ${
+                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
                       isCyber
-                        ? 'border-cyan-400/20 bg-cyan-400/5'
+                        ? 'border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40 hover:bg-cyan-400/10'
                         : 'border-slate-200 bg-slate-50'
                     }`}
                   >
-                    <p
-                      className={`text-sm uppercase tracking-[0.2em] ${
-                        isCyber ? 'text-slate-400' : 'text-slate-500'
-                      }`}
-                    >
-                      Final Score
-                    </p>
-                    <div
-                      className={`mt-3 font-mono text-3xl font-bold ${
-                        isCyber ? 'text-cyan-300' : 'text-slate-800'
-                      }`}
-                    >
-                      {score.toString().padStart(4, '0')}
+                    {isCyber && (
+                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-cyan-400/10 blur-2xl transition-all group-hover:bg-cyan-400/20" />
+                    )}
+                    <div className="relative flex flex-col items-center">
+                      <FontAwesomeIcon
+                        icon={faBullseye}
+                        className={`mb-3 text-lg ${
+                          isCyber ? 'text-cyan-400' : 'text-slate-400'
+                        }`}
+                      />
+                      <p
+                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
+                          isCyber ? 'text-cyan-300/70' : 'text-slate-500'
+                        }`}
+                      >
+                        Final Score
+                      </p>
+                      <div
+                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
+                          isCyber
+                            ? 'text-white text-glow-blue'
+                            : 'text-slate-800'
+                        }`}
+                      >
+                        {score.toLocaleString()}
+                      </div>
                     </div>
                   </div>
 
                   <div
-                    className={`rounded-2xl border px-5 py-6 ${
+                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
                       isCyber
-                        ? 'border-fuchsia-400/20 bg-fuchsia-500/5'
+                        ? 'border-fuchsia-400/20 bg-fuchsia-500/5 hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10'
                         : 'border-slate-200 bg-slate-50'
                     }`}
                   >
-                    <p
-                      className={`text-sm uppercase tracking-[0.2em] ${
-                        isCyber ? 'text-slate-400' : 'text-slate-500'
-                      }`}
-                    >
-                      Best Streak
-                    </p>
-                    <div
-                      className={`mt-3 font-mono text-3xl font-bold ${
-                        isCyber ? 'text-fuchsia-300' : 'text-slate-800'
-                      }`}
-                    >
-                      x{bestStreak.toString().padStart(2, '0')}
+                    {isCyber && (
+                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-fuchsia-400/10 blur-2xl transition-all group-hover:bg-fuchsia-400/20" />
+                    )}
+                    <div className="relative flex flex-col items-center">
+                      <FontAwesomeIcon
+                        icon={faBolt}
+                        className={`mb-3 text-lg ${
+                          isCyber ? 'text-fuchsia-400' : 'text-slate-400'
+                        }`}
+                      />
+                      <p
+                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
+                          isCyber ? 'text-fuchsia-300/70' : 'text-slate-500'
+                        }`}
+                      >
+                        Best Streak
+                      </p>
+                      <div
+                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
+                          isCyber
+                            ? 'text-white text-glow-pink'
+                            : 'text-slate-800'
+                        }`}
+                      >
+                        x{bestStreak.toString().padStart(2, '0')}
+                      </div>
                     </div>
                   </div>
 
                   <div
-                    className={`rounded-2xl border px-5 py-6 ${
+                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
                       isCyber
-                        ? 'border-cyan-400/20 bg-cyan-400/5'
+                        ? 'border-emerald-400/20 bg-emerald-400/5 hover:border-emerald-400/40 hover:bg-emerald-400/10'
                         : 'border-slate-200 bg-slate-50'
                     }`}
                   >
-                    <p
-                      className={`text-sm uppercase tracking-[0.2em] ${
-                        isCyber ? 'text-slate-400' : 'text-slate-500'
-                      }`}
-                    >
-                      Accuracy
-                    </p>
-                    <div
-                      className={`mt-3 font-mono text-3xl font-bold ${
-                        isCyber ? 'text-cyan-300' : 'text-slate-800'
-                      }`}
-                    >
-                      {accuracy}
+                    {isCyber && (
+                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-emerald-400/10 blur-2xl transition-all group-hover:bg-emerald-400/20" />
+                    )}
+                    <div className="relative flex flex-col items-center">
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        className={`mb-3 text-lg ${
+                          isCyber ? 'text-emerald-400' : 'text-slate-400'
+                        }`}
+                      />
+                      <p
+                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
+                          isCyber ? 'text-emerald-300/70' : 'text-slate-500'
+                        }`}
+                      >
+                        Accuracy
+                      </p>
+                      <div
+                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
+                          isCyber
+                            ? 'text-white text-glow-emerald'
+                            : 'text-slate-800'
+                        }`}
+                      >
+                        {accuracy}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <button
                   onClick={resetGame}
-                  className={`mt-10 rounded-xl px-8 py-4 font-semibold transition ${
+                  className={`group relative mt-12 overflow-hidden rounded-xl px-10 py-4 font-black uppercase tracking-[0.2em] transition-all duration-300 ${
                     isCyber
-                      ? 'bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(34,211,238,0.25)] hover:bg-cyan-300'
-                      : 'bg-cyan-600 text-white hover:bg-cyan-500'
+                      ? 'bg-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:bg-cyan-300 hover:shadow-[0_0_50px_rgba(34,211,238,0.5)] hover:scale-105 active:scale-95'
+                      : 'bg-cyan-600 text-white hover:bg-cyan-500 shadow-lg'
                   }`}
                 >
-                  Play Again
+                  <span className="relative z-10 flex items-center gap-3">
+                    <FontAwesomeIcon
+                      icon={faRotateRight}
+                      className="transition-transform duration-500 group-hover:rotate-180"
+                    />
+                    Play Again
+                  </span>
                 </button>
               </div>
             ) : (
