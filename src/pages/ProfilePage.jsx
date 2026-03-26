@@ -782,17 +782,17 @@ function ProfilePage() {
   }, [nameSaved]);
 
   return (
-    <section className="min-h-screen px-6 py-10">
+    <section className="animate-fadeIn min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 rounded-3xl border border-cyan-400/30 bg-slate-900/70 p-6 shadow-[0_0_40px_rgba(34,211,238,0.12)] backdrop-blur-md">
+        <div className="mb-8 rounded-3xl border border-cyan-400/30 bg-slate-900/70 p-6 shadow-[0_0_50px_rgba(34,211,238,0.15)] backdrop-blur-md">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300">
-                <FontAwesomeIcon icon={faBolt} />
+              <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.2)]">
+                <FontAwesomeIcon icon={faBolt} className="animate-pulse" />
                 Neural Identity
               </p>
 
-              <h1 className="text-3xl font-extrabold tracking-tight text-cyan-300 md:text-5xl">
+              <h1 className="text-glow-blue text-3xl font-extrabold tracking-tight text-cyan-300 md:text-5xl">
                 Player Profile
               </h1>
 
@@ -805,7 +805,7 @@ function ProfilePage() {
 
             <div className="flex flex-col items-end gap-3">
               <div className="rounded-2xl border border-cyan-400/20 bg-slate-800/70 px-5 py-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
                   Current Rank
                 </p>
                 <p className="mt-2 text-3xl font-bold text-indigo-400">
@@ -836,12 +836,9 @@ function ProfilePage() {
               </h2>
 
               <div className="mt-4 space-y-4">
-                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Player
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-white">
-                    {playerName}
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+                    Update Neural Identity
                   </p>
 
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -851,30 +848,30 @@ function ProfilePage() {
                       onChange={(event) => setNameInput(event.target.value)}
                       onKeyDown={handlePlayerNameKeyDown}
                       placeholder="Enter player name"
-                      className="w-full rounded-xl border border-cyan-400/20 bg-slate-900/80 px-4 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300"
+                      className="w-full rounded-xl border border-cyan-400/20 bg-slate-950/80 px-4 py-2 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/50 focus:ring-1 focus:ring-cyan-300/20"
                     />
                     <button
                       type="button"
                       onClick={handleSavePlayerName}
                       disabled={!canSavePlayerName}
-                      className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                      className={`rounded-xl px-4 py-2 text-sm font-bold transition-all duration-300 ${
                         canSavePlayerName
-                          ? 'border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200'
-                          : 'cursor-not-allowed border border-slate-700 bg-slate-800/60 text-slate-500'
+                          ? 'border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:border-cyan-300/50 hover:bg-cyan-500/20 hover:text-cyan-200 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]'
+                          : 'cursor-not-allowed border border-slate-700 bg-slate-800/40 text-slate-600'
                       }`}
                     >
-                      Save Name
+                      Sync Name
                     </button>
                   </div>
 
                   {nameSaved && (
-                    <p className="mt-2 text-sm font-medium text-emerald-300">
-                      Player name saved.
+                    <p className="mt-2 text-xs font-medium text-emerald-400 animate-pulse">
+                      Identity synced successfully.
                     </p>
                   )}
                 </div>
 
-                <IdentityCoreStats sessions={sessions} />
+                <IdentityCoreStats sessions={sessions} playerName={playerName} />
 
                 <AgentSummary coachingInsight={coachingInsight} />
               </div>
@@ -887,7 +884,7 @@ function ProfilePage() {
               </h2>
 
               <div className="mt-4 space-y-3 text-sm text-slate-300">
-                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-semibold text-cyan-300">
                       Pattern recognition
@@ -897,7 +894,7 @@ function ProfilePage() {
                     </span>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-semibold text-fuchsia-300">
                       Focus stability
@@ -907,7 +904,7 @@ function ProfilePage() {
                     </span>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-semibold text-emerald-300">
                       Processing speed
@@ -917,14 +914,14 @@ function ProfilePage() {
                     </span>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-semibold text-yellow-300">Consistency</p>
                     <span className="text-lg font-bold text-white">
                       {cognitiveTracks.consistency}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
                     {pressureStateDetail}
                   </p>
                 </div>

@@ -6,12 +6,12 @@ export default function SequenceSprintPuzzle({
   onSelectAnswer,
 }) {
   return (
-    <div className="rounded-3xl border border-violet-400/30 bg-slate-950/70 p-6 shadow-[0_0_30px_rgba(168,85,247,0.12)] backdrop-blur-md">
+    <div className="rounded-3xl border border-violet-400/30 bg-slate-950/70 p-6 shadow-[0_0_40px_rgba(168,85,247,0.15)] backdrop-blur-md transition-all duration-300">
       <div className="mb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">
+        <p className="text-glow-pink text-xs font-semibold uppercase tracking-[0.22em] text-violet-300">
           Sequence Sprint
         </p>
-        <h2 className="mt-2 text-xl font-bold text-white">{prompt}</h2>
+        <h2 className="mt-2 text-xl font-bold text-white text-glow-blue">{prompt}</h2>
       </div>
 
       <div className="mb-6 rounded-2xl border border-violet-400/20 bg-violet-500/10 px-4 py-5">
@@ -25,7 +25,7 @@ export default function SequenceSprintPuzzle({
             </span>
           ))}
 
-          <span className="rounded-xl border border-dashed border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.10)]">
+          <span className="rounded-xl border border-dashed border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-pulse">
             ?
           </span>
         </div>

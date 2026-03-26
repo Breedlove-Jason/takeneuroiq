@@ -40,22 +40,22 @@ export default function PuzzleShape({
       onClick={onClick}
       disabled={disabled}
       className={clsx(
-        'group relative flex h-28 w-24 items-center justify-center overflow-hidden rounded-2xl border transition-all duration-200 ease-out',
+        'group relative flex h-28 w-24 items-center justify-center overflow-hidden rounded-2xl border transition-all duration-300 ease-out',
         'bg-slate-950/90 backdrop-blur-sm',
         "before:absolute before:inset-px before:rounded-[14px] before:border before:border-white/5 before:content-['']",
         "after:pointer-events-none after:absolute after:inset-x-3 after:top-2 after:h-6 after:rounded-full after:bg-white/5 after:blur-md after:content-['']",
         selected &&
-          'border-cyan-300 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.28)] scale-[1.02]',
+          'border-cyan-300 bg-cyan-500/10 text-cyan-200 shadow-[0_0_25px_rgba(34,211,238,0.4)] scale-[1.02]',
         correct &&
-          'border-emerald-300 bg-emerald-500/10 text-emerald-200 shadow-[0_0_20px_rgba(52,211,153,0.30)]',
+          'border-emerald-300 bg-emerald-500/10 text-emerald-200 shadow-[0_0_25px_rgba(52,211,153,0.45)]',
         wrong &&
-          'border-rose-300 bg-rose-500/10 text-rose-200 shadow-[0_0_20px_rgba(251,113,133,0.28)]',
+          'border-rose-300 bg-rose-500/10 text-rose-200 shadow-[0_0_25px_rgba(251,113,133,0.4)]',
         !selected &&
           !correct &&
           !wrong &&
-          'border-cyan-500/20 text-cyan-100 shadow-[0_0_14px_rgba(34,211,238,0.08)]',
+          'border-cyan-500/20 text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.1)]',
         isInteractive &&
-          'hover:-translate-y-1 hover:border-cyan-300/60 hover:bg-cyan-500/10 hover:shadow-[0_0_22px_rgba(34,211,238,0.18)] active:translate-y-0 active:scale-[0.99]',
+          'hover:-translate-y-1.5 hover:border-cyan-300/80 hover:bg-cyan-500/15 hover:shadow-[0_0_30px_rgba(34,211,238,0.25)] active:translate-y-0 active:scale-[0.98]',
         disabled && 'cursor-not-allowed opacity-60',
       )}
       aria-label={`Select ${shape}`}

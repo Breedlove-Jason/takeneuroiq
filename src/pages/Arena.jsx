@@ -824,12 +824,12 @@ function Arena({ theme }) {
     outcomeToneStyles[sessionOutcome?.tone] || outcomeToneStyles.neutral;
 
   return (
-    <div className="px-6 py-10">
+    <div className="animate-fadeIn px-6 py-10">
       <div className="mx-auto max-w-6xl">
         <div
           className={`rounded-[28px] border p-6 md:p-8 ${
             isCyber
-              ? 'border-cyan-400/20 bg-[#09101d]/80 shadow-[0_0_40px_rgba(0,0,0,0.35)] backdrop-blur-xl'
+              ? 'border-cyan-400/20 bg-[#09101d]/80 shadow-[0_0_50px_rgba(14,165,233,0.15)] backdrop-blur-xl'
               : 'border-slate-200 bg-white shadow-sm'
           }`}
         >
@@ -885,13 +885,13 @@ function Arena({ theme }) {
             <div
               className={`rounded-2xl border px-5 py-4 ${
                 isCyber
-                  ? 'border-cyan-400/20 bg-cyan-400/5'
+                  ? 'border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)]'
                   : 'border-slate-200 bg-slate-50'
               }`}
             >
               <p
                 className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-400' : 'text-slate-500'
+                  isCyber ? 'text-cyan-300 text-glow-blue' : 'text-slate-500'
                 }`}
               >
                 Challenge
@@ -931,20 +931,22 @@ function Arena({ theme }) {
             <div
               className={`rounded-2xl border px-5 py-4 text-center ${
                 isCyber
-                  ? 'border-fuchsia-400/20 bg-fuchsia-500/5'
+                  ? 'border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)]'
                   : 'border-slate-200 bg-slate-50'
               }`}
             >
               <p
                 className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-400' : 'text-slate-500'
+                  isCyber ? 'text-fuchsia-300 text-glow-pink' : 'text-slate-500'
                 }`}
               >
                 Time Remaining
               </p>
               <div
                 className={`mt-2 font-mono text-3xl font-bold ${
-                  isCyber ? 'text-fuchsia-400' : 'text-slate-800'
+                  isCyber
+                    ? `text-fuchsia-400 ${timeLeft <= 5 ? 'animate-pulse text-red-400' : 'text-glow-pink'}`
+                    : 'text-slate-800'
                 }`}
               >
                 {timeLeft.toString().padStart(2, '0')}s
@@ -996,7 +998,7 @@ function Arena({ theme }) {
 
                 <h2
                   className={`mt-4 text-4xl font-bold ${
-                    isCyber ? 'text-white' : 'text-slate-900'
+                    isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
                   }`}
                 >
                   Pattern Rush Results
@@ -1306,27 +1308,27 @@ function Arena({ theme }) {
                     <div className="rounded-3xl border border-cyan-500/30 bg-[#030c1c]/80 p-6 shadow-[0_0_55px_rgba(14,165,233,0.35)] backdrop-blur-[32px]">
                       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
-                          <p className="text-[10px] uppercase tracking-[0.35em] text-cyan-300">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300">
                             Pattern Rush Arena
                           </p>
-                          <h3 className="text-2xl font-semibold text-white">
+                          <h3 className="text-2xl font-bold text-white">
                             {currentPuzzle.title}
                           </h3>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs font-medium text-slate-300">
                             Resolve the missing tile and keep the momentum alive.
                           </p>
                         </div>
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">
                           Live Arena Feed
                         </p>
                       </div>
 
                       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
                         <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-5">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-slate-300">
                             Prompt Sequence
                           </p>
-                          <p className="text-xs text-slate-500">Read the pattern</p>
+                          <p className="text-xs font-medium text-slate-400">Read the pattern</p>
                           <div className="mt-4 grid grid-cols-3 gap-4 md:gap-5">
                             {currentPuzzle.grid.map((item, index) => {
                               const isMissingSlot = item === 'missing';
@@ -1350,10 +1352,10 @@ function Arena({ theme }) {
 
                         <div className="xl:sticky xl:top-6">
                           <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-5">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
                               Answer Tray
                             </p>
-                            <p className="text-xs text-slate-500">Choose the missing tile</p>
+                            <p className="text-xs font-medium text-slate-300">Choose the missing tile</p>
                             <div className="mt-4 flex flex-col items-center gap-3">
                               {feedback && (
                                 <div className="flex justify-center">
@@ -1379,7 +1381,7 @@ function Arena({ theme }) {
                                     }`}
                                   >
                                     <span
-                                      className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400"
+                                      className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300 group-hover:text-cyan-200"
                                     >
                                       Response
                                     </span>
@@ -1438,8 +1440,8 @@ function Arena({ theme }) {
               }`}
             >
               <p
-                className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-400' : 'text-slate-500'
+                className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
+                  isCyber ? 'text-slate-300' : 'text-slate-500'
                 }`}
               >
                 Score
@@ -1455,7 +1457,7 @@ function Arena({ theme }) {
 
             <div className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 px-5 py-4">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-300">
                   Cognitive State
                 </p>
                 <div className="flex items-center gap-3">
@@ -1494,7 +1496,7 @@ function Arena({ theme }) {
 
                 <div className="flex gap-4 border-l border-white/10 pl-4">
                   <div className="text-center">
-                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">
+                    <p className="text-[9px] font-bold uppercase tracking-tighter text-slate-400">
                       Current
                     </p>
                     <p className="text-sm font-bold text-slate-300">
@@ -1502,7 +1504,7 @@ function Arena({ theme }) {
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[9px] uppercase tracking-tighter text-slate-500">
+                    <p className="text-[9px] font-bold uppercase tracking-tighter text-slate-400">
                       Target
                     </p>
                     <p className="text-sm font-bold text-slate-200">
@@ -1528,8 +1530,8 @@ function Arena({ theme }) {
                 }`}
               >
                 <p
-                  className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
-                    isCyber ? 'text-slate-400' : 'text-slate-500'
+                  className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
+                    isCyber ? 'text-slate-300' : 'text-slate-500'
                   }`}
                 >
                   Streak
@@ -1553,8 +1555,8 @@ function Arena({ theme }) {
                 }`}
               >
                 <p
-                  className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
-                    isCyber ? 'text-slate-400' : 'text-slate-500'
+                  className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
+                    isCyber ? 'text-slate-300' : 'text-slate-500'
                   }`}
                 >
                   Combo
@@ -1581,8 +1583,8 @@ function Arena({ theme }) {
               }`}
             >
               <p
-                className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-400' : 'text-slate-500'
+                className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
+                  isCyber ? 'text-slate-300' : 'text-slate-500'
                 }`}
               >
                 Accuracy

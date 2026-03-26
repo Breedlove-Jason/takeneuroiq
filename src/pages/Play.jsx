@@ -101,16 +101,16 @@ function Play({ theme }) {
   ];
 
   return (
-    <section className="px-6 py-24">
+    <section className="animate-fadeIn px-6 py-24">
       <div className="mx-auto max-w-7xl">
         <div className="relative mx-auto max-w-3xl text-center">
           {isCyber && (
-            <div className="pointer-events-none absolute inset-x-10 -bottom-6 -top-8 -z-10 rounded-full bg-cyan-400/10 blur-3xl" />
+            <div className="pointer-events-none absolute inset-x-10 -bottom-6 -top-8 -z-10 rounded-full bg-cyan-400/20 blur-[100px] animate-pulse" />
           )}
           <p
-            className={`text-sm font-semibold uppercase tracking-[0.25em] ${
+            className={`text-sm font-bold uppercase tracking-[0.25em] ${
               isCyber
-                ? 'text-cyan-300 drop-shadow-[0_0_12px_rgba(34,211,238,0.45)]'
+                ? 'text-cyan-300 text-glow-blue'
                 : 'text-cyan-600'
             }`}
           >
@@ -120,7 +120,7 @@ function Play({ theme }) {
           <h1
             className={`mt-4 text-4xl font-bold md:text-5xl ${
               isCyber
-                ? 'bg-[linear-gradient(90deg,#e0f2fe_0%,#67e8f9_45%,#c4b5fd_100%)] bg-clip-text text-transparent'
+                ? 'bg-linear-to-r from-white via-cyan-300 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]'
                 : 'text-slate-900'
             }`}
           >
@@ -128,8 +128,8 @@ function Play({ theme }) {
           </h1>
 
           <p
-            className={`mt-6 text-lg leading-8 ${
-              isCyber ? 'text-slate-300' : 'text-slate-600'
+            className={`mt-6 text-lg font-medium leading-8 ${
+              isCyber ? 'text-slate-200' : 'text-slate-600'
             }`}
           >
             Enter a fast-paced cognitive challenge designed to test how you
@@ -166,8 +166,8 @@ function Play({ theme }) {
               </h2>
 
               <p
-                className={`mt-4 leading-7 ${
-                  isCyber ? 'text-slate-300' : 'text-slate-600'
+                className={`mt-4 font-medium leading-7 ${
+                  isCyber ? 'text-slate-200' : 'text-slate-600'
                 }`}
               >
                 {challenge.description}
@@ -178,7 +178,7 @@ function Play({ theme }) {
                   {challenge.skills.map((skill) => (
                     <span
                       key={skill}
-                      className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                      className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] ${
                         isCyber ? challenge.tagTone.cyber : challenge.tagTone.light
                       }`}
                     >

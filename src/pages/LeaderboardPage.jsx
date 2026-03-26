@@ -62,17 +62,17 @@ function LeaderboardPage() {
       : 0;
 
   return (
-    <section className="min-h-screen px-6 py-10">
+    <section className="animate-fadeIn min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 rounded-3xl border border-cyan-400/30 bg-slate-900/70 p-6 shadow-[0_0_40px_rgba(34,211,238,0.12)] backdrop-blur-md dark:bg-slate-900/70">
+        <div className="mb-8 rounded-3xl border border-cyan-400/30 bg-slate-900/70 p-6 shadow-[0_0_50px_rgba(34,211,238,0.15)] backdrop-blur-md dark:bg-slate-900/70">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300">
-                <FontAwesomeIcon icon={faBolt} />
+              <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.2)]">
+                <FontAwesomeIcon icon={faBolt} className="animate-pulse" />
                 Neural Arena Rankings
               </p>
 
-              <h1 className="text-3xl font-extrabold tracking-tight text-cyan-300 md:text-5xl">
+              <h1 className="text-glow-blue text-3xl font-extrabold tracking-tight text-cyan-300 md:text-5xl">
                 Leaderboard
               </h1>
 
@@ -84,8 +84,8 @@ function LeaderboardPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
                   Top Score
                 </p>
                 <p className="mt-2 text-2xl font-bold text-cyan-300">
@@ -93,8 +93,8 @@ function LeaderboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
                   Best Accuracy
                 </p>
                 <p className="mt-2 text-2xl font-bold text-cyan-300">
@@ -102,8 +102,8 @@ function LeaderboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-inner">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
                   Longest Streak
                 </p>
                 <p className="mt-2 text-2xl font-bold text-cyan-300">
@@ -159,7 +159,7 @@ function LeaderboardPage() {
 
                         <div className="mt-4 grid grid-cols-3 gap-3">
                           <div className="rounded-xl bg-slate-950/40 p-3 text-center">
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
                               Score
                             </p>
                             <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
@@ -167,7 +167,7 @@ function LeaderboardPage() {
                             </p>
                           </div>
                           <div className="rounded-xl bg-slate-950/40 p-3 text-center">
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
                               ACC
                             </p>
                             <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
@@ -175,7 +175,7 @@ function LeaderboardPage() {
                             </p>
                           </div>
                           <div className="rounded-xl bg-slate-950/40 p-3 text-center">
-                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
                               Streak
                             </p>
                             <p className="mt-1 text-sm font-semibold text-slate-100 tabular-nums">
@@ -185,7 +185,7 @@ function LeaderboardPage() {
                         </div>
 
                         <div className="mt-4 rounded-xl bg-slate-950/40 p-3">
-                          <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
                             Label
                           </p>
                           <p className="mt-1 truncate font-semibold text-fuchsia-300">
@@ -198,7 +198,7 @@ function LeaderboardPage() {
 
                   <div className="hidden md:block">
                     <div
-                      className={`grid ${leaderboardGridColumns} items-center gap-x-4 bg-slate-800/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400`}
+                      className={`grid ${leaderboardGridColumns} items-center gap-x-4 bg-slate-800/80 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-300`}
                     >
                       <span className="text-left">Rank</span>
                       <span className="text-left">Player</span>

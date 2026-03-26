@@ -262,7 +262,7 @@ function ProfileAnalytics({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           {' '}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300/80">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
               Neural Trend
             </p>
             <h3
@@ -270,13 +270,13 @@ function ProfileAnalytics({
             >
               {trendDisplay.symbol} {trendDisplay.label}
             </h3>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-300">
               {coachingInsight.summary}
             </p>{' '}
-            <p className="mt-2 text-xs leading-5 text-slate-500">
+            <p className="mt-2 text-xs leading-5 text-slate-400">
               {coachingInsight.focus}
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-slate-400">
               Based on your last {trendSessionCount}{' '}
               {trendSessionCount === 1 ? 'session' : 'sessions'}.
             </p>
@@ -286,7 +286,7 @@ function ProfileAnalytics({
                   key={stat.label}
                   className="flex min-h-22 flex-col justify-between rounded-xl border border-slate-800 bg-slate-950/40 p-3"
                 >
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 group-hover:text-cyan-300">
                     {stat.label}
                   </p>
                   <p
@@ -299,7 +299,7 @@ function ProfileAnalytics({
             </div>
           </div>
           <div className="sm:text-right">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
               Change
             </p>
             <p
@@ -327,7 +327,7 @@ function ProfileAnalytics({
             >
               {pressureState.label}
             </h3>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-300">
               {pressureState.detail}
             </p>
           </div>
@@ -349,13 +349,13 @@ function ProfileAnalytics({
             >
               {adaptiveDifficulty.label}
             </h3>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-300">
               {adaptiveDifficulty.description}
             </p>
           </div>
 
           <div className="sm:text-right">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
               Target
             </p>
             <p
@@ -373,7 +373,7 @@ function ProfileAnalytics({
             <h3 className="text-lg font-semibold text-white">
               Neural Power History
             </h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-300">
               Track how your recent performance is trending across sessions.
             </p>
           </div>
@@ -538,7 +538,7 @@ function ProfileAnalytics({
                         key={`${family.familyLabel}-${stat.label}`}
                         className={`flex flex-col gap-1 rounded-xl border p-3 ${familyTone.statCard}`}
                       >
-                        <span className="text-[9px] uppercase tracking-[0.3em] text-slate-500">
+                        <span className="text-[9px] font-semibold uppercase tracking-[0.3em] text-slate-400">
                           {stat.label}
                         </span>
                         <span
@@ -553,7 +553,7 @@ function ProfileAnalytics({
                   <div
                     className={`rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 ${familyTone.trendCard} ${familyVisual.accentRing}`}
                   >
-                    <p className="text-[10px] uppercase tracking-[0.4em] text-slate-500">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-400">
                       Trend Read
                     </p>
                     <p className="mt-1 text-sm font-semibold text-slate-200">
@@ -766,18 +766,19 @@ function getPuzzleFamilyVisual(puzzleType) {
 /**
  * Renders the Identity Core stats grid.
  */
-export function IdentityCoreStats({ sessions = [] }) {
+export function IdentityCoreStats({ sessions = [], playerName = 'Unknown' }) {
   const metrics = calculatePerformanceMetrics(sessions);
 
   const stats = [
+    { label: 'Player', value: playerName, color: 'text-cyan-300', fullWidth: true },
     { label: 'Best Score', value: metrics.bestScore, color: 'text-cyan-400' },
     {
       label: 'Best Streak',
       value: metrics.bestStreak,
-      color: 'text-green-400',
+      color: 'text-emerald-400',
     },
     {
-      label: 'Best Neural Power',
+      label: 'Best Power',
       value: metrics.bestNeuralPower,
       color: 'text-yellow-400',
     },
@@ -794,7 +795,7 @@ export function IdentityCoreStats({ sessions = [] }) {
     {
       label: 'Puzzles Solved',
       value: metrics.totalPuzzlesSolved,
-      color: 'text-green-400',
+      color: 'text-emerald-400',
     },
     {
       label: 'Total Attempts',
@@ -815,18 +816,19 @@ export function IdentityCoreStats({ sessions = [] }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-2">
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className={`rounded-2xl border border-slate-800 bg-slate-800/60 p-4 ${
+          className={`group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 transition-all duration-300 hover:border-cyan-500/50 hover:bg-slate-800/80 ${
             stat.fullWidth ? 'col-span-2' : ''
           }`}
         >
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+          <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <p className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300/80 group-hover:text-cyan-200/80">
             {stat.label}
           </p>
-          <p className={`mt-2 text-2xl font-bold ${stat.color}`}>
+          <p className={`relative z-10 mt-2 text-2xl font-bold tracking-tight transition-transform duration-300 group-hover:scale-105 ${stat.color}`}>
             {stat.value}
           </p>
         </div>
@@ -930,10 +932,10 @@ export function AgentSummary({ coachingInsight }) {
 
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">
-      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
         Agent Summary
       </p>
-      <p className="mt-2 text-sm leading-6 text-slate-300">{summary}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-200">{summary}</p>
     </div>
   );
 }
