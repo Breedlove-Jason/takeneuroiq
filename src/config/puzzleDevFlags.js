@@ -1,0 +1,7 @@
+// src/config/puzzleDevFlags.js
+
+export const PUZZLE_DEV_FLAGS = {
+  SHOW_PATTERN_RUSH_ANSWERS: true,
+  SHOW_SEQUENCE_SPRINT_ANSWERS: true,
+  SHOW_PUZZLE_DEBUG_META: true,
+};

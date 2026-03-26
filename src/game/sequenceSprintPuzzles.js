@@ -1,99 +1,232 @@
-const sequenceSprintPuzzles = [
-  {
-    id: 1,
-    difficulty: 'easy',
-    prompt: 'What comes next in the sequence?',
-    sequence: [2, 4, 6, 8],
-    options: ['10', '12', '9', '6'],
-    answer: '10',
-    rule: 'Add 2 each step',
-  },
-  {
-    id: 2,
-    difficulty: 'easy',
-    prompt: 'What comes next in the sequence?',
-    sequence: [1, 3, 5, 7],
-    options: ['8', '9', '10', '6'],
-    answer: '9',
-    rule: 'Add 2 each step',
-  },
-  {
-    id: 3,
-    difficulty: 'easy',
-    prompt: 'What comes next in the sequence?',
-    sequence: [5, 10, 15, 20],
-    options: ['25', '30', '35', '15'],
-    answer: '25',
-    rule: 'Add 5 each step',
-  },
+const COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Indigo', 'Violet'];
+const LETTER_POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-  {
-    id: 4,
-    difficulty: 'medium',
-    prompt: 'What comes next in the sequence?',
-    sequence: [3, 6, 12, 24],
-    options: ['36', '48', '30', '18'],
-    answer: '48',
-    rule: 'Multiply by 2 each step',
-  },
-  {
-    id: 5,
-    difficulty: 'medium',
-    prompt: 'What comes next in the sequence?',
-    sequence: [2, 5, 8, 11],
-    options: ['14', '13', '15', '12'],
-    answer: '14',
-    rule: 'Add 3 each step',
-  },
-  {
-    id: 6,
-    difficulty: 'medium',
-    prompt: 'What comes next in the sequence?',
-    sequence: [1, 4, 9, 16],
-    options: ['20', '25', '24', '36'],
-    answer: '25',
-    rule: 'Square numbers',
-  },
+let puzzleIdCounter = 1;
 
-  {
-    id: 7,
-    difficulty: 'hard',
-    prompt: 'What comes next in the sequence?',
-    sequence: [2, 6, 12, 20],
-    options: ['28', '30', '26', '24'],
-    answer: '30',
-    rule: 'Add consecutive even numbers',
-  },
-  {
-    id: 8,
-    difficulty: 'hard',
-    prompt: 'What comes next in the sequence?',
-    sequence: [1, 2, 4, 7],
-    options: ['10', '11', '12', '9'],
-    answer: '11',
-    rule: 'Add increasing increments (+1, +2, +3, +4)',
-  },
-  {
-    id: 9,
-    difficulty: 'hard',
-    prompt: 'What comes next in the sequence?',
-    sequence: [2, 3, 5, 8],
-    options: ['11', '12', '13', '10'],
-    answer: '13',
-    rule: 'Fibonacci-style progression',
-  },
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function shuffleArray(array) {
+  const clone = [...array];
+  for (let i = clone.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [clone[i], clone[j]] = [clone[j], clone[i]];
+  }
+  return clone;
+}
+
+function createNumericOptions(correct) {
+  const base = Number(correct);
+  const options = new Set([String(base)]);
+  while (options.size < 4) {
+    const variance = randomInt(1, 6);
+    const candidate = base + (Math.random() < 0.5 ? -variance : variance);
+    if (candidate > 0) {
+      options.add(String(candidate));
+    }
+  }
+  return shuffleArray([...options]);
+}
+
+function createLetterOptions(correctLetter) {
+  const index = LETTER_POOL.indexOf(correctLetter);
+  const options = new Set([correctLetter]);
+  let offset = 1;
+  while (options.size < 4) {
+    const candidateIndex = (index + offset + LETTER_POOL.length) % LETTER_POOL.length;
+    options.add(LETTER_POOL[candidateIndex]);
+    offset += 1;
+  }
+  return shuffleArray([...options]);
+}
+
+function createColorOptions(correctColor) {
+  const index = COLORS.indexOf(correctColor);
+  const options = new Set([correctColor]);
+  let offset = 1;
+  while (options.size < 4) {
+    const candidate = COLORS[(index + offset) % COLORS.length];
+    options.add(candidate);
+    offset += 1;
+  }
+  return shuffleArray([...options]);
+}
+
+function buildPuzzle({
+  difficulty,
+  ruleType,
+  sequence,
+  answer,
+  prompt,
+  signatureBase,
+  options,
+}) {
+  const baseSignature = `${ruleType}:${signatureBase}`;
+  return {
+    id: `seq-${puzzleIdCounter++}`,
+    difficulty,
+    prompt: prompt || 'What comes next in the sequence?',
+    sequence,
+    options: options || createNumericOptions(answer),
+    answer: String(answer),
+    rule: ruleType,
+    sequenceLength: sequence.length,
+    signature: baseSignature,
+    puzzleMetrics: {
+      ruleType,
+      sequenceLength: sequence.length,
+      signature: baseSignature,
+    },
+  };
+}
+
+function buildAscendingSequence(difficulty) {
+  const length = difficulty === 'hard' ? 5 : 4;
+  const start = randomInt(1, 6);
+  const step = randomInt(1, 4);
+  const sequence = Array.from({ length }, (_, i) => start + i * step);
+  const answer = start + length * step;
+  return buildPuzzle({
+    difficulty,
+    ruleType: 'ascending_number',
+    sequence,
+    answer,
+    signatureBase: `${start}-${step}-${length}`,
+  });
+}
+
+function buildAlternatingStepsSequence(difficulty) {
+  const length = 4;
+  const start = randomInt(1, 5);
+  const stepA = randomInt(1, 3);
+  const stepB = randomInt(1, 3);
+  const sequence = [start];
+  for (let i = 1; i < length; i += 1) {
+    const previous = sequence[i - 1];
+    const step = i % 2 === 1 ? stepA : stepB;
+    sequence.push(previous + step);
+  }
+  const answer = sequence[sequence.length - 1] + stepA;
+  return buildPuzzle({
+    difficulty,
+    ruleType: 'alternating_steps',
+    sequence,
+    answer,
+    signatureBase: `${start}-${stepA}-${stepB}`,
+  });
+}
+
+function buildMirrorPairSequence(difficulty) {
+  const central = randomInt(2, 6);
+  const step = randomInt(1, 4);
+  const sequence = [central - step, central, central + step, central];
+  const answer = central - step;
+  return buildPuzzle({
+    difficulty,
+    ruleType: 'mirror_pair',
+    sequence,
+    answer,
+    signatureBase: `${central}-${step}`,
+  });
+}
+
+function buildStepJumpSequence(difficulty) {
+  const length = difficulty === 'hard' ? 5 : 4;
+  const start = randomInt(1, 4);
+  const jumps = Array.from({ length }, () => randomInt(2, 5));
+  const sequence = [start];
+  for (let i = 0; i < length - 1; i += 1) {
+    sequence.push(sequence[sequence.length - 1] + jumps[i]);
+  }
+  const answer = sequence[sequence.length - 1] + jumps[length - 1];
+  return buildPuzzle({
+    difficulty,
+    ruleType: 'step_jump',
+    sequence,
+    answer,
+    signatureBase: `${start}-${jumps.join('-')}`,
+  });
+}
+
+function buildAlphabetShiftSequence(difficulty) {
+  const startIndex = randomInt(0, LETTER_POOL.length - 5);
+  const step = randomInt(1, 3);
+  const length = 4;
+  const sequence = Array.from({ length }, (_, i) =>
+    LETTER_POOL[(startIndex + i * step) % LETTER_POOL.length],
+  );
+  const answer = LETTER_POOL[(startIndex + length * step) % LETTER_POOL.length];
+  return buildPuzzle({
+    difficulty,
+    ruleType: 'alphabet_shift',
+    sequence,
+    answer,
+    options: createLetterOptions(answer),
+    signatureBase: `${startIndex}-${step}`,
+  });
+}
+
+function buildColorCycleSequence(difficulty) {
+  const start = randomInt(0, COLORS.length - 3);
+  const length = 4;
+  const sequence = Array.from({ length }, (_, i) =>
+    COLORS[(start + i) % COLORS.length],
+  );
+  const answer = COLORS[(start + length) % COLORS.length];
+  return buildPuzzle({
+    difficulty,
+    ruleType: 'color_cycle',
+    sequence,
+    answer,
+    options: createColorOptions(answer),
+    signatureBase: `${start}-${length}`,
+  });
+}
+
+const GENERATORS = [
+  { difficulty: 'easy', builder: () => buildAscendingSequence('easy') },
+  { difficulty: 'easy', builder: () => buildAlternatingStepsSequence('easy') },
+  { difficulty: 'easy', builder: () => buildColorCycleSequence('easy') },
+  { difficulty: 'medium', builder: () => buildStepJumpSequence('medium') },
+  { difficulty: 'medium', builder: () => buildMirrorPairSequence('medium') },
+  { difficulty: 'medium', builder: () => buildAlphabetShiftSequence('medium') },
+  { difficulty: 'hard', builder: () => buildAscendingSequence('hard') },
+  { difficulty: 'hard', builder: () => buildStepJumpSequence('hard') },
+  { difficulty: 'hard', builder: () => buildMirrorPairSequence('hard') },
 ];
 
-export function getRandomSequenceSprintPuzzle(difficulty = 'easy') {
-  const filtered = sequenceSprintPuzzles.filter(
-    (puzzle) => puzzle.difficulty === difficulty,
-  );
-
-  if (filtered.length === 0) {
-    return sequenceSprintPuzzles[0];
-  }
-
-  return filtered[Math.floor(Math.random() * filtered.length)];
+function getGeneratorPool(difficulty) {
+  const pool = GENERATORS.filter((entry) => entry.difficulty === difficulty);
+  return pool.length > 0 ? pool : GENERATORS;
 }
+
+export function getRandomSequenceSprintPuzzle(
+  difficulty = 'easy',
+  previousSignature = null,
+) {
+  const pool = getGeneratorPool(difficulty);
+  const shuffled = shuffleArray(pool);
+  for (let i = 0; i < shuffled.length; i += 1) {
+    const candidate = shuffled[i].builder();
+    if (candidate.signature !== previousSignature) {
+      return candidate;
+    }
+  }
+  return shuffled[0].builder();
+}
+
+export function buildSequenceSprintRun(count = 5, difficulty = 'medium') {
+  const run = [];
+  let previousSignature = null;
+  for (let i = 0; i < count; i += 1) {
+    const puzzle = getRandomSequenceSprintPuzzle(difficulty, previousSignature);
+    run.push(puzzle);
+    previousSignature = puzzle.signature;
+  }
+  return run;
+}
+
+const sequenceSprintPuzzles = buildSequenceSprintRun(9, 'medium');
 
 export default sequenceSprintPuzzles;

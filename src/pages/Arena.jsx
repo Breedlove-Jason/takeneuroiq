@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import PuzzleShape from '../components/PuzzleShape';
 import SequenceSprintPuzzle from '../components/SequenceSprintPuzzle';
 import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
-import { getRandomSequenceSprintPuzzle } from '../game/sequenceSprintPuzzles';
+import sequenceSprintPuzzles, {
+  getRandomSequenceSprintPuzzle,
+} from '../game/sequenceSprintPuzzles';
 import { recordSession } from '../game/sessionTracker';
 import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDifficulty.js';
 import { useLocation } from 'react-router-dom';
@@ -12,6 +14,7 @@ import {
   PUZZLE_TYPES,
   getPuzzleTypeMetadata,
 } from '../utils/puzzleTypeRegistry';
+import { PUZZLE_DEV_FLAGS } from '../config/puzzleDevFlags';
 
 /**
  * Arena Component
@@ -133,6 +136,32 @@ const recommendedSessionReasonMap = {
     'The system is using your recent training behavior to shape this session.',
 };
 
+function DevDebugPanel({ title, children }) {
+  return (
+    <div className="rounded-2xl border border-amber-400/40 bg-amber-500/5 p-3 text-[10px] uppercase tracking-[0.3em] text-amber-200 shadow-[0_0_18px_rgba(251,191,36,0.25)]">
+      {title && <div className="text-[9px] font-semibold text-amber-300">{title}</div>}
+      <div className="mt-1 space-y-1 text-[11px] leading-snug text-amber-100">{children}</div>
+    </div>
+  );
+}
+
+function clamp(value, min = 0, max = 100) {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return min;
+  }
+  return Math.min(Math.max(value, min), max);
+}
+
+function getSequenceSprintProgressPercent({ solvedCount = 0, totalCount = 1 }) {
+  if (!Number.isFinite(totalCount) || totalCount <= 0) {
+    return 0;
+  }
+  const rawPercent = (solvedCount / totalCount) * 100;
+  return clamp(rawPercent, 0, 100);
+}
+
+const SEQUENCE_SPRINT_TOTAL_PROBLEMS = Math.max(1, sequenceSprintPuzzles.length);
+
 const adaptiveStateToDifficultyMap = {
   recover: 'easy',
   steady: 'medium',
@@ -191,6 +220,11 @@ function Arena({ theme }) {
   const recommendedSessionTone =
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
+  const {
+    SHOW_PATTERN_RUSH_ANSWERS,
+    SHOW_SEQUENCE_SPRINT_ANSWERS,
+    SHOW_PUZZLE_DEBUG_META,
+  } = PUZZLE_DEV_FLAGS;
   const initialPuzzle = useMemo(() => {
     if (initialPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       return getRandomSequenceSprintPuzzle(initialTargetDifficulty);
@@ -206,6 +240,7 @@ function Arena({ theme }) {
   );
   const [sequenceSprintSelectedAnswer, setSequenceSprintSelectedAnswer] =
     useState(null);
+  const [sequenceSprintSolvedCount, setSequenceSprintSolvedCount] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
@@ -302,6 +337,39 @@ function Arena({ theme }) {
         : 0,
     };
   }, [activePuzzleType, activePuzzle]);
+
+  const patternDebugInfo = useMemo(() => {
+    return {
+      id: currentPuzzle?.id ?? 'Unknown',
+      difficulty:
+        currentPuzzle?.difficulty ?? currentPuzzle?.difficultyBucket ?? 'Unknown',
+      answer: currentPuzzle?.correctAnswer ?? 'Unknown',
+    };
+  }, [currentPuzzle]);
+
+  const sequenceDebugInfo = useMemo(() => {
+    const sequenceArray = Array.isArray(sequenceSprintPuzzle?.sequence)
+      ? sequenceSprintPuzzle.sequence
+      : [];
+    return {
+      id: sequenceSprintPuzzle?.id ?? 'Unknown',
+      answer: sequenceSprintPuzzle?.answer ?? 'Unknown',
+      rule: sequenceSprintPuzzle?.rule ?? 'Unknown',
+      length: sequenceArray.length,
+    };
+  }, [sequenceSprintPuzzle]);
+
+  const shouldShowPatternDebug =
+    SHOW_PATTERN_RUSH_ANSWERS || SHOW_PUZZLE_DEBUG_META;
+  const shouldShowSequenceDebug =
+    SHOW_SEQUENCE_SPRINT_ANSWERS || SHOW_PUZZLE_DEBUG_META;
+
+  const sequenceTotalCount = SEQUENCE_SPRINT_TOTAL_PROBLEMS;
+  const sequenceSolvedCount = sequenceSprintSolvedCount;
+  const sequenceSprintProgress = getSequenceSprintProgressPercent({
+    solvedCount: sequenceSolvedCount,
+    totalCount: sequenceTotalCount,
+  });
 
   const liveCoachingPressureClass =
     streak >= 6
@@ -595,6 +663,9 @@ function Arena({ theme }) {
 
     if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       setSequenceSprintSelectedAnswer(selectedAnswer);
+      setSequenceSprintSolvedCount((prev) =>
+        Math.min(prev + 1, sequenceTotalCount),
+      );
     }
 
     const isCorrect =
@@ -669,6 +740,7 @@ function Arena({ theme }) {
     setGameOver(false);
     setSessionOutcome(null);
     setCognitiveIdentity(null);
+    setSequenceSprintSolvedCount(0);
   }
   const accuracy =
     totalAnswers === 0
@@ -1149,7 +1221,78 @@ function Arena({ theme }) {
                 </div>
 
                 {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ? (
-                  <div className="mt-6">
+                  <div className="mt-6 space-y-4">
+                    {shouldShowSequenceDebug && (
+                      <DevDebugPanel title="Sequence Sprint Dev">
+                        {SHOW_SEQUENCE_SPRINT_ANSWERS && (
+                          <div>
+                            <span className="font-bold text-white">Answer:</span>{' '}
+                            <span className="text-amber-100">
+                              {sequenceDebugInfo.answer}
+                            </span>
+                          </div>
+                        )}
+                        {SHOW_PUZZLE_DEBUG_META && (
+                          <>
+                            <div>
+                              <span className="font-bold text-white">ID:</span>{' '}
+                              <span className="text-amber-100">
+                                {sequenceDebugInfo.id}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-bold text-white">Rule:</span>{' '}
+                              <span className="text-amber-100">
+                                {sequenceDebugInfo.rule}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-bold text-white">Length:</span>{' '}
+                              <span className="text-amber-100">
+                                {sequenceDebugInfo.length}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </DevDebugPanel>
+                    )}
+                    <div className="rounded-2xl border border-violet-400/30 bg-slate-950/70 p-4 shadow-[0_0_28px_rgba(168,85,247,0.18)] backdrop-blur-md">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-[9px] uppercase tracking-[0.35em] text-violet-300">
+                            Sequence Sprint Lane
+                          </p>
+                          <p className="text-lg font-semibold text-white">
+                            Momentum Track
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-cyan-400/30 bg-slate-900/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan-200">
+                          {sequenceSolvedCount}/{sequenceTotalCount} solved
+                        </span>
+                      </div>
+                      <div className="mt-4 space-y-2">
+                        <div className="relative h-2 rounded-full bg-slate-900/60">
+                          <div
+                            className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-cyan-400 to-fuchsia-500 transition-all duration-300"
+                            style={{ width: `${sequenceSprintProgress}%` }}
+                          />
+                          <div
+                            className="absolute -top-3 h-8 w-8 rounded-full bg-white/90 text-center text-lg leading-8 text-slate-900 shadow-[0_0_18px_rgba(59,130,246,0.45)] transition-all duration-300"
+                            style={{
+                              left: `${sequenceSprintProgress}%`,
+                              transform: 'translateX(-50%)',
+                            }}
+                            aria-hidden="true"
+                          >
+                            🏃
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                          <span>Start</span>
+                          <span>Finish</span>
+                        </div>
+                      </div>
+                    </div>
                     <SequenceSprintPuzzle
                       prompt={sequenceSprintPuzzle.prompt}
                       sequence={sequenceSprintPuzzle.sequence}
@@ -1248,6 +1391,35 @@ function Arena({ theme }) {
                               </div>
                             </div>
                           </div>
+
+                                {shouldShowPatternDebug && (
+                                  <div className="mt-4">
+                                    <DevDebugPanel title="Pattern Rush Dev">
+                                      {SHOW_PATTERN_RUSH_ANSWERS && (
+                                        <div>
+                                          <span className="font-bold text-white">Answer:</span>{' '}
+                                          <span className="text-amber-100">
+                                            {patternDebugInfo.answer}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {SHOW_PUZZLE_DEBUG_META && (
+                                        <>
+                                          <div>
+                                            <span className="font-bold text-white">ID:</span>{' '}
+                                            <span className="text-amber-100">{patternDebugInfo.id}</span>
+                                          </div>
+                                          <div>
+                                            <span className="font-bold text-white">Difficulty:</span>{' '}
+                                            <span className="text-amber-100">
+                                              {patternDebugInfo.difficulty}
+                                            </span>
+                                          </div>
+                                        </>
+                                      )}
+                                    </DevDebugPanel>
+                                  </div>
+                                )}
                         </div>
                       </div>
                     </div>
