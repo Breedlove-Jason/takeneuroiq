@@ -1145,13 +1145,6 @@ function Arena({ theme }) {
                       </p>
                     </div>
 
-                    {feedback && (
-                      <div
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getFeedbackBadgeClass(feedback, isCyber)}`}
-                      >
-                        {feedback}
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -1166,59 +1159,96 @@ function Arena({ theme }) {
                     />
                   </div>
                 ) : (
-                  <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
-                    <div
-                      className={`rounded-2xl border p-6 md:p-8 ${
-                        isCyber
-                          ? 'border-cyan-400/15 bg-[#0c1526]'
-                          : 'border-slate-200 bg-slate-50'
-                      }`}
-                    >
-                      <div className="grid grid-cols-3 gap-4 md:gap-5">
-                        {currentPuzzle.grid.map((item, index) => (
-                          <div
-                            key={`${item}-${index}`}
-                            className={`flex aspect-square items-center justify-center rounded-2xl border ${
-                              isCyber
-                                ? 'border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]'
-                                : 'border-slate-200 bg-white'
-                            }`}
-                          >
-                            <PuzzleShape shape={item} />
-                          </div>
-                        ))}
+                  <div className="mt-6">
+                    <div className="rounded-3xl border border-cyan-500/30 bg-[#030c1c]/80 p-6 shadow-[0_0_55px_rgba(14,165,233,0.35)] backdrop-blur-[32px]">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-[0.35em] text-cyan-300">
+                            Pattern Rush Arena
+                          </p>
+                          <h3 className="text-2xl font-semibold text-white">
+                            {currentPuzzle.title}
+                          </h3>
+                          <p className="text-xs text-slate-400">
+                            Resolve the missing tile and keep the momentum alive.
+                          </p>
+                        </div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500">
+                          Live Arena Feed
+                        </p>
                       </div>
-                    </div>
 
-                    <div className="xl:sticky xl:top-6">
-                      <div className="grid content-start gap-4">
-                        {currentPuzzle.choices.map((choice) => (
-                          <button
-                            key={choice}
-                            onClick={() => handleAnswer(choice)}
-                            disabled={gameOver}
-                            className={`group rounded-2xl border px-5 py-4 text-left transition ${
-                              gameOver ? 'cursor-not-allowed opacity-50' : ''
-                            } ${
-                              isCyber
-                                ? 'border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]'
-                                : 'border-slate-200 bg-white text-slate-900 hover:border-cyan-300'
-                            }`}
-                          >
-                            <span
-                              className={`text-xs font-semibold uppercase tracking-[0.25em] ${
-                                isCyber
-                                  ? 'text-cyan-400 group-hover:text-fuchsia-300'
-                                  : 'text-cyan-600'
-                              }`}
-                            >
-                              Response
-                            </span>
-                            <div className="mt-3 flex items-center justify-center">
-                              <PuzzleShape shape={choice} />
+                      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+                        <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-5">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">
+                            Prompt Sequence
+                          </p>
+                          <p className="text-xs text-slate-500">Read the pattern</p>
+                          <div className="mt-4 grid grid-cols-3 gap-4 md:gap-5">
+                            {currentPuzzle.grid.map((item, index) => {
+                              const isMissingSlot = item === 'missing';
+                              return (
+                                <div
+                                  key={`${item}-${index}`}
+                                  className={`flex aspect-square items-center justify-center rounded-2xl border ${
+                                    isMissingSlot
+                                      ? 'border-dashed border-cyan-500/70 bg-cyan-500/5 shadow-[0_0_25px_rgba(34,211,238,0.25)]'
+                                      : isCyber
+                                        ? 'border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]'
+                                        : 'border-slate-200 bg-white'
+                                  }`}
+                                >
+                                  <PuzzleShape shape={item} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="xl:sticky xl:top-6">
+                          <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-5">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">
+                              Answer Tray
+                            </p>
+                            <p className="text-xs text-slate-500">Choose the missing tile</p>
+                            <div className="mt-4 flex flex-col items-center gap-3">
+                              {feedback && (
+                                <div className="flex justify-center">
+                                  <span
+                                    className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${getFeedbackBadgeClass(feedback, isCyber)}`}
+                                  >
+                                    {feedback}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex w-full flex-wrap justify-center gap-4">
+                                {currentPuzzle.choices.map((choice) => (
+                                  <button
+                                    key={choice}
+                                    onClick={() => handleAnswer(choice)}
+                                    disabled={gameOver}
+                                    className={`group flex min-w-40 flex-col items-center justify-center rounded-2xl border px-5 py-4 text-center transition ${
+                                      gameOver ? 'cursor-not-allowed opacity-50' : ''
+                                    } ${
+                                      isCyber
+                                        ? 'border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]'
+                                        : 'border-slate-200 bg-white text-slate-900 hover:border-cyan-300'
+                                    }`}
+                                  >
+                                    <span
+                                      className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400"
+                                    >
+                                      Response
+                                    </span>
+                                    <div className="mt-3 flex items-center justify-center">
+                                      <PuzzleShape shape={choice} />
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </button>
-                        ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

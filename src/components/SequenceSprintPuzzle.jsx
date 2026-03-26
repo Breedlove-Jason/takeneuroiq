@@ -40,7 +40,7 @@ export default function SequenceSprintPuzzle({
               key={option}
               type="button"
               onClick={() => onSelectAnswer?.(option)}
-              className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all duration-200 ${
+              className={`rounded-2xl border px-4 py-3 text-center text-sm font-semibold transition-all duration-200 ${
                 isSelected
                   ? 'border-cyan-400/60 bg-cyan-500/15 text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.16)]'
                   : 'border-white/10 bg-slate-900/70 text-slate-200 hover:border-violet-400/40 hover:bg-violet-500/10 hover:text-white'
