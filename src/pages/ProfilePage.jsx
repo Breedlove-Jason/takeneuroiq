@@ -39,19 +39,275 @@ function formatSessionTime(timestamp) {
 }
 
 const adaptiveStateHistoryLabelMap = {
-  recover: 'Recovery Mode',
-  steady: 'Stable Load',
-  challenge: 'Challenge Mode',
+  recover: 'Recovering',
+  steady: 'Steadying',
+  challenge: 'Challenging',
 };
 
-const adaptiveStateHistoryColorMap = {
-  recover: 'text-yellow-300',
-  steady: 'text-cyan-300',
-  challenge: 'text-fuchsia-300',
+const adaptiveStateHistoryPillMap = {
+  recover:
+    'border-amber-300/60 bg-amber-500/20 text-amber-200 shadow-[0_0_26px_rgba(251,191,36,0.55)]',
+  steady:
+    'border-cyan-300/60 bg-cyan-500/20 text-cyan-200 shadow-[0_0_26px_rgba(34,211,238,0.55)]',
+  challenge:
+    'border-fuchsia-300/60 bg-fuchsia-500/20 text-fuchsia-200 shadow-[0_0_26px_rgba(217,70,239,0.6)]',
+};
+const challengeStatePillMap = {
+  dominating:
+    'border-rose-300/60 bg-rose-500/20 text-rose-200 shadow-[0_0_26px_rgba(244,63,94,0.6)]',
+  surging:
+    'border-fuchsia-300/60 bg-fuchsia-500/20 text-fuchsia-200 shadow-[0_0_26px_rgba(217,70,239,0.6)]',
+  stabilizing:
+    'border-cyan-300/60 bg-cyan-500/20 text-cyan-200 shadow-[0_0_26px_rgba(34,211,238,0.6)]',
+  rebuilding:
+    'border-amber-300/60 bg-amber-500/20 text-amber-200 shadow-[0_0_26px_rgba(251,191,36,0.55)]',
+  calibrating:
+    'border-slate-400/60 bg-slate-700/30 text-slate-200 shadow-[0_0_26px_rgba(148,163,184,0.4)]',
 };
 
 const recentSessionsGridColumns =
-  'grid-cols-[minmax(6.5rem,1.2fr)_minmax(4rem,0.7fr)_minmax(3.5rem,0.6fr)_minmax(4rem,0.7fr)_minmax(6.5rem,1.1fr)_minmax(5.5rem,0.9fr)_minmax(7.5rem,1.2fr)_minmax(5.5rem,0.9fr)]';
+  'grid-cols-[minmax(6.5rem,1.2fr)_minmax(4rem,0.7fr)_minmax(3.5rem,0.6fr)_minmax(4rem,0.7fr)_minmax(6.5rem,1.1fr)_minmax(7.5rem,1.25fr)_minmax(7rem,1fr)_minmax(5.5rem,0.9fr)]';
+
+const compactIdentityLabelMap = {
+  'adaptive learner': 'Adapting',
+  'recovery mode': 'Rebuilding',
+  climber: 'Climbing',
+  striker: 'Striking',
+  'precision builder': 'Refining',
+  'momentum driver': 'Accelerating',
+  'pattern anchor': 'Stabilizing',
+  'speed seeker': 'Quickening',
+  'cognitive sprinter': 'Surging',
+  'logic weaver': 'Reasoning',
+  'strategic builder': 'Planning',
+  'consistent performer': 'Balancing',
+  independent: 'Self Guiding',
+  'independent striker': 'Self Guiding',
+  'independent identity': 'Self Guiding',
+};
+const compactIdentityStyleMap = {
+  adapting:
+    'border-violet-300/60 bg-violet-500/20 text-violet-200 shadow-[0_0_26px_rgba(167,139,250,0.55)]',
+  rebuilding:
+    'border-amber-300/60 bg-amber-500/20 text-amber-200 shadow-[0_0_26px_rgba(251,191,36,0.5)]',
+  climbing:
+    'border-sky-300/60 bg-sky-500/20 text-sky-200 shadow-[0_0_26px_rgba(56,189,248,0.55)]',
+  striking:
+    'border-fuchsia-300/60 bg-fuchsia-500/20 text-fuchsia-200 shadow-[0_0_26px_rgba(217,70,239,0.6)]',
+  refining:
+    'border-cyan-300/60 bg-cyan-500/20 text-cyan-200 shadow-[0_0_26px_rgba(34,211,238,0.6)]',
+  accelerating:
+    'border-rose-300/60 bg-rose-500/20 text-rose-200 shadow-[0_0_26px_rgba(244,63,94,0.6)]',
+  stabilizing:
+    'border-emerald-300/60 bg-emerald-500/20 text-emerald-200 shadow-[0_0_26px_rgba(16,185,129,0.6)]',
+  quickening:
+    'border-lime-300/60 bg-lime-500/20 text-lime-200 shadow-[0_0_26px_rgba(163,230,53,0.6)]',
+  surging:
+    'border-orange-300/60 bg-orange-500/20 text-orange-200 shadow-[0_0_26px_rgba(249,115,22,0.6)]',
+  reasoning:
+    'border-blue-300/60 bg-blue-500/20 text-blue-200 shadow-[0_0_26px_rgba(59,130,246,0.6)]',
+  planning:
+    'border-indigo-300/60 bg-indigo-500/20 text-indigo-200 shadow-[0_0_26px_rgba(99,102,241,0.6)]',
+  balancing:
+    'border-teal-300/60 bg-teal-500/20 text-teal-200 shadow-[0_0_26px_rgba(20,184,166,0.6)]',
+  'self guiding':
+    'border-pink-300/60 bg-pink-500/20 text-pink-200 shadow-[0_0_26px_rgba(236,72,153,0.6)]',
+};
+
+function formatSnakeCaseToTitle(value) {
+  if (typeof value !== 'string') return '';
+  return value
+    .split('_')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function getCompactIdentityLabel(identity) {
+  const rawLabel =
+    typeof identity === 'string'
+      ? identity
+      : identity?.label ?? identity?.name ?? '';
+  const trimmedLabel = rawLabel.trim();
+  if (!trimmedLabel) return 'Unknown';
+  const normalized = trimmedLabel.toLowerCase();
+  return compactIdentityLabelMap[normalized] ?? trimmedLabel;
+}
+
+function getCompactIdentityStyle(identityLabel) {
+  if (!identityLabel) {
+    return 'border-slate-600/60 bg-slate-700/20 text-slate-300 shadow-[0_0_18px_rgba(148,163,184,0.3)]';
+  }
+  const normalized = identityLabel.trim().toLowerCase();
+  return (
+    compactIdentityStyleMap[normalized] ||
+    'border-slate-600/60 bg-slate-700/20 text-slate-300 shadow-[0_0_18px_rgba(148,163,184,0.3)]'
+  );
+}
+
+function getChallengeStatePill(challengeState) {
+  if (!challengeState) {
+    return 'border-slate-400/60 bg-slate-700/30 text-slate-200 shadow-[0_0_26px_rgba(148,163,184,0.4)]';
+  }
+  const normalized = challengeState.trim().toLowerCase();
+  return (
+    challengeStatePillMap[normalized] ||
+    'border-slate-400/60 bg-slate-700/30 text-slate-200 shadow-[0_0_26px_rgba(148,163,184,0.4)]'
+  );
+}
+
+function getPuzzleFamilyLabel(puzzleType, mode) {
+  if (puzzleType === 'sequence_sprint') return 'Sequence Sprint';
+  if (puzzleType === 'pattern_rush') return 'Pattern Rush';
+  const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
+  if (puzzleLabel) return puzzleLabel;
+  if (mode) {
+    const modeLabel = formatSnakeCaseToTitle(mode);
+    return modeLabel || mode;
+  }
+  return 'Pattern Rush';
+}
+
+function getFocusLaneFromPuzzleType(puzzleType) {
+  switch (puzzleType) {
+    case 'sequence_sprint':
+      return 'Sequential Reasoning';
+    case 'pattern_rush':
+      return 'Pattern Recognition';
+    case 'grid_recall':
+      return 'Spatial Recall';
+    case 'logic_gate':
+      return 'Logic Processing';
+    default:
+      return 'Cognitive Training';
+  }
+}
+
+function getChallengeState(session) {
+  if (!session) return 'Calibrating';
+  const accuracy = session.accuracy ?? getSessionAccuracy(session);
+  const streak = session.bestStreak ?? session.streak ?? 0;
+  const score = session.score ?? 0;
+
+  if (accuracy >= 95 && streak >= 12) return 'Dominating';
+  if (accuracy >= 85 && streak >= 8) return 'Surging';
+  if (accuracy >= 70) return 'Stabilizing';
+  if (score > 0) return 'Rebuilding';
+  return 'Calibrating';
+}
+
+function buildFamilyAwareRecommendation(session) {
+  if (!session) {
+    return 'Alternate puzzle families to broaden cognitive adaptation.';
+  }
+  const accuracy = session.accuracy ?? getSessionAccuracy(session);
+  const streak = session.bestStreak ?? session.streak ?? 0;
+  const puzzleMetrics = session.puzzleMetrics ?? {};
+
+  if (session.puzzleType === 'sequence_sprint') {
+    const sequenceLength = puzzleMetrics.sequenceLength;
+    const ruleType = puzzleMetrics.ruleType
+      ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
+      : null;
+    const ruleLabel = ruleType ? `${ruleType} rule` : 'sequence rules';
+    const lengthLabel =
+      typeof sequenceLength === 'number'
+        ? `length ${sequenceLength}`
+        : 'longer sequences';
+
+    if (accuracy >= 85 && streak >= 8) {
+      return `Press harder with ${ruleLabel} at ${lengthLabel} to extend your prediction streak.`;
+    }
+    if (accuracy >= 70) {
+      return `Lock in ${ruleLabel} accuracy by repeating ${lengthLabel} runs before switching families.`;
+    }
+    return `Reset with shorter ${ruleLabel} reps to rebuild confidence before scaling ${lengthLabel}.`;
+  }
+
+  if (session.puzzleType === 'pattern_rush') {
+    if (accuracy >= 90 && streak >= 10) {
+      return 'Push to faster pattern ramps and protect your streak under tighter time pressure.';
+    }
+    if (accuracy >= 75) {
+      return 'Stabilize visual reads with consistent cadence, then chase higher streaks.';
+    }
+    return 'Slow the tempo, lock accuracy, and rebuild pattern confidence before speed runs.';
+  }
+
+  return 'Alternate puzzle families to broaden cognitive adaptation.';
+}
+
+function buildPrimarySignalLabel(session) {
+  if (!session) {
+    return 'Pattern signal stabilizing';
+  }
+  const accuracy = session.accuracy ?? getSessionAccuracy(session);
+  const puzzleMetrics = session.puzzleMetrics ?? {};
+
+  if (session.puzzleType === 'sequence_sprint') {
+    const ruleType = puzzleMetrics.ruleType
+      ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
+      : 'Sequence';
+    return accuracy >= 80
+      ? `${ruleType} recognition strengthening`
+      : `${ruleType} recognition rebuilding`;
+  }
+
+  if (session.puzzleType === 'pattern_rush') {
+    return accuracy >= 80
+      ? 'visual pattern recognition sharpening'
+      : 'pattern confidence recovering';
+  }
+
+  return (
+    session.primarySignal ??
+    session.signal ??
+    session.shiftSignal ??
+    'Pattern signal stabilizing'
+  );
+}
+
+function buildCurrentCognitiveFocus(session) {
+  if (!session) {
+    return {
+      puzzleFamily: 'Unknown',
+      focusLane: 'Cognitive Training',
+      identity: 'Unknown',
+      challengeState: 'Calibrating',
+      primarySignal: 'Pattern signal stabilizing',
+      trainingDirection: 'Continue reinforcing your strongest response lane.',
+      recommendation:
+        'Alternate puzzle families to broaden cognitive adaptation.',
+    };
+  }
+
+  const puzzleFamily = getPuzzleFamilyLabel(session.puzzleType, session.mode);
+  const focusLane = getFocusLaneFromPuzzleType(session.puzzleType);
+  const identity = getCompactIdentityLabel(
+    session.cognitiveIdentity ?? session.identity,
+  );
+  const challengeState = getChallengeState(session);
+  const primarySignal = buildPrimarySignalLabel(session);
+  const trainingDirection =
+    session.trainingDirection ??
+    session.direction ??
+    'Continue reinforcing your strongest response lane.';
+  const recommendation =
+    session.recommendedNextFocus ??
+    session.recommendedFlow ??
+    session.coachingInsight ??
+    buildFamilyAwareRecommendation(session);
+
+  return {
+    puzzleFamily,
+    focusLane,
+    identity,
+    challengeState,
+    primarySignal,
+    trainingDirection,
+    recommendation,
+  };
+}
 
 function formatCognitiveIdentityLabel(label) {
   if (!label) return label;
@@ -84,25 +340,17 @@ function formatNeuralTrendLabel(direction) {
   }
 }
 
-function getIdentityBadgeClasses(identityKey) {
-  switch (identityKey) {
-    case 'precision_runner':
-      return 'text-cyan-300';
-    case 'stabilizer':
-      return 'text-emerald-300';
-    case 'climber':
-      return 'text-sky-300';
-    case 'overreacher':
-      return 'text-amber-300';
-    case 'recovery_builder':
-      return 'text-rose-300';
-    case 'adaptive_learner':
-      return 'text-violet-300';
-    case 'independent_striker':
-      return 'text-fuchsia-300';
-    default:
-      return 'text-slate-300';
+function getSessionAccuracy(session) {
+  if (
+    typeof session?.puzzlesAttempted === 'number' &&
+    session.puzzlesAttempted > 0 &&
+    typeof session?.puzzlesCorrect === 'number'
+  ) {
+    return Math.round(
+      (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
+    );
   }
+  return session?.accuracy ?? 0;
 }
 
 function getSessionOutcomeToneClasses(tone) {
@@ -189,23 +437,15 @@ function ProfilePage() {
     return getPuzzleTypeMetadata(recentSession.puzzleType);
   }, [cognitiveIdentitySummary.recentIdentitySession]);
 
-  const getIdentityDisplayLabel = (cognitiveIdentity) => {
-    const identityKey = cognitiveIdentity?.identityKey;
-    const label = cognitiveIdentity?.label;
+  const latestSession = [...sessions]
+    .filter(Boolean)
+    .sort((a, b) => {
+      const aTime = a?.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const bTime = b?.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return bTime - aTime;
+    })[0] ?? null;
+  const currentCognitiveFocus = buildCurrentCognitiveFocus(latestSession);
 
-    switch (identityKey) {
-      case 'independent_striker':
-        return 'Striker';
-      case 'recovery_builder':
-        return 'Recovery';
-      case 'precision_runner':
-        return 'Precision';
-      case 'adaptive_learner':
-        return 'Adapting';
-      default:
-        return label || 'Unclassified';
-    }
-  };
 
   const navigate = useNavigate();
   const handleStartRecommendedSession = () => {
@@ -498,19 +738,6 @@ function ProfilePage() {
 
   const recentSessionsDisplay = [...recentSessions].reverse();
 
-  // Helper to calculate session accuracy for the table and trends.
-  const getSessionAccuracy = (session) => {
-    if (
-      typeof session.puzzlesAttempted === 'number' &&
-      session.puzzlesAttempted > 0 &&
-      typeof session.puzzlesCorrect === 'number'
-    ) {
-      return Math.round(
-        (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
-      );
-    }
-    return session.accuracy ?? 0;
-  };
 
   const normalizedNameInput = nameInput.trim();
   const canSavePlayerName =
@@ -884,6 +1111,84 @@ function ProfilePage() {
               </div>
             </div>
 
+            <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(14,165,233,0.25)] backdrop-blur-md">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                  <FontAwesomeIcon
+                    icon={faWaveSquare}
+                    className="text-cyan-300"
+                  />
+                  Current Cognitive Focus
+                </h2>
+                <span className="text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                  Live Signal
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                    Puzzle Family
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-white">
+                    {currentCognitiveFocus.puzzleFamily}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                    Focus Lane
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-cyan-200">
+                    {currentCognitiveFocus.focusLane}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                    Current Identity
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-fuchsia-200">
+                    {currentCognitiveFocus.identity}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                    Challenge State
+                  </p>
+                  <span
+                    className={`mt-2 inline-flex items-center justify-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${getChallengeStatePill(
+                      currentCognitiveFocus.challengeState,
+                    )}`}
+                  >
+                    {currentCognitiveFocus.challengeState}
+                  </span>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                    Primary Signal
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-slate-200">
+                    {currentCognitiveFocus.primarySignal}
+                  </p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                    Training Direction
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-slate-200">
+                    {currentCognitiveFocus.trainingDirection}
+                  </p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-slate-500">
+                    Recommended Next Focus
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-cyan-200">
+                    {currentCognitiveFocus.recommendation}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                 <FontAwesomeIcon
@@ -905,10 +1210,10 @@ function ProfilePage() {
                           session.liveAdaptiveDifficulty?.state ?? 'steady';
                         const adaptiveStateLabel =
                           adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
-                          'Stable Load';
-                        const adaptiveStateColor =
-                          adaptiveStateHistoryColorMap[adaptiveStateKey] ??
-                          'text-cyan-300';
+                          'Steadying';
+                        const adaptiveStatePill =
+                          adaptiveStateHistoryPillMap[adaptiveStateKey] ??
+                          'border-cyan-300/60 bg-cyan-500/20 text-cyan-200 shadow-[0_0_26px_rgba(34,211,238,0.55)]';
 
                         return (
                           <div
@@ -925,7 +1230,7 @@ function ProfilePage() {
                                 </p>
                               </div>
                               <span
-                                className={`rounded-full border border-slate-700 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${adaptiveStateColor}`}
+                                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${adaptiveStatePill}`}
                               >
                                 {adaptiveStateLabel}
                               </span>
@@ -991,34 +1296,40 @@ function ProfilePage() {
                       })}
                     </div>
 
-                    <div className="hidden overflow-x-auto md:block">
+                    <div className="hidden overflow-x-auto rounded-2xl border border-slate-800/60 bg-slate-900/60 md:block">
                       <div
                         className={`grid min-w-[56rem] ${recentSessionsGridColumns} items-center gap-x-4 border-b border-slate-700/50 bg-slate-800/40 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500`}
                       >
-                        <span className="text-left">Mode</span>
+                        <span className="text-left">Puzzle Family</span>
                         <span className="text-center">Score</span>
                         <span className="text-center">ACC</span>
                         <span className="text-center">Streak</span>
                         <span className="text-left">Run Data</span>
                         <span className="text-left">Identity</span>
-                        <span className="text-left">Adaptive State</span>
+                        <span className="text-left">State</span>
                         <span className="text-left">When</span>
                       </div>
 
                       {recentSessionsDisplay.map((session, index) => {
-                        const puzzleMeta = getPuzzleTypeMetadata(
-                          session.puzzleType,
-                        );
                         const adaptiveStateKey =
                           session.liveAdaptiveDifficulty?.state ?? 'steady';
                         const adaptiveStateLabel =
                           adaptiveStateHistoryLabelMap[adaptiveStateKey] ??
-                          'Stable Load';
-                        const adaptiveStateColor =
-                          adaptiveStateHistoryColorMap[adaptiveStateKey] ??
-                          'text-cyan-300';
-                        const puzzleModeLabel =
-                          puzzleMeta.shortLabel || puzzleMeta.label;
+                          'Steadying';
+                        const adaptiveStatePill =
+                          adaptiveStateHistoryPillMap[adaptiveStateKey] ??
+                          'border-cyan-300/60 bg-cyan-500/20 text-cyan-200 shadow-[0_0_26px_rgba(34,211,238,0.55)]';
+                        const puzzleFamilyLabel = getPuzzleFamilyLabel(
+                          session.puzzleType,
+                          session.mode,
+                        );
+                        const identitySource =
+                          session.cognitiveIdentity ?? session.identity;
+                        const compactIdentity = getCompactIdentityLabel(
+                          identitySource,
+                        );
+                        const compactIdentityStyle =
+                          getCompactIdentityStyle(compactIdentity);
 
                         return (
                           <div
@@ -1026,7 +1337,7 @@ function ProfilePage() {
                             className={`grid min-w-[56rem] ${recentSessionsGridColumns} group items-center gap-x-4 border-t border-slate-800/50 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-cyan-400/[0.03]`}
                           >
                             <span className="truncate font-bold text-white transition-colors group-hover:text-cyan-400">
-                              {puzzleModeLabel}
+                              {puzzleFamilyLabel}
                             </span>
                             <span className="text-center font-mono text-cyan-100/80 tabular-nums">
                               {session.score ?? 0}
@@ -1050,15 +1361,11 @@ function ProfilePage() {
                               </span>
                             </div>
                             <div className="flex min-w-0 items-center">
-                              {session.cognitiveIdentity?.label ? (
+                              {compactIdentity ? (
                                 <span
-                                  className={`inline-block truncate text-xs font-semibold tracking-[0.04em] ${getIdentityBadgeClasses(
-                                    session.cognitiveIdentity.identityKey,
-                                  )}`}
+                                  className={`flex min-w-0 max-w-[120px] items-center justify-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.22em] ${compactIdentityStyle}`}
                                 >
-                                  {getIdentityDisplayLabel(
-                                    session.cognitiveIdentity,
-                                  )}
+                                  <span className="truncate">{compactIdentity}</span>
                                 </span>
                               ) : (
                                 <span className="text-[10px] font-semibold text-slate-600">
@@ -1067,9 +1374,11 @@ function ProfilePage() {
                               )}
                             </div>
                             <span
-                              className={`text-[11px] font-semibold uppercase tracking-tight ${adaptiveStateColor}`}
+                              className={`flex min-w-0 max-w-[108px] items-center justify-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.22em] ${adaptiveStatePill}`}
                             >
-                              {adaptiveStateLabel}
+                              <span className="truncate">
+                                {adaptiveStateLabel}
+                              </span>
                             </span>
                             <span className="text-[11px] font-medium text-slate-500 group-hover:text-slate-400">
                               {formatSessionTime(session.timestamp)}

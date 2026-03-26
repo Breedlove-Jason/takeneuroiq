@@ -1,22 +1,36 @@
 takeneuroiq/
 ├── AGENTS.md
 ├── README.md
+├── TakeNeuroIQ-Founder- Brief.pdf
 ├── business-strategy.txt
+├── dist/
+│   ├── assets/
+│   │   ├── index-B1AcRwjc.css
+│   │   ├── index-B4ILUv9d.js
+│   │   └── logo-B7RVZxgK.png
+│   └── index.html
 ├── eslint.config.js
 ├── index.html
+├── node_modules/
+│   └── ... (many packages)
+├── package-lock.json
 ├── package.json
 ├── postcss.config.js
-├── TakeNeuroIQ-Founder- Brief.pdf
-├── vite.config.js
+├── project-hierarchy.txt
+├── public/
+│   └── (empty)
 ├── src/
 │   ├── App.jsx
-│   ├── main.jsx
 │   ├── index.css
+│   ├── main.jsx
 │   ├── analytics/
 │   │   ├── adaptiveDifficulty.js
 │   │   ├── coachingEngine.js
+│   │   ├── cognitiveIdentity.js
+│   │   ├── cognitiveIdentitySummary.js
 │   │   ├── cognitiveTracks.js
 │   │   ├── liveAdaptiveDifficulty.js
+│   │   ├── puzzleFamilyAnalytics.js
 │   │   ├── sessionAnalytics.js
 │   │   └── sessionOutcomeEvaluator.js
 │   ├── assets/
@@ -26,13 +40,15 @@ takeneuroiq/
 │   │   ├── Hero.jsx
 │   │   ├── HowItWorks.jsx
 │   │   ├── ProfileAnalytics.jsx
-│   │   └── PuzzleShape.jsx
+│   │   ├── PuzzleShape.jsx
+│   │   └── SequenceSprintPuzzle.jsx
 │   ├── game/
 │   │   ├── patternPuzzles.js
 │   │   ├── playerIdentity.js
 │   │   ├── puzzleEngine.js
 │   │   ├── puzzleGenerator.js
-│   │   ├── sessionTracker.js
+│   │   ├── sequenceSprintPuzzles.js
+│   │   └── sessionTracker.js
 │   ├── hooks/
 │   │   └── useSessionData.js
 │   ├── layout/
@@ -43,11 +59,25 @@ takeneuroiq/
 │   │   ├── LeaderboardPage.jsx
 │   │   ├── Play.jsx
 │   │   └── ProfilePage.jsx
-│   ├── utils/
-│   │   └── sessionTrendUtils.js
+│   └── utils/
+│       ├── puzzleTypeRegistry.js
+│       └── sessionTrendUtils.js
 ├── tests/
 │   ├── sessionTracker.test.js
 │   ├── verify_logic.js
 │   └── verify_session_data.test.js
-
-
+├── vite.config.js
+└── .idea/
+    ├── .gitignore
+    ├── copilot.data.migration.ask2agent.xml
+    ├── git_toolbox_prj.xml
+    ├── inspectionProfiles/
+    │   └── Project_Default.xml
+    ├── jsLibraryMappings.xml
+    ├── material_theme_project_new.xml
+    ├── misc.xml
+    ├── modules.xml
+    ├── prettier.xml
+    ├── takeneuroiq.iml
+    ├── vcs.xml
+    └── workspace.xml
