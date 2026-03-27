@@ -770,45 +770,45 @@ export function IdentityCoreStats({ sessions = [], playerName = 'Unknown' }) {
   const metrics = calculatePerformanceMetrics(sessions);
 
   const stats = [
-    { label: 'Player', value: playerName, color: 'text-cyan-300', fullWidth: true },
-    { label: 'Best Score', value: metrics.bestScore, color: 'text-cyan-400' },
+    { label: 'PLAYER', value: playerName, color: 'text-cyan-300', fullWidth: true },
+    { label: 'BEST SCORE', value: metrics.bestScore, color: 'text-cyan-400' },
     {
-      label: 'Best Streak',
+      label: 'BEST STREAK',
       value: metrics.bestStreak,
       color: 'text-emerald-400',
     },
     {
-      label: 'Best Power',
+      label: 'BEST POWER',
       value: metrics.bestNeuralPower,
       color: 'text-yellow-400',
     },
     {
-      label: 'Avg Score',
+      label: 'AVG SCORE',
       value: metrics.averageScore,
       color: 'text-cyan-400',
     },
     {
-      label: 'Avg Accuracy',
+      label: 'ACCURACY',
       value: `${metrics.averageAccuracy}%`,
       color: 'text-blue-400',
     },
     {
-      label: 'Puzzles Solved',
+      label: 'SOLVED',
       value: metrics.totalPuzzlesSolved,
       color: 'text-emerald-400',
     },
     {
-      label: 'Total Attempts',
+      label: 'ATTEMPTS',
       value: metrics.totalPuzzlesAttempted,
       color: 'text-cyan-300',
     },
     {
-      label: 'Solve Rate',
+      label: 'SOLVE RATE',
       value: `${metrics.solveRate}%`,
       color: 'text-fuchsia-300',
     },
     {
-      label: 'Sessions Played',
+      label: 'SESSIONS PLAYED',
       value: metrics.totalSessions,
       color: 'text-cyan-200',
       fullWidth: true,
@@ -816,19 +816,23 @@ export function IdentityCoreStats({ sessions = [], playerName = 'Unknown' }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-2">
+    <div className="grid grid-cols-2 gap-4">
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className={`group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 transition-all duration-300 hover:border-cyan-500/50 hover:bg-slate-800/80 ${
-            stat.fullWidth ? 'col-span-2' : ''
+          className={`group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 ${
+            stat.fullWidth
+              ? 'col-span-2 border-white/10 bg-white/5 shadow-inner'
+              : 'border-slate-800/80 bg-slate-950/40 hover:border-cyan-500/50 hover:bg-slate-900/80 hover:shadow-[0_0_20px_rgba(34,211,238,0.1)]'
           }`}
         >
           <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <p className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-300/80 group-hover:text-cyan-200/80">
+          <p className="relative z-10 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 group-hover:text-cyan-300/80">
             {stat.label}
           </p>
-          <p className={`relative z-10 mt-2 text-2xl font-bold tracking-tight transition-transform duration-300 group-hover:scale-105 ${stat.color}`}>
+          <p
+            className={`relative z-10 mt-3 font-mono text-2xl font-black tracking-tighter transition-transform duration-300 group-hover:scale-105 ${stat.color}`}
+          >
             {stat.value}
           </p>
         </div>
@@ -857,35 +861,35 @@ export function PerformanceSnapshot({ sessions = [] }) {
 
   const snapshots = [
     {
-      label: 'Best Score',
+      label: 'BEST SCORE',
       value: metrics.bestScore,
       percent: bestScorePercent,
       color: 'text-cyan-400',
       barColor: 'bg-cyan-400',
     },
     {
-      label: 'Average Score',
+      label: 'AVG SCORE',
       value: metrics.averageScore,
       percent: averageScorePercent,
       color: 'text-green-300',
       barColor: 'bg-green-300',
     },
     {
-      label: 'Average Accuracy',
+      label: 'ACCURACY',
       value: `${metrics.averageAccuracy}%`,
       percent: averageAccuracyPercent,
       color: 'text-violet-300',
       barColor: 'bg-violet-400',
     },
     {
-      label: 'Best Streak',
+      label: 'BEST STREAK',
       value: metrics.bestStreak,
       percent: bestStreakPercent,
       color: 'text-fuchsia-300',
       barColor: 'bg-fuchsia-400',
     },
     {
-      label: 'Best Power',
+      label: 'BEST POWER',
       value: metrics.bestNeuralPower,
       percent: Math.min((metrics.bestNeuralPower / 100) * 100, 100),
       color: 'text-yellow-300',
