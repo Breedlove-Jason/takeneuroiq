@@ -1801,8 +1801,12 @@ function Arena({ theme }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-6">
-                    <div className="rounded-3xl border border-cyan-500/30 bg-[#030c1c]/80 p-6 shadow-[0_0_55px_rgba(14,165,233,0.35)] backdrop-blur-[32px]">
+                  <div className="mt-6 relative">
+                    <div className="pointer-events-none absolute inset-0">
+                      <div className="absolute inset-4 rounded-4xl bg-cyan-500/20 blur-[60px] opacity-50" />
+                      <div className="absolute inset-x-12 top-8 h-16 rounded-3xl bg-cyan-400/10 blur-2xl" />
+                    </div>
+                    <div className="relative rounded-3xl border border-cyan-400/40 bg-[#020813]/80 p-6 shadow-[inset_0_0_45px_rgba(6,182,212,0.45),0_20px_40px_rgba(2,6,23,0.6)] backdrop-blur-[32px]">
                       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300">
@@ -1821,7 +1825,7 @@ function Arena({ theme }) {
                       </div>
 
                       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
-                        <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-5">
+                        <div className="rounded-2xl border border-slate-800/70 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)] backdrop-blur-[14px]">
                           <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-slate-300">
                             Prompt Sequence
                           </p>
@@ -1832,15 +1836,15 @@ function Arena({ theme }) {
                               return (
                                 <div
                                   key={`${item}-${index}`}
-                                  className={`flex aspect-square items-center justify-center rounded-2xl border ${
-                                    isMissingSlot
-                                      ? 'border-dashed border-cyan-500/70 bg-cyan-500/5 shadow-[0_0_25px_rgba(34,211,238,0.25)]'
-                                      : isCyber
-                                        ? 'border-cyan-400/10 bg-[#111b31] shadow-[inset_0_0_20px_rgba(34,211,238,0.03)]'
-                                        : 'border-slate-200 bg-white'
-                                  }`}
+                                  className="flex aspect-square items-center justify-center rounded-2xl border bg-slate-900/70 shadow-[inset_0_0_20px_rgba(2,6,23,0.8)]"
                                 >
-                                  <PuzzleShape shape={item} />
+                                  {isMissingSlot ? (
+                                    <div className="flex h-[88%] w-[88%] items-center justify-center rounded-2xl border-dashed border-cyan-400/80 bg-linear-to-b from-cyan-500/15 to-transparent shadow-[0_0_35px_rgba(34,211,238,0.6)] text-xl font-black text-cyan-100/80 animate-pulse">
+                                      <span className="text-3xl">?</span>
+                                    </div>
+                                  ) : (
+                                    <PuzzleShape shape={item} disabled={true} />
+                                  )}
                                 </div>
                               );
                             })}
@@ -1848,7 +1852,7 @@ function Arena({ theme }) {
                         </div>
 
                         <div className="xl:sticky xl:top-6">
-                          <div className="rounded-2xl border border-slate-800/70 bg-slate-950/40 p-5">
+                          <div className="rounded-2xl border border-slate-800/70 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)]">
                             <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
                               Answer Tray
                             </p>
@@ -1865,60 +1869,45 @@ function Arena({ theme }) {
                               )}
                               <div className="flex w-full flex-wrap justify-center gap-4">
                                 {currentPuzzle.choices.map((choice) => (
-                                  <button
+                                  <PuzzleShape
                                     key={choice}
+                                    shape={choice}
                                     onClick={() => handleAnswer(choice)}
                                     disabled={gameOver}
-                                    className={`group flex min-w-40 flex-col items-center justify-center rounded-2xl border px-5 py-4 text-center transition ${
-                                      gameOver ? 'cursor-not-allowed opacity-50' : ''
-                                    } ${
-                                      isCyber
-                                        ? 'border-cyan-400/15 bg-cyan-400/5 text-white hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10 hover:shadow-[0_0_24px_rgba(217,70,239,0.12)]'
-                                        : 'border-slate-200 bg-white text-slate-900 hover:border-cyan-300'
-                                    }`}
-                                  >
-                                    <span
-                                      className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300 group-hover:text-cyan-200"
-                                    >
-                                      Response
-                                    </span>
-                                    <div className="mt-3 flex items-center justify-center">
-                                      <PuzzleShape shape={choice} />
-                                    </div>
-                                  </button>
+                                  />
                                 ))}
                               </div>
                             </div>
                           </div>
 
-                                {shouldShowPatternDebug && (
-                                  <div className="mt-4">
-                                    <DevDebugPanel title="Pattern Rush Dev">
-                                      {SHOW_PATTERN_RUSH_ANSWERS && (
-                                        <div>
-                                          <span className="font-bold text-white">Answer:</span>{' '}
-                                          <span className="text-amber-100">
-                                            {patternDebugInfo.answer}
-                                          </span>
-                                        </div>
-                                      )}
-                                      {SHOW_PUZZLE_DEBUG_META && (
-                                        <>
-                                          <div>
-                                            <span className="font-bold text-white">ID:</span>{' '}
-                                            <span className="text-amber-100">{patternDebugInfo.id}</span>
-                                          </div>
-                                          <div>
-                                            <span className="font-bold text-white">Difficulty:</span>{' '}
-                                            <span className="text-amber-100">
-                                              {patternDebugInfo.difficulty}
-                                            </span>
-                                          </div>
-                                        </>
-                                      )}
-                                    </DevDebugPanel>
+                          {shouldShowPatternDebug && (
+                            <div className="mt-4">
+                              <DevDebugPanel title="Pattern Rush Dev">
+                                {SHOW_PATTERN_RUSH_ANSWERS && (
+                                  <div>
+                                    <span className="font-bold text-white">Answer:</span>{' '}
+                                    <span className="text-amber-100">
+                                      {patternDebugInfo.answer}
+                                    </span>
                                   </div>
                                 )}
+                                {SHOW_PUZZLE_DEBUG_META && (
+                                  <>
+                                    <div>
+                                      <span className="font-bold text-white">ID:</span>{' '}
+                                      <span className="text-amber-100">{patternDebugInfo.id}</span>
+                                    </div>
+                                    <div>
+                                      <span className="font-bold text-white">Difficulty:</span>{' '}
+                                      <span className="text-amber-100">
+                                        {patternDebugInfo.difficulty}
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
+                              </DevDebugPanel>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
