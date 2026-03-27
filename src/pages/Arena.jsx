@@ -15,7 +15,6 @@ import {
   faBullseye,
 } from '@fortawesome/free-solid-svg-icons';
 import PuzzleShape from '../components/PuzzleShape';
-import SequenceSprintPuzzle from '../components/SequenceSprintPuzzle';
 import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
 import sequenceSprintPuzzles, {
   getRandomSequenceSprintPuzzle,
@@ -29,7 +28,9 @@ import {
   PUZZLE_TYPES,
   getPuzzleTypeMetadata,
 } from '../utils/puzzleTypeRegistry';
+import { buildAccuracySummary } from '../utils/puzzleAccuracy';
 import { PUZZLE_DEV_FLAGS } from '../config/puzzleDevFlags';
+import sequenceSprintRunner from '../assets/sequenceSprintRunner.png';
 
 /**
  * Arena Component
@@ -175,6 +176,49 @@ function getSequenceSprintProgressPercent({ solvedCount = 0, totalCount = 1 }) {
   return clamp(rawPercent, 0, 100);
 }
 
+const getSequenceSprintPhase = (progress = 0) => {
+  if (progress >= 90) {
+    return 'finishing';
+  }
+  if (progress >= 55) {
+    return 'surging';
+  }
+  if (progress > 0) {
+    return 'moving';
+  }
+  return 'idle';
+};
+
+const getSequenceSprintRunnerClasses = (phase) => {
+  const fx = {
+    finishing: {
+      wrapper: 'animate-pulse',
+      image: 'drop-shadow-[0_0_15px_rgba(217,70,239,0.8)]',
+      trail: 'opacity-80 w-16 bg-gradient-to-r from-transparent to-fuchsia-500',
+      finishGlow: 'opacity-100 bg-fuchsia-500/30',
+    },
+    surging: {
+      wrapper: 'animate-bounce',
+      image: 'drop-shadow-[0_0_10px_rgba(217,70,239,0.6)]',
+      trail: 'opacity-50 w-10 bg-gradient-to-r from-transparent to-fuchsia-400',
+      finishGlow: 'opacity-40 bg-fuchsia-500/20',
+    },
+    moving: {
+      wrapper: '',
+      image: 'drop-shadow-[0_0_5px_rgba(217,70,239,0.4)]',
+      trail: 'opacity-30 w-6 bg-gradient-to-r from-transparent to-fuchsia-400',
+      finishGlow: 'opacity-0',
+    },
+    idle: {
+      wrapper: '',
+      image: 'drop-shadow-[0_0_2px_rgba(217,70,239,0.2)]',
+      trail: 'opacity-0',
+      finishGlow: 'opacity-0',
+    },
+  };
+  return fx[phase] || fx.idle;
+};
+
 const SEQUENCE_SPRINT_TOTAL_PROBLEMS = Math.max(1, sequenceSprintPuzzles.length);
 
 const adaptiveStateToDifficultyMap = {
@@ -202,6 +246,44 @@ function getFeedbackBadgeClass(feedback, isCyber) {
     ? 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20'
     : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200';
 }
+
+const buildSequenceSprintResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+  ruleType = 'sequence logic',
+} = {}) => {
+  if (accuracy >= 90) {
+    return {
+      eyebrow: 'Sprint Complete',
+      title: 'Sequence Sprint Results',
+      summary:
+        'Excellent sequence control. Rule recognition stayed sharp and your sprint pace held strong.',
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: 'Sprint Complete',
+      title: 'Sequence Sprint Results',
+      summary:
+        'Solid momentum. Sequence logic is stabilizing, and your recognition lane is building consistency.',
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: 'Sprint Complete',
+      title: 'Sequence Sprint Results',
+      summary: `Partial progress. Keep refining your ${ruleType} recognition.`,
+    };
+  }
+
+  return {
+    eyebrow: 'Sprint Complete',
+    title: 'Sequence Sprint Results',
+    summary: 'Sprint timed out. Reset and focus on the initial sequence rule.',
+  };
+};
 
 // const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.PATTERN_RUSH;
 const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
@@ -385,6 +467,29 @@ function Arena({ theme }) {
     solvedCount: sequenceSolvedCount,
     totalCount: sequenceTotalCount,
   });
+  const sequenceSprintPhase = getSequenceSprintPhase(sequenceSprintProgress);
+  const sequenceSprintRunnerFx = getSequenceSprintRunnerClasses(sequenceSprintPhase);
+
+  const isSequenceSprintSession =
+    activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT;
+
+  const sequenceSprintSummary = useMemo(() => {
+    if (!isSequenceSprintSession) {
+      return null;
+    }
+
+    return buildAccuracySummary({
+      correctAnswers,
+      attemptedAnswers: totalAnswers,
+      totalPuzzles: sequenceTotalCount,
+      decimals: 0,
+    });
+  }, [
+    isSequenceSprintSession,
+    correctAnswers,
+    totalAnswers,
+    sequenceTotalCount,
+  ]);
 
   const liveCoachingPressureClass =
     streak >= 6
@@ -453,6 +558,17 @@ function Arena({ theme }) {
         ? 0
         : Math.round((correctAnswers / totalAnswers) * 100);
 
+    const sequenceSprintOverrides =
+      isSequenceSprintSession && sequenceSprintSummary
+        ? {
+            accuracy: sequenceSprintSummary.accuracy,
+            puzzlesCorrect: sequenceSprintSummary.correctAnswers,
+            puzzlesAttempted: sequenceSprintSummary.attemptedAnswers,
+            unanswered: sequenceSprintSummary.unanswered,
+            wrongAnswers: sequenceSprintSummary.wrongAnswers,
+          }
+        : {};
+
     const computedFinalSessionData = {
       score,
       accuracy: accuracyValue,
@@ -469,10 +585,11 @@ function Arena({ theme }) {
       didBreakRecommendedAlignment,
       puzzleType: activePuzzleType,
       puzzleMetrics: sequenceSprintPuzzleMetrics,
+      ...sequenceSprintOverrides,
     };
 
     const outcomeTimer = setTimeout(() => {
-       const computedFinalSessionDataWithLatest = {
+      const computedFinalSessionDataWithLatest = {
         ...computedFinalSessionData,
         score,
         accuracy: accuracyValue,
@@ -484,7 +601,8 @@ function Arena({ theme }) {
         recentAnswerHistory,
         liveAdaptiveDifficulty,
         puzzleType: activePuzzleType,
-         puzzleMetrics: sequenceSprintPuzzleMetrics,
+        puzzleMetrics: sequenceSprintPuzzleMetrics,
+        ...sequenceSprintOverrides,
       };
 
       const evaluatedOutcome = evaluateSessionOutcome(
@@ -519,6 +637,8 @@ function Arena({ theme }) {
     didBreakRecommendedAlignment,
     activePuzzleType,
     sequenceSprintPuzzleMetrics,
+    sequenceSprintSummary,
+    isSequenceSprintSession,
   ]);
 
   useEffect(() => {
@@ -671,6 +791,190 @@ function Arena({ theme }) {
       isTransitioningRef.current = false;
     }, 700);
   }
+  // --- RENDER HELPERS (SEQUENCE SPRINT) ---
+  const renderSequenceSprintRunner = () => (
+    <div className="mb-8">
+      <div className="rounded-2xl border border-violet-400/30 bg-slate-950/70 p-4 shadow-[0_0_28px_rgba(168,85,247,0.18)] backdrop-blur-md transition-all duration-300">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[9px] uppercase tracking-[0.35em] text-violet-300">
+              Sequence Sprint Lane
+            </p>
+            <p className="text-lg font-semibold text-white">Momentum Track</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full border border-cyan-400/30 bg-slate-900/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan-200">
+              {sequenceSolvedCount}/{sequenceTotalCount} solved
+            </span>
+            <span className="rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-fuchsia-300">
+              {Math.round(sequenceSprintProgress)}%
+            </span>
+          </div>
+        </div>
+        <div className="mt-6 space-y-2">
+          <div className="relative h-2.5 rounded-full bg-slate-900/80 shadow-[inset_0_1px_4px_rgba(0,0,0,0.5)]">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-cyan-400 via-violet-500 to-fuchsia-500 transition-all duration-300"
+              style={{ width: `${sequenceSprintProgress}%` }}
+            />
+            <div
+              className={`absolute right-0 top-0 h-full w-12 transition-opacity duration-300 ${sequenceSprintRunnerFx.finishGlow}`}
+            />
+            <div
+              className={`absolute top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/95 shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 ${sequenceSprintRunnerFx.wrapper}`}
+              style={{
+                left: `${sequenceSprintProgress}%`,
+                transform: 'translateX(-50%)',
+              }}
+              aria-hidden="true"
+            >
+              <div
+                className={`absolute right-full top-1/2 h-1 -translate-y-1/2 transition-all duration-300 ${sequenceSprintRunnerFx.trail}`}
+              />
+
+              <img
+                src={sequenceSprintRunner}
+                alt="Runner"
+                className={`h-9 w-9 object-contain transition-all duration-300 ${sequenceSprintRunnerFx.image}`}
+                draggable={false}
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.35em] text-slate-500">
+            <span>Start</span>
+            <span>Finish</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSequencePrompt = () => (
+    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300">
+      <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
+          Sequence Prompt
+        </p>
+        <span className="text-[10px] font-medium text-slate-500">
+          Track the pattern
+        </span>
+      </div>
+      <div className="mt-4">
+        <h3 className="text-xl font-bold text-white text-glow-blue">
+          {sequenceSprintPuzzle.prompt}
+        </h3>
+      </div>
+      <div className="mt-6 flex flex-wrap justify-center gap-4">
+        {(sequenceSprintPuzzle.sequence ?? []).map((value, index) => (
+          <span
+            key={`${value}-${index}`}
+            className="flex min-w-14 items-center justify-center rounded-xl border border-fuchsia-500/30 bg-[#0b1324] px-5 py-4 text-xl font-black text-white shadow-[inset_0_0_15px_rgba(0,0,0,0.6),0_0_15px_rgba(217,70,239,0.2)]"
+          >
+            {value}
+          </span>
+        ))}
+        <span className="flex min-w-14 animate-pulse items-center justify-center rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-4 text-xl font-black text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.25)]">
+          ?
+        </span>
+      </div>
+    </div>
+  );
+
+  const renderSequenceAnswers = () => (
+    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300">
+      <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+          Answer Lane
+        </p>
+        <span className="text-[10px] font-medium text-slate-500">
+          Select the next match
+        </span>
+      </div>
+      <div className="mt-6 flex flex-col items-center gap-4">
+        {feedback && (
+          <div className="flex justify-center">
+            <span
+              className={`rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] shadow-lg ${getFeedbackBadgeClass(feedback, isCyber)}`}
+            >
+              {feedback}
+            </span>
+          </div>
+        )}
+        <div className="grid w-full gap-4 sm:grid-cols-2">
+          {sequenceSprintPuzzle.options.map((option) => {
+            const isSelected = sequenceSprintSelectedAnswer === option;
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => handleAnswer(option)}
+                className={`group relative rounded-xl border p-5 text-center transition-all duration-300 ${
+                  isSelected
+                    ? 'border-fuchsia-400/80 bg-fuchsia-500/20 text-white shadow-[0_0_35px_rgba(217,70,239,0.3)] scale-[1.02]'
+                    : 'border-white/10 bg-cyber-bg-accent/80 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:border-violet-400/40 hover:bg-[#11182f] hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]'
+                }`}
+              >
+                <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <span className="mb-2 block text-[9px] font-black uppercase tracking-[0.25em] text-slate-500 transition-colors group-hover:text-violet-300">
+                  Response
+                </span>
+                <span className="block text-4xl font-black uppercase tracking-widest text-white text-glow-pink">
+                  {option}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSprintReadout = () => (
+    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300">
+      <div className="mb-4 flex items-center justify-between border-b border-white/5 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+          Sprint Readout
+        </p>
+        <div className="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+      </div>
+      <div className="grid gap-3">
+        <div className="group rounded-xl border border-white/5 bg-slate-900/60 p-4 transition-all hover:bg-slate-900/80 hover:border-white/10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-slate-400 transition-colors">
+            ACCURACY
+          </p>
+          <p className="mt-1 text-3xl font-black text-white text-glow-blue">
+            {sequenceSprintSummary?.accuracy ?? 0}%
+          </p>
+        </div>
+        <div className="group rounded-xl border border-white/5 bg-slate-900/60 p-4 transition-all hover:bg-slate-900/80 hover:border-white/10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-slate-400 transition-colors">
+            SOLVED
+          </p>
+          <p className="mt-1 text-3xl font-black text-white">
+            {sequenceSolvedCount}
+            <span className="mx-2 text-lg font-medium text-slate-500">/</span>
+            <span className="text-xl text-slate-400">{sequenceTotalCount}</span>
+          </p>
+        </div>
+        <div className="group rounded-xl border border-white/5 bg-slate-900/60 p-4 transition-all hover:bg-slate-900/80 hover:border-white/10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-slate-400 transition-colors">
+            STREAK
+          </p>
+          <div className="mt-1 flex items-end gap-2">
+            <p className="text-3xl font-black text-fuchsia-400 text-glow-pink">
+              {streak}
+            </p>
+            {streak >= 3 && (
+              <span className="mb-1 text-[10px] font-bold uppercase text-fuchsia-300 animate-bounce">
+                Hot!
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   function handleAnswer(selectedAnswer) {
     if (gameOverRef.current || isTransitioningRef.current) return;
     isTransitioningRef.current = true;
@@ -771,6 +1075,24 @@ function Arena({ theme }) {
           : streak >= 2
             ? 2
             : 1;
+  const sequenceSprintAccuracy = sequenceSprintSummary?.accuracy ?? 0;
+  const sequenceSprintTotalPuzzles =
+    sequenceSprintSummary?.totalPuzzles ?? sequenceTotalCount;
+  const sequenceSprintUnanswered = Math.max(
+    0,
+    sequenceSprintSummary?.unanswered ??
+      sequenceSprintTotalPuzzles - totalAnswers,
+  );
+  const sequenceRuleType =
+    sequenceSprintPuzzleMetrics.ruleType ?? 'sequence logic';
+
+  const sprintResults = buildSequenceSprintResultsCopy({
+    accuracy: sequenceSprintAccuracy,
+    correctAnswers,
+    totalPuzzles: sequenceSprintTotalPuzzles,
+    unanswered: sequenceSprintUnanswered,
+    ruleType: sequenceRuleType,
+  });
   function getPerformanceMessage() {
     if (totalAnswers === 0) {
       return 'No response data captured.';
@@ -1048,32 +1370,70 @@ function Arena({ theme }) {
                     />
                   </div>
 
-                  <p
-                    className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                      isCyber ? 'text-fuchsia-400' : 'text-cyan-600'
-                    }`}
-                  >
-                    Round Complete
-                  </p>
+                  {activePuzzleType === 'sequence_sprint' ? (
+                    <>
+                      <p
+                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
+                          isCyber ? 'text-fuchsia-400' : 'text-cyan-600'
+                        }`}
+                      >
+                        {sprintResults.eyebrow}
+                      </p>
 
-                  <h2
-                    className={`mt-3 text-4xl font-black tracking-tight ${
-                      isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
-                    }`}
-                  >
-                    Pattern Rush{' '}
-                    <span className={isCyber ? 'text-cyan-400' : 'text-cyan-600'}>
-                      Results
-                    </span>
-                  </h2>
+                      <h2
+                        className={`mt-3 text-4xl font-black tracking-tight ${
+                          isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
+                        }`}
+                      >
+                        {sprintResults.title}
+                      </h2>
 
-                  <p
-                    className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                      isCyber ? 'text-cyan-100/90' : 'text-slate-600'
-                    }`}
-                  >
-                    {getPerformanceMessage()}
-                  </p>
+                      <p
+                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
+                          isCyber ? 'text-cyan-100/90' : 'text-slate-600'
+                        }`}
+                      >
+                        {sprintResults.summary}
+                      </p>
+
+                      <p
+                        className={`mt-3 text-sm font-semibold uppercase tracking-[0.2em] ${
+                          isCyber ? 'text-cyan-200' : 'text-slate-500'
+                        }`}
+                      >
+                        Rule Type: {sequenceRuleType}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p
+                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
+                          isCyber ? 'text-fuchsia-400' : 'text-cyan-600'
+                        }`}
+                      >
+                        Round Complete
+                      </p>
+
+                      <h2
+                        className={`mt-3 text-4xl font-black tracking-tight ${
+                          isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
+                        }`}
+                      >
+                        Pattern Rush{' '}
+                        <span className={isCyber ? 'text-cyan-400' : 'text-cyan-600'}>
+                          Results
+                        </span>
+                      </h2>
+
+                      <p
+                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
+                          isCyber ? 'text-cyan-100/90' : 'text-slate-600'
+                        }`}
+                      >
+                        {getPerformanceMessage()}
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {sessionOutcome && (
@@ -1226,7 +1586,7 @@ function Arena({ theme }) {
                           isCyber ? 'text-cyan-300/70' : 'text-slate-500'
                         }`}
                       >
-                        Final Score
+                        FINAL SCORE
                       </p>
                       <div
                         className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
@@ -1262,7 +1622,7 @@ function Arena({ theme }) {
                           isCyber ? 'text-fuchsia-300/70' : 'text-slate-500'
                         }`}
                       >
-                        Best Streak
+                        BEST STREAK
                       </p>
                       <div
                         className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
@@ -1298,7 +1658,7 @@ function Arena({ theme }) {
                           isCyber ? 'text-emerald-300/70' : 'text-slate-500'
                         }`}
                       >
-                        Accuracy
+                        ACCURACY
                       </p>
                       <div
                         className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
@@ -1370,85 +1730,75 @@ function Arena({ theme }) {
                 </div>
 
                 {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ? (
-                  <div className="mt-6 space-y-4">
-                    {shouldShowSequenceDebug && (
-                      <DevDebugPanel title="Sequence Sprint Dev">
-                        {SHOW_SEQUENCE_SPRINT_ANSWERS && (
-                          <div>
-                            <span className="font-bold text-white">Answer:</span>{' '}
-                            <span className="text-amber-100">
-                              {sequenceDebugInfo.answer}
-                            </span>
-                          </div>
-                        )}
-                        {SHOW_PUZZLE_DEBUG_META && (
-                          <>
-                            <div>
-                              <span className="font-bold text-white">ID:</span>{' '}
-                              <span className="text-amber-100">
-                                {sequenceDebugInfo.id}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="font-bold text-white">Rule:</span>{' '}
-                              <span className="text-amber-100">
-                                {sequenceDebugInfo.rule}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="font-bold text-white">Length:</span>{' '}
-                              <span className="text-amber-100">
-                                {sequenceDebugInfo.length}
-                              </span>
-                            </div>
-                          </>
-                        )}
-                      </DevDebugPanel>
-                    )}
-                    <div className="rounded-2xl border border-violet-400/30 bg-slate-950/70 p-4 shadow-[0_0_28px_rgba(168,85,247,0.18)] backdrop-blur-md">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <p className="text-[9px] uppercase tracking-[0.35em] text-violet-300">
-                            Sequence Sprint Lane
-                          </p>
-                          <p className="text-lg font-semibold text-white">
-                            Momentum Track
-                          </p>
-                        </div>
-                        <span className="rounded-full border border-cyan-400/30 bg-slate-900/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan-200">
-                          {sequenceSolvedCount}/{sequenceTotalCount} solved
-                        </span>
+                  <div className="rounded-3xl border border-fuchsia-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(217,70,239,0.1)] backdrop-blur-md">
+                    <div className="mb-6 flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-fuchsia-400">
+                          Sequence Sprint Arena
+                        </p>
+                        <h2 className="text-xl font-bold text-white">
+                          Read the logic. Finish the lane.
+                        </h2>
                       </div>
-                      <div className="mt-4 space-y-2">
-                        <div className="relative h-2 rounded-full bg-slate-900/60">
-                          <div
-                            className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-cyan-400 to-fuchsia-500 transition-all duration-300"
-                            style={{ width: `${sequenceSprintProgress}%` }}
-                          />
-                          <div
-                            className="absolute -top-3 h-8 w-8 rounded-full bg-white/90 text-center text-lg leading-8 text-slate-900 shadow-[0_0_18px_rgba(59,130,246,0.45)] transition-all duration-300"
-                            style={{
-                              left: `${sequenceSprintProgress}%`,
-                              transform: 'translateX(-50%)',
-                            }}
-                            aria-hidden="true"
-                          >
-                            🏃
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                          <span>Start</span>
-                          <span>Finish</span>
-                        </div>
+                      <span className="rounded-full border border-fuchsia-500/30 bg-fuchsia-500/20 px-3 py-1 text-xs font-semibold text-fuchsia-300">
+                        Momentum Logic Live
+                      </span>
+                    </div>
+
+                    {renderSequenceSprintRunner()}
+
+                    <div className="grid gap-6 xl:grid-cols-3">
+                      <div className="space-y-6 xl:col-span-2">
+                        {renderSequencePrompt()}
+                        {renderSequenceAnswers()}
+                      </div>
+                      <div className="space-y-6 xl:col-span-1">
+                        {renderSprintReadout()}
+
+                        {shouldShowSequenceDebug && (
+                          <DevDebugPanel title="Sequence Sprint Dev">
+                            {SHOW_SEQUENCE_SPRINT_ANSWERS && (
+                              <div>
+                                <span className="font-bold text-white">
+                                  Answer:
+                                </span>{' '}
+                                <span className="text-amber-100">
+                                  {sequenceDebugInfo.answer}
+                                </span>
+                              </div>
+                            )}
+                            {SHOW_PUZZLE_DEBUG_META && (
+                              <>
+                                <div>
+                                  <span className="font-bold text-white">
+                                    ID:
+                                  </span>{' '}
+                                  <span className="text-amber-100">
+                                    {sequenceDebugInfo.id}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white">
+                                    Rule:
+                                  </span>{' '}
+                                  <span className="text-amber-100">
+                                    {sequenceDebugInfo.rule}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white">
+                                    Length:
+                                  </span>{' '}
+                                  <span className="text-amber-100">
+                                    {sequenceDebugInfo.length}
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                          </DevDebugPanel>
+                        )}
                       </div>
                     </div>
-                    <SequenceSprintPuzzle
-                      prompt={sequenceSprintPuzzle.prompt}
-                      sequence={sequenceSprintPuzzle.sequence}
-                      options={sequenceSprintPuzzle.options}
-                      selectedAnswer={sequenceSprintSelectedAnswer}
-                      onSelectAnswer={handleAnswer}
-                    />
                   </div>
                 ) : (
                   <div className="mt-6">
@@ -1591,7 +1941,7 @@ function Arena({ theme }) {
                   isCyber ? 'text-slate-300' : 'text-slate-500'
                 }`}
               >
-                Score
+                SCORE
               </p>
               <div
                 className={`mt-1 font-mono text-2xl font-bold ${
@@ -1681,7 +2031,7 @@ function Arena({ theme }) {
                     isCyber ? 'text-slate-300' : 'text-slate-500'
                   }`}
                 >
-                  Streak
+                  STREAK
                 </p>
                 <div
                   className={`mt-1 font-mono text-2xl font-bold ${
@@ -1706,7 +2056,7 @@ function Arena({ theme }) {
                     isCyber ? 'text-slate-300' : 'text-slate-500'
                   }`}
                 >
-                  Combo
+                  COMBO
                 </p>
                 <div
                   className={`mt-1 font-mono text-2xl font-bold ${
@@ -1734,7 +2084,7 @@ function Arena({ theme }) {
                   isCyber ? 'text-slate-300' : 'text-slate-500'
                 }`}
               >
-                Accuracy
+                ACCURACY
               </p>
               <div
                 className={`mt-1 font-mono text-2xl font-bold ${
