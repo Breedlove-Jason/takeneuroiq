@@ -2,6 +2,29 @@
 
 const DEFAULT_PUZZLE_TYPE = "pattern_rush";
 
+const PUZZLE_FAMILY_METADATA = {
+  pattern_rush: {
+    label: "Pattern Rush",
+    shortLabel: "Pattern",
+    accent: "cyan",
+    icon: "spark",
+  },
+  sequence_sprint: {
+    label: "Sequence Sprint",
+    shortLabel: "Sequence",
+    accent: "violet",
+    icon: "waveform",
+  },
+  grid_recall: {
+    label: "Grid Recall",
+    shortLabel: "Recall",
+    accent: "emerald",
+    icon: "grid",
+  },
+};
+
+const ACTIVE_PUZZLE_FAMILIES = Object.keys(PUZZLE_FAMILY_METADATA);
+
 function toNumber(value, fallback = 0) {
   const num = Number(value);
   return Number.isFinite(num) ? num : fallback;
@@ -80,53 +103,47 @@ function buildTrendAssessment(sessions = []) {
 
   if (!recent.length) {
     return {
-      trendState: 'Unmapped',
-      trendReason: 'No recent family sessions available yet.',
+      trendState: "Unmapped",
+      trendReason: "No recent family sessions available yet.",
     };
   }
 
   if (recent.length < 2) {
     return {
-      trendState: 'Calibrating',
+      trendState: "Calibrating",
       trendReason:
-        'More sessions are needed before a stable family trend can be read.',
+        "More sessions are needed before a stable family trend can be read.",
     };
   }
 
   const previous = sorted.slice(recent.length, recent.length + 3);
-  const recentAccuracy = averageFromSessions(recent, 'accuracy');
-  const recentScore = averageFromSessions(recent, 'score');
-  const previousAccuracy = averageFromSessions(previous, 'accuracy');
-  const previousScore = averageFromSessions(previous, 'score');
+  const recentAccuracy = averageFromSessions(recent, "accuracy");
+  const recentScore = averageFromSessions(recent, "score");
+  const previousAccuracy = averageFromSessions(previous, "accuracy");
+  const previousScore = averageFromSessions(previous, "score");
   const accuracyDelta = recentAccuracy - previousAccuracy;
   const scoreDelta = recentScore - previousScore;
 
-  if (
-    recentAccuracy >= 85 &&
-    (accuracyDelta >= 3 || scoreDelta >= 120)
-  ) {
+  if (recentAccuracy >= 85 && (accuracyDelta >= 3 || scoreDelta >= 120)) {
     return {
-      trendState: 'Rising',
+      trendState: "Rising",
       trendReason:
-        'Recent runs are showing stronger accuracy and cleaner scoring momentum.',
+        "Recent runs are showing stronger accuracy and cleaner scoring momentum.",
     };
   }
 
-  if (
-    recentAccuracy >= 70 &&
-    accuracyDelta > -3 &&
-    scoreDelta > -120
-  ) {
+  if (recentAccuracy >= 70 && accuracyDelta > -3 && scoreDelta > -120) {
     return {
-      trendState: 'Steadying',
-      trendReason: 'This family is holding a stable lane with manageable variance.',
+      trendState: "Steadying",
+      trendReason:
+        "This family is holding a stable lane with manageable variance.",
     };
   }
 
   return {
-    trendState: 'Rebuilding',
+    trendState: "Rebuilding",
     trendReason:
-      'Recent family sessions suggest recovery work is needed before pushing intensity.',
+      "Recent family sessions suggest recovery work is needed before pushing intensity.",
   };
 }
 
@@ -221,6 +238,31 @@ function buildSequenceSprintSummary(sessions = []) {
   };
 }
 
+function buildGridRecallSummary(sessions = []) {
+  const base = buildBaseSummary("grid_recall", sessions);
+
+  const bestStreaks = sessions.map((session) => toNumber(session.bestStreak));
+  const attempted = sessions.map((session) =>
+    toNumber(session.puzzlesAttempted),
+  );
+  const correct = sessions.map((session) => toNumber(session.puzzlesCorrect));
+
+  return {
+    ...base,
+    familyLabel: "Grid Recall",
+    bestStreak: bestStreaks.length ? Math.max(...bestStreaks) : 0,
+    averageBestStreak: average(bestStreaks, 1),
+    totalPuzzlesAttempted: sum(attempted),
+    totalPuzzlesCorrect: sum(correct),
+  };
+}
+
+const FAMILY_SUMMARY_BUILDERS = {
+  pattern_rush: buildPatternRushSummary,
+  sequence_sprint: buildSequenceSprintSummary,
+  grid_recall: buildGridRecallSummary,
+};
+
 function buildGenericFamilySummary(puzzleType, sessions = []) {
   const base = buildBaseSummary(puzzleType, sessions);
 
@@ -248,21 +290,18 @@ export function groupSessionsByPuzzleType(sessions = []) {
 
 export function buildPuzzleFamilyPerformance(sessions = []) {
   const grouped = groupSessionsByPuzzleType(sessions);
+  const performanceMap = {};
 
-  return Object.entries(grouped).reduce((acc, [puzzleType, familySessions]) => {
-    if (puzzleType === "pattern_rush") {
-      acc[puzzleType] = buildPatternRushSummary(familySessions);
-      return acc;
-    }
+  ACTIVE_PUZZLE_FAMILIES.forEach((puzzleType) => {
+    const familySessions = grouped[puzzleType] || [];
+    const familyBuilder =
+      FAMILY_SUMMARY_BUILDERS[puzzleType] ||
+      ((sessions) => buildGenericFamilySummary(puzzleType, sessions));
 
-    if (puzzleType === "sequence_sprint") {
-      acc[puzzleType] = buildSequenceSprintSummary(familySessions);
-      return acc;
-    }
+    performanceMap[puzzleType] = familyBuilder(familySessions);
+  });
 
-    acc[puzzleType] = buildGenericFamilySummary(puzzleType, familySessions);
-    return acc;
-  }, {});
+  return performanceMap;
 }
 
 export function buildPuzzleFamilyCards(sessions = []) {
@@ -272,3 +311,5 @@ export function buildPuzzleFamilyCards(sessions = []) {
     return (b.sessionsPlayed || 0) - (a.sessionsPlayed || 0);
   });
 }
+
+export { PUZZLE_FAMILY_METADATA, ACTIVE_PUZZLE_FAMILIES };

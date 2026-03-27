@@ -159,6 +159,7 @@ function getChallengeStatePill(challengeState) {
 function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'sequence_sprint') return 'Sequence Sprint';
   if (puzzleType === 'pattern_rush') return 'Pattern Rush';
+  if (puzzleType === 'grid_recall') return 'Grid Recall';
   const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
   if (puzzleLabel) return puzzleLabel;
   if (mode) {
@@ -234,6 +235,16 @@ function buildFamilyAwareRecommendation(session) {
     return 'Slow the tempo, lock accuracy, and rebuild pattern confidence before speed runs.';
   }
 
+  if (session.puzzleType === 'grid_recall') {
+    if (accuracy >= 90 && streak >= 8) {
+      return 'Your spatial mapping is sharp. Focus on complex multi-cell grids to test your limits.';
+    }
+    if (accuracy >= 75) {
+      return 'Stable spatial recall. Maintain focus during the encoding phase for better results.';
+    }
+    return 'Reduce grid complexity and rebuild spatial confidence before attempting larger matrices.';
+  }
+
   return 'Alternate puzzle families to broaden cognitive adaptation.';
 }
 
@@ -257,6 +268,12 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? 'visual pattern recognition sharpening'
       : 'pattern confidence recovering';
+  }
+
+  if (session.puzzleType === 'grid_recall') {
+    return accuracy >= 80
+      ? 'spatial memory encoding strengthening'
+      : 'spatial recall stabilizing';
   }
 
   return (

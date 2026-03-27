@@ -1,5 +1,5 @@
-import { buildNeuralPowerTrendData } from '../utils/sessionTrendUtils';
-import { buildPuzzleFamilyCards } from '../analytics/puzzleFamilyAnalytics';
+import { buildNeuralPowerTrendData } from "../utils/sessionTrendUtils";
+import { buildPuzzleFamilyCards } from "../analytics/puzzleFamilyAnalytics";
 import {
   LineChart,
   Line,
@@ -8,9 +8,9 @@ import {
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
-} from 'recharts';
-import { generateCoachingInsight } from '../analytics/coachingEngine';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+} from "recharts";
+import { generateCoachingInsight } from "../analytics/coachingEngine";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartLine,
   faShapes,
@@ -18,7 +18,7 @@ import {
   faBrain,
   faBorderAll,
   faCodeBranch,
-} from '@fortawesome/free-solid-svg-icons';
+} from "@fortawesome/free-solid-svg-icons";
 
 /**
  * ProfileAnalytics Component
@@ -50,14 +50,14 @@ function ProfileAnalytics({
   const neuralPowerTrendData = buildNeuralPowerTrendData(sessions);
   const recentTrendData = neuralPowerTrendData.slice(-5);
   const neuralTrend = propNeuralTrend ?? {
-    direction: 'neutral',
+    direction: "neutral",
     change: 0,
   };
   const trendSessionCount = recentTrendData.length;
   const pressureState = propPressureState ?? {
-    state: 'neutral',
-    label: 'Not Enough Data',
-    detail: 'Complete a few more sessions to detect pressure patterns.',
+    state: "neutral",
+    label: "Not Enough Data",
+    detail: "Complete a few more sessions to detect pressure patterns.",
   };
 
   const trendStartPower =
@@ -108,11 +108,11 @@ function ProfileAnalytics({
   const consistencyScore = cognitiveTracks.consistency ?? 0;
 
   const adaptiveDifficulty = propAdaptiveDifficulty ?? {
-    state: 'steady',
-    label: 'Steady Mode',
+    state: "steady",
+    label: "Steady Mode",
     description:
-      'Maintain balanced difficulty to reinforce skill growth without overload.',
-    targetDifficulty: 'medium',
+      "Maintain balanced difficulty to reinforce skill growth without overload.",
+    targetDifficulty: "medium",
   };
 
   const localCoachingInsight = generateCoachingInsight({
@@ -133,28 +133,28 @@ function ProfileAnalytics({
 
   const trendToneMap = {
     improving: {
-      label: 'Improving',
-      symbol: '▲',
-      className: 'text-emerald-300',
-      subtext: 'Your recent Neural Power is trending upward.',
+      label: "Improving",
+      symbol: "▲",
+      className: "text-emerald-300",
+      subtext: "Your recent Neural Power is trending upward.",
     },
     stable: {
-      label: 'Stable',
-      symbol: '■',
-      className: 'text-yellow-300',
-      subtext: 'Your recent Neural Power is holding steady.',
+      label: "Stable",
+      symbol: "■",
+      className: "text-yellow-300",
+      subtext: "Your recent Neural Power is holding steady.",
     },
     declining: {
-      label: 'Declining',
-      symbol: '▼',
-      className: 'text-rose-300',
-      subtext: 'Your recent Neural Power has dipped across recent sessions.',
+      label: "Declining",
+      symbol: "▼",
+      className: "text-rose-300",
+      subtext: "Your recent Neural Power has dipped across recent sessions.",
     },
     neutral: {
-      label: 'Not Enough Data',
-      symbol: '•',
-      className: 'text-slate-300',
-      subtext: 'Complete more sessions to detect a reliable trend.',
+      label: "Not Enough Data",
+      symbol: "•",
+      className: "text-slate-300",
+      subtext: "Complete more sessions to detect a reliable trend.",
     },
   };
 
@@ -162,25 +162,25 @@ function ProfileAnalytics({
     trendToneMap[neuralTrend.direction] || trendToneMap.neutral;
 
   const pressureToneMap = {
-    'under-pressure': {
-      className: 'text-amber-300',
-      borderClass: 'border-amber-500/20',
-      accentClass: 'text-amber-300/80',
+    "under-pressure": {
+      className: "text-amber-300",
+      borderClass: "border-amber-500/20",
+      accentClass: "text-amber-300/80",
     },
-    'locked-in': {
-      className: 'text-emerald-300',
-      borderClass: 'border-emerald-500/20',
-      accentClass: 'text-emerald-300/80',
+    "locked-in": {
+      className: "text-emerald-300",
+      borderClass: "border-emerald-500/20",
+      accentClass: "text-emerald-300/80",
     },
     stable: {
-      className: 'text-cyan-300',
-      borderClass: 'border-cyan-500/20',
-      accentClass: 'text-cyan-300/80',
+      className: "text-cyan-300",
+      borderClass: "border-cyan-500/20",
+      accentClass: "text-cyan-300/80",
     },
     neutral: {
-      className: 'text-slate-300',
-      borderClass: 'border-slate-700',
-      accentClass: 'text-slate-400',
+      className: "text-slate-300",
+      borderClass: "border-slate-700",
+      accentClass: "text-slate-400",
     },
   };
 
@@ -189,22 +189,22 @@ function ProfileAnalytics({
 
   const adaptiveToneMap = {
     recover: {
-      className: 'text-amber-300',
-      borderClass: 'border-amber-500/20',
-      accentClass: 'text-amber-300/80',
-      badgeClass: 'text-amber-300',
+      className: "text-amber-300",
+      borderClass: "border-amber-500/20",
+      accentClass: "text-amber-300/80",
+      badgeClass: "text-amber-300",
     },
     steady: {
-      className: 'text-cyan-300',
-      borderClass: 'border-cyan-500/20',
-      accentClass: 'text-cyan-300/80',
-      badgeClass: 'text-cyan-300',
+      className: "text-cyan-300",
+      borderClass: "border-cyan-500/20",
+      accentClass: "text-cyan-300/80",
+      badgeClass: "text-cyan-300",
     },
     challenge: {
-      className: 'text-emerald-300',
-      borderClass: 'border-emerald-500/20',
-      accentClass: 'text-emerald-300/80',
-      badgeClass: 'text-emerald-300',
+      className: "text-emerald-300",
+      borderClass: "border-emerald-500/20",
+      accentClass: "text-emerald-300/80",
+      badgeClass: "text-emerald-300",
     },
   };
 
@@ -214,30 +214,30 @@ function ProfileAnalytics({
   // Centralize the stat card content so shared colors stay in sync with the UI.
   const trendStats = [
     {
-      label: 'Sessions',
+      label: "Sessions",
       value: trendSessionCount,
-      colorClass: 'text-cyan-200',
+      colorClass: "text-cyan-200",
     },
     {
-      label: 'Start NP',
+      label: "Start NP",
       value: trendStartPower,
-      colorClass: 'text-yellow-400',
+      colorClass: "text-yellow-400",
     },
     {
-      label: 'Latest NP',
+      label: "Latest NP",
       value: trendLatestPower,
-      colorClass: 'text-yellow-400',
+      colorClass: "text-yellow-400",
     },
     {
-      label: 'Delta',
-      value: `${neuralTrend.change > 0 ? '+' : ''}${neuralTrend.change}`,
+      label: "Delta",
+      value: `${neuralTrend.change > 0 ? "+" : ""}${neuralTrend.change}`,
       colorClass: trendDisplay.className,
     },
     {
-      label: 'Vs Lifetime',
-      value: `${recentVsLifetimeDelta > 0 ? '+' : ''}${recentVsLifetimeDelta}`,
+      label: "Vs Lifetime",
+      value: `${recentVsLifetimeDelta > 0 ? "+" : ""}${recentVsLifetimeDelta}`,
       colorClass:
-        recentVsLifetimeDelta >= 0 ? 'text-emerald-300' : 'text-rose-300',
+        recentVsLifetimeDelta >= 0 ? "text-emerald-300" : "text-rose-300",
     },
   ];
 
@@ -260,7 +260,7 @@ function ProfileAnalytics({
         className={`rounded-2xl border bg-slate-900/70 p-4 ${pressureDisplay.borderClass}`}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          {' '}
+          {" "}
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
               Neural Trend
@@ -272,13 +272,13 @@ function ProfileAnalytics({
             </h3>
             <p className="mt-2 text-sm text-slate-300">
               {coachingInsight.summary}
-            </p>{' '}
+            </p>{" "}
             <p className="mt-2 text-xs leading-5 text-slate-400">
               {coachingInsight.focus}
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              Based on your last {trendSessionCount}{' '}
-              {trendSessionCount === 1 ? 'session' : 'sessions'}.
+              Based on your last {trendSessionCount}{" "}
+              {trendSessionCount === 1 ? "session" : "sessions"}.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-5">
               {trendStats.map((stat) => (
@@ -305,7 +305,7 @@ function ProfileAnalytics({
             <p
               className={`mt-2 whitespace-nowrap text-2xl font-bold ${trendDisplay.className}`}
             >
-              {neuralTrend.change > 0 ? '+' : ''}
+              {neuralTrend.change > 0 ? "+" : ""}
               {neuralTrend.change} NP
             </p>
           </div>
@@ -396,28 +396,28 @@ function ProfileAnalytics({
               <XAxis dataKey="label" />
               <YAxis />
               <Tooltip
-                formatter={(value) => [`${value} NP`, 'Neural Power']}
+                formatter={(value) => [`${value} NP`, "Neural Power"]}
                 labelFormatter={(label, payload) => {
                   const point = payload?.[0]?.payload;
                   return point?.date || label;
                 }}
                 contentStyle={{
-                  backgroundColor: '#020617',
-                  border: '1px solid #0f172a',
-                  borderRadius: '10px',
-                  color: '#e2e8f0',
+                  backgroundColor: "#020617",
+                  border: "1px solid #0f172a",
+                  borderRadius: "10px",
+                  color: "#e2e8f0",
                 }}
                 labelStyle={{
-                  color: '#67e8f9',
+                  color: "#67e8f9",
                   fontWeight: 600,
                 }}
                 itemStyle={{
-                  color: '#e2e8f0',
+                  color: "#e2e8f0",
                 }}
                 cursor={{
-                  stroke: '#22d3ee',
+                  stroke: "#22d3ee",
                   strokeWidth: 1,
-                  strokeDasharray: '4 4',
+                  strokeDasharray: "4 4",
                 }}
               />
               <Line
@@ -443,55 +443,60 @@ function ProfileAnalytics({
               Family-level summaries, accuracy, and trend reads.
             </p>
           </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {puzzleFamilyCards.map((family) => {
               const badgeClasses = getTrendBadgeClasses(family.trendState);
               const familyVisual = getPuzzleFamilyVisual(family.puzzleType);
               const familyTone = getFamilyCardTone(family.puzzleType);
-              const accuracyBadge = Number.isFinite(
-                family.averageAccuracy,
-              )
+              const accuracyBadge = Number.isFinite(family.averageAccuracy)
                 ? `${Math.round(family.averageAccuracy)}%`
-                : '0%';
+                : "0%";
               const valueToneMap =
-                family.puzzleType === 'sequence_sprint'
+                family.puzzleType === "sequence_sprint"
                   ? {
-                      averageScore: 'text-violet-200',
-                      bestScore: 'text-cyan-200',
-                      bestAccuracy: 'text-emerald-300',
-                      averageNeuralPower: 'text-fuchsia-200',
+                      averageScore: "text-violet-200",
+                      bestScore: "text-cyan-200",
+                      bestAccuracy: "text-emerald-300",
+                      averageNeuralPower: "text-fuchsia-200",
                     }
-                  : family.puzzleType === 'pattern_rush'
+                  : family.puzzleType === "pattern_rush"
                     ? {
-                        averageScore: 'text-cyan-200',
-                        bestScore: 'text-violet-200',
-                        bestAccuracy: 'text-emerald-300',
-                        averageNeuralPower: 'text-fuchsia-200',
+                        averageScore: "text-cyan-200",
+                        bestScore: "text-violet-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-fuchsia-200",
                       }
-                    : {
-                        averageScore: 'text-cyan-200',
-                        bestScore: 'text-violet-200',
-                        bestAccuracy: 'text-emerald-300',
-                        averageNeuralPower: 'text-fuchsia-200',
-                      };
+                    : family.puzzleType === "grid_recall"
+                      ? {
+                          averageScore: "text-emerald-200",
+                          bestScore: "text-cyan-200",
+                          bestAccuracy: "text-emerald-300",
+                          averageNeuralPower: "text-fuchsia-200",
+                        }
+                      : {
+                          averageScore: "text-cyan-200",
+                          bestScore: "text-violet-200",
+                          bestAccuracy: "text-emerald-300",
+                          averageNeuralPower: "text-fuchsia-200",
+                        };
               const statRows = [
                 {
-                  label: 'Avg Score',
+                  label: "Avg Score",
                   value: family.averageScore ?? 0,
                   valueClass: valueToneMap.averageScore,
                 },
                 {
-                  label: 'Best Score',
+                  label: "Best Score",
                   value: family.bestScore ?? 0,
                   valueClass: valueToneMap.bestScore,
                 },
                 {
-                  label: 'Best Accuracy',
+                  label: "Best Accuracy",
                   value: `${family.bestAccuracy ?? 0}%`,
                   valueClass: valueToneMap.bestAccuracy,
                 },
                 {
-                  label: 'Avg Neural Power',
+                  label: "Avg Neural Power",
                   value: `${family.averageNeuralPower ?? 0} NP`,
                   valueClass: valueToneMap.averageNeuralPower,
                 },
@@ -505,7 +510,10 @@ function ProfileAnalytics({
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div className={familyVisual.iconWrap}>
-                        <FontAwesomeIcon icon={familyVisual.icon} className="text-lg" />
+                        <FontAwesomeIcon
+                          icon={familyVisual.icon}
+                          className="text-lg"
+                        />
                       </div>
                       <div>
                         <p
@@ -522,7 +530,7 @@ function ProfileAnalytics({
                       <span
                         className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${badgeClasses.badge}`}
                       >
-                        {family.trendState || 'Calibrating'}
+                        {family.trendState || "Calibrating"}
                       </span>
                       <span
                         className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${familyTone.avgBadge}`}
@@ -557,7 +565,7 @@ function ProfileAnalytics({
                       Trend Read
                     </p>
                     <p className="mt-1 text-sm font-semibold text-slate-200">
-                      {family.trendReason || 'Trend data is still calibrating.'}
+                      {family.trendReason || "Trend data is still calibrating."}
                     </p>
                   </div>
                 </div>
@@ -584,9 +592,9 @@ function ProfileAnalytics({
  */
 function getSessionAccuracy(session) {
   if (
-    typeof session.puzzlesAttempted === 'number' &&
+    typeof session.puzzlesAttempted === "number" &&
     session.puzzlesAttempted > 0 &&
-    typeof session.puzzlesCorrect === 'number'
+    typeof session.puzzlesCorrect === "number"
   ) {
     return Math.round(
       (session.puzzlesCorrect / session.puzzlesAttempted) * 100,
@@ -663,24 +671,29 @@ function calculatePerformanceMetrics(sessions) {
 function getTrendBadgeClasses(trendState) {
   const trendBadgeToneMap = {
     Rising: {
-      badge: 'border-emerald-400/60 bg-emerald-500/10 text-emerald-200 shadow-[0_0_25px_rgba(16,185,129,0.35)]',
-      glow: 'shadow-[0_0_30px_rgba(16,185,129,0.2)]',
+      badge:
+        "border-emerald-400/60 bg-emerald-500/10 text-emerald-200 shadow-[0_0_25px_rgba(16,185,129,0.35)]",
+      glow: "shadow-[0_0_30px_rgba(16,185,129,0.2)]",
     },
     Steadying: {
-      badge: 'border-cyan-400/60 bg-cyan-500/10 text-cyan-200 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
-      glow: 'shadow-[0_0_30px_rgba(6,182,212,0.2)]',
+      badge:
+        "border-cyan-400/60 bg-cyan-500/10 text-cyan-200 shadow-[0_0_25px_rgba(6,182,212,0.35)]",
+      glow: "shadow-[0_0_30px_rgba(6,182,212,0.2)]",
     },
     Rebuilding: {
-      badge: 'border-amber-400/60 bg-amber-500/10 text-amber-200 shadow-[0_0_25px_rgba(251,191,36,0.35)]',
-      glow: 'shadow-[0_0_30px_rgba(251,191,36,0.2)]',
+      badge:
+        "border-amber-400/60 bg-amber-500/10 text-amber-200 shadow-[0_0_25px_rgba(251,191,36,0.35)]",
+      glow: "shadow-[0_0_30px_rgba(251,191,36,0.2)]",
     },
     Calibrating: {
-      badge: 'border-fuchsia-400/60 bg-fuchsia-500/10 text-fuchsia-200 shadow-[0_0_25px_rgba(236,72,153,0.35)]',
-      glow: 'shadow-[0_0_30px_rgba(236,72,153,0.2)]',
+      badge:
+        "border-fuchsia-400/60 bg-fuchsia-500/10 text-fuchsia-200 shadow-[0_0_25px_rgba(236,72,153,0.35)]",
+      glow: "shadow-[0_0_30px_rgba(236,72,153,0.2)]",
     },
     fallback: {
-      badge: 'border-slate-500/60 bg-slate-900/70 text-slate-200 shadow-[0_0_15px_rgba(15,23,42,0.6)]',
-      glow: 'shadow-[0_0_20px_rgba(15,23,42,0.3)]',
+      badge:
+        "border-slate-500/60 bg-slate-900/70 text-slate-200 shadow-[0_0_15px_rgba(15,23,42,0.6)]",
+      glow: "shadow-[0_0_20px_rgba(15,23,42,0.3)]",
     },
   };
 
@@ -690,31 +703,44 @@ function getTrendBadgeClasses(trendState) {
 function getFamilyCardTone(puzzleType) {
   const familyToneMap = {
     pattern_rush: {
-      card:
-        'border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]',
-      label: 'text-cyan-200',
-      sessions: 'text-cyan-300/80',
-      avgBadge: 'border-cyan-400/35 bg-cyan-500/10 text-cyan-200',
-      statCard: 'border-cyan-500/20 bg-cyan-500/5',
-      trendCard: 'border-cyan-500/20 bg-cyan-500/5',
+      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]",
+      label: "text-cyan-200",
+      sessions: "text-cyan-300/80",
+      avgBadge: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
+      statCard: "border-cyan-500/20 bg-cyan-500/5",
+      trendCard: "border-cyan-500/20 bg-cyan-500/5",
     },
     sequence_sprint: {
-      card:
-        'border-violet-400/30 bg-[linear-gradient(160deg,rgba(168,85,247,0.12)_0%,rgba(12,9,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,85,247,0.18)]',
-      label: 'text-violet-200',
-      sessions: 'text-violet-300/80',
-      avgBadge: 'border-violet-400/35 bg-violet-500/10 text-violet-200',
-      statCard: 'border-violet-500/20 bg-violet-500/5',
-      trendCard: 'border-violet-500/20 bg-violet-500/5',
+      card: "border-violet-400/30 bg-[linear-gradient(160deg,rgba(168,85,247,0.12)_0%,rgba(12,9,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,85,247,0.18)]",
+      label: "text-violet-200",
+      sessions: "text-violet-300/80",
+      avgBadge: "border-violet-400/35 bg-violet-500/10 text-violet-200",
+      statCard: "border-violet-500/20 bg-violet-500/5",
+      trendCard: "border-violet-500/20 bg-violet-500/5",
+    },
+    grid_recall: {
+      card: "border-emerald-400/30 bg-[linear-gradient(160deg,rgba(16,185,129,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(16,185,129,0.18)]",
+      label: "text-emerald-200",
+      sessions: "text-emerald-300/80",
+      avgBadge: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
+      statCard: "border-emerald-500/20 bg-emerald-500/5",
+      trendCard: "border-emerald-500/20 bg-emerald-500/5",
+    },
+    logic_gate: {
+      card: "border-amber-400/30 bg-[linear-gradient(160deg,rgba(251,191,36,0.12)_0%,rgba(13,8,4,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(251,191,36,0.18)]",
+      label: "text-amber-200",
+      sessions: "text-amber-300/80",
+      avgBadge: "border-amber-400/35 bg-amber-500/10 text-amber-200",
+      statCard: "border-amber-500/20 bg-amber-500/5",
+      trendCard: "border-amber-500/20 bg-amber-500/5",
     },
     default: {
-      card:
-        'border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]',
-      label: 'text-slate-200',
-      sessions: 'text-slate-400',
-      avgBadge: 'border-slate-700/70 bg-slate-900/70 text-slate-200',
-      statCard: 'border-slate-800/70 bg-slate-900/60',
-      trendCard: 'border-slate-800/70 bg-slate-950/40',
+      card: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
+      label: "text-slate-200",
+      sessions: "text-slate-400",
+      avgBadge: "border-slate-700/70 bg-slate-900/70 text-slate-200",
+      statCard: "border-slate-800/70 bg-slate-900/60",
+      trendCard: "border-slate-800/70 bg-slate-950/40",
     },
   };
 
@@ -726,37 +752,37 @@ function getPuzzleFamilyVisual(puzzleType) {
     pattern_rush: {
       icon: faShapes,
       iconWrap:
-        'flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200',
-      accentText: 'text-cyan-200',
-      accentRing: 'ring-1 ring-cyan-500/30',
+        "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200",
+      accentText: "text-cyan-200",
+      accentRing: "ring-1 ring-cyan-500/30",
     },
     sequence_sprint: {
       icon: faForward,
       iconWrap:
-        'flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200',
-      accentText: 'text-fuchsia-200',
-      accentRing: 'ring-1 ring-fuchsia-500/30',
+        "flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200",
+      accentText: "text-fuchsia-200",
+      accentRing: "ring-1 ring-fuchsia-500/30",
     },
     grid_recall: {
       icon: faBorderAll,
       iconWrap:
-        'flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
-      accentText: 'text-emerald-200',
-      accentRing: 'ring-1 ring-emerald-500/30',
+        "flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200",
+      accentText: "text-emerald-200",
+      accentRing: "ring-1 ring-emerald-500/30",
     },
     logic_gate: {
       icon: faCodeBranch,
       iconWrap:
-        'flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200',
-      accentText: 'text-amber-200',
-      accentRing: 'ring-1 ring-amber-500/30',
+        "flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200",
+      accentText: "text-amber-200",
+      accentRing: "ring-1 ring-amber-500/30",
     },
     fallback: {
       icon: faBrain,
       iconWrap:
-        'flex h-10 w-10 items-center justify-center rounded-full border border-slate-600/40 bg-slate-900/60 text-slate-200',
-      accentText: 'text-slate-200',
-      accentRing: 'ring-1 ring-slate-600/30',
+        "flex h-10 w-10 items-center justify-center rounded-full border border-slate-600/40 bg-slate-900/60 text-slate-200",
+      accentText: "text-slate-200",
+      accentRing: "ring-1 ring-slate-600/30",
     },
   };
 
@@ -766,51 +792,56 @@ function getPuzzleFamilyVisual(puzzleType) {
 /**
  * Renders the Identity Core stats grid.
  */
-export function IdentityCoreStats({ sessions = [], playerName = 'Unknown' }) {
+export function IdentityCoreStats({ sessions = [], playerName = "Unknown" }) {
   const metrics = calculatePerformanceMetrics(sessions);
 
   const stats = [
-    { label: 'PLAYER', value: playerName, color: 'text-cyan-300', fullWidth: true },
-    { label: 'BEST SCORE', value: metrics.bestScore, color: 'text-cyan-400' },
     {
-      label: 'BEST STREAK',
+      label: "PLAYER",
+      value: playerName,
+      color: "text-cyan-300",
+      fullWidth: true,
+    },
+    { label: "BEST SCORE", value: metrics.bestScore, color: "text-cyan-400" },
+    {
+      label: "BEST STREAK",
       value: metrics.bestStreak,
-      color: 'text-emerald-400',
+      color: "text-emerald-400",
     },
     {
-      label: 'BEST POWER',
+      label: "BEST POWER",
       value: metrics.bestNeuralPower,
-      color: 'text-yellow-400',
+      color: "text-yellow-400",
     },
     {
-      label: 'AVG SCORE',
+      label: "AVG SCORE",
       value: metrics.averageScore,
-      color: 'text-cyan-400',
+      color: "text-cyan-400",
     },
     {
-      label: 'ACCURACY',
+      label: "ACCURACY",
       value: `${metrics.averageAccuracy}%`,
-      color: 'text-blue-400',
+      color: "text-blue-400",
     },
     {
-      label: 'SOLVED',
+      label: "SOLVED",
       value: metrics.totalPuzzlesSolved,
-      color: 'text-emerald-400',
+      color: "text-emerald-400",
     },
     {
-      label: 'ATTEMPTS',
+      label: "ATTEMPTS",
       value: metrics.totalPuzzlesAttempted,
-      color: 'text-cyan-300',
+      color: "text-cyan-300",
     },
     {
-      label: 'SOLVE RATE',
+      label: "SOLVE RATE",
       value: `${metrics.solveRate}%`,
-      color: 'text-fuchsia-300',
+      color: "text-fuchsia-300",
     },
     {
-      label: 'SESSIONS PLAYED',
+      label: "SESSIONS PLAYED",
       value: metrics.totalSessions,
-      color: 'text-cyan-200',
+      color: "text-cyan-200",
       fullWidth: true,
     },
   ];
@@ -822,8 +853,8 @@ export function IdentityCoreStats({ sessions = [], playerName = 'Unknown' }) {
           key={stat.label}
           className={`group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 ${
             stat.fullWidth
-              ? 'col-span-2 border-white/10 bg-white/5 shadow-inner'
-              : 'border-slate-800/80 bg-slate-950/40 hover:border-cyan-500/50 hover:bg-slate-900/80 hover:shadow-[0_0_20px_rgba(34,211,238,0.1)]'
+              ? "col-span-2 border-white/10 bg-white/5 shadow-inner"
+              : "border-slate-800/80 bg-slate-950/40 hover:border-cyan-500/50 hover:bg-slate-900/80 hover:shadow-[0_0_20px_rgba(34,211,238,0.1)]"
           }`}
         >
           <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -861,39 +892,39 @@ export function PerformanceSnapshot({ sessions = [] }) {
 
   const snapshots = [
     {
-      label: 'BEST SCORE',
+      label: "BEST SCORE",
       value: metrics.bestScore,
       percent: bestScorePercent,
-      color: 'text-cyan-400',
-      barColor: 'bg-cyan-400',
+      color: "text-cyan-400",
+      barColor: "bg-cyan-400",
     },
     {
-      label: 'AVG SCORE',
+      label: "AVG SCORE",
       value: metrics.averageScore,
       percent: averageScorePercent,
-      color: 'text-green-300',
-      barColor: 'bg-green-300',
+      color: "text-green-300",
+      barColor: "bg-green-300",
     },
     {
-      label: 'ACCURACY',
+      label: "ACCURACY",
       value: `${metrics.averageAccuracy}%`,
       percent: averageAccuracyPercent,
-      color: 'text-violet-300',
-      barColor: 'bg-violet-400',
+      color: "text-violet-300",
+      barColor: "bg-violet-400",
     },
     {
-      label: 'BEST STREAK',
+      label: "BEST STREAK",
       value: metrics.bestStreak,
       percent: bestStreakPercent,
-      color: 'text-fuchsia-300',
-      barColor: 'bg-fuchsia-400',
+      color: "text-fuchsia-300",
+      barColor: "bg-fuchsia-400",
     },
     {
-      label: 'BEST POWER',
+      label: "BEST POWER",
       value: metrics.bestNeuralPower,
       percent: Math.min((metrics.bestNeuralPower / 100) * 100, 100),
-      color: 'text-yellow-300',
-      barColor: 'bg-yellow-400',
+      color: "text-yellow-300",
+      barColor: "bg-yellow-400",
     },
   ];
 
@@ -932,7 +963,7 @@ export function PerformanceSnapshot({ sessions = [] }) {
 export function AgentSummary({ coachingInsight }) {
   const summary = coachingInsight
     ? `${coachingInsight.summary} ${coachingInsight.detail}`.trim()
-    : 'Complete your first session to unlock AI coaching insights.';
+    : "Complete your first session to unlock AI coaching insights.";
 
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4">

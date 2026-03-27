@@ -116,6 +116,10 @@ export function createGridRecallPuzzle({
   };
 }
 
+export function getRandomGridRecallPuzzle(difficulty = 'medium') {
+  return createGridRecallPuzzle({ difficulty });
+}
+
 export const sampleGridRecallPuzzles = Array.from({ length: 4 }, () =>
   createGridRecallPuzzle({ difficulty: 'medium' }),
 );

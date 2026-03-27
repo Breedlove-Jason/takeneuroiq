@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrophy,
   faStar,
@@ -13,24 +13,28 @@ import {
   faBrain,
   faBolt,
   faBullseye,
-} from '@fortawesome/free-solid-svg-icons';
-import PuzzleShape from '../components/PuzzleShape';
-import { checkAnswer, getRandomPuzzle } from '../game/puzzleEngine';
+} from "@fortawesome/free-solid-svg-icons";
+import PuzzleShape from "../components/PuzzleShape";
+import { checkAnswer, getRandomPuzzle } from "../game/puzzleEngine";
 import sequenceSprintPuzzles, {
   getRandomSequenceSprintPuzzle,
-} from '../game/sequenceSprintPuzzles';
-import { recordSession } from '../game/sessionTracker';
-import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDifficulty.js';
-import { useLocation } from 'react-router-dom';
-import { evaluateSessionOutcome } from '../analytics/sessionOutcomeEvaluator';
-import { classifyCognitiveIdentity } from '../analytics/cognitiveIdentity';
+} from "../game/sequenceSprintPuzzles";
+import {
+  formatGridAsMatrix,
+  getRandomGridRecallPuzzle,
+} from "../game/gridRecallPuzzles";
+import { recordSession } from "../game/sessionTracker";
+import { calculateLiveAdaptiveDifficulty } from "../analytics/liveAdaptiveDifficulty.js";
+import { useLocation } from "react-router-dom";
+import { evaluateSessionOutcome } from "../analytics/sessionOutcomeEvaluator";
+import { classifyCognitiveIdentity } from "../analytics/cognitiveIdentity";
 import {
   PUZZLE_TYPES,
   getPuzzleTypeMetadata,
-} from '../utils/puzzleTypeRegistry';
-import { buildAccuracySummary } from '../utils/puzzleAccuracy';
-import { PUZZLE_DEV_FLAGS } from '../config/puzzleDevFlags';
-import sequenceSprintRunner from '../assets/sequenceSprintRunner.png';
+} from "../utils/puzzleTypeRegistry";
+import { buildAccuracySummary } from "../utils/puzzleAccuracy";
+import { PUZZLE_DEV_FLAGS } from "../config/puzzleDevFlags";
+import sequenceSprintRunner from "../assets/sequenceSprintRunner.png";
 
 /**
  * Arena Component
@@ -48,121 +52,125 @@ import sequenceSprintRunner from '../assets/sequenceSprintRunner.png';
  */
 
 const adaptiveStateLabelMap = {
-  recover: 'Recovery Mode',
-  steady: 'Stable Load',
-  challenge: 'Challenge Mode',
+  recover: "Recovery Mode",
+  steady: "Stable Load",
+  challenge: "Challenge Mode",
 };
 
 const adaptiveStateColorMap = {
-  recover: 'text-yellow-300',
-  steady: 'text-cyan-300',
-  challenge: 'text-fuchsia-300',
+  recover: "text-yellow-300",
+  steady: "text-cyan-300",
+  challenge: "text-fuchsia-300",
 };
 
 const adaptiveConfidenceColorMap = {
-  low: 'text-slate-300',
-  medium: 'text-cyan-200',
-  high: 'text-emerald-300',
+  low: "text-slate-300",
+  medium: "text-cyan-200",
+  high: "text-emerald-300",
 };
 
 const adaptiveCoachingMessageMap = {
-  recover: 'Focus on accuracy over speed.',
-  steady: 'Stay consistent. You have a good rhythm.',
-  challenge: 'Strong momentum. Keep pressing.',
+  recover: "Focus on accuracy over speed.",
+  steady: "Stay consistent. You have a good rhythm.",
+  challenge: "Strong momentum. Keep pressing.",
 };
 
 const adaptiveFeedbackMap = {
   recover: {
-    correct: 'Correct. Rebuilding stability.',
-    incorrect: 'Incorrect. Focus on the next one.',
+    correct: "Correct. Rebuilding stability.",
+    incorrect: "Incorrect. Focus on the next one.",
   },
   steady: {
-    correct: 'Correct. Nice rhythm.',
-    incorrect: 'Incorrect. Reset and stay steady.',
+    correct: "Correct. Nice rhythm.",
+    incorrect: "Incorrect. Reset and stay steady.",
   },
   challenge: {
-    correct: 'Correct. Exceptional read.',
-    incorrect: 'Incorrect. Stay sharp.',
+    correct: "Correct. Exceptional read.",
+    incorrect: "Incorrect. Stay sharp.",
   },
 };
 
 const adaptiveShiftMessageMap = {
-  easy: 'Adaptive shift: easing difficulty',
-  medium: 'Adaptive shift: stabilizing load',
-  hard: 'Adaptive shift: increasing challenge',
+  easy: "Adaptive shift: easing difficulty",
+  medium: "Adaptive shift: stabilizing load",
+  hard: "Adaptive shift: increasing challenge",
 };
 
 const liveCoachingToneMap = {
-  recover: 'border-yellow-400/20 bg-yellow-400/5 text-yellow-200',
-  steady: 'border-cyan-500/20 bg-cyan-500/5 text-cyan-200',
-  challenge: 'border-violet-500/20 bg-violet-500/5 text-violet-200',
-  default: 'border-slate-700/70 bg-slate-800/40 text-slate-200',
+  recover: "border-yellow-400/20 bg-yellow-400/5 text-yellow-200",
+  steady: "border-cyan-500/20 bg-cyan-500/5 text-cyan-200",
+  challenge: "border-violet-500/20 bg-violet-500/5 text-violet-200",
+  default: "border-slate-700/70 bg-slate-800/40 text-slate-200",
 };
 
 const recommendedSessionStyles = {
   challenge: {
-    border: 'border-violet-500/30',
-    label: 'text-violet-300',
-    badge: 'bg-violet-500/15 text-violet-200 border border-violet-400/30',
+    border: "border-violet-500/30",
+    label: "text-violet-300",
+    badge: "bg-violet-500/15 text-violet-200 border border-violet-400/30",
   },
   steady: {
-    border: 'border-cyan-500/20',
-    label: 'text-cyan-300',
-    badge: 'bg-cyan-500/15 text-cyan-200 border border-cyan-400/30',
+    border: "border-cyan-500/20",
+    label: "text-cyan-300",
+    badge: "bg-cyan-500/15 text-cyan-200 border border-cyan-400/30",
   },
   recover: {
-    border: 'border-yellow-500/30',
-    label: 'text-yellow-300',
-    badge: 'bg-yellow-500/15 text-yellow-200 border border-yellow-400/30',
+    border: "border-yellow-500/30",
+    label: "text-yellow-300",
+    badge: "bg-yellow-500/15 text-yellow-200 border border-yellow-400/30",
   },
   default: {
-    border: 'border-slate-700',
-    label: 'text-slate-300',
-    badge: 'bg-slate-500/15 text-slate-200 border border-slate-400/20',
+    border: "border-slate-700",
+    label: "text-slate-300",
+    badge: "bg-slate-500/15 text-slate-200 border border-slate-400/20",
   },
 };
 
 const recommendedSessionLabels = {
-  challenge: 'Challenge',
-  steady: 'Steady',
-  recover: 'Recovery',
-  default: 'Adaptive',
+  challenge: "Challenge",
+  steady: "Steady",
+  recover: "Recovery",
+  default: "Adaptive",
 };
 
 const recommendedAlignmentToneMap = {
-  aligned: 'text-emerald-300',
-  shifted: 'text-amber-300',
-  inactive: 'text-slate-400',
+  aligned: "text-emerald-300",
+  shifted: "text-amber-300",
+  inactive: "text-slate-400",
 };
 
 const recommendedDifficultyLabels = {
-  easy: 'EASY',
-  medium: 'MEDIUM',
-  hard: 'HARD',
+  easy: "EASY",
+  medium: "MEDIUM",
+  hard: "HARD",
 };
 
 const recommendedSessionReasonMap = {
   challenge:
-    'The system detected strong recent performance and is opening at a higher challenge level.',
+    "The system detected strong recent performance and is opening at a higher challenge level.",
   steady:
-    'The system detected balanced recent performance and is opening at a stable training level.',
+    "The system detected balanced recent performance and is opening at a stable training level.",
   recover:
-    'The system detected a need for controlled recovery and is easing the opening difficulty.',
+    "The system detected a need for controlled recovery and is easing the opening difficulty.",
   default:
-    'The system is using your recent training behavior to shape this session.',
+    "The system is using your recent training behavior to shape this session.",
 };
 
 function DevDebugPanel({ title, children }) {
   return (
     <div className="rounded-2xl border border-amber-400/40 bg-amber-500/5 p-3 text-[10px] uppercase tracking-[0.3em] text-amber-200 shadow-[0_0_18px_rgba(251,191,36,0.25)]">
-      {title && <div className="text-[9px] font-semibold text-amber-300">{title}</div>}
-      <div className="mt-1 space-y-1 text-[11px] leading-snug text-amber-100">{children}</div>
+      {title && (
+        <div className="text-[9px] font-semibold text-amber-300">{title}</div>
+      )}
+      <div className="mt-1 space-y-1 text-[11px] leading-snug text-amber-100">
+        {children}
+      </div>
     </div>
   );
 }
 
 function clamp(value, min = 0, max = 100) {
-  if (typeof value !== 'number' || Number.isNaN(value)) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
     return min;
   }
   return Math.min(Math.max(value, min), max);
@@ -178,53 +186,57 @@ function getSequenceSprintProgressPercent({ solvedCount = 0, totalCount = 1 }) {
 
 const getSequenceSprintPhase = (progress = 0) => {
   if (progress >= 90) {
-    return 'finishing';
+    return "finishing";
   }
   if (progress >= 55) {
-    return 'surging';
+    return "surging";
   }
   if (progress > 0) {
-    return 'moving';
+    return "moving";
   }
-  return 'idle';
+  return "idle";
 };
 
 const getSequenceSprintRunnerClasses = (phase) => {
   const fx = {
     finishing: {
-      wrapper: 'animate-pulse',
-      image: 'drop-shadow-[0_0_15px_rgba(217,70,239,0.8)]',
-      trail: 'opacity-80 w-16 bg-gradient-to-r from-transparent to-fuchsia-500',
-      finishGlow: 'opacity-100 bg-fuchsia-500/30',
+      wrapper: "animate-pulse",
+      image: "drop-shadow-[0_0_15px_rgba(217,70,239,0.8)]",
+      trail: "opacity-80 w-16 bg-gradient-to-r from-transparent to-fuchsia-500",
+      finishGlow: "opacity-100 bg-fuchsia-500/30",
     },
     surging: {
-      wrapper: 'animate-bounce',
-      image: 'drop-shadow-[0_0_10px_rgba(217,70,239,0.6)]',
-      trail: 'opacity-50 w-10 bg-gradient-to-r from-transparent to-fuchsia-400',
-      finishGlow: 'opacity-40 bg-fuchsia-500/20',
+      wrapper: "animate-bounce",
+      image: "drop-shadow-[0_0_10px_rgba(217,70,239,0.6)]",
+      trail: "opacity-50 w-10 bg-gradient-to-r from-transparent to-fuchsia-400",
+      finishGlow: "opacity-40 bg-fuchsia-500/20",
     },
     moving: {
-      wrapper: '',
-      image: 'drop-shadow-[0_0_5px_rgba(217,70,239,0.4)]',
-      trail: 'opacity-30 w-6 bg-gradient-to-r from-transparent to-fuchsia-400',
-      finishGlow: 'opacity-0',
+      wrapper: "",
+      image: "drop-shadow-[0_0_5px_rgba(217,70,239,0.4)]",
+      trail: "opacity-30 w-6 bg-gradient-to-r from-transparent to-fuchsia-400",
+      finishGlow: "opacity-0",
     },
     idle: {
-      wrapper: '',
-      image: 'drop-shadow-[0_0_2px_rgba(217,70,239,0.2)]',
-      trail: 'opacity-0',
-      finishGlow: 'opacity-0',
+      wrapper: "",
+      image: "drop-shadow-[0_0_2px_rgba(217,70,239,0.2)]",
+      trail: "opacity-0",
+      finishGlow: "opacity-0",
     },
   };
   return fx[phase] || fx.idle;
 };
 
-const SEQUENCE_SPRINT_TOTAL_PROBLEMS = Math.max(1, sequenceSprintPuzzles.length);
+const SEQUENCE_SPRINT_TOTAL_PROBLEMS = Math.max(
+  1,
+  sequenceSprintPuzzles.length,
+);
+const GRID_RECALL_TOTAL_PUZZLES = 5;
 
 const adaptiveStateToDifficultyMap = {
-  recover: 'easy',
-  steady: 'medium',
-  challenge: 'hard',
+  recover: "easy",
+  steady: "medium",
+  challenge: "hard",
 };
 
 function getAdaptiveFeedback(adaptiveState, isCorrect) {
@@ -234,54 +246,93 @@ function getAdaptiveFeedback(adaptiveState, isCorrect) {
 }
 
 function getFeedbackBadgeClass(feedback, isCyber) {
-  if (feedback.startsWith('Correct')) {
-    return 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20';
+  if (feedback.startsWith("Correct")) {
+    return "bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20";
   }
 
-  if (feedback.startsWith('Incorrect') || feedback.startsWith('Missed')) {
-    return 'bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20';
+  if (feedback.startsWith("Incorrect") || feedback.startsWith("Missed")) {
+    return "bg-fuchsia-500/10 text-fuchsia-300 ring-1 ring-fuchsia-400/20";
   }
 
   return isCyber
-    ? 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20'
-    : 'bg-slate-100 text-slate-700 ring-1 ring-slate-200';
+    ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20"
+    : "bg-slate-100 text-slate-700 ring-1 ring-slate-200";
 }
 
 const buildSequenceSprintResultsCopy = ({
   accuracy = 0,
   correctAnswers = 0,
-  ruleType = 'sequence logic',
+  ruleType = "sequence logic",
 } = {}) => {
   if (accuracy >= 90) {
     return {
-      eyebrow: 'Sprint Complete',
-      title: 'Sequence Sprint Results',
+      eyebrow: "Sprint Complete",
+      title: "Sequence Sprint Results",
       summary:
-        'Excellent sequence control. Rule recognition stayed sharp and your sprint pace held strong.',
+        "Excellent sequence control. Rule recognition stayed sharp and your sprint pace held strong.",
     };
   }
 
   if (accuracy >= 70) {
     return {
-      eyebrow: 'Sprint Complete',
-      title: 'Sequence Sprint Results',
+      eyebrow: "Sprint Complete",
+      title: "Sequence Sprint Results",
       summary:
-        'Solid momentum. Sequence logic is stabilizing, and your recognition lane is building consistency.',
+        "Solid momentum. Sequence logic is stabilizing, and your recognition lane is building consistency.",
     };
   }
 
   if (correctAnswers > 0) {
     return {
-      eyebrow: 'Sprint Complete',
-      title: 'Sequence Sprint Results',
+      eyebrow: "Sprint Complete",
+      title: "Sequence Sprint Results",
       summary: `Partial progress. Keep refining your ${ruleType} recognition.`,
     };
   }
 
   return {
-    eyebrow: 'Sprint Complete',
-    title: 'Sequence Sprint Results',
-    summary: 'Sprint timed out. Reset and focus on the initial sequence rule.',
+    eyebrow: "Sprint Complete",
+    title: "Sequence Sprint Results",
+    summary: "Sprint timed out. Reset and focus on the initial sequence rule.",
+  };
+};
+
+const buildGridRecallResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+  difficulty = "medium",
+} = {}) => {
+  if (accuracy >= 90) {
+    return {
+      eyebrow: "Session Complete",
+      title: "Grid Recall Results",
+      summary:
+        "Superior spatial accuracy. Your neural imprint was extremely stable even under load.",
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: "Session Complete",
+      title: "Grid Recall Results",
+      summary:
+        "Solid spatial memory. You held the patterns well throughout the neural encoding phases.",
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: "Session Complete",
+      title: "Grid Recall Results",
+      summary: `Partial spatial mapping. Keep refining your focus on the ${difficulty} matrices.`,
+    };
+  }
+
+  return {
+    eyebrow: "Session Complete",
+    title: "Grid Recall Results",
+    summary:
+      "Session timed out. Rebuild your spatial encoding with simpler patterns.",
   };
 };
 
@@ -290,30 +341,31 @@ const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
 
 function Arena({ theme }) {
   // Navigation/session context
-  const isCyber = theme === 'cyber';
+  const isCyber = theme === "cyber";
 
   const location = useLocation();
   const recommendedSession = location.state?.recommendedSession ?? null;
   const recommendedSessionKey = recommendedSession
-    ? `${recommendedSession.source || 'direct'}-${recommendedSession.adaptiveState || 'steady'}-${recommendedSession.recommendation || ''}`
+    ? `${recommendedSession.source || "direct"}-${recommendedSession.adaptiveState || "steady"}-${recommendedSession.recommendation || ""}`
     : null;
   const initialTargetDifficulty =
-    adaptiveStateToDifficultyMap[recommendedSession?.adaptiveState] || 'medium';
+    adaptiveStateToDifficultyMap[recommendedSession?.adaptiveState] || "medium";
   const recommendedOpeningDifficulty =
-    recommendedDifficultyLabels[initialTargetDifficulty] || 'MEDIUM';
+    recommendedDifficultyLabels[initialTargetDifficulty] || "MEDIUM";
 
   const routePuzzleType = location.state?.puzzleType;
-  const initialPuzzleType =
-    Object.values(PUZZLE_TYPES).includes(routePuzzleType)
-      ? routePuzzleType
-      : DEFAULT_PUZZLE_TYPE;
+  const initialPuzzleType = Object.values(PUZZLE_TYPES).includes(
+    routePuzzleType,
+  )
+    ? routePuzzleType
+    : DEFAULT_PUZZLE_TYPE;
 
   const recommendedSessionReason =
     recommendedSessionReasonMap[recommendedSession?.adaptiveState] ||
     recommendedSessionReasonMap.default;
   const initialAdaptiveReason = recommendedSession
-    ? 'Session initialized from adaptive coaching recommendation.'
-    : 'Not enough live data yet.';
+    ? "Session initialized from adaptive coaching recommendation."
+    : "Not enough live data yet.";
   const recommendedSessionTone =
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
@@ -321,10 +373,14 @@ function Arena({ theme }) {
     SHOW_PATTERN_RUSH_ANSWERS,
     SHOW_SEQUENCE_SPRINT_ANSWERS,
     SHOW_PUZZLE_DEBUG_META,
+    SHOW_GRID_RECALL_ANSWERS,
   } = PUZZLE_DEV_FLAGS;
   const initialPuzzle = useMemo(() => {
     if (initialPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       return getRandomSequenceSprintPuzzle(initialTargetDifficulty);
+    }
+    if (initialPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
+      return getRandomGridRecallPuzzle(initialTargetDifficulty);
     }
     return getRandomPuzzle(initialTargetDifficulty);
   }, [initialTargetDifficulty, initialPuzzleType]);
@@ -338,10 +394,14 @@ function Arena({ theme }) {
   const [sequenceSprintSelectedAnswer, setSequenceSprintSelectedAnswer] =
     useState(null);
   const [sequenceSprintSolvedCount, setSequenceSprintSolvedCount] = useState(0);
+  const [gridRecallPuzzle, setGridRecallPuzzle] = useState(() =>
+    getRandomGridRecallPuzzle(initialTargetDifficulty),
+  );
+  const [gridRecallPhase, setGridRecallPhase] = useState("memorize");
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState("");
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [totalAnswers, setTotalAnswers] = useState(0);
   const [puzzlesSeen, setPuzzlesSeen] = useState(1);
@@ -357,13 +417,13 @@ function Arena({ theme }) {
   const [cognitiveIdentity, setCognitiveIdentity] = useState(null);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
-    state: recommendedSession?.adaptiveState || 'steady',
+    state: recommendedSession?.adaptiveState || "steady",
     targetDifficulty: initialTargetDifficulty,
-    confidence: 'low',
+    confidence: "low",
     reason: initialAdaptiveReason,
   });
   const [recentAnswerHistory, setRecentAnswerHistory] = useState([]);
-  const [adaptiveShiftMessage, setAdaptiveShiftMessage] = useState('');
+  const [adaptiveShiftMessage, setAdaptiveShiftMessage] = useState("");
   const gameOverRef = useRef(gameOver);
   const isTransitioningRef = useRef(false);
   const adaptiveShiftTimeoutRef = useRef(null);
@@ -377,37 +437,38 @@ function Arena({ theme }) {
   const activePuzzle =
     activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
       ? sequenceSprintPuzzle
-      : currentPuzzle;
+      : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
+        ? gridRecallPuzzle
+        : currentPuzzle;
   const activePuzzleMeta = getPuzzleTypeMetadata(activePuzzleType);
   const currentPuzzleDifficulty =
-    activePuzzle?.difficulty || activePuzzle?.difficultyBucket || 'medium';
+    activePuzzle?.difficulty || activePuzzle?.difficultyBucket || "medium";
   const nextTargetDifficulty =
-    liveAdaptiveDifficulty.targetDifficulty?.toUpperCase() || 'MEDIUM';
+    liveAdaptiveDifficulty.targetDifficulty?.toUpperCase() || "MEDIUM";
   const currentPuzzleDifficultyLabel = currentPuzzleDifficulty.toUpperCase();
   const adaptiveStateLabel =
-    adaptiveStateLabelMap[liveAdaptiveDifficulty.state] ?? 'Stable Load';
+    adaptiveStateLabelMap[liveAdaptiveDifficulty.state] ?? "Stable Load";
 
   const adaptiveStateColor =
-    adaptiveStateColorMap[liveAdaptiveDifficulty.state] ?? 'text-cyan-300';
+    adaptiveStateColorMap[liveAdaptiveDifficulty.state] ?? "text-cyan-300";
 
   const adaptiveConfidenceColor =
     adaptiveConfidenceColorMap[liveAdaptiveDifficulty.confidence] ??
-    'text-slate-300';
+    "text-slate-300";
 
   const adaptiveCoachingMessage =
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
-    'Stay consistent and keep building momentum.';
-
+    "Stay consistent and keep building momentum.";
 
   const isRecommendedSessionAligned =
     Boolean(recommendedSession?.adaptiveState) &&
     recommendedSession.adaptiveState === liveAdaptiveDifficulty.state;
 
   const recommendedSessionAlignmentLabel = !recommendedSession?.adaptiveState
-    ? 'No recommended session active'
+    ? "No recommended session active"
     : didBreakRecommendedAlignment || !isRecommendedSessionAligned
-      ? 'Shifted away from recommended training state'
-      : 'Aligned with recommended training state';
+      ? "Shifted away from recommended training state"
+      : "Aligned with recommended training state";
 
   const recommendedSessionAlignmentTone = !recommendedSession?.adaptiveState
     ? recommendedAlignmentToneMap.inactive
@@ -435,12 +496,28 @@ function Arena({ theme }) {
     };
   }, [activePuzzleType, activePuzzle]);
 
+  const gridRecallPuzzleMetrics = useMemo(() => {
+    if (activePuzzleType !== PUZZLE_TYPES.GRID_RECALL) {
+      return {};
+    }
+
+    return {
+      difficulty: gridRecallPuzzle?.difficulty || "medium",
+      gridSignature: gridRecallPuzzle?.answer || null,
+      decoyCount: Array.isArray(gridRecallPuzzle?.options)
+        ? gridRecallPuzzle.options.length - 1
+        : 0,
+    };
+  }, [activePuzzleType, gridRecallPuzzle]);
+
   const patternDebugInfo = useMemo(() => {
     return {
-      id: currentPuzzle?.id ?? 'Unknown',
+      id: currentPuzzle?.id ?? "Unknown",
       difficulty:
-        currentPuzzle?.difficulty ?? currentPuzzle?.difficultyBucket ?? 'Unknown',
-      answer: currentPuzzle?.correctAnswer ?? 'Unknown',
+        currentPuzzle?.difficulty ??
+        currentPuzzle?.difficultyBucket ??
+        "Unknown",
+      answer: currentPuzzle?.correctAnswer ?? "Unknown",
     };
   }, [currentPuzzle]);
 
@@ -449,17 +526,27 @@ function Arena({ theme }) {
       ? sequenceSprintPuzzle.sequence
       : [];
     return {
-      id: sequenceSprintPuzzle?.id ?? 'Unknown',
-      answer: sequenceSprintPuzzle?.answer ?? 'Unknown',
-      rule: sequenceSprintPuzzle?.rule ?? 'Unknown',
+      id: sequenceSprintPuzzle?.id ?? "Unknown",
+      answer: sequenceSprintPuzzle?.answer ?? "Unknown",
+      rule: sequenceSprintPuzzle?.rule ?? "Unknown",
       length: sequenceArray.length,
     };
   }, [sequenceSprintPuzzle]);
+
+  const gridRecallDebugInfo = useMemo(() => {
+    return {
+      id: gridRecallPuzzle?.id ?? "Unknown",
+      answer: gridRecallPuzzle?.answer ?? "Unknown",
+      difficulty: gridRecallPuzzle?.difficulty ?? "Unknown",
+    };
+  }, [gridRecallPuzzle]);
 
   const shouldShowPatternDebug =
     SHOW_PATTERN_RUSH_ANSWERS || SHOW_PUZZLE_DEBUG_META;
   const shouldShowSequenceDebug =
     SHOW_SEQUENCE_SPRINT_ANSWERS || SHOW_PUZZLE_DEBUG_META;
+  const shouldShowGridRecallDebug =
+    SHOW_GRID_RECALL_ANSWERS || SHOW_PUZZLE_DEBUG_META;
 
   const sequenceTotalCount = SEQUENCE_SPRINT_TOTAL_PROBLEMS;
   const sequenceSolvedCount = sequenceSprintSolvedCount;
@@ -468,10 +555,13 @@ function Arena({ theme }) {
     totalCount: sequenceTotalCount,
   });
   const sequenceSprintPhase = getSequenceSprintPhase(sequenceSprintProgress);
-  const sequenceSprintRunnerFx = getSequenceSprintRunnerClasses(sequenceSprintPhase);
+  const sequenceSprintRunnerFx =
+    getSequenceSprintRunnerClasses(sequenceSprintPhase);
 
   const isSequenceSprintSession =
     activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT;
+
+  const isGridRecallSession = activePuzzleType === PUZZLE_TYPES.GRID_RECALL;
 
   const sequenceSprintSummary = useMemo(() => {
     if (!isSequenceSprintSession) {
@@ -491,19 +581,34 @@ function Arena({ theme }) {
     sequenceTotalCount,
   ]);
 
+  const gridRecallSummary = useMemo(() => {
+    if (!isGridRecallSession) {
+      return null;
+    }
+
+    return buildAccuracySummary({
+      correctAnswers,
+      attemptedAnswers: totalAnswers,
+      totalPuzzles: GRID_RECALL_TOTAL_PUZZLES,
+      decimals: 0,
+    });
+  }, [isGridRecallSession, correctAnswers, totalAnswers]);
+
   const liveCoachingPressureClass =
     streak >= 6
-      ? 'shadow-[0_0_32px_rgba(217,70,239,0.22)] scale-[1.01]'
+      ? "shadow-[0_0_32px_rgba(217,70,239,0.22)] scale-[1.01]"
       : streak >= 4
-        ? 'shadow-[0_0_22px_rgba(34,211,238,0.14)] scale-[1.005]'
+        ? "shadow-[0_0_22px_rgba(34,211,238,0.14)] scale-[1.005]"
         : streak >= 2
-          ? 'shadow-[0_0_14px_rgba(34,211,238,0.08)]'
-          : '';
+          ? "shadow-[0_0_14px_rgba(34,211,238,0.08)]"
+          : "";
 
   function getNextPuzzleByType(puzzleType, difficulty) {
     switch (puzzleType) {
       case PUZZLE_TYPES.SEQUENCE_SPRINT:
         return getRandomSequenceSprintPuzzle(difficulty);
+      case PUZZLE_TYPES.GRID_RECALL:
+        return getRandomGridRecallPuzzle(difficulty);
       case PUZZLE_TYPES.PATTERN_RUSH:
       default:
         return getRandomPuzzle(difficulty);
@@ -584,7 +689,12 @@ function Arena({ theme }) {
       recommendedSessionAlignmentLabel,
       didBreakRecommendedAlignment,
       puzzleType: activePuzzleType,
-      puzzleMetrics: sequenceSprintPuzzleMetrics,
+      puzzleMetrics:
+        activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+          ? sequenceSprintPuzzleMetrics
+          : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
+            ? gridRecallPuzzleMetrics
+            : {},
       ...sequenceSprintOverrides,
     };
 
@@ -601,7 +711,12 @@ function Arena({ theme }) {
         recentAnswerHistory,
         liveAdaptiveDifficulty,
         puzzleType: activePuzzleType,
-        puzzleMetrics: sequenceSprintPuzzleMetrics,
+        puzzleMetrics:
+          activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+            ? sequenceSprintPuzzleMetrics
+            : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
+              ? gridRecallPuzzleMetrics
+              : {},
         ...sequenceSprintOverrides,
       };
 
@@ -637,6 +752,7 @@ function Arena({ theme }) {
     didBreakRecommendedAlignment,
     activePuzzleType,
     sequenceSprintPuzzleMetrics,
+    gridRecallPuzzleMetrics,
     sequenceSprintSummary,
     isSequenceSprintSession,
   ]);
@@ -699,6 +815,18 @@ function Arena({ theme }) {
     };
   }, [recommendedSessionKey]);
 
+  useEffect(() => {
+    if (!gridRecallPuzzle) {
+      return undefined;
+    }
+
+    const recallTimer = setTimeout(() => {
+      setGridRecallPhase("recall");
+    }, 1500);
+
+    return () => clearTimeout(recallTimer);
+  }, [gridRecallPuzzle]);
+
   // Handlers
   function applyLiveAdaptiveDifficulty(nextDifficulty) {
     setLiveAdaptiveDifficulty(nextDifficulty);
@@ -706,16 +834,22 @@ function Arena({ theme }) {
 
   const handleStartRecommendedSession = () => {
     const recommendedDifficulty =
-      sessionOutcome?.nextRecommendedDifficulty || 'medium';
+      sessionOutcome?.nextRecommendedDifficulty || "medium";
 
     resetGame(recommendedDifficulty);
   };
 
-  function loadNextPuzzle(preferredDifficulty = 'medium') {
-    const nextPuzzle = getNextPuzzleByType(activePuzzleType, preferredDifficulty);
+  function loadNextPuzzle(preferredDifficulty = "medium") {
+    const nextPuzzle = getNextPuzzleByType(
+      activePuzzleType,
+      preferredDifficulty,
+    );
     if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       setSequenceSprintSelectedAnswer(null);
       setSequenceSprintPuzzle(nextPuzzle);
+    } else if (activePuzzleType === PUZZLE_TYPES.GRID_RECALL) {
+      setGridRecallPuzzle(nextPuzzle);
+      setGridRecallPhase("memorize");
     } else {
       setCurrentPuzzle(nextPuzzle);
     }
@@ -750,14 +884,14 @@ function Arena({ theme }) {
 
     if (previousTarget && nextTarget && previousTarget !== nextTarget) {
       setAdaptiveShiftMessage(
-        adaptiveShiftMessageMap[nextTarget] || 'Adaptive shift detected',
+        adaptiveShiftMessageMap[nextTarget] || "Adaptive shift detected",
       );
 
       if (adaptiveShiftTimeoutRef.current) {
         clearTimeout(adaptiveShiftTimeoutRef.current);
       }
       adaptiveShiftTimeoutRef.current = setTimeout(() => {
-        setAdaptiveShiftMessage('');
+        setAdaptiveShiftMessage("");
       }, 1600);
     }
 
@@ -784,7 +918,7 @@ function Arena({ theme }) {
       clearTimeout(feedbackTimeoutRef.current);
     }
     feedbackTimeoutRef.current = setTimeout(() => {
-      setFeedback('');
+      setFeedback("");
       if (allowAfterFeedbackWhileGameOver || !gameOverRef.current) {
         afterFeedback?.(nextTarget);
       }
@@ -824,7 +958,7 @@ function Arena({ theme }) {
               className={`absolute top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/95 shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 ${sequenceSprintRunnerFx.wrapper}`}
               style={{
                 left: `${sequenceSprintProgress}%`,
-                transform: 'translateX(-50%)',
+                transform: "translateX(-50%)",
               }}
               aria-hidden="true"
             >
@@ -843,6 +977,150 @@ function Arena({ theme }) {
           <div className="flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.35em] text-slate-500">
             <span>Start</span>
             <span>Finish</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderGridRecallGrid = () => (
+    <div className="rounded-2xl border border-emerald-400/40 bg-[#02140c]/80 p-5 shadow-[inset_0_0_30px_rgba(16,185,129,0.25)]">
+      <div className="flex items-center justify-between border-b border-emerald-400/10 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-emerald-300">
+          Memory Grid
+        </p>
+        <span className="text-[10px] font-medium text-emerald-500/60">
+          Spatial Matrix
+        </span>
+      </div>
+      <div className="mt-6 grid grid-cols-3 gap-3">
+        {displayedGridRecallMatrix.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            const isVisible = gridRecallPhase === "memorize" && cell;
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={`flex aspect-square items-center justify-center rounded-2xl border transition ${
+                  isVisible
+                    ? "border-emerald-400/70 bg-emerald-400/90 shadow-[0_0_30px_rgba(16,185,129,0.45)]"
+                    : "border-emerald-400/15 bg-white/5"
+                }`}
+              >
+                {isVisible && (
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.9)]" />
+                )}
+              </div>
+            );
+          }),
+        )}
+      </div>
+    </div>
+  );
+
+  const renderGridRecallAnswers = () => (
+    <div className="rounded-2xl border border-emerald-400/40 bg-[#02140c]/80 p-5 shadow-[inset_0_0_30px_rgba(16,185,129,0.25)]">
+      <div className="flex items-center justify-between border-b border-emerald-400/10 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-emerald-300/90">
+          Answer Tray
+        </p>
+        <span className="text-[10px] font-medium text-emerald-500/60">
+          Neural Recall
+        </span>
+      </div>
+      <div className="mt-6 flex flex-col gap-4">
+        {feedback && (
+          <div className="flex justify-center">
+            <span
+              className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${getFeedbackBadgeClass(feedback, isCyber)}`}
+            >
+              {feedback}
+            </span>
+          </div>
+        )}
+        {gridRecallPhase === "memorize" ? (
+          <div className="rounded-2xl border border-emerald-500/50 bg-emerald-500/10 px-4 py-8 text-center text-emerald-100/90">
+            <p className="text-sm font-semibold uppercase tracking-[0.35em]">
+              Scanning Matrix...
+            </p>
+            <p className="mt-1 text-xs text-emerald-100/80">
+              Hold steady—your neural nets are encoding the pattern.
+            </p>
+            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-emerald-500/20">
+              <div className="h-full w-3/4 animate-pulse bg-linear-to-r from-emerald-400 to-transparent" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-3">
+            {gridRecallPuzzle.options.map((option) => {
+              const optionMatrix = formatGridAsMatrix(option);
+              const normalizedOptionMatrix =
+                optionMatrix.length === 3
+                  ? optionMatrix
+                  : displayedGridRecallMatrix;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => handleAnswer(option)}
+                  disabled={gameOver}
+                  className="group flex items-center gap-4 rounded-2xl border border-emerald-400/40 bg-[#052114] px-4 py-3 text-left transition-all duration-200 hover:border-emerald-300/70 hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <div className="grid h-16 w-16 grid-cols-3 gap-1">
+                    {normalizedOptionMatrix.map((row, rowIndex) =>
+                      row.map((cell, colIndex) => (
+                        <span
+                          key={`${rowIndex}-${colIndex}`}
+                          className={`block rounded-sm border ${
+                            cell
+                              ? "border-emerald-300 bg-emerald-300/80 shadow-[0_0_10px_rgba(16,185,129,0.65)]"
+                              : "border-emerald-400/20 bg-transparent"
+                          }`}
+                        />
+                      )),
+                    )}
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-200">
+                    Recall Choice
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderGridRecallReadout = () => (
+    <div className="rounded-2xl border border-emerald-400/40 bg-[#02140c]/80 p-5 shadow-[inset_0_0_30px_rgba(16,185,129,0.25)]">
+      <div className="mb-4 flex items-center justify-between border-b border-emerald-400/10 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+          Neural Readout
+        </p>
+        <div className="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+      </div>
+      <div className="grid gap-3">
+        <div className="group rounded-xl border border-emerald-400/10 bg-emerald-500/5 p-4 transition-all hover:bg-emerald-500/10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500/60 group-hover:text-emerald-400/80 transition-colors">
+            ACCURACY
+          </p>
+          <p className="mt-1 text-3xl font-black text-white text-glow-emerald">
+            {gridRecallSummary?.accuracy ?? 0}%
+          </p>
+        </div>
+        <div className="group rounded-xl border border-emerald-400/10 bg-emerald-500/5 p-4 transition-all hover:bg-emerald-500/10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500/60 group-hover:text-emerald-400/80 transition-colors">
+            STREAK
+          </p>
+          <div className="mt-1 flex items-end gap-2">
+            <p className="text-3xl font-black text-emerald-400 text-glow-emerald">
+              {streak}
+            </p>
+            {streak >= 3 && (
+              <span className="mb-1 text-[10px] font-bold uppercase text-emerald-300 animate-bounce">
+                Lock!
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -910,8 +1188,8 @@ function Arena({ theme }) {
                 onClick={() => handleAnswer(option)}
                 className={`group relative rounded-xl border p-5 text-center transition-all duration-300 ${
                   isSelected
-                    ? 'border-fuchsia-400/80 bg-fuchsia-500/20 text-white shadow-[0_0_35px_rgba(217,70,239,0.3)] scale-[1.02]'
-                    : 'border-white/10 bg-cyber-bg-accent/80 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:border-violet-400/40 hover:bg-[#11182f] hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]'
+                    ? "border-fuchsia-400/80 bg-fuchsia-500/20 text-white shadow-[0_0_35px_rgba(217,70,239,0.3)] scale-[1.02]"
+                    : "border-white/10 bg-cyber-bg-accent/80 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:border-violet-400/40 hover:bg-[#11182f] hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]"
                 }`}
               >
                 <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
@@ -990,7 +1268,9 @@ function Arena({ theme }) {
     const isCorrect =
       activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
         ? selectedAnswer === sequenceSprintPuzzle.answer
-        : checkAnswer(currentPuzzle, selectedAnswer);
+        : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
+          ? selectedAnswer === gridRecallPuzzle.answer
+          : checkAnswer(currentPuzzle, selectedAnswer);
 
     const nextTotalAnswers = totalAnswers + 1;
     const nextCorrectAnswers = isCorrect ? correctAnswers + 1 : correctAnswers;
@@ -1015,9 +1295,17 @@ function Arena({ theme }) {
       nextBestStreak,
       nextLiveAdaptiveDifficulty,
       allowAfterFeedbackWhileGameOver:
-        activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT,
+        activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ||
+        activePuzzleType === PUZZLE_TYPES.GRID_RECALL,
       afterFeedback: (targetDifficulty) => {
-        loadNextPuzzle(targetDifficulty);
+        if (
+          activePuzzleType === PUZZLE_TYPES.GRID_RECALL &&
+          nextTotalAnswers >= GRID_RECALL_TOTAL_PUZZLES
+        ) {
+          setGameOver(true);
+        } else {
+          loadNextPuzzle(targetDifficulty);
+        }
       },
     });
   }
@@ -1032,6 +1320,9 @@ function Arena({ theme }) {
     if (nextPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       setSequenceSprintSelectedAnswer(null);
       setSequenceSprintPuzzle(newPuzzle);
+    } else if (nextPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
+      setGridRecallPuzzle(newPuzzle);
+      setGridRecallPhase("memorize");
     } else {
       setCurrentPuzzle(newPuzzle);
     }
@@ -1039,21 +1330,21 @@ function Arena({ theme }) {
       state:
         Object.keys(adaptiveStateToDifficultyMap).find(
           (state) => adaptiveStateToDifficultyMap[state] === nextDifficulty,
-        ) || 'steady',
+        ) || "steady",
       targetDifficulty: nextDifficulty,
-      confidence: 'low',
+      confidence: "low",
       reason: initialAdaptiveReason,
     });
     setScore(0);
     setStreak(0);
     setBestStreak(0);
-    setFeedback('');
+    setFeedback("");
     setCorrectAnswers(0);
     setTotalAnswers(0);
     setPuzzlesSeen(1);
     setTimeLeft(45);
     setRecentAnswerHistory([]);
-    setAdaptiveShiftMessage('');
+    setAdaptiveShiftMessage("");
     setDidBreakRecommendedAlignment(false);
     isTransitioningRef.current = false;
     setGameOver(false);
@@ -1063,7 +1354,7 @@ function Arena({ theme }) {
   }
   const accuracy =
     totalAnswers === 0
-      ? '--'
+      ? "--"
       : `${Math.round((correctAnswers / totalAnswers) * 100)}%`;
   const comboMultiplier =
     totalAnswers === 0
@@ -1075,6 +1366,16 @@ function Arena({ theme }) {
           : streak >= 2
             ? 2
             : 1;
+  const gridRecallPhaseLabel =
+    gridRecallPhase === "memorize" ? "Memorization Phase" : "Recall Phase";
+  const gridRecallMatrix = useMemo(
+    () => formatGridAsMatrix(gridRecallPuzzle?.answer),
+    [gridRecallPuzzle],
+  );
+  const displayedGridRecallMatrix =
+    gridRecallMatrix.length === 3
+      ? gridRecallMatrix
+      : Array.from({ length: 3 }, () => Array(3).fill(false));
   const sequenceSprintAccuracy = sequenceSprintSummary?.accuracy ?? 0;
   const sequenceSprintTotalPuzzles =
     sequenceSprintSummary?.totalPuzzles ?? sequenceTotalCount;
@@ -1084,82 +1385,95 @@ function Arena({ theme }) {
       sequenceSprintTotalPuzzles - totalAnswers,
   );
   const sequenceRuleType =
-    sequenceSprintPuzzleMetrics.ruleType ?? 'sequence logic';
+    sequenceSprintPuzzleMetrics.ruleType ?? "sequence logic";
 
-  const sprintResults = buildSequenceSprintResultsCopy({
-    accuracy: sequenceSprintAccuracy,
-    correctAnswers,
-    totalPuzzles: sequenceSprintTotalPuzzles,
-    unanswered: sequenceSprintUnanswered,
-    ruleType: sequenceRuleType,
-  });
+  const resultsCopy =
+    activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+      ? buildSequenceSprintResultsCopy({
+          accuracy: sequenceSprintAccuracy,
+          correctAnswers,
+          totalPuzzles: sequenceSprintTotalPuzzles,
+          unanswered: sequenceSprintUnanswered,
+          ruleType: sequenceRuleType,
+        })
+      : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
+        ? buildGridRecallResultsCopy({
+            accuracy: gridRecallSummary?.accuracy ?? 0,
+            correctAnswers,
+            difficulty: gridRecallPuzzle?.difficulty ?? "medium",
+          })
+        : {
+            eyebrow: "Challenge Complete",
+            title: "Pattern Rush Results",
+            summary: getPerformanceMessage(),
+          };
   function getPerformanceMessage() {
     if (totalAnswers === 0) {
-      return 'No response data captured.';
+      return "No response data captured.";
     }
 
     const accuracyValue = Math.round((correctAnswers / totalAnswers) * 100);
 
     if (accuracyValue >= 90 && bestStreak >= 6) {
-      return 'Exceptional stability. Pattern recognition remained precise under pressure.';
+      return "Exceptional stability. Pattern recognition remained precise under pressure.";
     }
 
     if (accuracyValue >= 80 && bestStreak >= 4) {
-      return 'Strong performance. Reliable recognition throughout the round.';
+      return "Strong performance. Reliable recognition throughout the round.";
     }
 
     if (accuracyValue >= 70) {
-      return 'Good analytical performance with solid accuracy.';
+      return "Good analytical performance with solid accuracy.";
     }
 
     if (accuracyValue >= 60) {
-      return 'Moderate stability. Pattern recognition is developing.';
+      return "Moderate stability. Pattern recognition is developing.";
     }
 
-    return 'Unstable response under pressure. Additional reps recommended.';
+    return "Unstable response under pressure. Additional reps recommended.";
   }
 
   const outcomeToneStyles = {
     gold: {
-      border: 'border-yellow-400/50',
-      bg: 'bg-yellow-400/10',
-      label: 'text-yellow-300 text-glow-yellow',
-      shadow: 'shadow-[0_0_40px_rgba(250,204,21,0.25)]',
+      border: "border-yellow-400/50",
+      bg: "bg-yellow-400/10",
+      label: "text-yellow-300 text-glow-yellow",
+      shadow: "shadow-[0_0_40px_rgba(250,204,21,0.25)]",
       icon: faTrophy,
     },
     positive: {
-      border: 'border-emerald-400/40',
-      bg: 'bg-emerald-500/10',
-      label: 'text-emerald-300 text-glow-emerald',
-      shadow: 'shadow-[0_0_30px_rgba(16,185,129,0.18)]',
+      border: "border-emerald-400/40",
+      bg: "bg-emerald-500/10",
+      label: "text-emerald-300 text-glow-emerald",
+      shadow: "shadow-[0_0_30px_rgba(16,185,129,0.18)]",
       icon: faStar,
     },
     supportive: {
-      border: 'border-cyan-400/40',
-      bg: 'bg-cyan-500/10',
-      label: 'text-cyan-300 text-glow-blue',
-      shadow: 'shadow-[0_0_30px_rgba(6,182,212,0.16)]',
+      border: "border-cyan-400/40",
+      bg: "bg-cyan-500/10",
+      label: "text-cyan-300 text-glow-blue",
+      shadow: "shadow-[0_0_30px_rgba(6,182,212,0.16)]",
       icon: faWaveSquare,
     },
     alert: {
-      border: 'border-orange-400/40',
-      bg: 'bg-orange-500/10',
-      label: 'text-orange-300 text-glow-orange',
-      shadow: 'shadow-[0_0_28px_rgba(251,146,60,0.15)]',
+      border: "border-orange-400/40",
+      bg: "bg-orange-500/10",
+      label: "text-orange-300 text-glow-orange",
+      shadow: "shadow-[0_0_28px_rgba(251,146,60,0.15)]",
       icon: faCircleExclamation,
     },
     caution: {
-      border: 'border-red-400/40',
-      bg: 'bg-red-500/10',
-      label: 'text-red-300 text-glow-red',
-      shadow: 'shadow-[0_0_28px_rgba(248,113,113,0.18)]',
+      border: "border-red-400/40",
+      bg: "bg-red-500/10",
+      label: "text-red-300 text-glow-red",
+      shadow: "shadow-[0_0_28px_rgba(248,113,113,0.18)]",
       icon: faSkull,
     },
     neutral: {
-      border: 'border-slate-500/30',
-      bg: 'bg-slate-500/10',
-      label: 'text-slate-300',
-      shadow: 'shadow-[0_0_18px_rgba(148,163,184,0.10)]',
+      border: "border-slate-500/30",
+      bg: "bg-slate-500/10",
+      label: "text-slate-300",
+      shadow: "shadow-[0_0_18px_rgba(148,163,184,0.10)]",
       icon: faLayerGroup,
     },
   };
@@ -1172,22 +1486,22 @@ function Arena({ theme }) {
         <div
           className={`rounded-[28px] border p-6 md:p-8 ${
             isCyber
-              ? 'border-cyan-400/20 bg-[#09101d]/80 shadow-[0_0_50px_rgba(14,165,233,0.15)] backdrop-blur-xl'
-              : 'border-slate-200 bg-white shadow-sm'
+              ? "border-cyan-400/20 bg-[#09101d]/80 shadow-[0_0_50px_rgba(14,165,233,0.15)] backdrop-blur-xl"
+              : "border-slate-200 bg-white shadow-sm"
           }`}
         >
           {recommendedSession && showRecommendedBanner && (
             <div
               className={`overflow-hidden transition-all duration-500 ${
                 isBannerHiding
-                  ? 'mb-0 max-h-0 -translate-y-4 opacity-0'
-                  : 'mb-4 max-h-60 translate-y-0 opacity-100'
+                  ? "mb-0 max-h-0 -translate-y-4 opacity-0"
+                  : "mb-4 max-h-60 translate-y-0 opacity-100"
               }`}
             >
               <div
                 className={`rounded-2xl border bg-slate-900/70 px-4 py-3 shadow-lg transition-all duration-500 ${
                   recommendedSessionTone.border
-                } ${isBannerHiding ? 'scale-[0.98]' : 'scale-100'}`}
+                } ${isBannerHiding ? "scale-[0.98]" : "scale-100"}`}
               >
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <div
@@ -1221,6 +1535,14 @@ function Arena({ theme }) {
                     Opening difficulty: {recommendedOpeningDifficulty}
                   </p>
                 </div>
+                {activePuzzleType === PUZZLE_TYPES.GRID_RECALL && (
+                  <div className="mt-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-300">
+                    <span className="text-white">Recall phase</span>
+                    <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-200">
+                      {gridRecallPhaseLabel}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1229,8 +1551,8 @@ function Arena({ theme }) {
             <div
               className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
                 isCyber
-                  ? 'border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)] hover:border-cyan-400/40'
-                  : 'border-slate-200 bg-slate-50'
+                  ? "border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)] hover:border-cyan-400/40"
+                  : "border-slate-200 bg-slate-50"
               }`}
             >
               {isCyber && (
@@ -1238,7 +1560,7 @@ function Arena({ theme }) {
               )}
               <p
                 className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-cyan-300 text-glow-blue' : 'text-slate-500'
+                  isCyber ? "text-cyan-300 text-glow-blue" : "text-slate-500"
                 }`}
               >
                 <FontAwesomeIcon icon={faBrain} className="text-[10px]" />
@@ -1246,14 +1568,14 @@ function Arena({ theme }) {
               </p>
               <h1
                 className={`mt-2 text-2xl font-black tracking-tight ${
-                  isCyber ? 'text-cyan-400' : 'text-cyan-600'
+                  isCyber ? "text-cyan-400" : "text-cyan-600"
                 }`}
               >
                 {activePuzzleMeta.label}
               </h1>
               <p
                 className={`mt-2 text-sm leading-5 ${
-                  isCyber ? 'text-slate-200' : 'text-slate-500'
+                  isCyber ? "text-slate-200" : "text-slate-500"
                 }`}
               >
                 {activePuzzleMeta.description}
@@ -1265,8 +1587,8 @@ function Arena({ theme }) {
                       key={skill}
                       className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-black tracking-tight uppercase ${
                         isCyber
-                          ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200'
-                          : 'border-slate-200 bg-slate-100 text-slate-600'
+                          ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-200"
+                          : "border-slate-200 bg-slate-100 text-slate-600"
                       }`}
                     >
                       {skill}
@@ -1279,8 +1601,8 @@ function Arena({ theme }) {
             <div
               className={`group relative overflow-hidden rounded-2xl border px-5 py-4 text-center transition-all duration-300 ${
                 isCyber
-                  ? 'border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)] hover:border-fuchsia-400/40'
-                  : 'border-slate-200 bg-slate-50'
+                  ? "border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)] hover:border-fuchsia-400/40"
+                  : "border-slate-200 bg-slate-50"
               }`}
             >
               {isCyber && (
@@ -1288,7 +1610,7 @@ function Arena({ theme }) {
               )}
               <p
                 className={`flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-fuchsia-300 text-glow-pink' : 'text-slate-500'
+                  isCyber ? "text-fuchsia-300 text-glow-pink" : "text-slate-500"
                 }`}
               >
                 <FontAwesomeIcon icon={faBolt} className="text-[10px]" />
@@ -1299,21 +1621,21 @@ function Arena({ theme }) {
                   isCyber
                     ? `text-fuchsia-400 ${
                         timeLeft <= 5
-                          ? 'animate-pulse text-red-400'
-                          : 'text-glow-pink'
+                          ? "animate-pulse text-red-400"
+                          : "text-glow-pink"
                       }`
-                    : 'text-slate-800'
+                    : "text-slate-800"
                 }`}
               >
-                {timeLeft.toString().padStart(2, '0')}s
+                {timeLeft.toString().padStart(2, "0")}s
               </div>
             </div>
 
             <div
               className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
                 isCyber
-                  ? 'border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40'
-                  : 'border-slate-200 bg-slate-50'
+                  ? "border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40"
+                  : "border-slate-200 bg-slate-50"
               }`}
             >
               {isCyber && (
@@ -1321,7 +1643,7 @@ function Arena({ theme }) {
               )}
               <p
                 className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-400' : 'text-slate-500'
+                  isCyber ? "text-slate-400" : "text-slate-500"
                 }`}
               >
                 <FontAwesomeIcon icon={faLayerGroup} className="text-[10px]" />
@@ -1330,8 +1652,8 @@ function Arena({ theme }) {
               <div
                 className={`mt-2 inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
                   isCyber
-                    ? 'bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20'
-                    : 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
+                    ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20"
+                    : "bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200"
                 }`}
               >
                 Solo Arena
@@ -1342,8 +1664,8 @@ function Arena({ theme }) {
           <div
             className={`mt-6 rounded-3xl border p-6 md:p-10 ${
               isCyber
-                ? 'border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]'
-                : 'border-slate-200 bg-white'
+                ? "border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]"
+                : "border-slate-200 bg-white"
             }`}
           >
             {gameOver ? (
@@ -1370,64 +1692,96 @@ function Arena({ theme }) {
                     />
                   </div>
 
-                  {activePuzzleType === 'sequence_sprint' ? (
+                  {activePuzzleType === "sequence_sprint" ? (
                     <>
                       <p
                         className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                          isCyber ? 'text-fuchsia-400' : 'text-cyan-600'
+                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
                         }`}
                       >
-                        {sprintResults.eyebrow}
+                        {resultsCopy.eyebrow}
                       </p>
 
                       <h2
                         className={`mt-3 text-4xl font-black tracking-tight ${
-                          isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
+                          isCyber
+                            ? "text-white text-glow-blue"
+                            : "text-slate-900"
                         }`}
                       >
-                        {sprintResults.title}
+                        {resultsCopy.title}
                       </h2>
 
                       <p
                         className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                          isCyber ? 'text-cyan-100/90' : 'text-slate-600'
+                          isCyber ? "text-cyan-100/90" : "text-slate-600"
                         }`}
                       >
-                        {sprintResults.summary}
+                        {resultsCopy.summary}
                       </p>
 
                       <p
                         className={`mt-3 text-sm font-semibold uppercase tracking-[0.2em] ${
-                          isCyber ? 'text-cyan-200' : 'text-slate-500'
+                          isCyber ? "text-cyan-200" : "text-slate-500"
                         }`}
                       >
                         Rule Type: {sequenceRuleType}
+                      </p>
+                    </>
+                  ) : activePuzzleType === "grid_recall" ? (
+                    <>
+                      <p
+                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
+                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
+                        }`}
+                      >
+                        {resultsCopy.eyebrow}
+                      </p>
+                      <h2
+                        className={`mt-3 text-4xl font-black tracking-tight ${
+                          isCyber
+                            ? "text-white text-glow-blue"
+                            : "text-slate-900"
+                        }`}
+                      >
+                        {resultsCopy.title}
+                      </h2>
+                      <p
+                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
+                          isCyber ? "text-cyan-100/90" : "text-slate-600"
+                        }`}
+                      >
+                        {resultsCopy.summary}
                       </p>
                     </>
                   ) : (
                     <>
                       <p
                         className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                          isCyber ? 'text-fuchsia-400' : 'text-cyan-600'
+                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
                         }`}
                       >
                         Round Complete
                       </p>
-
                       <h2
                         className={`mt-3 text-4xl font-black tracking-tight ${
-                          isCyber ? 'text-white text-glow-blue' : 'text-slate-900'
+                          isCyber
+                            ? "text-white text-glow-blue"
+                            : "text-slate-900"
                         }`}
                       >
-                        Pattern Rush{' '}
-                        <span className={isCyber ? 'text-cyan-400' : 'text-cyan-600'}>
+                        Pattern Rush{" "}
+                        <span
+                          className={
+                            isCyber ? "text-cyan-400" : "text-cyan-600"
+                          }
+                        >
                           Results
                         </span>
                       </h2>
-
                       <p
                         className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                          isCyber ? 'text-cyan-100/90' : 'text-slate-600'
+                          isCyber ? "text-cyan-100/90" : "text-slate-600"
                         }`}
                       >
                         {getPerformanceMessage()}
@@ -1440,13 +1794,13 @@ function Arena({ theme }) {
                   <div
                     className={`relative mt-8 w-full max-w-2xl overflow-hidden rounded-3xl border transition-all duration-500 ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow} p-6 md:p-8`}
                     data-cognitive-identity={
-                      cognitiveIdentity?.label ?? 'unknown'
+                      cognitiveIdentity?.label ?? "unknown"
                     }
                   >
                     {isCyber && (
                       <div
                         className={`absolute top-0 left-0 h-1 w-full bg-linear-to-r from-transparent via-${
-                          toneStyle.label.split('-')[1]
+                          toneStyle.label.split("-")[1]
                         }-400 to-transparent opacity-50`}
                       />
                     )}
@@ -1466,9 +1820,9 @@ function Arena({ theme }) {
 
                         <p
                           className={`mt-4 text-3xl font-black tracking-tight text-white ${
-                            toneStyle.label.includes('text-glow')
-                              ? toneStyle.label.split(' ').pop()
-                              : ''
+                            toneStyle.label.includes("text-glow")
+                              ? toneStyle.label.split(" ").pop()
+                              : ""
                           }`}
                         >
                           {sessionOutcome.title}
@@ -1567,8 +1921,8 @@ function Arena({ theme }) {
                   <div
                     className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
                       isCyber
-                        ? 'border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40 hover:bg-cyan-400/10'
-                        : 'border-slate-200 bg-slate-50'
+                        ? "border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40 hover:bg-cyan-400/10"
+                        : "border-slate-200 bg-slate-50"
                     }`}
                   >
                     {isCyber && (
@@ -1578,12 +1932,12 @@ function Arena({ theme }) {
                       <FontAwesomeIcon
                         icon={faBullseye}
                         className={`mb-3 text-lg ${
-                          isCyber ? 'text-cyan-400' : 'text-slate-400'
+                          isCyber ? "text-cyan-400" : "text-slate-400"
                         }`}
                       />
                       <p
                         className={`text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isCyber ? 'text-cyan-300/70' : 'text-slate-500'
+                          isCyber ? "text-cyan-300/70" : "text-slate-500"
                         }`}
                       >
                         FINAL SCORE
@@ -1591,8 +1945,8 @@ function Arena({ theme }) {
                       <div
                         className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
                           isCyber
-                            ? 'text-white text-glow-blue'
-                            : 'text-slate-800'
+                            ? "text-white text-glow-blue"
+                            : "text-slate-800"
                         }`}
                       >
                         {score.toLocaleString()}
@@ -1603,8 +1957,8 @@ function Arena({ theme }) {
                   <div
                     className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
                       isCyber
-                        ? 'border-fuchsia-400/20 bg-fuchsia-500/5 hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10'
-                        : 'border-slate-200 bg-slate-50'
+                        ? "border-fuchsia-400/20 bg-fuchsia-500/5 hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10"
+                        : "border-slate-200 bg-slate-50"
                     }`}
                   >
                     {isCyber && (
@@ -1614,12 +1968,12 @@ function Arena({ theme }) {
                       <FontAwesomeIcon
                         icon={faBolt}
                         className={`mb-3 text-lg ${
-                          isCyber ? 'text-fuchsia-400' : 'text-slate-400'
+                          isCyber ? "text-fuchsia-400" : "text-slate-400"
                         }`}
                       />
                       <p
                         className={`text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isCyber ? 'text-fuchsia-300/70' : 'text-slate-500'
+                          isCyber ? "text-fuchsia-300/70" : "text-slate-500"
                         }`}
                       >
                         BEST STREAK
@@ -1627,11 +1981,11 @@ function Arena({ theme }) {
                       <div
                         className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
                           isCyber
-                            ? 'text-white text-glow-pink'
-                            : 'text-slate-800'
+                            ? "text-white text-glow-pink"
+                            : "text-slate-800"
                         }`}
                       >
-                        x{bestStreak.toString().padStart(2, '0')}
+                        x{bestStreak.toString().padStart(2, "0")}
                       </div>
                     </div>
                   </div>
@@ -1639,8 +1993,8 @@ function Arena({ theme }) {
                   <div
                     className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
                       isCyber
-                        ? 'border-emerald-400/20 bg-emerald-400/5 hover:border-emerald-400/40 hover:bg-emerald-400/10'
-                        : 'border-slate-200 bg-slate-50'
+                        ? "border-emerald-400/20 bg-emerald-400/5 hover:border-emerald-400/40 hover:bg-emerald-400/10"
+                        : "border-slate-200 bg-slate-50"
                     }`}
                   >
                     {isCyber && (
@@ -1650,12 +2004,12 @@ function Arena({ theme }) {
                       <FontAwesomeIcon
                         icon={faStar}
                         className={`mb-3 text-lg ${
-                          isCyber ? 'text-emerald-400' : 'text-slate-400'
+                          isCyber ? "text-emerald-400" : "text-slate-400"
                         }`}
                       />
                       <p
                         className={`text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isCyber ? 'text-emerald-300/70' : 'text-slate-500'
+                          isCyber ? "text-emerald-300/70" : "text-slate-500"
                         }`}
                       >
                         ACCURACY
@@ -1663,8 +2017,8 @@ function Arena({ theme }) {
                       <div
                         className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
                           isCyber
-                            ? 'text-white text-glow-emerald'
-                            : 'text-slate-800'
+                            ? "text-white text-glow-emerald"
+                            : "text-slate-800"
                         }`}
                       >
                         {accuracy}
@@ -1674,11 +2028,11 @@ function Arena({ theme }) {
                 </div>
 
                 <button
-                  onClick={resetGame}
+                  onClick={() => resetGame()}
                   className={`group relative mt-12 overflow-hidden rounded-xl px-10 py-4 font-black uppercase tracking-[0.2em] transition-all duration-300 ${
                     isCyber
-                      ? 'bg-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:bg-cyan-300 hover:shadow-[0_0_50px_rgba(34,211,238,0.5)] hover:scale-105 active:scale-95'
-                      : 'bg-cyan-600 text-white hover:bg-cyan-500 shadow-lg'
+                      ? "bg-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:bg-cyan-300 hover:shadow-[0_0_50px_rgba(34,211,238,0.5)] hover:scale-105 active:scale-95"
+                      : "bg-cyan-600 text-white hover:bg-cyan-500 shadow-lg"
                   }`}
                 >
                   <span className="relative z-10 flex items-center gap-3">
@@ -1696,18 +2050,18 @@ function Arena({ theme }) {
                   <div>
                     <p
                       className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
-                        isCyber ? 'text-slate-500' : 'text-slate-500'
+                        isCyber ? "text-slate-500" : "text-slate-500"
                       }`}
                     >
                       Puzzle Feed
                     </p>
                     <h2
                       className={`mt-1 text-lg font-semibold ${
-                        isCyber ? 'text-white' : 'text-slate-900'
+                        isCyber ? "text-white" : "text-slate-900"
                       }`}
                     >
                       {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
-                        ? 'Sequence Sprint'
+                        ? "Sequence Sprint"
                         : currentPuzzle.title}
                     </h2>
                   </div>
@@ -1725,7 +2079,6 @@ function Arena({ theme }) {
                         {adaptiveCoachingMessage}
                       </p>
                     </div>
-
                   </div>
                 </div>
 
@@ -1761,7 +2114,7 @@ function Arena({ theme }) {
                               <div>
                                 <span className="font-bold text-white">
                                   Answer:
-                                </span>{' '}
+                                </span>{" "}
                                 <span className="text-amber-100">
                                   {sequenceDebugInfo.answer}
                                 </span>
@@ -1772,7 +2125,7 @@ function Arena({ theme }) {
                                 <div>
                                   <span className="font-bold text-white">
                                     ID:
-                                  </span>{' '}
+                                  </span>{" "}
                                   <span className="text-amber-100">
                                     {sequenceDebugInfo.id}
                                   </span>
@@ -1780,7 +2133,7 @@ function Arena({ theme }) {
                                 <div>
                                   <span className="font-bold text-white">
                                     Rule:
-                                  </span>{' '}
+                                  </span>{" "}
                                   <span className="text-amber-100">
                                     {sequenceDebugInfo.rule}
                                   </span>
@@ -1788,9 +2141,70 @@ function Arena({ theme }) {
                                 <div>
                                   <span className="font-bold text-white">
                                     Length:
-                                  </span>{' '}
+                                  </span>{" "}
                                   <span className="text-amber-100">
                                     {sequenceDebugInfo.length}
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                          </DevDebugPanel>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : activePuzzleType === PUZZLE_TYPES.GRID_RECALL ? (
+                  <div className="rounded-3xl border border-emerald-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(16,185,129,0.1)] backdrop-blur-md">
+                    <div className="mb-6 flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-400">
+                          Grid Recall Arena
+                        </p>
+                        <h2 className="text-xl font-bold text-white">
+                          Neuro spatial imprint. Match the pattern.
+                        </h2>
+                      </div>
+                      <span className="rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
+                        {gridRecallPhaseLabel}
+                      </span>
+                    </div>
+
+                    <div className="grid gap-6 xl:grid-cols-3">
+                      <div className="space-y-6 xl:col-span-2">
+                        {renderGridRecallGrid()}
+                        {renderGridRecallAnswers()}
+                      </div>
+                      <div className="space-y-6 xl:col-span-1">
+                        {renderGridRecallReadout()}
+
+                        {shouldShowGridRecallDebug && (
+                          <DevDebugPanel title="Grid Recall Dev">
+                            {SHOW_GRID_RECALL_ANSWERS && (
+                              <div>
+                                <span className="font-bold text-white">
+                                  Answer:
+                                </span>{" "}
+                                <span className="text-amber-100">
+                                  {gridRecallDebugInfo.answer}
+                                </span>
+                              </div>
+                            )}
+                            {SHOW_PUZZLE_DEBUG_META && (
+                              <>
+                                <div>
+                                  <span className="font-bold text-white">
+                                    ID:
+                                  </span>{" "}
+                                  <span className="text-amber-100">
+                                    {gridRecallDebugInfo.id}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white">
+                                    Difficulty:
+                                  </span>{" "}
+                                  <span className="text-amber-100">
+                                    {gridRecallDebugInfo.difficulty}
                                   </span>
                                 </div>
                               </>
@@ -1816,7 +2230,8 @@ function Arena({ theme }) {
                             {currentPuzzle.title}
                           </h3>
                           <p className="text-xs font-medium text-slate-300">
-                            Resolve the missing tile and keep the momentum alive.
+                            Resolve the missing tile and keep the momentum
+                            alive.
                           </p>
                         </div>
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">
@@ -1829,10 +2244,12 @@ function Arena({ theme }) {
                           <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-slate-300">
                             Prompt Sequence
                           </p>
-                          <p className="text-xs font-medium text-slate-400">Read the pattern</p>
+                          <p className="text-xs font-medium text-slate-400">
+                            Read the pattern
+                          </p>
                           <div className="mt-4 grid grid-cols-3 gap-4 md:gap-5">
                             {currentPuzzle.grid.map((item, index) => {
-                              const isMissingSlot = item === 'missing';
+                              const isMissingSlot = item === "missing";
                               return (
                                 <div
                                   key={`${item}-${index}`}
@@ -1856,7 +2273,9 @@ function Arena({ theme }) {
                             <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
                               Answer Tray
                             </p>
-                            <p className="text-xs font-medium text-slate-300">Choose the missing tile</p>
+                            <p className="text-xs font-medium text-slate-300">
+                              Choose the missing tile
+                            </p>
                             <div className="mt-4 flex flex-col items-center gap-3">
                               {feedback && (
                                 <div className="flex justify-center">
@@ -1885,7 +2304,9 @@ function Arena({ theme }) {
                               <DevDebugPanel title="Pattern Rush Dev">
                                 {SHOW_PATTERN_RUSH_ANSWERS && (
                                   <div>
-                                    <span className="font-bold text-white">Answer:</span>{' '}
+                                    <span className="font-bold text-white">
+                                      Answer:
+                                    </span>{" "}
                                     <span className="text-amber-100">
                                       {patternDebugInfo.answer}
                                     </span>
@@ -1894,11 +2315,17 @@ function Arena({ theme }) {
                                 {SHOW_PUZZLE_DEBUG_META && (
                                   <>
                                     <div>
-                                      <span className="font-bold text-white">ID:</span>{' '}
-                                      <span className="text-amber-100">{patternDebugInfo.id}</span>
+                                      <span className="font-bold text-white">
+                                        ID:
+                                      </span>{" "}
+                                      <span className="text-amber-100">
+                                        {patternDebugInfo.id}
+                                      </span>
                                     </div>
                                     <div>
-                                      <span className="font-bold text-white">Difficulty:</span>{' '}
+                                      <span className="font-bold text-white">
+                                        Difficulty:
+                                      </span>{" "}
                                       <span className="text-amber-100">
                                         {patternDebugInfo.difficulty}
                                       </span>
@@ -1921,23 +2348,23 @@ function Arena({ theme }) {
             <div
               className={`rounded-2xl border px-5 py-4 ${
                 isCyber
-                  ? 'border-cyan-400/20 bg-cyan-400/5'
-                  : 'border-slate-200 bg-slate-50'
+                  ? "border-cyan-400/20 bg-cyan-400/5"
+                  : "border-slate-200 bg-slate-50"
               }`}
             >
               <p
                 className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-300' : 'text-slate-500'
+                  isCyber ? "text-slate-300" : "text-slate-500"
                 }`}
               >
                 SCORE
               </p>
               <div
                 className={`mt-1 font-mono text-2xl font-bold ${
-                  isCyber ? 'text-cyan-300' : 'text-slate-800'
+                  isCyber ? "text-cyan-300" : "text-slate-800"
                 }`}
               >
-                {score.toString().padStart(4, '0')}
+                {score.toString().padStart(4, "0")}
               </div>
             </div>
 
@@ -1971,8 +2398,8 @@ function Arena({ theme }) {
                     >
                       {isRecommendedSessionAligned &&
                       !didBreakRecommendedAlignment
-                        ? 'Aligned'
-                        : 'Shifted'}
+                        ? "Aligned"
+                        : "Shifted"}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-slate-400 line-clamp-1">
@@ -2006,28 +2433,28 @@ function Arena({ theme }) {
                 className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
                   isCyber
                     ? streak >= 6
-                      ? 'border-fuchsia-400/90 bg-fuchsia-500/25'
+                      ? "border-fuchsia-400/90 bg-fuchsia-500/25"
                       : streak >= 4
-                        ? 'border-fuchsia-400/60 bg-fuchsia-500/18'
+                        ? "border-fuchsia-400/60 bg-fuchsia-500/18"
                         : streak >= 2
-                          ? 'border-fuchsia-400/35 bg-fuchsia-500/10'
-                          : 'border-fuchsia-400/20 bg-fuchsia-500/5'
-                    : 'border-slate-200 bg-slate-50'
+                          ? "border-fuchsia-400/35 bg-fuchsia-500/10"
+                          : "border-fuchsia-400/20 bg-fuchsia-500/5"
+                    : "border-slate-200 bg-slate-50"
                 }`}
               >
                 <p
                   className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
-                    isCyber ? 'text-slate-300' : 'text-slate-500'
+                    isCyber ? "text-slate-300" : "text-slate-500"
                   }`}
                 >
                   STREAK
                 </p>
                 <div
                   className={`mt-1 font-mono text-2xl font-bold ${
-                    isCyber ? 'text-fuchsia-300' : 'text-slate-800'
+                    isCyber ? "text-fuchsia-300" : "text-slate-800"
                   }`}
                 >
-                  x{streak.toString().padStart(2, '0')}
+                  x{streak.toString().padStart(2, "0")}
                 </div>
               </div>
 
@@ -2035,14 +2462,14 @@ function Arena({ theme }) {
                 className={`rounded-2xl border px-5 py-4 ${
                   isCyber
                     ? comboMultiplier >= 3
-                      ? 'border-fuchsia-400/30 bg-fuchsia-500/10'
-                      : 'border-cyan-400/20 bg-cyan-400/5'
-                    : 'border-slate-200 bg-slate-50'
+                      ? "border-fuchsia-400/30 bg-fuchsia-500/10"
+                      : "border-cyan-400/20 bg-cyan-400/5"
+                    : "border-slate-200 bg-slate-50"
                 }`}
               >
                 <p
                   className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
-                    isCyber ? 'text-slate-300' : 'text-slate-500'
+                    isCyber ? "text-slate-300" : "text-slate-500"
                   }`}
                 >
                   COMBO
@@ -2051,12 +2478,12 @@ function Arena({ theme }) {
                   className={`mt-1 font-mono text-2xl font-bold ${
                     isCyber
                       ? comboMultiplier >= 3
-                        ? 'text-fuchsia-300'
-                        : 'text-cyan-300'
-                      : 'text-slate-800'
+                        ? "text-fuchsia-300"
+                        : "text-cyan-300"
+                      : "text-slate-800"
                   }`}
                 >
-                  {comboMultiplier === null ? '--' : `x${comboMultiplier}`}
+                  {comboMultiplier === null ? "--" : `x${comboMultiplier}`}
                 </div>
               </div>
             </div>
@@ -2064,20 +2491,20 @@ function Arena({ theme }) {
             <div
               className={`rounded-2xl border px-5 py-4 ${
                 isCyber
-                  ? 'border-cyan-400/20 bg-cyan-400/5'
-                  : 'border-slate-200 bg-slate-50'
+                  ? "border-cyan-400/20 bg-cyan-400/5"
+                  : "border-slate-200 bg-slate-50"
               }`}
             >
               <p
                 className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
-                  isCyber ? 'text-slate-300' : 'text-slate-500'
+                  isCyber ? "text-slate-300" : "text-slate-500"
                 }`}
               >
                 ACCURACY
               </p>
               <div
                 className={`mt-1 font-mono text-2xl font-bold ${
-                  isCyber ? 'text-cyan-300' : 'text-slate-800'
+                  isCyber ? "text-cyan-300" : "text-slate-800"
                 }`}
               >
                 {accuracy}

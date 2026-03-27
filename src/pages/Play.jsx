@@ -82,20 +82,31 @@ function Play({ theme }) {
     },
     {
       icon: faShieldHalved,
-      title: 'Memory Blitz',
+      puzzleType: 'grid_recall',
+      title: 'Grid Recall',
       description:
-        'Train recall speed and focus through short, intense memory-driven challenge rounds.',
-      buttonText: 'Coming Soon',
+        'Memorize complex neural patterns and reconstruct them from memory.',
+      buttonText: 'Launch Grid Recall',
+      skills: ['Spatial Memory', 'Attention'],
       cardTone: {
         cyber:
-          'border-yellow-400/20 bg-[linear-gradient(160deg,rgba(250,204,21,0.1)_0%,rgba(16,11,22,0.86)_50%,rgba(8,9,18,0.96)_100%)] shadow-[0_0_24px_rgba(250,204,21,0.14)] hover:border-yellow-400/35',
+          'border-emerald-300/35 bg-[linear-gradient(160deg,rgba(16,185,129,0.16)_0%,rgba(6,20,13,0.9)_48%,rgba(2,10,6,0.96)_100%)] shadow-[0_0_34px_rgba(16,185,129,0.2)] hover:border-emerald-300/75 hover:shadow-[0_0_50px_rgba(16,185,129,0.32)]',
         light:
-          'border-yellow-200 bg-[linear-gradient(155deg,rgba(255,251,235,0.92)_0%,rgba(255,255,255,1)_58%,rgba(255,247,237,0.86)_100%)] shadow-[0_12px_24px_rgba(234,179,8,0.12)] hover:border-yellow-300',
+          'border-emerald-300 bg-[linear-gradient(155deg,rgba(236,253,245,0.96)_0%,rgba(255,255,255,1)_58%,rgba(240,253,244,0.9)_100%)] shadow-[0_14px_32px_rgba(16,185,129,0.14)] hover:border-emerald-400 hover:shadow-[0_18px_38px_rgba(16,185,129,0.2)]',
       },
       iconTone: {
         cyber:
-          'text-yellow-400 drop-shadow-[0_0_14px_rgba(250,204,21,0.4)]',
-        light: 'text-yellow-600',
+          'text-emerald-300 drop-shadow-[0_0_18px_rgba(16,185,129,0.58)]',
+        light: 'text-emerald-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-emerald-400 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.42)] hover:bg-emerald-300 hover:shadow-[0_0_34px_rgba(16,185,129,0.56)]',
+        light: 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm',
+      },
+      tagTone: {
+        cyber: 'border-emerald-300/30 bg-emerald-400/10 text-emerald-200',
+        light: 'border-emerald-200 bg-emerald-50 text-emerald-700',
       },
     },
   ];
