@@ -398,6 +398,7 @@ function Arena({ theme }) {
     getRandomGridRecallPuzzle(initialTargetDifficulty),
   );
   const [gridRecallPhase, setGridRecallPhase] = useState("memorize");
+  const [recallPulse, setRecallPulse] = useState(false);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
@@ -827,6 +828,15 @@ function Arena({ theme }) {
     return () => clearTimeout(recallTimer);
   }, [gridRecallPuzzle]);
 
+  useEffect(() => {
+    if (gridRecallPhase === "recall") {
+      setRecallPulse(true);
+      const timer = setTimeout(() => setRecallPulse(false), 500);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [gridRecallPhase]);
+
   // Handlers
   function applyLiveAdaptiveDifficulty(nextDifficulty) {
     setLiveAdaptiveDifficulty(nextDifficulty);
@@ -993,7 +1003,20 @@ function Arena({ theme }) {
           Spatial Matrix
         </span>
       </div>
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      <div
+        className={`mt-6 grid grid-cols-3 gap-3 border relative overflow-hidden rounded-xl transition-all duration-500 ${
+          recallPulse
+            ? "border-emerald-400/50 drop-shadow-[0_0_20px_rgba(52,211,153,0.8)]"
+            : "border-white/10"
+        }`}
+      >
+        {gridRecallPhase === "memorize" && (
+          <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-400/5 to-transparent" />
+            <div className="absolute -inset-x-4 -top-1/2 h-2/3 rounded-full bg-gradient-to-b from-emerald-300/0 via-emerald-300/35 to-emerald-300/0 blur-xl opacity-80 mix-blend-screen animate-grid-scan" />
+          </div>
+        )}
+
         {displayedGridRecallMatrix.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const isVisible = gridRecallPhase === "memorize" && cell;
@@ -1298,14 +1321,7 @@ function Arena({ theme }) {
         activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ||
         activePuzzleType === PUZZLE_TYPES.GRID_RECALL,
       afterFeedback: (targetDifficulty) => {
-        if (
-          activePuzzleType === PUZZLE_TYPES.GRID_RECALL &&
-          nextTotalAnswers >= GRID_RECALL_TOTAL_PUZZLES
-        ) {
-          setGameOver(true);
-        } else {
-          loadNextPuzzle(targetDifficulty);
-        }
+        loadNextPuzzle(targetDifficulty);
       },
     });
   }
@@ -2181,12 +2197,30 @@ function Arena({ theme }) {
                           <DevDebugPanel title="Grid Recall Dev">
                             {SHOW_GRID_RECALL_ANSWERS && (
                               <div>
-                                <span className="font-bold text-white">
-                                  Answer:
-                                </span>{" "}
-                                <span className="text-amber-100">
-                                  {gridRecallDebugInfo.answer}
-                                </span>
+                                <div className="font-bold text-white">
+                                  Answer Matrix:
+                                </div>
+                                <div className="mt-2 flex flex-col gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-900/40 p-3">
+                                  {formatGridAsMatrix(
+                                    gridRecallPuzzle?.answer || "000000000",
+                                  ).map((row, rIdx) => (
+                                    <div key={rIdx} className="flex gap-1.5">
+                                      {row.map((cell, cIdx) => (
+                                        <div
+                                          key={cIdx}
+                                          className={`h-5 w-5 rounded-md border ${
+                                            cell
+                                              ? "border-emerald-300 bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]"
+                                              : "border-white/10 bg-black/40"
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                  ))}
+                                </div>
+                                <p className="mt-2 text-[10px] font-mono text-emerald-400/70">
+                                  Raw: {gridRecallPuzzle?.answer}
+                                </p>
                               </div>
                             )}
                             {SHOW_PUZZLE_DEBUG_META && (

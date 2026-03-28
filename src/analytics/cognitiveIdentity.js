@@ -28,7 +28,7 @@ export function classifyCognitiveIdentity(session = {}) {
   if (stayedAligned && safeAccuracy >= 85 && safeBestStreak >= 4 && safeAttempted >= 8) {
     return {
       identityKey: "precision_runner",
-      label: "Precision Runner",
+      label: "Refining",
       description:
         "You stayed controlled, accurate, and efficient throughout the session.",
       primarySignal: "Stable precision inside target range.",
@@ -39,7 +39,7 @@ export function classifyCognitiveIdentity(session = {}) {
   if (stayedAligned && (safeNeuralPower >= 75 || completionRate >= 0.8) && safeAttempted >= 6) {
     return {
       identityKey: "stabilizer",
-      label: "Stabilizer",
+      label: "Stabilizing",
       description:
         "You trained inside the recommended lane and kept your performance steady.",
       primarySignal: "Controlled performance stayed inside the training lane.",
@@ -50,7 +50,7 @@ export function classifyCognitiveIdentity(session = {}) {
   if (drifted && safeAccuracy >= 75) {
     return {
       identityKey: "climber",
-      label: "Climber",
+      label: "Climbing",
       description:
         "You pushed upward and still held onto strong performance.",
       primarySignal: "Strong upward challenge tolerance detected.",
@@ -61,7 +61,7 @@ export function classifyCognitiveIdentity(session = {}) {
   if (drifted && safeAccuracy < 70) {
     return {
       identityKey: "overreacher",
-      label: "Overreacher",
+      label: "Overreaching",
       description:
         "You pushed beyond the ideal lane and performance became less stable.",
       primarySignal: "Challenge exceeded stable performance range.",
@@ -72,7 +72,7 @@ export function classifyCognitiveIdentity(session = {}) {
   if (!session.isRecommendedSessionAligned && safeAccuracy >= 80 && safeAttempted >= 8) {
     return {
       identityKey: "independent_striker",
-      label: "Independent Striker",
+      label: "Striking",
       description: "You found your own rhythm and maintained high precision without explicit guidance.",
       primarySignal:
         "Strong self-directed performance emerged outside guidance.",
@@ -82,8 +82,8 @@ export function classifyCognitiveIdentity(session = {}) {
 
   if (safeAccuracy < 65 || completionRate < 0.6) {
     return {
-      identityKey: "recovery_builder",
-      label: "Recovery Builder",
+      identityKey: "recovering",
+      label: "Recovering",
       description:
         "This session looked more like recalibration than pure performance growth.",
       primarySignal: "Recovery pattern detected across this session.",
@@ -92,8 +92,8 @@ export function classifyCognitiveIdentity(session = {}) {
   }
 
   return {
-    identityKey: "adaptive_learner",
-    label: "Adaptive Learner",
+    identityKey: "adapting",
+    label: "Adapting",
     description:
       "Your session signals were mixed, but the system is learning how you respond best.",
     primarySignal: "Mixed signals suggest an emerging training pattern.",

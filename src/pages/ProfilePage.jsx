@@ -70,9 +70,14 @@ const recentSessionsGridColumns =
 
 const compactIdentityLabelMap = {
   'adaptive learner': 'Adapting',
-  'recovery mode': 'Rebuilding',
+  adapting: 'Adapting',
+  'recovery mode': 'Recovering',
+  recovering: 'Recovering',
+  'recovery builder': 'Recovering',
   climber: 'Climbing',
+  climbing: 'Climbing',
   striker: 'Striking',
+  striking: 'Striking',
   'precision builder': 'Refining',
   'momentum driver': 'Accelerating',
   'pattern anchor': 'Stabilizing',
@@ -88,7 +93,7 @@ const compactIdentityLabelMap = {
 const compactIdentityStyleMap = {
   adapting:
     'border-violet-300/60 bg-violet-500/20 text-violet-200 shadow-[0_0_26px_rgba(167,139,250,0.55)]',
-  rebuilding:
+  recovering:
     'border-amber-300/60 bg-amber-500/20 text-amber-200 shadow-[0_0_26px_rgba(251,191,36,0.5)]',
   climbing:
     'border-sky-300/60 bg-sky-500/20 text-sky-200 shadow-[0_0_26px_rgba(56,189,248,0.55)]',
@@ -330,17 +335,23 @@ function formatCognitiveIdentityLabel(label) {
   if (!label) return label;
   const normalizedLabel = label.trim().toLowerCase();
   if (
+    normalizedLabel === 'recovering' ||
     normalizedLabel === 'recovery builder' ||
     normalizedLabel === 'recovery' ||
     normalizedLabel === 'rebuilder' ||
     normalizedLabel === 'rebuilding'
   ) {
-    return 'Rebuilder';
+    return 'Recovering';
   }
-  if (normalizedLabel === 'adaptive learner' || normalizedLabel === 'learner') {
-    return 'Adaptive';
+  if (
+    normalizedLabel === 'adapting' ||
+    normalizedLabel === 'adaptive learner' ||
+    normalizedLabel === 'learner'
+  ) {
+    return 'Adapting';
   }
-  if (normalizedLabel === 'independent striker') return 'Striker';
+  if (normalizedLabel === 'independent striker' || normalizedLabel === 'striking')
+    return 'Striking';
   return label;
 }
 
