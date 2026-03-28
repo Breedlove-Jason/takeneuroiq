@@ -15,6 +15,7 @@ import {
   faBullseye,
 } from "@fortawesome/free-solid-svg-icons";
 import PuzzleShape from "../components/PuzzleShape";
+import MatrixRain from "../components/MatrixRain";
 import { checkAnswer, getRandomPuzzle } from "../game/puzzleEngine";
 import sequenceSprintPuzzles, {
   getRandomSequenceSprintPuzzle,
@@ -416,6 +417,8 @@ function Arena({ theme }) {
     useState(false);
   const [sessionOutcome, setSessionOutcome] = useState(null);
   const [cognitiveIdentity, setCognitiveIdentity] = useState(null);
+  const [showPuzzleTransitionFx, setShowPuzzleTransitionFx] = useState(false);
+  const [showSolveFx, setShowSolveFx] = useState(false);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || "steady",
@@ -431,6 +434,8 @@ function Arena({ theme }) {
   const feedbackTimeoutRef = useRef(null);
   const recommendedBannerHideTimeoutRef = useRef(null);
   const recommendedBannerRemoveTimeoutRef = useRef(null);
+  const puzzleTransitionFxTimeoutRef = useRef(null);
+  const solveFxTimeoutRef = useRef(null);
   const previousTargetDifficultyRef = useRef(
     liveAdaptiveDifficulty.targetDifficulty,
   );
@@ -653,8 +658,30 @@ function Arena({ theme }) {
       if (recommendedBannerRemoveTimeoutRef.current) {
         clearTimeout(recommendedBannerRemoveTimeoutRef.current);
       }
+      if (puzzleTransitionFxTimeoutRef.current) {
+        clearTimeout(puzzleTransitionFxTimeoutRef.current);
+      }
+      if (solveFxTimeoutRef.current) {
+        clearTimeout(solveFxTimeoutRef.current);
+      }
     };
   }, []);
+
+  useEffect(() => {
+    if (gameOver) {
+      return;
+    }
+    const showTimer = setTimeout(() => {
+      setShowPuzzleTransitionFx(true);
+    }, 0);
+    if (puzzleTransitionFxTimeoutRef.current) {
+      clearTimeout(puzzleTransitionFxTimeoutRef.current);
+    }
+    puzzleTransitionFxTimeoutRef.current = setTimeout(() => {
+      setShowPuzzleTransitionFx(false);
+    }, 720);
+    return () => clearTimeout(showTimer);
+  }, [puzzlesSeen, gameOver]);
 
   useEffect(() => {
     if (!gameOver || hasRecordedSessionRef.current) return;
@@ -830,9 +857,12 @@ function Arena({ theme }) {
 
   useEffect(() => {
     if (gridRecallPhase === "recall") {
-      setRecallPulse(true);
+      const frameId = requestAnimationFrame(() => setRecallPulse(true));
       const timer = setTimeout(() => setRecallPulse(false), 500);
-      return () => clearTimeout(timer);
+      return () => {
+        cancelAnimationFrame(frameId);
+        clearTimeout(timer);
+      };
     }
     return undefined;
   }, [gridRecallPhase]);
@@ -913,6 +943,13 @@ function Arena({ theme }) {
       setBestStreak(nextBestStreak);
       setCorrectAnswers(nextCorrectAnswers);
       setFeedback(adaptiveFeedback);
+      setShowSolveFx(true);
+      if (solveFxTimeoutRef.current) {
+        clearTimeout(solveFxTimeoutRef.current);
+      }
+      solveFxTimeoutRef.current = setTimeout(() => {
+        setShowSolveFx(false);
+      }, 420);
     } else {
       setStreak(0);
       setFeedback(adaptiveFeedback);
@@ -1012,8 +1049,8 @@ function Arena({ theme }) {
       >
         {gridRecallPhase === "memorize" && (
           <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-400/5 to-transparent" />
-            <div className="absolute -inset-x-4 -top-1/2 h-2/3 rounded-full bg-gradient-to-b from-emerald-300/0 via-emerald-300/35 to-emerald-300/0 blur-xl opacity-80 mix-blend-screen animate-grid-scan" />
+            <div className="absolute inset-0 bg-linear-to-b from-transparent via-emerald-400/5 to-transparent" />
+            <div className="absolute -inset-x-4 -top-1/2 h-2/3 rounded-full bg-linear-to-b from-emerald-300/0 via-emerald-300/35 to-emerald-300/0 blur-xl opacity-80 mix-blend-screen animate-grid-scan" />
           </div>
         )}
 
@@ -1115,32 +1152,32 @@ function Arena({ theme }) {
   );
 
   const renderGridRecallReadout = () => (
-    <div className="rounded-2xl border border-emerald-400/40 bg-[#02140c]/80 p-5 shadow-[inset_0_0_30px_rgba(16,185,129,0.25)]">
-      <div className="mb-4 flex items-center justify-between border-b border-emerald-400/10 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+    <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-emerald-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]" : "border-emerald-400/40 bg-[#02140c]/80 shadow-[inset_0_0_30px_rgba(16,185,129,0.25)]"}`}>
+      <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isCyber ? "border-emerald-500/10" : "border-emerald-400/10"}`}>
+        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-emerald-400 text-glow-emerald" : "text-emerald-400"}`}>
           Neural Readout
         </p>
-        <div className="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+        <div className={`flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse`} />
       </div>
       <div className="grid gap-3">
-        <div className="group rounded-xl border border-emerald-400/10 bg-emerald-500/5 p-4 transition-all hover:bg-emerald-500/10">
+        <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-emerald-500/30" : "border-emerald-400/10 bg-emerald-500/5 hover:bg-emerald-500/10"}`}>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500/60 group-hover:text-emerald-400/80 transition-colors">
             ACCURACY
           </p>
-          <p className="mt-1 text-3xl font-black text-white text-glow-emerald">
+          <p className={`mt-1 text-3xl font-black ${isCyber ? "text-white text-glow-emerald" : "text-white text-glow-emerald"}`}>
             {gridRecallSummary?.accuracy ?? 0}%
           </p>
         </div>
-        <div className="group rounded-xl border border-emerald-400/10 bg-emerald-500/5 p-4 transition-all hover:bg-emerald-500/10">
+        <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-emerald-500/30" : "border-emerald-400/10 bg-emerald-500/5 hover:bg-emerald-500/10"}`}>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500/60 group-hover:text-emerald-400/80 transition-colors">
             STREAK
           </p>
           <div className="mt-1 flex items-end gap-2">
-            <p className="text-3xl font-black text-emerald-400 text-glow-emerald">
+            <p className={`text-3xl font-black ${isCyber ? "text-emerald-400 text-glow-emerald" : "text-emerald-400 text-glow-emerald"}`}>
               {streak}
             </p>
             {streak >= 3 && (
-              <span className="mb-1 text-[10px] font-bold uppercase text-emerald-300 animate-bounce">
+              <span className={`mb-1 text-[10px] font-bold uppercase text-emerald-300 animate-bounce`}>
                 Lock!
               </span>
             )}
@@ -1151,17 +1188,17 @@ function Arena({ theme }) {
   );
 
   const renderSequencePrompt = () => (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300">
-      <div className="flex items-center justify-between border-b border-white/5 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
+    <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-violet-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
+      <div className={`flex items-center justify-between border-b pb-3 ${isCyber ? "border-violet-500/10" : "border-white/5"}`}>
+        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-violet-400 text-glow-purple" : "text-violet-400"}`}>
           Sequence Prompt
         </p>
-        <span className="text-[10px] font-medium text-slate-500">
+        <span className={`text-[10px] font-medium ${isCyber ? "text-slate-400" : "text-slate-500"}`}>
           Track the pattern
         </span>
       </div>
       <div className="mt-4">
-        <h3 className="text-xl font-bold text-white text-glow-blue">
+        <h3 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
           {sequenceSprintPuzzle.prompt}
         </h3>
       </div>
@@ -1169,12 +1206,12 @@ function Arena({ theme }) {
         {(sequenceSprintPuzzle.sequence ?? []).map((value, index) => (
           <span
             key={`${value}-${index}`}
-            className="flex min-w-14 items-center justify-center rounded-xl border border-fuchsia-500/30 bg-[#0b1324] px-5 py-4 text-xl font-black text-white shadow-[inset_0_0_15px_rgba(0,0,0,0.6),0_0_15px_rgba(217,70,239,0.2)]"
+            className={`flex min-w-14 items-center justify-center rounded-xl border px-5 py-4 text-xl font-black transition-all ${isCyber ? "border-fuchsia-500/40 bg-[#0b1324]/80 text-white shadow-[inset_0_0_15px_rgba(0,0,0,0.6),0_0_15px_rgba(217,70,239,0.3)]" : "border-fuchsia-500/30 bg-[#0b1324] text-white shadow-[inset_0_0_15px_rgba(0,0,0,0.6),0_0_15px_rgba(217,70,239,0.2)]"}`}
           >
             {value}
           </span>
         ))}
-        <span className="flex min-w-14 animate-pulse items-center justify-center rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-5 py-4 text-xl font-black text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.25)]">
+        <span className={`flex min-w-14 animate-pulse items-center justify-center rounded-xl border px-5 py-4 text-xl font-black ${isCyber ? "border-cyan-400/50 bg-cyan-500/20 text-cyan-200 shadow-[0_0_25px_rgba(34,211,238,0.4)]" : "border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.25)]"}`}>
           ?
         </span>
       </div>
@@ -1182,12 +1219,12 @@ function Arena({ theme }) {
   );
 
   const renderSequenceAnswers = () => (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300">
-      <div className="flex items-center justify-between border-b border-white/5 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+    <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
+      <div className={`flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-white/5"}`}>
+        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
           Answer Lane
         </p>
-        <span className="text-[10px] font-medium text-slate-500">
+        <span className={`text-[10px] font-medium ${isCyber ? "text-slate-400" : "text-slate-500"}`}>
           Select the next match
         </span>
       </div>
@@ -1231,23 +1268,23 @@ function Arena({ theme }) {
   );
 
   const renderSprintReadout = () => (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300">
-      <div className="mb-4 flex items-center justify-between border-b border-white/5 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+    <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
+      <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-white/5"}`}>
+        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-emerald-400 text-glow-emerald" : "text-emerald-400"}`}>
           Sprint Readout
         </p>
-        <div className="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+        <div className={`flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse`} />
       </div>
       <div className="grid gap-3">
-        <div className="group rounded-xl border border-white/5 bg-slate-900/60 p-4 transition-all hover:bg-slate-900/80 hover:border-white/10">
+        <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-cyan-500/30" : "border-white/5 bg-slate-900/60 hover:bg-slate-900/80 hover:border-white/10"}`}>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-slate-400 transition-colors">
             ACCURACY
           </p>
-          <p className="mt-1 text-3xl font-black text-white text-glow-blue">
+          <p className={`mt-1 text-3xl font-black ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
             {sequenceSprintSummary?.accuracy ?? 0}%
           </p>
         </div>
-        <div className="group rounded-xl border border-white/5 bg-slate-900/60 p-4 transition-all hover:bg-slate-900/80 hover:border-white/10">
+        <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-cyan-500/30" : "border-white/5 bg-slate-900/60 hover:bg-slate-900/80 hover:border-white/10"}`}>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-slate-400 transition-colors">
             SOLVED
           </p>
@@ -1257,16 +1294,16 @@ function Arena({ theme }) {
             <span className="text-xl text-slate-400">{sequenceTotalCount}</span>
           </p>
         </div>
-        <div className="group rounded-xl border border-white/5 bg-slate-900/60 p-4 transition-all hover:bg-slate-900/80 hover:border-white/10">
+        <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-cyan-500/30" : "border-white/5 bg-slate-900/60 hover:bg-slate-900/80 hover:border-white/10"}`}>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-slate-400 transition-colors">
             STREAK
           </p>
           <div className="mt-1 flex items-end gap-2">
-            <p className="text-3xl font-black text-fuchsia-400 text-glow-pink">
+            <p className={`text-3xl font-black ${isCyber ? "text-fuchsia-400 text-glow-pink" : "text-fuchsia-400"}`}>
               {streak}
             </p>
             {streak >= 3 && (
-              <span className="mb-1 text-[10px] font-bold uppercase text-fuchsia-300 animate-bounce">
+              <span className={`mb-1 text-[10px] font-bold uppercase text-fuchsia-300 animate-bounce`}>
                 Hot!
               </span>
             )}
@@ -1362,6 +1399,8 @@ function Arena({ theme }) {
     setRecentAnswerHistory([]);
     setAdaptiveShiftMessage("");
     setDidBreakRecommendedAlignment(false);
+    setShowPuzzleTransitionFx(false);
+    setShowSolveFx(false);
     isTransitioningRef.current = false;
     setGameOver(false);
     setSessionOutcome(null);
@@ -1678,13 +1717,36 @@ function Arena({ theme }) {
           </div>
 
           <div
-            className={`mt-6 rounded-3xl border p-6 md:p-10 ${
+            className={`relative mt-6 overflow-hidden rounded-3xl border p-6 md:p-10 ${
               isCyber
                 ? "border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]"
                 : "border-slate-200 bg-white"
             }`}
           >
-            {gameOver ? (
+            {showPuzzleTransitionFx && !gameOver && (
+              <MatrixRain
+                variant="transition"
+                intensity="medium"
+                className="-inset-12 z-0 opacity-80"
+              />
+            )}
+            {showSolveFx && !gameOver && (
+              <MatrixRain
+                variant="success"
+                intensity="heavy"
+                className="-inset-16 z-0 opacity-100"
+              />
+            )}
+            {gameOver && (
+              <MatrixRain
+                variant="victory"
+                intensity="heavy"
+                className="-inset-24 z-0 opacity-90"
+              />
+            )}
+
+            <div className="relative z-10">
+              {gameOver ? (
               <div className="relative flex flex-col items-center justify-center py-10 text-center">
                 {isCyber && (
                   <div className="absolute inset-0 pointer-events-none">
@@ -2060,7 +2122,7 @@ function Arena({ theme }) {
                   </span>
                 </button>
               </div>
-            ) : (
+              ) : (
               <>
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -2099,168 +2161,183 @@ function Arena({ theme }) {
                 </div>
 
                 {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ? (
-                  <div className="rounded-3xl border border-fuchsia-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(217,70,239,0.1)] backdrop-blur-md">
-                    <div className="mb-6 flex items-center justify-between">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-fuchsia-400">
-                          Sequence Sprint Arena
-                        </p>
-                        <h2 className="text-xl font-bold text-white">
-                          Read the logic. Finish the lane.
-                        </h2>
+                  <div className="relative overflow-hidden rounded-3xl border border-fuchsia-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(217,70,239,0.1)] backdrop-blur-md">
+                    <MatrixRain
+                      variant="transition"
+                      intensity="medium"
+                      className="-inset-10 z-0 opacity-60"
+                    />
+                    <div className="relative z-10">
+                      <div className="mb-6 flex items-center justify-between">
+                        <div>
+                          <p className={`text-[11px] uppercase tracking-[0.2em] ${isCyber ? "text-fuchsia-400 text-glow-pink" : "text-fuchsia-400"}`}>
+                            Sequence Sprint Arena
+                          </p>
+                          <h2 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                            Read the logic. Finish the lane.
+                          </h2>
+                        </div>
+                        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${isCyber ? "border-fuchsia-500/50 bg-fuchsia-500/30 text-fuchsia-200 shadow-[0_0_15px_rgba(217,70,239,0.4)]" : "border-fuchsia-500/30 bg-fuchsia-500/20 text-fuchsia-300"}`}>
+                          Momentum Logic Live
+                        </span>
                       </div>
-                      <span className="rounded-full border border-fuchsia-500/30 bg-fuchsia-500/20 px-3 py-1 text-xs font-semibold text-fuchsia-300">
-                        Momentum Logic Live
-                      </span>
-                    </div>
 
-                    {renderSequenceSprintRunner()}
+                      {renderSequenceSprintRunner()}
 
-                    <div className="grid gap-6 xl:grid-cols-3">
-                      <div className="space-y-6 xl:col-span-2">
-                        {renderSequencePrompt()}
-                        {renderSequenceAnswers()}
-                      </div>
-                      <div className="space-y-6 xl:col-span-1">
-                        {renderSprintReadout()}
+                      <div className="grid gap-6 xl:grid-cols-3">
+                        <div className="space-y-6 xl:col-span-2">
+                          {renderSequencePrompt()}
+                          {renderSequenceAnswers()}
+                        </div>
+                        <div className="space-y-6 xl:col-span-1">
+                          {renderSprintReadout()}
 
-                        {shouldShowSequenceDebug && (
-                          <DevDebugPanel title="Sequence Sprint Dev">
-                            {SHOW_SEQUENCE_SPRINT_ANSWERS && (
-                              <div>
-                                <span className="font-bold text-white">
-                                  Answer:
-                                </span>{" "}
-                                <span className="text-amber-100">
-                                  {sequenceDebugInfo.answer}
-                                </span>
-                              </div>
-                            )}
-                            {SHOW_PUZZLE_DEBUG_META && (
-                              <>
+                          {shouldShowSequenceDebug && (
+                            <DevDebugPanel title="Sequence Sprint Dev">
+                              {SHOW_SEQUENCE_SPRINT_ANSWERS && (
                                 <div>
                                   <span className="font-bold text-white">
-                                    ID:
+                                    Answer:
                                   </span>{" "}
                                   <span className="text-amber-100">
-                                    {sequenceDebugInfo.id}
+                                    {sequenceDebugInfo.answer}
                                   </span>
                                 </div>
-                                <div>
-                                  <span className="font-bold text-white">
-                                    Rule:
-                                  </span>{" "}
-                                  <span className="text-amber-100">
-                                    {sequenceDebugInfo.rule}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="font-bold text-white">
-                                    Length:
-                                  </span>{" "}
-                                  <span className="text-amber-100">
-                                    {sequenceDebugInfo.length}
-                                  </span>
-                                </div>
-                              </>
-                            )}
-                          </DevDebugPanel>
-                        )}
+                              )}
+                              {SHOW_PUZZLE_DEBUG_META && (
+                                <>
+                                  <div>
+                                    <span className="font-bold text-white">
+                                      ID:
+                                    </span>{" "}
+                                    <span className="text-amber-100">
+                                      {sequenceDebugInfo.id}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-white">
+                                      Rule:
+                                    </span>{" "}
+                                    <span className="text-amber-100">
+                                      {sequenceDebugInfo.rule}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-white">
+                                      Length:
+                                    </span>{" "}
+                                    <span className="text-amber-100">
+                                      {sequenceDebugInfo.length}
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                            </DevDebugPanel>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 ) : activePuzzleType === PUZZLE_TYPES.GRID_RECALL ? (
-                  <div className="rounded-3xl border border-emerald-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(16,185,129,0.1)] backdrop-blur-md">
-                    <div className="mb-6 flex items-center justify-between">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-400">
-                          Grid Recall Arena
-                        </p>
-                        <h2 className="text-xl font-bold text-white">
-                          Neuro spatial imprint. Match the pattern.
-                        </h2>
+                  <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(16,185,129,0.1)] backdrop-blur-md">
+                    <MatrixRain
+                      variant="transition"
+                      intensity="medium"
+                      className="-inset-10 z-0 opacity-60"
+                    />
+                    <div className="relative z-10">
+                      <div className="mb-6 flex items-center justify-between">
+                        <div>
+                          <p className={`text-[11px] uppercase tracking-[0.2em] ${isCyber ? "text-emerald-400 text-glow-emerald" : "text-emerald-400"}`}>
+                            Grid Recall Arena
+                          </p>
+                          <h2 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                            Neuro spatial imprint. Match the pattern.
+                          </h2>
+                        </div>
+                        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${isCyber ? "border-emerald-500/50 bg-emerald-500/30 text-emerald-200 shadow-[0_0_15px_rgba(16,185,129,0.4)]" : "border-emerald-500/30 bg-emerald-500/20 text-emerald-300"}`}>
+                          {gridRecallPhaseLabel}
+                        </span>
                       </div>
-                      <span className="rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
-                        {gridRecallPhaseLabel}
-                      </span>
-                    </div>
 
-                    <div className="grid gap-6 xl:grid-cols-3">
-                      <div className="space-y-6 xl:col-span-2">
-                        {renderGridRecallGrid()}
-                        {renderGridRecallAnswers()}
-                      </div>
-                      <div className="space-y-6 xl:col-span-1">
-                        {renderGridRecallReadout()}
+                      <div className="grid gap-6 xl:grid-cols-3">
+                        <div className="space-y-6 xl:col-span-2">
+                          {renderGridRecallGrid()}
+                          {renderGridRecallAnswers()}
+                        </div>
+                        <div className="space-y-6 xl:col-span-1">
+                          {renderGridRecallReadout()}
 
-                        {shouldShowGridRecallDebug && (
-                          <DevDebugPanel title="Grid Recall Dev">
-                            {SHOW_GRID_RECALL_ANSWERS && (
-                              <div>
-                                <div className="font-bold text-white">
-                                  Answer Matrix:
-                                </div>
-                                <div className="mt-2 flex flex-col gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-900/40 p-3">
-                                  {formatGridAsMatrix(
-                                    gridRecallPuzzle?.answer || "000000000",
-                                  ).map((row, rIdx) => (
-                                    <div key={rIdx} className="flex gap-1.5">
-                                      {row.map((cell, cIdx) => (
-                                        <div
-                                          key={cIdx}
-                                          className={`h-5 w-5 rounded-md border ${
-                                            cell
-                                              ? "border-emerald-300 bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]"
-                                              : "border-white/10 bg-black/40"
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                  ))}
-                                </div>
-                                <p className="mt-2 text-[10px] font-mono text-emerald-400/70">
-                                  Raw: {gridRecallPuzzle?.answer}
-                                </p>
-                              </div>
-                            )}
-                            {SHOW_PUZZLE_DEBUG_META && (
-                              <>
+                          {shouldShowGridRecallDebug && (
+                            <DevDebugPanel title="Grid Recall Dev">
+                              {SHOW_GRID_RECALL_ANSWERS && (
                                 <div>
-                                  <span className="font-bold text-white">
-                                    ID:
-                                  </span>{" "}
-                                  <span className="text-amber-100">
-                                    {gridRecallDebugInfo.id}
-                                  </span>
+                                  <div className="font-bold text-white">
+                                    Answer Matrix:
+                                  </div>
+                                  <div className="mt-2 flex flex-col gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-900/40 p-3">
+                                    {formatGridAsMatrix(
+                                      gridRecallPuzzle?.answer || "000000000",
+                                    ).map((row, rIdx) => (
+                                      <div key={rIdx} className="flex gap-1.5">
+                                        {row.map((cell, cIdx) => (
+                                          <div
+                                            key={cIdx}
+                                            className={`h-5 w-5 rounded-md border ${
+                                              cell
+                                                ? "border-emerald-300 bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]"
+                                                : "border-white/20 bg-black/40"
+                                            }`}
+                                          />
+                                        ))}
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <p className="mt-2 text-[10px] font-mono text-emerald-400/70">
+                                    Raw: {gridRecallPuzzle?.answer}
+                                  </p>
                                 </div>
-                                <div>
-                                  <span className="font-bold text-white">
-                                    Difficulty:
-                                  </span>{" "}
-                                  <span className="text-amber-100">
-                                    {gridRecallDebugInfo.difficulty}
-                                  </span>
-                                </div>
-                              </>
-                            )}
-                          </DevDebugPanel>
-                        )}
+                              )}
+                              {SHOW_PUZZLE_DEBUG_META && (
+                                <>
+                                  <div>
+                                    <span className="font-bold text-white">
+                                      ID:
+                                    </span>{" "}
+                                    <span className="text-amber-100">
+                                      {gridRecallDebugInfo.id}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-white">
+                                      Difficulty:
+                                    </span>{" "}
+                                    <span className="text-amber-100">
+                                      {gridRecallDebugInfo.difficulty}
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                            </DevDebugPanel>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-6 relative">
-                    <div className="pointer-events-none absolute inset-0">
-                      <div className="absolute inset-4 rounded-4xl bg-cyan-500/20 blur-[60px] opacity-50" />
-                      <div className="absolute inset-x-12 top-8 h-16 rounded-3xl bg-cyan-400/10 blur-2xl" />
-                    </div>
-                    <div className="relative rounded-3xl border border-cyan-400/40 bg-[#020813]/80 p-6 shadow-[inset_0_0_45px_rgba(6,182,212,0.45),0_20px_40px_rgba(2,6,23,0.6)] backdrop-blur-[32px]">
+                  <div className="relative mt-6 overflow-hidden rounded-3xl border border-cyan-400/30 bg-[#020813]/80 p-6 shadow-[inset_0_0_45px_rgba(6,182,212,0.25),0_20px_40px_rgba(2,6,23,0.6)] backdrop-blur-md">
+                    <MatrixRain
+                      variant="transition"
+                      intensity="medium"
+                      className="-inset-10 z-0 opacity-60"
+                    />
+                    <div className="relative z-10">
                       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300">
+                          <p className={`text-[10px] font-bold uppercase tracking-[0.35em] ${isCyber ? "text-cyan-300 text-glow-blue" : "text-cyan-300"}`}>
                             Pattern Rush Arena
                           </p>
-                          <h3 className="text-2xl font-bold text-white">
+                          <h3 className={`text-2xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
                             {currentPuzzle.title}
                           </h3>
                           <p className="text-xs font-medium text-slate-300">
@@ -2268,33 +2345,35 @@ function Arena({ theme }) {
                             alive.
                           </p>
                         </div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">
+                        <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${isCyber ? "text-slate-400 text-glow-blue/30" : "text-slate-400"}`}>
                           Live Arena Feed
                         </p>
                       </div>
 
                       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
-                        <div className="rounded-2xl border border-slate-800/70 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)] backdrop-blur-[14px]">
+                        <div className="rounded-2xl border border-cyan-500/10 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)] backdrop-blur-[14px]">
                           <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-slate-300">
                             Prompt Sequence
                           </p>
                           <p className="text-xs font-medium text-slate-400">
                             Read the pattern
                           </p>
-                          <div className="mt-4 grid grid-cols-3 gap-4 md:gap-5">
+                          <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
                             {currentPuzzle.grid.map((item, index) => {
                               const isMissingSlot = item === "missing";
                               return (
                                 <div
                                   key={`${item}-${index}`}
-                                  className="flex aspect-square items-center justify-center rounded-2xl border bg-slate-900/70 shadow-[inset_0_0_20px_rgba(2,6,23,0.8)]"
+                                  className="flex aspect-square items-center justify-center rounded-xl border border-white/5 bg-slate-900/40 shadow-[inset_0_0_20px_rgba(2,6,23,0.8)] overflow-hidden"
                                 >
                                   {isMissingSlot ? (
-                                    <div className="flex h-[88%] w-[88%] items-center justify-center rounded-2xl border-dashed border-cyan-400/80 bg-linear-to-b from-cyan-500/15 to-transparent shadow-[0_0_35px_rgba(34,211,238,0.6)] text-xl font-black text-cyan-100/80 animate-pulse">
-                                      <span className="text-3xl">?</span>
+                                    <div className="flex h-[80%] w-[80%] items-center justify-center rounded-xl border-2 border-dashed border-cyan-400/80 bg-linear-to-b from-cyan-500/10 to-transparent shadow-[0_0_30px_rgba(34,211,238,0.4)] text-xl font-black text-cyan-100/80 animate-pulse">
+                                      <span className="text-3xl font-mono">?</span>
                                     </div>
                                   ) : (
-                                    <PuzzleShape shape={item} disabled={true} />
+                                    <div className="scale-75 md:scale-90">
+                                      <PuzzleShape shape={item} disabled={true} />
+                                    </div>
                                   )}
                                 </div>
                               );
@@ -2303,7 +2382,7 @@ function Arena({ theme }) {
                         </div>
 
                         <div className="xl:sticky xl:top-6">
-                          <div className="rounded-2xl border border-slate-800/70 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)]">
+                          <div className="rounded-2xl border border-cyan-500/10 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)]">
                             <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
                               Answer Tray
                             </p>
@@ -2320,14 +2399,15 @@ function Arena({ theme }) {
                                   </span>
                                 </div>
                               )}
-                              <div className="flex w-full flex-wrap justify-center gap-4">
+                              <div className="flex w-full flex-wrap justify-center gap-3 md:gap-4">
                                 {currentPuzzle.choices.map((choice) => (
-                                  <PuzzleShape
-                                    key={choice}
-                                    shape={choice}
-                                    onClick={() => handleAnswer(choice)}
-                                    disabled={gameOver}
-                                  />
+                                  <div key={choice} className="scale-90 md:scale-100">
+                                    <PuzzleShape
+                                      shape={choice}
+                                      onClick={() => handleAnswer(choice)}
+                                      disabled={gameOver}
+                                    />
+                                  </div>
                                 ))}
                               </div>
                             </div>
@@ -2375,7 +2455,8 @@ function Arena({ theme }) {
                   </div>
                 )}
               </>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="mt-6 grid gap-4 xl:grid-cols-[180px_1fr_180px_180px]">
