@@ -177,6 +177,28 @@ function clamp(value, min = 0, max = 100) {
   return Math.min(Math.max(value, min), max);
 }
 
+function buildBlankGridMatrix(size = 3) {
+  const normalizedSize =
+    Number.isFinite(size) && size > 0 ? Math.round(size) : 3;
+  return Array.from({ length: normalizedSize }, () =>
+    Array.from({ length: normalizedSize }, () => false),
+  );
+}
+
+function isValidGridMatrix(matrix, size) {
+  const normalizedSize =
+    Number.isFinite(size) && size > 0 ? Math.round(size) : 0;
+  if (!normalizedSize || !Array.isArray(matrix)) {
+    return false;
+  }
+  return (
+    matrix.length === normalizedSize &&
+    matrix.every(
+      (row) => Array.isArray(row) && row.length === normalizedSize,
+    )
+  );
+}
+
 function getSequenceSprintProgressPercent({ solvedCount = 0, totalCount = 1 }) {
   if (!Number.isFinite(totalCount) || totalCount <= 0) {
     return 0;
@@ -232,7 +254,6 @@ const SEQUENCE_SPRINT_TOTAL_PROBLEMS = Math.max(
   1,
   sequenceSprintPuzzles.length,
 );
-const GRID_RECALL_TOTAL_PUZZLES = 5;
 
 const adaptiveStateToDifficultyMap = {
   recover: "easy",
@@ -524,9 +545,13 @@ function Arena({ theme }) {
     };
   }, [activePuzzleType, gridRecallPuzzle]);
 
-  const gridRecallGridSize =
+  const rawGridRecallGridSize =
     gridRecallPuzzle?.puzzleMetrics?.gridSize ||
     Math.sqrt(gridRecallPuzzle?.answer?.length || 9);
+  const gridRecallGridSize =
+    Number.isFinite(rawGridRecallGridSize) && rawGridRecallGridSize > 0
+      ? Math.max(1, Math.round(rawGridRecallGridSize))
+      : 3;
 
   const patternDebugInfo = useMemo(() => {
     return {
@@ -607,7 +632,6 @@ function Arena({ theme }) {
     return {
       correctAnswers,
       attemptedAnswers: totalAnswers,
-      totalPuzzles: GRID_RECALL_TOTAL_PUZZLES,
     };
   }, [isGridRecallSession, correctAnswers, totalAnswers]);
 
@@ -1142,47 +1166,49 @@ function Arena({ theme }) {
           </div>
         ) : (
           <div className="grid gap-3">
-            {gridRecallPuzzle.options.map((option) => {
-              const optionMatrix = formatGridAsMatrix(option);
-              const normalizedOptionMatrix =
-                optionMatrix.length === gridRecallGridSize
-                  ? optionMatrix
-                  : Array.from({ length: gridRecallGridSize }, () =>
-                      Array(gridRecallGridSize).fill(false),
-                    );
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => handleAnswer(option)}
-                  disabled={gameOver}
-                  className="group flex items-center gap-4 rounded-2xl border border-emerald-400/40 bg-[#052114] px-4 py-3 text-left transition-all duration-200 hover:border-emerald-300/70 hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <div
-                    className="grid h-16 w-16 gap-1"
-                    style={{
-                      gridTemplateColumns: `repeat(${gridRecallGridSize}, minmax(0, 1fr))`,
-                    }}
-                  >
-                    {normalizedOptionMatrix.map((row, rowIndex) =>
-                      row.map((cell, colIndex) => (
-                        <span
-                          key={`${rowIndex}-${colIndex}`}
-                          className={`block rounded-sm border ${
-                            cell
-                              ? "border-emerald-300 bg-emerald-300/80 shadow-[0_0_10px_rgba(16,185,129,0.65)]"
-                              : "border-emerald-400/20 bg-transparent"
-                          }`}
-                        />
-                      )),
-                    )}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-200">
-                    Recall Choice
-                  </span>
-                </button>
-              );
-            })}
+            {Array.isArray(gridRecallPuzzle?.options)
+              ? gridRecallPuzzle.options.map((option) => {
+                  const optionMatrix = formatGridAsMatrix(option);
+                  const normalizedOptionMatrix = isValidGridMatrix(
+                    optionMatrix,
+                    gridRecallGridSize,
+                  )
+                    ? optionMatrix
+                    : buildBlankGridMatrix(gridRecallGridSize);
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => handleAnswer(option)}
+                      disabled={gameOver}
+                      className="group flex items-center gap-4 rounded-2xl border border-emerald-400/40 bg-[#052114] px-4 py-3 text-left transition-all duration-200 hover:border-emerald-300/70 hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <div
+                        className="grid h-16 w-16 gap-1"
+                        style={{
+                          gridTemplateColumns: `repeat(${gridRecallGridSize}, minmax(0, 1fr))`,
+                        }}
+                      >
+                        {normalizedOptionMatrix.map((row, rowIndex) =>
+                          row.map((cell, colIndex) => (
+                            <span
+                              key={`${rowIndex}-${colIndex}`}
+                              className={`block rounded-sm border ${
+                                cell
+                                  ? "border-emerald-300 bg-emerald-300/80 shadow-[0_0_10px_rgba(16,185,129,0.65)]"
+                                  : "border-emerald-400/20 bg-transparent"
+                              }`}
+                            />
+                          )),
+                        )}
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-200">
+                        Recall Choice
+                      </span>
+                    </button>
+                  );
+                })
+              : null}
           </div>
         )}
       </div>
@@ -1396,13 +1422,6 @@ function Arena({ theme }) {
         activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ||
         activePuzzleType === PUZZLE_TYPES.GRID_RECALL,
       afterFeedback: (targetDifficulty) => {
-        if (
-          activePuzzleType === PUZZLE_TYPES.GRID_RECALL &&
-          nextTotalAnswers >= GRID_RECALL_TOTAL_PUZZLES
-        ) {
-          setGameOver(true);
-          return;
-        }
         loadNextPuzzle(targetDifficulty);
       },
     });
@@ -1472,12 +1491,12 @@ function Arena({ theme }) {
     () => formatGridAsMatrix(gridRecallPuzzle?.answer),
     [gridRecallPuzzle],
   );
-  const displayedGridRecallMatrix =
-    gridRecallMatrix.length === gridRecallGridSize
-      ? gridRecallMatrix
-      : Array.from({ length: gridRecallGridSize }, () =>
-          Array(gridRecallGridSize).fill(false),
-        );
+  const displayedGridRecallMatrix = isValidGridMatrix(
+    gridRecallMatrix,
+    gridRecallGridSize,
+  )
+    ? gridRecallMatrix
+    : buildBlankGridMatrix(gridRecallGridSize);
   const sequenceSprintAccuracy = sequenceSprintSummary?.accuracy ?? 0;
   const sequenceSprintTotalPuzzles =
     sequenceSprintSummary?.totalPuzzles ?? sequenceTotalCount;
@@ -1787,8 +1806,8 @@ function Arena({ theme }) {
             {gameOver && (
               <MatrixRain
                 variant="victory"
-                intensity="heavy"
-                className="-inset-24 z-0 opacity-90"
+                intensity="medium"
+                className="-inset-24 z-0 opacity-40"
               />
             )}
 
@@ -2319,13 +2338,7 @@ function Arena({ theme }) {
                                     Answer Matrix:
                                   </div>
                                   <div className="mt-2 flex flex-col gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-900/40 p-3">
-                                    {formatGridAsMatrix(
-                                      gridRecallPuzzle?.answer ||
-                                        "0".repeat(
-                                          gridRecallGridSize *
-                                            gridRecallGridSize,
-                                        ),
-                                    ).map((row, rIdx) => (
+                                    {displayedGridRecallMatrix.map((row, rIdx) => (
                                       <div key={rIdx} className="flex gap-1.5">
                                         {row.map((cell, cIdx) => (
                                           <div
