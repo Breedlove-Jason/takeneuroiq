@@ -1,18 +1,9 @@
 // src/game/gridRecallPuzzles.js
-const GRID_SIZE = 3;
-const GRID_CELL_COUNT = GRID_SIZE * GRID_SIZE;
-const DEFAULT_DECOY_COUNT = 3;
-const GRID_FLIP_SETTINGS = {
-  easy: { minFlip: 1, maxFlip: 2 },
-  medium: { minFlip: 2, maxFlip: 3 },
-  hard: { minFlip: 2, maxFlip: 4 },
+const DIFFICULTY_CONFIG = {
+  easy: { size: 3, activeNodes: 3, optionCount: 4, decoyVariance: 2 },
+  medium: { size: 3, activeNodes: 4, optionCount: 4, decoyVariance: 2 },
+  hard: { size: 4, activeNodes: 6, optionCount: 6, decoyVariance: 1 },
 };
-
-let puzzleIdCounter = 1;
-
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 function shuffleArray(array) {
   const clone = [...array];
@@ -23,105 +14,101 @@ function shuffleArray(array) {
   return clone;
 }
 
-function buildBooleanGridString() {
-  const cells = Array.from({ length: GRID_CELL_COUNT }, () => (Math.random() < 0.5 ? '1' : '0'));
-  if (cells.every((cell) => cell === cells[0])) {
-    const lastIndex = GRID_CELL_COUNT - 1;
-    cells[lastIndex] = cells[lastIndex] === '1' ? '0' : '1';
-  }
-  return cells.join('');
+function getConfig(difficulty) {
+  return DIFFICULTY_CONFIG[difficulty] || DIFFICULTY_CONFIG.medium;
 }
 
-function mutateGridString(gridString, flips) {
-  const cells = gridString.split('');
+function buildAnswerString(config) {
+  const totalCells = config.size * config.size;
+  const cells = Array.from({ length: totalCells }, () => "0");
+  const activeNodes = Math.min(totalCells, Math.max(1, config.activeNodes));
+  const positions = shuffleArray(Array.from({ length: totalCells }, (_, index) => index));
+
+  for (let i = 0; i < activeNodes; i += 1) {
+    cells[positions[i]] = "1";
+  }
+
+  return cells.join("");
+}
+
+function mutateGridStringWithFlips(gridString, flips) {
+  const cells = gridString.split("");
   const positions = shuffleArray(Array.from({ length: cells.length }, (_, index) => index));
-  const flipsToApply = Math.min(Math.max(flips, 1), cells.length);
+  const flipsToApply = Math.min(Math.max(1, flips), cells.length);
+
   for (let i = 0; i < flipsToApply; i += 1) {
     const position = positions[i];
-    cells[position] = cells[position] === '1' ? '0' : '1';
+    cells[position] = cells[position] === "1" ? "0" : "1";
   }
-  return cells.join('');
+
+  return cells.join("");
 }
 
-function generateDecoyGridStrings(correctGrid, options = {}) {
-  const { count = DEFAULT_DECOY_COUNT, minFlip = 1, maxFlip = 3 } = options;
-  const normalizedMin = Math.max(1, minFlip);
-  const normalizedMax = Math.max(normalizedMin, maxFlip);
+function generateDecoyGridStrings(correctGrid, config) {
+  const decoyCount = Math.max(1, config.optionCount - 1);
   const decoys = new Set();
   let attempts = 0;
 
-  while (decoys.size < count && attempts < count * 8) {
-    const flipCount = randomInt(normalizedMin, normalizedMax);
-    const candidate = mutateGridString(correctGrid, flipCount);
+  while (decoys.size < decoyCount && attempts < decoyCount * 8) {
+    const candidate = mutateGridStringWithFlips(correctGrid, config.decoyVariance);
     if (candidate !== correctGrid) {
       decoys.add(candidate);
     }
     attempts += 1;
   }
 
-  while (decoys.size < count) {
-    const fallback = mutateGridString(correctGrid, normalizedMin);
-    if (fallback !== correctGrid) {
-      decoys.add(fallback);
-    } else {
-      break;
+  while (decoys.size < decoyCount) {
+    const candidate = mutateGridStringWithFlips(correctGrid, config.decoyVariance);
+    if (candidate !== correctGrid) {
+      decoys.add(candidate);
     }
   }
 
-  return shuffleArray([...decoys]).slice(0, count);
+  return shuffleArray([...decoys]);
 }
 
 export function formatGridAsMatrix(gridString) {
-  if (!gridString || gridString.length !== GRID_CELL_COUNT) {
+  if (!gridString) {
     return [];
   }
-  return Array.from({ length: GRID_SIZE }, (_, rowIndex) =>
+  const size = Math.sqrt(gridString.length);
+  if (!Number.isInteger(size)) {
+    return [];
+  }
+
+  return Array.from({ length: size }, (_, rowIndex) =>
     gridString
-      .slice(rowIndex * GRID_SIZE, rowIndex * GRID_SIZE + GRID_SIZE)
-      .split('')
-      .map((cell) => cell === '1'),
+      .slice(rowIndex * size, rowIndex * size + size)
+      .split("")
+      .map((cell) => cell === "1"),
   );
 }
 
-export function createGridRecallPuzzle({
-  difficulty = 'medium',
-  decoyCount = DEFAULT_DECOY_COUNT,
-  prompt,
-  id,
-  signature,
-} = {}) {
-  const grid = buildBooleanGridString();
-  const flipSettings = GRID_FLIP_SETTINGS[difficulty] || GRID_FLIP_SETTINGS.medium;
-  const decoys = generateDecoyGridStrings(grid, {
-    count: decoyCount,
-    minFlip: flipSettings.minFlip,
-    maxFlip: flipSettings.maxFlip,
-  });
-  const options = shuffleArray([grid, ...decoys]);
-  const puzzleId = id || `grid-recall-${puzzleIdCounter++}`;
+export function createGridRecallPuzzle({ difficulty = "medium" } = {}) {
+  const config = getConfig(difficulty);
+  const answer = buildAnswerString(config);
+  const decoys = generateDecoyGridStrings(answer, config);
+  const options = shuffleArray([answer, ...decoys]);
 
   return {
-    id: puzzleId,
     difficulty,
-    prompt: prompt || 'Memorize the grid layout and pick the correct pattern.',
-    grid,
+    answer,
     options,
-    answer: grid,
-    signature: signature || `${difficulty}-${grid}`,
+    prompt: "Memorize the active nodes",
     puzzleMetrics: {
-      gridSignature: grid,
-      decoyCount: decoys.length,
-      difficulty,
+      gridSize: config.size,
+      activeNodes: config.activeNodes,
+      optionCount: config.optionCount,
     },
   };
 }
 
-export function getRandomGridRecallPuzzle(difficulty = 'medium') {
+export function getRandomGridRecallPuzzle(difficulty = "medium") {
   return createGridRecallPuzzle({ difficulty });
 }
 
 export const sampleGridRecallPuzzles = Array.from({ length: 4 }, () =>
-  createGridRecallPuzzle({ difficulty: 'medium' }),
+  createGridRecallPuzzle({ difficulty: "medium" }),
 );
 
 export default sampleGridRecallPuzzles;

@@ -507,14 +507,26 @@ function Arena({ theme }) {
       return {};
     }
 
+    const baseMetrics = gridRecallPuzzle?.puzzleMetrics ?? {};
+    const inferredOptionCount = Number.isInteger(baseMetrics.optionCount)
+      ? baseMetrics.optionCount
+      : Array.isArray(gridRecallPuzzle?.options)
+        ? gridRecallPuzzle.options.length
+        : 0;
+
     return {
       difficulty: gridRecallPuzzle?.difficulty || "medium",
       gridSignature: gridRecallPuzzle?.answer || null,
-      decoyCount: Array.isArray(gridRecallPuzzle?.options)
-        ? gridRecallPuzzle.options.length - 1
-        : 0,
+      gridSize: baseMetrics.gridSize || 3,
+      activeNodes: baseMetrics.activeNodes || 0,
+      optionCount: inferredOptionCount,
+      decoyCount: Math.max(0, inferredOptionCount - 1),
     };
   }, [activePuzzleType, gridRecallPuzzle]);
+
+  const gridRecallGridSize =
+    gridRecallPuzzle?.puzzleMetrics?.gridSize ||
+    Math.sqrt(gridRecallPuzzle?.answer?.length || 9);
 
   const patternDebugInfo = useMemo(() => {
     return {
@@ -592,13 +604,23 @@ function Arena({ theme }) {
       return null;
     }
 
-    return buildAccuracySummary({
+    return {
       correctAnswers,
       attemptedAnswers: totalAnswers,
       totalPuzzles: GRID_RECALL_TOTAL_PUZZLES,
-      decimals: 0,
-    });
+    };
   }, [isGridRecallSession, correctAnswers, totalAnswers]);
+
+  const gridRecallAccuracy = useMemo(() => {
+    if (!gridRecallSummary || !gridRecallSummary.attemptedAnswers) {
+      return 0;
+    }
+    return Math.round(
+      (gridRecallSummary.correctAnswers /
+        gridRecallSummary.attemptedAnswers) *
+        100,
+    );
+  }, [gridRecallSummary]);
 
   const liveCoachingPressureClass =
     streak >= 6
@@ -848,11 +870,17 @@ function Arena({ theme }) {
       return undefined;
     }
 
+    const memorizeTimer = setTimeout(() => {
+      setGridRecallPhase("memorize");
+    }, 0);
     const recallTimer = setTimeout(() => {
       setGridRecallPhase("recall");
     }, 1500);
 
-    return () => clearTimeout(recallTimer);
+    return () => {
+      clearTimeout(memorizeTimer);
+      clearTimeout(recallTimer);
+    };
   }, [gridRecallPuzzle]);
 
   useEffect(() => {
@@ -1041,11 +1069,14 @@ function Arena({ theme }) {
         </span>
       </div>
       <div
-        className={`mt-6 grid grid-cols-3 gap-3 border relative overflow-hidden rounded-xl transition-all duration-500 ${
+        className={`relative mt-6 grid overflow-hidden rounded-xl border transition-all duration-500 gap-3 ${
           recallPulse
             ? "border-emerald-400/50 drop-shadow-[0_0_20px_rgba(52,211,153,0.8)]"
             : "border-white/10"
         }`}
+        style={{
+          gridTemplateColumns: `repeat(${gridRecallGridSize}, minmax(0, 1fr))`,
+        }}
       >
         {gridRecallPhase === "memorize" && (
           <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
@@ -1114,9 +1145,11 @@ function Arena({ theme }) {
             {gridRecallPuzzle.options.map((option) => {
               const optionMatrix = formatGridAsMatrix(option);
               const normalizedOptionMatrix =
-                optionMatrix.length === 3
+                optionMatrix.length === gridRecallGridSize
                   ? optionMatrix
-                  : displayedGridRecallMatrix;
+                  : Array.from({ length: gridRecallGridSize }, () =>
+                      Array(gridRecallGridSize).fill(false),
+                    );
               return (
                 <button
                   key={option}
@@ -1125,7 +1158,12 @@ function Arena({ theme }) {
                   disabled={gameOver}
                   className="group flex items-center gap-4 rounded-2xl border border-emerald-400/40 bg-[#052114] px-4 py-3 text-left transition-all duration-200 hover:border-emerald-300/70 hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <div className="grid h-16 w-16 grid-cols-3 gap-1">
+                  <div
+                    className="grid h-16 w-16 gap-1"
+                    style={{
+                      gridTemplateColumns: `repeat(${gridRecallGridSize}, minmax(0, 1fr))`,
+                    }}
+                  >
                     {normalizedOptionMatrix.map((row, rowIndex) =>
                       row.map((cell, colIndex) => (
                         <span
@@ -1159,13 +1197,13 @@ function Arena({ theme }) {
         </p>
         <div className={`flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse`} />
       </div>
-      <div className="grid gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-emerald-500/30" : "border-emerald-400/10 bg-emerald-500/5 hover:bg-emerald-500/10"}`}>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500/60 group-hover:text-emerald-400/80 transition-colors">
             ACCURACY
           </p>
           <p className={`mt-1 text-3xl font-black ${isCyber ? "text-white text-glow-emerald" : "text-white text-glow-emerald"}`}>
-            {gridRecallSummary?.accuracy ?? 0}%
+            {gridRecallAccuracy}%
           </p>
         </div>
         <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-emerald-500/30" : "border-emerald-400/10 bg-emerald-500/5 hover:bg-emerald-500/10"}`}>
@@ -1275,7 +1313,7 @@ function Arena({ theme }) {
         </p>
         <div className={`flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse`} />
       </div>
-      <div className="grid gap-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <div className={`group rounded-xl border p-4 transition-all ${isCyber ? "border-white/10 bg-slate-900/40 hover:bg-slate-900/60 hover:border-cyan-500/30" : "border-white/5 bg-slate-900/60 hover:bg-slate-900/80 hover:border-white/10"}`}>
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-slate-400 transition-colors">
             ACCURACY
@@ -1358,6 +1396,13 @@ function Arena({ theme }) {
         activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ||
         activePuzzleType === PUZZLE_TYPES.GRID_RECALL,
       afterFeedback: (targetDifficulty) => {
+        if (
+          activePuzzleType === PUZZLE_TYPES.GRID_RECALL &&
+          nextTotalAnswers >= GRID_RECALL_TOTAL_PUZZLES
+        ) {
+          setGameOver(true);
+          return;
+        }
         loadNextPuzzle(targetDifficulty);
       },
     });
@@ -1428,9 +1473,11 @@ function Arena({ theme }) {
     [gridRecallPuzzle],
   );
   const displayedGridRecallMatrix =
-    gridRecallMatrix.length === 3
+    gridRecallMatrix.length === gridRecallGridSize
       ? gridRecallMatrix
-      : Array.from({ length: 3 }, () => Array(3).fill(false));
+      : Array.from({ length: gridRecallGridSize }, () =>
+          Array(gridRecallGridSize).fill(false),
+        );
   const sequenceSprintAccuracy = sequenceSprintSummary?.accuracy ?? 0;
   const sequenceSprintTotalPuzzles =
     sequenceSprintSummary?.totalPuzzles ?? sequenceTotalCount;
@@ -1453,7 +1500,7 @@ function Arena({ theme }) {
         })
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
         ? buildGridRecallResultsCopy({
-            accuracy: gridRecallSummary?.accuracy ?? 0,
+            accuracy: gridRecallAccuracy,
             correctAnswers,
             difficulty: gridRecallPuzzle?.difficulty ?? "medium",
           })
@@ -2184,12 +2231,10 @@ function Arena({ theme }) {
 
                       {renderSequenceSprintRunner()}
 
-                      <div className="grid gap-6 xl:grid-cols-3">
-                        <div className="space-y-6 xl:col-span-2">
-                          {renderSequencePrompt()}
-                          {renderSequenceAnswers()}
-                        </div>
-                        <div className="space-y-6 xl:col-span-1">
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        {renderSequencePrompt()}
+                        {renderSequenceAnswers()}
+                        <div className="space-y-6 lg:col-span-1">
                           {renderSprintReadout()}
 
                           {shouldShowSequenceDebug && (
@@ -2260,12 +2305,10 @@ function Arena({ theme }) {
                         </span>
                       </div>
 
-                      <div className="grid gap-6 xl:grid-cols-3">
-                        <div className="space-y-6 xl:col-span-2">
-                          {renderGridRecallGrid()}
-                          {renderGridRecallAnswers()}
-                        </div>
-                        <div className="space-y-6 xl:col-span-1">
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        {renderGridRecallGrid()}
+                        {renderGridRecallAnswers()}
+                        <div className="space-y-6 lg:col-span-1">
                           {renderGridRecallReadout()}
 
                           {shouldShowGridRecallDebug && (
@@ -2277,7 +2320,11 @@ function Arena({ theme }) {
                                   </div>
                                   <div className="mt-2 flex flex-col gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-900/40 p-3">
                                     {formatGridAsMatrix(
-                                      gridRecallPuzzle?.answer || "000000000",
+                                      gridRecallPuzzle?.answer ||
+                                        "0".repeat(
+                                          gridRecallGridSize *
+                                            gridRecallGridSize,
+                                        ),
                                     ).map((row, rIdx) => (
                                       <div key={rIdx} className="flex gap-1.5">
                                         {row.map((cell, cIdx) => (
@@ -2350,7 +2397,7 @@ function Arena({ theme }) {
                         </p>
                       </div>
 
-                      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+                      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
                         <div className="rounded-2xl border border-cyan-500/10 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)] backdrop-blur-[14px]">
                           <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-slate-300">
                             Prompt Sequence
