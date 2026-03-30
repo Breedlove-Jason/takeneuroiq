@@ -1,6 +1,20 @@
 import { useMemo } from "react";
 
-const CHARSET = ["0", "1", "{", "}", "[", "]", "<", ">", "/", "\\", "|", "_", "-", "A", "N", "X", "Z", "0x", "FF", "FE"];
+const FIBONACCI_SEQUENCE = [
+  "0",
+  "1",
+  "1",
+  "2",
+  "3",
+  "5",
+  "8",
+  "13",
+  "21",
+  "34",
+  "55",
+  "89",
+  "144",
+];
 
 const VARIANT_CONFIG = {
   transition: {
@@ -50,7 +64,11 @@ function randomInt(min, max) {
 }
 
 function buildColumn(length) {
-  return Array.from({ length }, () => CHARSET[randomInt(0, CHARSET.length - 1)]).join("\n");
+  const startIndex = randomInt(0, FIBONACCI_SEQUENCE.length - 1);
+  return Array.from({ length }, (_, index) => {
+    const position = (startIndex + index) % FIBONACCI_SEQUENCE.length;
+    return FIBONACCI_SEQUENCE[position];
+  }).join("\n");
 }
 
 function MatrixRain({
