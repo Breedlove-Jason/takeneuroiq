@@ -17,8 +17,8 @@ export function calculateLiveAdaptiveDifficulty({
   const accuracy = puzzlesAttempted > 0 ? puzzlesCorrect / puzzlesAttempted : 0;
 
   const hasReactionData = averageReactionTime > 0;
-  const isFast = hasReactionData && averageReactionTime <= 3200;
-  const isSlow = hasReactionData && averageReactionTime > 4200;
+  const isBrisk = hasReactionData && averageReactionTime <= 3200;
+  const isVerySlow = hasReactionData && averageReactionTime > 4500;
 
   const weightedRecentAccuracy = (() => {
     if (!recentAnswerHistory.length) return accuracy;
@@ -37,30 +37,32 @@ export function calculateLiveAdaptiveDifficulty({
 
   const recentAttempts = recentAnswerHistory.length;
   const strongRecentForm =
-    recentAttempts >= 3 && weightedRecentAccuracy >= 0.78;
-  const weakRecentForm = recentAttempts >= 3 && weightedRecentAccuracy <= 0.42;
+    recentAttempts >= 4 && weightedRecentAccuracy >= 0.82;
+  const weakRecentForm = recentAttempts >= 3 && weightedRecentAccuracy <= 0.5;
+  const strongMomentum = currentStreak >= 3;
+  const solidAccuracy = accuracy >= 0.75;
 
   if (
     strongRecentForm &&
-    accuracy >= 0.72 &&
-    currentStreak >= 2 &&
-    (!hasReactionData || isFast)
+    strongMomentum &&
+    solidAccuracy &&
+    (!hasReactionData || !isVerySlow)
   ) {
     return {
       state: 'challenge',
       targetDifficulty: 'hard',
       confidence:
-        currentStreak >= 4 || weightedRecentAccuracy >= 0.88
+        currentStreak >= 5 || weightedRecentAccuracy >= 0.9 || isBrisk
           ? 'high'
           : 'medium',
-      reason: 'Recent answers show strong accuracy and growing momentum.',
+      reason: 'Strong accuracy and streak detected; increasing challenge.',
     };
   }
 
   if (
     weakRecentForm ||
     accuracy <= 0.55 ||
-    (currentStreak === 0 && (isSlow || weightedRecentAccuracy < 0.58))
+    (currentStreak === 0 && (isVerySlow || weightedRecentAccuracy < 0.58))
   ) {
     return {
       state: 'recover',

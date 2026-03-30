@@ -487,6 +487,13 @@ function Arena({ theme }) {
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
     "Stay consistent and keep building momentum.";
 
+  const matrixRainMode = useMemo(() => {
+    if (gameOver) return "victory";
+    if (showSolveFx) return "success";
+    if (showPuzzleTransitionFx) return "transition";
+    return "idle";
+  }, [gameOver, showPuzzleTransitionFx, showSolveFx]);
+
   const isRecommendedSessionAligned =
     Boolean(recommendedSession?.adaptiveState) &&
     recommendedSession.adaptiveState === liveAdaptiveDifficulty.state;
@@ -1789,27 +1796,11 @@ function Arena({ theme }) {
                 : "border-slate-200 bg-white"
             }`}
           >
-            {showPuzzleTransitionFx && !gameOver && (
-              <MatrixRain
-                variant="transition"
-                intensity="medium"
-                className="-inset-12 z-0 opacity-80"
-              />
-            )}
-            {showSolveFx && !gameOver && (
-              <MatrixRain
-                variant="success"
-                intensity="heavy"
-                className="-inset-16 z-0 opacity-100"
-              />
-            )}
-            {gameOver && (
-              <MatrixRain
-                variant="victory"
-                intensity="medium"
-                className="-inset-24 z-0 opacity-40"
-              />
-            )}
+            <MatrixRain
+              mode={matrixRainMode}
+              intensity="medium"
+              className="-inset-12 z-0 opacity-80"
+            />
 
             <div className="relative z-10">
               {gameOver ? (
@@ -2228,11 +2219,6 @@ function Arena({ theme }) {
 
                 {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ? (
                   <div className="relative overflow-hidden rounded-3xl border border-fuchsia-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(217,70,239,0.1)] backdrop-blur-md">
-                    <MatrixRain
-                      variant="transition"
-                      intensity="medium"
-                      className="-inset-10 z-0 opacity-60"
-                    />
                     <div className="relative z-10">
                       <div className="mb-6 flex items-center justify-between">
                         <div>
@@ -2304,11 +2290,6 @@ function Arena({ theme }) {
                   </div>
                 ) : activePuzzleType === PUZZLE_TYPES.GRID_RECALL ? (
                   <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(16,185,129,0.1)] backdrop-blur-md">
-                    <MatrixRain
-                      variant="transition"
-                      intensity="medium"
-                      className="-inset-10 z-0 opacity-60"
-                    />
                     <div className="relative z-10">
                       <div className="mb-6 flex items-center justify-between">
                         <div>
@@ -2386,11 +2367,6 @@ function Arena({ theme }) {
                   </div>
                 ) : (
                   <div className="relative mt-6 overflow-hidden rounded-3xl border border-cyan-400/30 bg-[#020813]/80 p-6 shadow-[inset_0_0_45px_rgba(6,182,212,0.25),0_20px_40px_rgba(2,6,23,0.6)] backdrop-blur-md">
-                    <MatrixRain
-                      variant="transition"
-                      intensity="medium"
-                      className="-inset-10 z-0 opacity-60"
-                    />
                     <div className="relative z-10">
                       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
