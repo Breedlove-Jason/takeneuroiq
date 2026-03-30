@@ -21,6 +21,12 @@ const PUZZLE_FAMILY_METADATA = {
     accent: "emerald",
     icon: "grid",
   },
+  logic_gate: {
+    label: "Logic Gate",
+    shortLabel: "Logic",
+    accent: "amber",
+    icon: "microchip",
+  },
 };
 
 const ACTIVE_PUZZLE_FAMILIES = Object.keys(PUZZLE_FAMILY_METADATA);
@@ -257,10 +263,30 @@ function buildGridRecallSummary(sessions = []) {
   };
 }
 
+function buildLogicGateSummary(sessions = []) {
+  const base = buildBaseSummary("logic_gate", sessions);
+
+  const bestStreaks = sessions.map((session) => toNumber(session.bestStreak));
+  const attempted = sessions.map((session) =>
+    toNumber(session.puzzlesAttempted),
+  );
+  const correct = sessions.map((session) => toNumber(session.puzzlesCorrect));
+
+  return {
+    ...base,
+    familyLabel: "Logic Gate",
+    bestStreak: bestStreaks.length ? Math.max(...bestStreaks) : 0,
+    averageBestStreak: average(bestStreaks, 1),
+    totalPuzzlesAttempted: sum(attempted),
+    totalPuzzlesCorrect: sum(correct),
+  };
+}
+
 const FAMILY_SUMMARY_BUILDERS = {
   pattern_rush: buildPatternRushSummary,
   sequence_sprint: buildSequenceSprintSummary,
   grid_recall: buildGridRecallSummary,
+  logic_gate: buildLogicGateSummary,
 };
 
 function buildGenericFamilySummary(puzzleType, sessions = []) {

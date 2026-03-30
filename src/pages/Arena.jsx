@@ -24,6 +24,7 @@ import {
   formatGridAsMatrix,
   getRandomGridRecallPuzzle,
 } from "../game/gridRecallPuzzles";
+import { getRandomLogicGatePuzzle } from "../game/logicGatePuzzles";
 import { recordSession } from "../game/sessionTracker";
 import { calculateLiveAdaptiveDifficulty } from "../analytics/liveAdaptiveDifficulty.js";
 import { useLocation } from "react-router-dom";
@@ -396,6 +397,7 @@ function Arena({ theme }) {
     SHOW_SEQUENCE_SPRINT_ANSWERS,
     SHOW_PUZZLE_DEBUG_META,
     SHOW_GRID_RECALL_ANSWERS,
+    SHOW_LOGIC_GATE_ANSWERS,
   } = PUZZLE_DEV_FLAGS;
   const initialPuzzle = useMemo(() => {
     if (initialPuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
@@ -403,6 +405,9 @@ function Arena({ theme }) {
     }
     if (initialPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       return getRandomGridRecallPuzzle(initialTargetDifficulty);
+    }
+    if (initialPuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
+      return getRandomLogicGatePuzzle(initialTargetDifficulty);
     }
     return getRandomPuzzle(initialTargetDifficulty);
   }, [initialTargetDifficulty, initialPuzzleType]);
@@ -418,6 +423,11 @@ function Arena({ theme }) {
   const [sequenceSprintSolvedCount, setSequenceSprintSolvedCount] = useState(0);
   const [gridRecallPuzzle, setGridRecallPuzzle] = useState(() =>
     getRandomGridRecallPuzzle(initialTargetDifficulty),
+  );
+  const [logicGatePuzzle, setLogicGatePuzzle] = useState(() =>
+    initialPuzzleType === PUZZLE_TYPES.LOGIC_GATE
+      ? initialPuzzle
+      : getRandomLogicGatePuzzle(initialTargetDifficulty),
   );
   const [gridRecallPhase, setGridRecallPhase] = useState("memorize");
   const [recallPulse, setRecallPulse] = useState(false);
@@ -466,6 +476,8 @@ function Arena({ theme }) {
       ? sequenceSprintPuzzle
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
         ? gridRecallPuzzle
+        : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+          ? logicGatePuzzle
         : currentPuzzle;
   const activePuzzleMeta = getPuzzleTypeMetadata(activePuzzleType);
   const currentPuzzleDifficulty =
@@ -668,6 +680,8 @@ function Arena({ theme }) {
         return getRandomSequenceSprintPuzzle(difficulty);
       case PUZZLE_TYPES.GRID_RECALL:
         return getRandomGridRecallPuzzle(difficulty);
+      case PUZZLE_TYPES.LOGIC_GATE:
+        return getRandomLogicGatePuzzle(difficulty);
       case PUZZLE_TYPES.PATTERN_RUSH:
       default:
         return getRandomPuzzle(difficulty);
@@ -949,6 +963,8 @@ function Arena({ theme }) {
     } else if (activePuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       setGridRecallPuzzle(nextPuzzle);
       setGridRecallPhase("memorize");
+    } else if (activePuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
+      setLogicGatePuzzle(nextPuzzle);
     } else {
       setCurrentPuzzle(nextPuzzle);
     }
@@ -1338,6 +1354,167 @@ function Arena({ theme }) {
     </div>
   );
 
+  // --- RENDER HELPERS (LOGIC GATE) ---
+  const renderLogicGateInputs = () => (
+    <div className="rounded-2xl border border-amber-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md">
+      <div className="flex items-center justify-between border-b border-amber-500/10 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
+          Signal Inputs
+        </p>
+        <span className="text-[10px] font-medium text-amber-500/40 uppercase tracking-widest">
+          Binary feed
+        </span>
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-4">
+        {Object.entries(logicGatePuzzle.inputs).map(([key, value]) => (
+          <div
+            key={key}
+            className="group relative flex flex-col items-center justify-center rounded-xl border border-white/5 bg-slate-900/40 py-6 transition-all duration-300 hover:border-amber-500/30 hover:bg-slate-900/60"
+          >
+            <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-amber-400/20 to-transparent" />
+            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80">
+              Input {key}
+            </span>
+            <span className="mt-2 text-4xl font-black text-white text-glow-blue">
+              {value}
+            </span>
+            <div className="mt-3 flex gap-1">
+              <div className={`h-1 w-3 rounded-full ${value === 1 ? "bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "bg-slate-700"}`} />
+              <div className="h-1 w-3 rounded-full bg-slate-800" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderLogicGateCore = () => (
+    <div className="rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)] backdrop-blur-md">
+      <div className="flex items-center justify-between border-b border-violet-500/10 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400 text-glow-purple">
+          Gate Core
+        </p>
+        <span className="text-[10px] font-medium text-violet-500/40 uppercase tracking-widest">
+          Resolve the output
+        </span>
+      </div>
+      <div className="mt-8 flex flex-col items-center justify-center py-4">
+        <div className="relative flex w-full items-center justify-between px-8">
+          {/* Connector Lines */}
+          <div className="absolute inset-x-12 top-1/2 h-0.5 -translate-y-1/2 bg-linear-to-r from-amber-400/40 via-violet-400/40 to-cyan-400/40" />
+          
+          <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
+            <span className="font-mono text-xl font-black text-amber-300">A</span>
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center">
+             <div className="flex h-20 w-24 items-center justify-center rounded-2xl border-2 border-violet-400/60 bg-slate-950 shadow-[0_0_30px_rgba(167,139,250,0.3),inset_0_0_15px_rgba(167,139,250,0.2)]">
+                <span className="text-2xl font-black tracking-tighter text-white text-glow-purple">
+                  {logicGatePuzzle.gate}
+                </span>
+             </div>
+             <div className="mt-3 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-0.5">
+               <span className="text-[8px] font-bold uppercase tracking-[0.25em] text-violet-300">
+                 Active Logic
+               </span>
+             </div>
+          </div>
+
+          <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
+            <span className="font-mono text-xl font-black text-amber-300">B</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderLogicGateAnswers = () => (
+    <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md">
+      <div className="flex items-center justify-between border-b border-cyan-500/10 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400 text-glow-blue">
+          Output Lane
+        </p>
+        <span className="text-[10px] font-medium text-cyan-500/40 uppercase tracking-widest">
+          Select the final signal
+        </span>
+      </div>
+      <div className="mt-6 flex flex-col gap-4">
+        {feedback && (
+          <div className="flex justify-center">
+            <span
+              className={`rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] shadow-lg ${getFeedbackBadgeClass(feedback, isCyber)}`}
+            >
+              {feedback}
+            </span>
+          </div>
+        )}
+        <div className="grid grid-cols-2 gap-4">
+          {logicGatePuzzle.options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => handleAnswer(option)}
+              disabled={gameOver}
+              className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/60 p-6 transition-all duration-300 hover:border-cyan-400/50 hover:bg-slate-900/80 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <span className="relative z-10 block text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 group-hover:text-cyan-400">
+                Signal Output
+              </span>
+              <span className="relative z-10 mt-1 block text-4xl font-black text-white text-glow-blue">
+                {option}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderLogicGateReadout = () => (
+    <div className="rounded-2xl border border-amber-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md">
+      <div className="mb-4 flex items-center justify-between border-b border-amber-500/10 pb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
+          Circuit Readout
+        </p>
+        <div className="flex h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
+      </div>
+      <div className="grid gap-4">
+        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-500/30 hover:bg-slate-900/60">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
+            ACCURACY
+          </p>
+          <p className="mt-1 text-3xl font-black text-white text-glow-amber">
+            {accuracy}
+          </p>
+        </div>
+        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
+            ACTIVE GATE
+          </p>
+          <p className="mt-1 text-2xl font-black text-white text-glow-purple">
+            {logicGatePuzzle.gate}
+          </p>
+        </div>
+        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+            STREAK
+          </p>
+          <div className="mt-1 flex items-end gap-2">
+            <p className="text-3xl font-black text-white text-glow-blue">
+              {streak}
+            </p>
+            {streak >= 3 && (
+              <span className="mb-1 text-[10px] font-bold uppercase text-cyan-300 animate-bounce">
+                Hot!
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderSprintReadout = () => (
     <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
       <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-white/5"}`}>
@@ -1401,7 +1578,9 @@ function Arena({ theme }) {
         ? selectedAnswer === sequenceSprintPuzzle.answer
         : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
           ? selectedAnswer === gridRecallPuzzle.answer
-          : checkAnswer(currentPuzzle, selectedAnswer);
+          : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+            ? selectedAnswer === logicGatePuzzle.answer
+            : checkAnswer(currentPuzzle, selectedAnswer);
 
     const nextTotalAnswers = totalAnswers + 1;
     const nextCorrectAnswers = isCorrect ? correctAnswers + 1 : correctAnswers;
@@ -1447,6 +1626,8 @@ function Arena({ theme }) {
     } else if (nextPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       setGridRecallPuzzle(newPuzzle);
       setGridRecallPhase("memorize");
+    } else if (nextPuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
+      setLogicGatePuzzle(newPuzzle);
     } else {
       setCurrentPuzzle(newPuzzle);
     }
@@ -2288,6 +2469,66 @@ function Arena({ theme }) {
                       </div>
                     </div>
                   </div>
+                ) : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE ? (
+                  <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex items-center justify-between">
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
+                            Logic Gate Arena
+                          </p>
+                          <h2 className="text-xl font-bold text-white text-glow-blue">
+                            Resolve the signal. Predict the output.
+                          </h2>
+                        </div>
+                        <span className="rounded-full border border-amber-500/50 bg-amber-500/30 px-3 py-1 text-xs font-semibold text-amber-200 shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+                          Binary Reasoning Live
+                        </span>
+                      </div>
+
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="space-y-6 lg:col-span-2">
+                          {renderLogicGateInputs()}
+                          {renderLogicGateCore()}
+                          {renderLogicGateAnswers()}
+                        </div>
+                        <div className="space-y-6 lg:col-span-1">
+                          {renderLogicGateReadout()}
+
+                          {(SHOW_LOGIC_GATE_ANSWERS || SHOW_PUZZLE_DEBUG_META) && (
+                            <DevDebugPanel title="Logic Gate Dev">
+                              {SHOW_LOGIC_GATE_ANSWERS && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between rounded-lg bg-emerald-500/10 p-2 border border-emerald-500/20">
+                                    <span className="text-[10px] font-bold text-emerald-400 uppercase">Answer</span>
+                                    <span className="font-mono text-lg font-black text-white">{logicGatePuzzle.answer}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {SHOW_PUZZLE_DEBUG_META && (
+                                <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3">
+                                  <div className="flex justify-between text-[10px]">
+                                    <span className="text-slate-500 uppercase font-bold">ID</span>
+                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.id}</span>
+                                  </div>
+                                  <div className="flex justify-between text-[10px]">
+                                    <span className="text-slate-500 uppercase font-bold">Difficulty</span>
+                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.difficulty}</span>
+                                  </div>
+                                  {logicGatePuzzle.inputs.C !== undefined && (
+                                    <div className="flex justify-between text-[10px]">
+                                      <span className="text-slate-500 uppercase font-bold">Input C</span>
+                                      <span className="text-amber-200 font-mono">{logicGatePuzzle.inputs.C}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </DevDebugPanel>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ) : activePuzzleType === PUZZLE_TYPES.GRID_RECALL ? (
                   <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(16,185,129,0.1)] backdrop-blur-md">
                     <div className="relative z-10">
@@ -2374,7 +2615,9 @@ function Arena({ theme }) {
                             Pattern Rush Arena
                           </p>
                           <h3 className={`text-2xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
-                            {currentPuzzle.title}
+                            {activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+                              ? "Resolve the Signal"
+                              : currentPuzzle.title}
                           </h3>
                           <p className="text-xs font-medium text-slate-300">
                             Resolve the missing tile and keep the momentum

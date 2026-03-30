@@ -5,6 +5,7 @@ import {
   faWaveSquare,
   faArrowTrendUp,
   faShieldHalved,
+  faMicrochip,
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -22,7 +23,7 @@ function Play({ theme }) {
 
   const challenges = [
     {
-      icon: faWaveSquare,
+      icon: 'sparkles',
       puzzleType: 'pattern_rush',
       title: 'Pattern Rush',
       description:
@@ -51,7 +52,7 @@ function Play({ theme }) {
       },
     },
     {
-      icon: faArrowTrendUp,
+      icon: 'chart-network',
       puzzleType: 'sequence_sprint',
       title: 'Sequence Sprint',
       description:
@@ -81,7 +82,7 @@ function Play({ theme }) {
       },
     },
     {
-      icon: faShieldHalved,
+      icon: 'table-cells',
       puzzleType: 'grid_recall',
       title: 'Grid Recall',
       description:
@@ -107,6 +108,35 @@ function Play({ theme }) {
       tagTone: {
         cyber: 'border-emerald-300/30 bg-emerald-400/10 text-emerald-200',
         light: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+      },
+    },
+    {
+      icon: faMicrochip,
+      puzzleType: 'logic_gate',
+      title: 'Logic Gate',
+      description:
+        'Resolve binary signal outputs through gate logic and deductive reasoning.',
+      buttonText: 'Launch Logic Gate',
+      skills: ['Reasoning', 'Signals', 'Binary Logic'],
+      cardTone: {
+        cyber:
+          'border-amber-300/35 bg-[linear-gradient(160deg,rgba(245,158,11,0.16)_0%,rgba(20,14,6,0.9)_48%,rgba(10,7,2,0.96)_100%)] shadow-[0_0_34px_rgba(245,158,11,0.2)] hover:border-amber-300/75 hover:shadow-[0_0_50px_rgba(245,158,11,0.32)]',
+        light:
+          'border-amber-300 bg-[linear-gradient(155deg,rgba(255,251,235,0.96)_0%,rgba(255,255,255,1)_58%,rgba(255,251,235,0.9)_100%)] shadow-[0_14px_32px_rgba(245,158,11,0.14)] hover:border-amber-400 hover:shadow-[0_18px_38px_rgba(245,158,11,0.2)]',
+      },
+      iconTone: {
+        cyber:
+          'text-amber-300 drop-shadow-[0_0_18px_rgba(245,158,11,0.58)]',
+        light: 'text-amber-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-amber-400 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:bg-amber-300 hover:shadow-[0_0_34px_rgba(245,158,11,0.56)]',
+        light: 'bg-amber-600 text-white hover:bg-amber-500 shadow-sm',
+      },
+      tagTone: {
+        cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
+        light: 'border-amber-200 bg-amber-50 text-amber-700',
       },
     },
   ];
@@ -148,7 +178,7 @@ function Play({ theme }) {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {challenges.map((challenge) => (
             <div
               key={challenge.title}
@@ -165,7 +195,7 @@ function Play({ theme }) {
                     : 'border-slate-200 bg-white group-hover:scale-105'
                 } ${isCyber ? challenge.iconTone.cyber : challenge.iconTone.light}`}
               >
-                <FontAwesomeIcon icon={challenge.icon} />
+                <FontAwesomeIcon icon={typeof challenge.icon === 'string' ? ['fas', challenge.icon] : challenge.icon} />
               </div>
 
               <h2

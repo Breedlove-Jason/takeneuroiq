@@ -12,6 +12,7 @@ export const PUZZLE_TYPE_METADATA = {
     description: "Visual pattern recognition under time pressure",
     color: "cyan",
     cognitiveSkills: ["Pattern Recognition", "Visual Processing"],
+    icon: "sparkles",
   },
   [PUZZLE_TYPES.SEQUENCE_SPRINT]: {
     label: "Sequence Sprint",
@@ -19,6 +20,7 @@ export const PUZZLE_TYPE_METADATA = {
     description: "Sequential memory and prediction",
     color: "violet",
     cognitiveSkills: ["Working Memory", "Predictive Reasoning"],
+    icon: "chart-network",
   },
   [PUZZLE_TYPES.GRID_RECALL]: {
     label: "Grid Recall",
@@ -26,13 +28,15 @@ export const PUZZLE_TYPE_METADATA = {
     description: "Spatial memory and attention",
     color: "emerald",
     cognitiveSkills: ["Spatial Memory", "Attention"],
+    icon: "table-cells",
   },
   [PUZZLE_TYPES.LOGIC_GATE]: {
     label: "Logic Gate",
     shortLabel: "Logic",
-    description: "Deductive reasoning and rule application",
-    color: "amber",
-    cognitiveSkills: ["Logical Reasoning", "Deduction"],
+    description: "Resolve binary signal outputs through gate logic.",
+    color: "amber-violet",
+    cognitiveSkills: ["Reasoning", "Signals", "Binary Logic"],
+    icon: "microchip",
   },
 };
 

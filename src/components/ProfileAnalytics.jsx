@@ -13,11 +13,11 @@ import { generateCoachingInsight } from "../analytics/coachingEngine";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartLine,
-  faShapes,
-  faForward,
+  faSparkles,
+  faChartNetwork,
+  faTableCells,
+  faMicrochip,
   faBrain,
-  faBorderAll,
-  faCodeBranch,
 } from "@fortawesome/free-solid-svg-icons";
 
 /**
@@ -459,7 +459,14 @@ function ProfileAnalytics({
                       bestAccuracy: "text-emerald-300",
                       averageNeuralPower: "text-fuchsia-200",
                     }
-                  : family.puzzleType === "pattern_rush"
+                  : family.puzzleType === "logic_gate"
+                    ? {
+                        averageScore: "text-amber-200",
+                        bestScore: "text-cyan-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-fuchsia-200",
+                      }
+                    : family.puzzleType === "pattern_rush"
                     ? {
                         averageScore: "text-cyan-200",
                         bestScore: "text-violet-200",
@@ -505,42 +512,42 @@ function ProfileAnalytics({
               return (
                 <div
                   key={family.puzzleType ?? family.familyLabel}
-                  className={`flex flex-col gap-4 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyTone.card} ${badgeClasses.glow} ${familyVisual.accentRing}`}
+                  className={`flex h-full min-h-90 flex-col gap-3 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyTone.card} ${badgeClasses.glow} ${familyVisual.accentRing}`}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className={familyVisual.iconWrap}>
                         <FontAwesomeIcon
                           icon={familyVisual.icon}
                           className="text-lg"
                         />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p
-                          className={`text-sm font-semibold uppercase tracking-[0.35em] ${familyVisual.accentText}`}
+                          className={`text-sm font-semibold uppercase tracking-[0.35em] leading-[1.4] ${familyVisual.accentText}`}
                         >
                           {family.familyLabel}
                         </p>
-                        <p className={`text-xs ${familyTone.sessions}`}>
+                        <p className={`text-[11px] ${familyTone.sessions}`}>
                           {family.sessionsPlayed ?? 0} sessions played
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex shrink-0 flex-col items-end gap-2">
                       <span
-                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${badgeClasses.badge}`}
+                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${badgeClasses.badge}`}
                       >
                         {family.trendState || "Calibrating"}
                       </span>
                       <span
-                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${familyTone.avgBadge}`}
+                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${familyTone.avgBadge}`}
                       >
                         Avg {accuracyBadge}
                       </span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
                     {statRows.map((stat) => (
                       <div
                         key={`${family.familyLabel}-${stat.label}`}
@@ -559,12 +566,12 @@ function ProfileAnalytics({
                   </div>
 
                   <div
-                    className={`rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 ${familyTone.trendCard} ${familyVisual.accentRing}`}
+                    className={`mt-auto rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 ${familyTone.trendCard} ${familyVisual.accentRing}`}
                   >
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-400">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">
                       Trend Read
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-200">
+                    <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-200">
                       {family.trendReason || "Trend data is still calibrating."}
                     </p>
                   </div>
@@ -750,28 +757,28 @@ function getFamilyCardTone(puzzleType) {
 function getPuzzleFamilyVisual(puzzleType) {
   const visualMap = {
     pattern_rush: {
-      icon: faShapes,
+      icon: faSparkles,
       iconWrap:
         "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200",
       accentText: "text-cyan-200",
       accentRing: "ring-1 ring-cyan-500/30",
     },
     sequence_sprint: {
-      icon: faForward,
+      icon: faChartNetwork,
       iconWrap:
         "flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200",
       accentText: "text-fuchsia-200",
       accentRing: "ring-1 ring-fuchsia-500/30",
     },
     grid_recall: {
-      icon: faBorderAll,
+      icon: faTableCells,
       iconWrap:
         "flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200",
       accentText: "text-emerald-200",
       accentRing: "ring-1 ring-emerald-500/30",
     },
     logic_gate: {
-      icon: faCodeBranch,
+      icon: faMicrochip,
       iconWrap:
         "flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200",
       accentText: "text-amber-200",
