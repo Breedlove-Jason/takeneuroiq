@@ -59,6 +59,28 @@ const INTENSITY_MULTIPLIER = {
 
 const MAX_COLUMNS = 34;
 
+// Neon/cyberpunk palette
+const NEON_PALETTE = [
+  {
+    name: "cyan",
+    hex: "#22d3ee", // Tailwind cyan-400
+    glowStrong: "rgba(34, 211, 238, 1)",
+    glowSoft: "rgba(34, 211, 238, 0.65)",
+  },
+  {
+    name: "magenta",
+    hex: "#e879f9", // Tailwind fuchsia-400
+    glowStrong: "rgba(232, 121, 249, 1)",
+    glowSoft: "rgba(232, 121, 249, 0.6)",
+  },
+  {
+    name: "purple",
+    hex: "#a78bfa", // Tailwind purple-400
+    glowStrong: "rgba(167, 139, 250, 1)",
+    glowSoft: "rgba(167, 139, 250, 0.6)",
+  },
+];
+
 function randomFloat(min, max) {
   return min + Math.random() * (max - min);
 }
@@ -67,7 +89,7 @@ function randomInt(min, max) {
   return Math.floor(randomFloat(min, max + 1));
 }
 
-function buildColumn(length) {
+function buildFibonacciColumn(length) {
   const startIndex = randomInt(0, FIBONACCI_SEQUENCE.length - 1);
   return Array.from({ length }, (_, index) => {
     const position = (startIndex + index) % FIBONACCI_SEQUENCE.length;
@@ -75,18 +97,32 @@ function buildColumn(length) {
   }).join("\n");
 }
 
+function buildHexColumn(length) {
+  const HEX = "0123456789ABCDEF";
+  return Array.from({ length }, () => {
+    // Build a short hex-y looking snippet per line
+    const lineLen = randomInt(2, 5);
+    let s = "";
+    for (let i = 0; i < lineLen; i += 1) s += HEX[randomInt(0, HEX.length - 1)];
+    return s;
+  }).join("\n");
+}
+
 function buildBaseColumns(count = MAX_COLUMNS) {
   const columns = [];
   for (let index = 0; index < count; index += 1) {
     const length = randomInt(16, 38);
+    const palette = NEON_PALETTE[randomInt(0, NEON_PALETTE.length - 1)];
+    const contentType = Math.random() < 0.5 ? "fibonacci" : "hex"; // vary lines of code between the two types
     columns.push({
       id: `matrix-column-${index}`,
       left: `${randomFloat(0, 100).toFixed(2)}%`,
       delay: `${randomFloat(-18, 0).toFixed(2)}s`,
       baseDuration: randomFloat(5.5, 11.5),
       baseOpacity: randomFloat(0.35, 0.9),
-      content: buildColumn(length),
+      content: contentType === "fibonacci" ? buildFibonacciColumn(length) : buildHexColumn(length),
       fontSize: `${randomFloat(13, 22).toFixed(1)}px`,
+      color: palette,
     });
   }
   return columns;
@@ -155,16 +191,17 @@ function MatrixRain({
               animationDelay: column.delay,
               animationDuration: `calc(${column.baseDuration.toFixed(2)}s / var(--rain-speed, 1))`,
               opacity: columnOpacity,
-              filter: `drop-shadow(0 0 ${10 * (containerStyle["--rain-glow"] || 1)}px rgba(16, 185, 129, 0.85))`,
+              filter: `drop-shadow(0 0 ${10 * (containerStyle["--rain-glow"] || 1)}px ${column.color.glowSoft})`,
             }}
           >
             <span
-              className="block select-none whitespace-pre font-mono text-emerald-300"
+              className="block select-none whitespace-pre font-mono"
               style={{
                 lineHeight: 0.9,
                 fontSize: column.fontSize,
                 fontWeight: 800,
-                textShadow: `0 0 ${8 * (containerStyle["--rain-glow"] || 1)}px rgba(16, 185, 129, 1), 0 0 ${16 * (containerStyle["--rain-glow"] || 1)}px rgba(16, 185, 129, 0.6)`
+                color: column.color.hex,
+                textShadow: `0 0 ${8 * (containerStyle["--rain-glow"] || 1)}px ${column.color.glowStrong}, 0 0 ${16 * (containerStyle["--rain-glow"] || 1)}px ${column.color.glowSoft}`
               }}
             >
               {column.content}
