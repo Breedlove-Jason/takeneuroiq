@@ -506,6 +506,8 @@ function Arena({ theme }) {
   const feedbackTimeoutRef = useRef(null);
   const recommendedBannerHideTimeoutRef = useRef(null);
   const recommendedBannerRemoveTimeoutRef = useRef(null);
+  const hasHandledRecommendedSessionRef = useRef(false);
+  const previousRecommendedSessionKeyRef = useRef(null);
   const puzzleTransitionFxTimeoutRef = useRef(null);
   const solveFxTimeoutRef = useRef(null);
   const previousTargetDifficultyRef = useRef(
@@ -734,16 +736,21 @@ function Arena({ theme }) {
       return;
     }
 
+    hasHandledRecommendedSessionRef.current = true;
+
     if (recommendedBannerHideTimeoutRef.current) {
       clearTimeout(recommendedBannerHideTimeoutRef.current);
+      recommendedBannerHideTimeoutRef.current = null;
     }
     if (recommendedBannerRemoveTimeoutRef.current) {
       clearTimeout(recommendedBannerRemoveTimeoutRef.current);
+      recommendedBannerRemoveTimeoutRef.current = null;
     }
 
     setIsBannerHiding(true);
     recommendedBannerRemoveTimeoutRef.current = setTimeout(() => {
       setShowRecommendedBanner(false);
+      recommendedBannerRemoveTimeoutRef.current = null;
     }, 500);
   }
 
@@ -914,6 +921,21 @@ function Arena({ theme }) {
   }, [gameOver]);
 
   useEffect(() => {
+    if (previousRecommendedSessionKeyRef.current !== recommendedSessionKey) {
+      previousRecommendedSessionKeyRef.current = recommendedSessionKey;
+      hasHandledRecommendedSessionRef.current = false;
+    }
+
+    if (!recommendedSession || hasHandledRecommendedSessionRef.current) {
+      return undefined;
+    }
+
+    hasHandledRecommendedSessionRef.current = true;
+    const showTimer = setTimeout(() => {
+      setShowRecommendedBanner(true);
+      setIsBannerHiding(false);
+    }, 0);
+
     if (recommendedBannerHideTimeoutRef.current) {
       clearTimeout(recommendedBannerHideTimeoutRef.current);
       recommendedBannerHideTimeoutRef.current = null;
@@ -923,23 +945,16 @@ function Arena({ theme }) {
       recommendedBannerRemoveTimeoutRef.current = null;
     }
 
-    if (!recommendedSessionKey) {
-      return;
-    }
-
-    const bannerShowTimer = setTimeout(() => {
-      setShowRecommendedBanner(true);
-      setIsBannerHiding(false);
-    }, 0);
     recommendedBannerHideTimeoutRef.current = setTimeout(() => {
       setIsBannerHiding(true);
+      recommendedBannerRemoveTimeoutRef.current = setTimeout(() => {
+        setShowRecommendedBanner(false);
+        recommendedBannerRemoveTimeoutRef.current = null;
+      }, 500);
     }, 3500);
-    recommendedBannerRemoveTimeoutRef.current = setTimeout(() => {
-      setShowRecommendedBanner(false);
-    }, 4000);
 
     return () => {
-      clearTimeout(bannerShowTimer);
+      clearTimeout(showTimer);
       if (recommendedBannerHideTimeoutRef.current) {
         clearTimeout(recommendedBannerHideTimeoutRef.current);
         recommendedBannerHideTimeoutRef.current = null;
@@ -949,7 +964,7 @@ function Arena({ theme }) {
         recommendedBannerRemoveTimeoutRef.current = null;
       }
     };
-  }, [recommendedSessionKey]);
+  }, [recommendedSession, recommendedSessionKey]);
 
   useEffect(() => {
     if (!gridRecallPuzzle) {
@@ -1396,170 +1411,251 @@ function Arena({ theme }) {
   );
 
   // --- RENDER HELPERS (LOGIC GATE) ---
-  const renderLogicGateInputs = () => (
-    <div className="rounded-2xl border border-amber-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md">
-      <div className="flex items-center justify-between border-b border-amber-500/10 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
-          Signal Inputs
-        </p>
-        <span className="text-[10px] font-medium text-amber-500/40 uppercase tracking-widest">
-          Binary feed
-        </span>
+  const LOGIC_GATE_VARIANT_META = {
+    output: { title: "Output Lane", subtitle: "Select the final signal", variantLabel: "Output" },
+    missing_gate: { title: "Missing Gate", subtitle: "Choose the gate that produced the output", variantLabel: "Gate" },
+    missing_input: { title: "Missing Signal", subtitle: "Fill in the hidden input", variantLabel: "Signal" },
+  };
+  const getLogicGateVariantMeta = (variant) =>
+    LOGIC_GATE_VARIANT_META[variant] || LOGIC_GATE_VARIANT_META.output;
+  const renderLogicGateInputs = () => {
+    const logicGateInputs = logicGatePuzzle?.inputs ?? { A: 0, B: 0 };
+    const inputEntries = Object.entries(logicGateInputs);
+    const columnCount = Math.max(2, Math.min(3, inputEntries.length || 2));
+    const gridStyle = {
+      gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+    };
+
+    return (
+      <div className="rounded-2xl border border-amber-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-amber-500/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
+            Signal Inputs
+          </p>
+          <span className="text-[10px] font-medium text-amber-500/40 uppercase tracking-widest">
+            Binary feed
+          </span>
+        </div>
+        <div className="mt-6 grid gap-4" style={gridStyle}>
+          {inputEntries.map(([key, value]) => {
+            const isMissing = value === "?" || value === null || value === undefined;
+            const displayValue = isMissing ? "?" : String(value);
+            const baseClass = isMissing
+              ? "border-amber-400/40 bg-amber-500/10 shadow-[0_0_12px_rgba(245,158,11,0.35)]"
+              : "border-white/5 bg-slate-900/40 hover:border-amber-500/30 hover:bg-slate-900/60";
+            return (
+              <div
+                key={key}
+                className={`group relative flex flex-col items-center justify-center rounded-xl border py-6 transition-all duration-300 ${baseClass}`}
+              >
+                <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-amber-400/20 to-transparent" />
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80">
+                  Input {key}
+                </span>
+                <span
+                  className={`mt-2 text-4xl font-black ${isMissing ? "text-amber-200" : "text-white"} text-glow-blue`}
+                >
+                  {displayValue}
+                </span>
+                <div className="mt-3 flex gap-1">
+                  <div
+                    className={`h-1 w-3 rounded-full ${isMissing ? "bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "bg-emerald-300"}`}
+                  />
+                  <div className="h-1 w-3 rounded-full bg-slate-800" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {Object.entries(logicGatePuzzle.inputs).map(([key, value]) => (
-          <div
-            key={key}
-            className="group relative flex flex-col items-center justify-center rounded-xl border border-white/5 bg-slate-900/40 py-6 transition-all duration-300 hover:border-amber-500/30 hover:bg-slate-900/60"
-          >
-            <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-amber-400/20 to-transparent" />
-            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80">
-              Input {key}
-            </span>
-            <span className="mt-2 text-4xl font-black text-white text-glow-blue">
-              {value}
-            </span>
-            <div className="mt-3 flex gap-1">
-              <div className={`h-1 w-3 rounded-full ${value === 1 ? "bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "bg-slate-700"}`} />
-              <div className="h-1 w-3 rounded-full bg-slate-800" />
+    );
+  };
+
+  const renderLogicGateCore = () => {
+    const variant = logicGatePuzzle?.variant ?? "output";
+    const expression = logicGatePuzzle?.expression;
+    const gateLabel = logicGatePuzzle?.gate || "Unknown";
+    const coreDisplay = variant === "missing_gate" ? "?" : expression || gateLabel;
+    const displaySizeClass = coreDisplay.length > 10 ? "text-xl sm:text-[2.1rem]" : "text-2xl sm:text-[2.1rem]";
+
+    return (
+      <div className="rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)] backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-violet-500/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400 text-glow-purple">
+            Gate Core
+          </p>
+          <span className="text-[10px] font-medium text-violet-500/40 uppercase tracking-widest">
+            Resolve the output
+          </span>
+        </div>
+        <div className="mt-8 flex flex-col items-center justify-center py-4">
+          <div className="relative flex w-full items-center justify-between px-8">
+            {/* Connector Lines */}
+            <div className="absolute inset-x-12 top-1/2 h-0.5 -translate-y-1/2 bg-linear-to-r from-amber-400/40 via-violet-400/40 to-cyan-400/40" />
+            
+            <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
+              <span className="font-mono text-xl font-black text-amber-300">A</span>
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+               <div className="flex min-h-24 min-w-37.5 max-w-70 items-center justify-center rounded-2xl border-2 border-violet-400/60 bg-slate-950 px-6 py-4 shadow-[0_0_30px_rgba(167,139,250,0.3),inset_0_0_15px_rgba(167,139,250,0.2)]">
+                  <span className={`font-black uppercase tracking-[0.2em] text-center text-white text-glow-purple wrap-break-word leading-tight ${displaySizeClass}`}>
+                    {coreDisplay}
+                  </span>
+               </div>
+               <div className="mt-3 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-0.5">
+                 <span className="text-[8px] font-bold uppercase tracking-[0.25em] text-violet-300">
+                   Active Logic
+                 </span>
+               </div>
+               {variant !== "missing_gate" && expression && expression !== gateLabel && (
+                 <p className="mt-1 text-[8px] uppercase tracking-[0.3em] text-amber-200">
+                   {gateLabel}
+                 </p>
+               )}
+            </div>
+
+            <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
+              <span className="font-mono text-xl font-black text-amber-300">B</span>
             </div>
           </div>
-        ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
-  const renderLogicGateCore = () => (
-    <div className="rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)] backdrop-blur-md">
-      <div className="flex items-center justify-between border-b border-violet-500/10 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400 text-glow-purple">
-          Gate Core
-        </p>
-        <span className="text-[10px] font-medium text-violet-500/40 uppercase tracking-widest">
-          Resolve the output
-        </span>
-      </div>
-      <div className="mt-8 flex flex-col items-center justify-center py-4">
-        <div className="relative flex w-full items-center justify-between px-8">
-          {/* Connector Lines */}
-          <div className="absolute inset-x-12 top-1/2 h-0.5 -translate-y-1/2 bg-linear-to-r from-amber-400/40 via-violet-400/40 to-cyan-400/40" />
-          
-          <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
-            <span className="font-mono text-xl font-black text-amber-300">A</span>
-          </div>
-
-          <div className="relative z-10 flex flex-col items-center">
-             <div className="flex min-h-[96px] min-w-[150px] max-w-[280px] items-center justify-center rounded-2xl border-2 border-violet-400/60 bg-slate-950 px-6 py-4 shadow-[0_0_30px_rgba(167,139,250,0.3),inset_0_0_15px_rgba(167,139,250,0.2)]">
-                <span className={`font-black uppercase tracking-[0.2em] text-center text-white text-glow-purple break-words leading-tight ${
-                  logicGatePuzzle.gate.length > 8 ? "text-xl sm:text-2xl" : "text-2xl sm:text-[2.1rem]"
-                }`}>
-                  {logicGatePuzzle.gate}
+  const renderLogicGateAnswers = () => {
+    const variant = logicGatePuzzle?.variant ?? "output";
+    const variantMeta = getLogicGateVariantMeta(variant);
+    const fallbackOptions =
+      variant === "missing_gate"
+        ? ["AND", "OR", "XOR", "NAND", "XNOR", "NOT"]
+        : ["0", "1"];
+    const answerOptions =
+      Array.isArray(logicGatePuzzle?.options) && logicGatePuzzle.options.length
+        ? logicGatePuzzle.options
+        : fallbackOptions;
+    const variantHeaderClass =
+      variant === "missing_gate"
+        ? "text-violet-400 text-glow-purple"
+        : variant === "missing_input"
+          ? "text-amber-400 text-glow-amber"
+          : "text-cyan-400 text-glow-blue";
+    const variantBorderClass =
+      variant === "missing_gate"
+        ? "border-violet-500/10"
+        : variant === "missing_input"
+          ? "border-amber-500/10"
+          : "border-cyan-500/10";
+    const isMissingGate = variant === "missing_gate";
+    return (
+      <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md">
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 gap-2 ${variantBorderClass}`}>
+          <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${variantHeaderClass}`}>
+            {variantMeta.title}
+          </p>
+          <span className="text-[10px] font-medium text-slate-500/80 uppercase tracking-widest wrap-break-word leading-tight">
+            {variantMeta.subtitle}
+          </span>
+        </div>
+        <div className="mt-6 flex flex-col gap-4">
+          {feedback && (
+            <div className="flex justify-center">
+              <span
+                className={`rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] shadow-lg ${getFeedbackBadgeClass(feedback, isCyber)}`}
+              >
+                {feedback}
+              </span>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            {answerOptions.map((option) => (
+              <button
+                key={`logic-answer-${variant}-${option}`}
+                type="button"
+                onClick={() => handleAnswer(option)}
+                className="group relative rounded-xl border p-5 text-center transition-all duration-300 border-white/10 bg-cyber-bg-accent/80 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:border-violet-400/40 hover:bg-[#11182f] hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]"
+              >
+                <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <span
+                  className={`block ${isMissingGate ? "text-2xl font-semibold uppercase tracking-[0.25em]" : "text-4xl font-black uppercase tracking-widest"} text-white text-glow-blue`}
+                >
+                  {option}
                 </span>
-             </div>
-             <div className="mt-3 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-0.5">
-               <span className="text-[8px] font-bold uppercase tracking-[0.25em] text-violet-300">
-                 Active Logic
-               </span>
-             </div>
-          </div>
-
-          <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
-            <span className="font-mono text-xl font-black text-amber-300">B</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
-    </div>
-  );
-
-  const renderLogicGateAnswers = () => (
-    <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md">
-      <div className="flex items-center justify-between border-b border-cyan-500/10 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400 text-glow-blue">
-          Output Lane
-        </p>
-        <span className="text-[10px] font-medium text-cyan-500/40 uppercase tracking-widest">
-          Select the final signal
-        </span>
-      </div>
-      <div className="mt-6 flex flex-col gap-4">
-        {feedback && (
-          <div className="flex justify-center">
-            <span
-              className={`rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] shadow-lg ${getFeedbackBadgeClass(feedback, isCyber)}`}
-            >
-              {feedback}
-            </span>
-          </div>
-        )}
-        <div className="grid grid-cols-2 gap-4">
-          {logicGatePuzzle.options.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => handleAnswer(option)}
-              disabled={gameOver}
-              className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/60 p-6 transition-all duration-300 hover:border-cyan-400/50 hover:bg-slate-900/80 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <span className="relative z-10 block text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 group-hover:text-cyan-400">
-                Signal Output
-              </span>
-              <span className="relative z-10 mt-1 block text-4xl font-black text-white text-glow-blue">
-                {option}
-              </span>
-            </button>
-          ))}
+    );
+  };
+  const renderLogicGateReadout = () => {
+    const variant = logicGatePuzzle?.variant ?? "output";
+    const variantMeta = getLogicGateVariantMeta(variant);
+    const activeExpression = logicGatePuzzle?.expression;
+    const activeLabel = activeExpression || logicGatePuzzle?.gate || "Unknown";
+    const activeTitle = activeExpression ? "EXPRESSION" : "ACTIVE GATE";
+    return (
+      <div className="rounded-2xl border border-amber-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md">
+        <div className="mb-4 flex items-center justify-between border-b border-amber-500/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
+            Circuit Readout
+          </p>
+          <div className="flex h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
         </div>
-      </div>
-    </div>
-  );
-
-  const renderLogicGateReadout = () => (
-    <div className="rounded-2xl border border-amber-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md">
-      <div className="mb-4 flex items-center justify-between border-b border-amber-500/10 pb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
-          Circuit Readout
-        </p>
-        <div className="flex h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
-      </div>
-      <div className="grid gap-4">
-        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-500/30 hover:bg-slate-900/60">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
-            ACCURACY
-          </p>
-          <p className="mt-1 text-3xl font-black text-white text-glow-amber">
-            {accuracy}
-          </p>
-        </div>
-        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-5 min-h-[118px] transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
-            ACTIVE GATE
-          </p>
-          <p className={`mt-2 font-black uppercase tracking-[0.2em] text-white text-glow-purple break-words text-center leading-tight ${
-            logicGatePuzzle.gate.length > 8 ? "text-xl sm:text-2xl" : "text-[2rem]"
-          }`}>
-            {logicGatePuzzle.gate}
-          </p>
-        </div>
-        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
-            STREAK
-          </p>
-          <div className="mt-1 flex items-end gap-2">
-            <p className="text-3xl font-black text-white text-glow-blue">
-              {streak}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-500/30 hover:bg-slate-900/60">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
+              VARIANT
             </p>
-            {streak >= 3 && (
-              <span className="mb-1 text-[10px] font-bold uppercase text-cyan-300 animate-bounce">
-                Hot!
-              </span>
-            )}
+            <p className={`mt-1 font-black text-white text-glow-amber wrap-break-word leading-tight ${
+              variantMeta.variantLabel.length > 12 ? "text-xl" : "text-2xl"
+            }`}>
+              {variantMeta.variantLabel}
+            </p>
+            <p className="text-[8px] uppercase tracking-[0.3em] text-amber-200/80">
+              {variantMeta.title}
+            </p>
+          </div>
+          <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-500/30 hover:bg-slate-900/60">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
+              ACCURACY
+            </p>
+            <p className="mt-1 text-3xl font-black text-white text-glow-amber">
+              {accuracy}
+            </p>
+          </div>
+          <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 min-h-29.5 transition-all hover:border-violet-500/30 hover:bg-slate-900/60 flex flex-col justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
+                {activeTitle}
+              </p>
+              <p className={`mt-2 font-black uppercase tracking-[0.2em] text-white text-glow-purple wrap-break-word text-center leading-tight ${
+                activeLabel.length > 12 ? "text-lg sm:text-xl" : activeLabel.length > 8 ? "text-xl sm:text-2xl" : "text-[2rem]"
+              }`}>
+                {activeLabel}
+              </p>
+            </div>
+          </div>
+          <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+              STREAK
+            </p>
+            <div className="mt-1 flex items-end gap-2">
+              <p className="text-3xl font-black text-white text-glow-blue">
+                {streak}
+              </p>
+              {streak >= 3 && (
+                <span className="mb-1 text-[10px] font-bold uppercase text-cyan-300 animate-bounce">
+                  Hot!
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-
+    );
+  };
   const renderSprintReadout = () => (
     <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
       <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-white/5"}`}>
@@ -2604,21 +2700,47 @@ function Arena({ theme }) {
                                 </div>
                               )}
                               {SHOW_PUZZLE_DEBUG_META && (
-                                <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3">
-                                  <div className="flex justify-between text-[10px]">
+                                <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
+                                  <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">ID</span>
                                     <span className="text-amber-200 font-mono">{logicGatePuzzle.id}</span>
                                   </div>
-                                  <div className="flex justify-between text-[10px]">
+                                  <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Difficulty</span>
                                     <span className="text-amber-200 font-mono">{logicGatePuzzle.difficulty}</span>
                                   </div>
-                                  {logicGatePuzzle.inputs.C !== undefined && (
-                                    <div className="flex justify-between text-[10px]">
-                                      <span className="text-slate-500 uppercase font-bold">Input C</span>
-                                      <span className="text-amber-200 font-mono">{logicGatePuzzle.inputs.C}</span>
+                                  <div className="flex justify-between">
+                                    <span className="text-slate-500 uppercase font-bold">Variant</span>
+                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.variant ?? "output"}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-slate-500 uppercase font-bold">Expression</span>
+                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.expression ?? "N/A"}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-slate-500 uppercase font-bold">Gate</span>
+                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.gate ?? "Unknown"}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-slate-500 uppercase font-bold">Inputs</span>
+                                    <div className="mt-1 space-y-1">
+                                      {Object.entries(logicGatePuzzle.inputs ?? {}).length ? (
+                                        Object.entries(logicGatePuzzle.inputs ?? {}).map(([key, value]) => (
+                                          <div key={key} className="flex items-center justify-between">
+                                            <span className="text-slate-400 uppercase font-bold">{key}</span>
+                                            <span className="text-amber-200 font-mono">
+                                              {value === undefined || value === null ? "?" : value}
+                                            </span>
+                                          </div>
+                                        ))
+                                      ) : (
+                                        <div className="flex justify-between">
+                                          <span className="text-slate-500 uppercase font-bold">None</span>
+                                          <span className="text-amber-200 font-mono">—</span>
+                                        </div>
+                                      )}
                                     </div>
-                                  )}
+                                  </div>
                                 </div>
                               )}
                             </DevDebugPanel>
