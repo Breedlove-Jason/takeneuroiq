@@ -10,6 +10,10 @@ import {
   faLayerGroup,
   faWaveSquare,
   faShieldHalved,
+  faStar,
+  faDiagramProject,
+  faTableCells,
+  faMicrochip,
 } from '@fortawesome/pro-duotone-svg-icons';
 import {
   Radar,
@@ -172,6 +176,51 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
     return modeLabel || mode;
   }
   return 'Pattern Rush';
+}
+
+const RECENT_SESSION_FAMILY_VISUALS = {
+  pattern_rush: {
+    icon: faStar,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200',
+    labelClass: 'text-cyan-200',
+    badgeClass: 'text-cyan-300/70',
+  },
+  sequence_sprint: {
+    icon: faDiagramProject,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200',
+    labelClass: 'text-fuchsia-200',
+    badgeClass: 'text-fuchsia-300/70',
+  },
+  grid_recall: {
+    icon: faTableCells,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
+    labelClass: 'text-emerald-200',
+    badgeClass: 'text-emerald-300/70',
+  },
+  logic_gate: {
+    icon: faMicrochip,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200',
+    labelClass: 'text-amber-200',
+    badgeClass: 'text-amber-300/70',
+  },
+  default: {
+    icon: faBrain,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-slate-600/40 bg-slate-900/60 text-slate-200',
+    labelClass: 'text-white',
+    badgeClass: 'text-slate-400/70',
+  },
+};
+
+function getRecentSessionFamilyVisual(puzzleType) {
+  return (
+    RECENT_SESSION_FAMILY_VISUALS[puzzleType] ||
+    RECENT_SESSION_FAMILY_VISUALS.default
+  );
 }
 
 function getFocusLaneFromPuzzleType(puzzleType) {
@@ -1240,6 +1289,9 @@ function ProfilePage() {
                         const puzzleMeta = getPuzzleTypeMetadata(
                           session.puzzleType,
                         );
+                        const familyVisual = getRecentSessionFamilyVisual(
+                          session.puzzleType,
+                        );
                         const adaptiveStateKey =
                           session.liveAdaptiveDifficulty?.state ?? 'steady';
                         const adaptiveStateLabel =
@@ -1255,14 +1307,29 @@ function ProfilePage() {
                             className="rounded-2xl border border-slate-800 bg-slate-800/60 p-4"
                           >
                             <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="font-semibold text-white">
-                                  {puzzleMeta.label}
-                                </p>
-                                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
-                                  {formatSessionTime(session.timestamp)}
-                                </p>
+                              <div className="flex items-center gap-3">
+                                <span className={familyVisual.iconWrap}>
+                                  <FontAwesomeIcon
+                                    icon={familyVisual.icon}
+                                    className="text-white"
+                                  />
+                                </span>
+                                <div>
+                                  <p
+                                    className={`font-semibold ${familyVisual.labelClass}`}
+                                  >
+                                    {puzzleMeta.label}
+                                  </p>
+                                  <p
+                                    className={`mt-1 text-xs uppercase tracking-[0.18em] ${familyVisual.badgeClass}`}
+                                  >
+                                    {puzzleMeta.shortLabel || 'Pattern'}
+                                  </p>
+                                </div>
                               </div>
+                              <span className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                                {formatSessionTime(session.timestamp)}
+                              </span>
                               <span
                                 className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${adaptiveStatePill}`}
                               >
@@ -1353,9 +1420,13 @@ function ProfilePage() {
                         const adaptiveStatePill =
                           adaptiveStateHistoryPillMap[adaptiveStateKey] ??
                           'border-cyan-300/60 bg-cyan-500/20 text-cyan-200 shadow-[0_0_26px_rgba(34,211,238,0.55)]';
+                        const puzzleMeta = getPuzzleTypeMetadata(session.puzzleType);
                         const puzzleFamilyLabel = getPuzzleFamilyLabel(
                           session.puzzleType,
                           session.mode,
+                        );
+                        const familyVisual = getRecentSessionFamilyVisual(
+                          session.puzzleType,
                         );
                         const identitySource =
                           session.cognitiveIdentity ?? session.identity;
@@ -1370,9 +1441,26 @@ function ProfilePage() {
                             key={`${session.score ?? 0}-${index}`}
                             className={`grid min-w-[56rem] ${recentSessionsGridColumns} group items-center gap-x-4 border-t border-slate-800/50 px-4 py-4 text-sm text-slate-200 transition duration-200 hover:bg-cyan-400/[0.03]`}
                           >
-                            <span className="truncate font-bold text-white transition-colors group-hover:text-cyan-400">
-                              {puzzleFamilyLabel}
-                            </span>
+                            <div className="flex items-center gap-3">
+                              <span className={familyVisual.iconWrap}>
+                                <FontAwesomeIcon
+                                  icon={familyVisual.icon}
+                                  className="text-white"
+                                />
+                              </span>
+                              <div className="min-w-0">
+                                <span
+                                  className={`block truncate font-bold transition-colors group-hover:text-cyan-400 ${familyVisual.labelClass}`}
+                                >
+                                  {puzzleFamilyLabel}
+                                </span>
+                                <span
+                                  className={`block text-[10px] uppercase tracking-[0.2em] ${familyVisual.badgeClass}`}
+                                >
+                                  {puzzleMeta.shortLabel || 'Pattern'}
+                                </span>
+                              </div>
+                            </div>
                             <span className="text-center font-mono text-cyan-100/80 tabular-nums">
                               {session.score ?? 0}
                             </span>

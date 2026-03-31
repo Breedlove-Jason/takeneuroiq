@@ -34,7 +34,7 @@ export const PUZZLE_TYPE_METADATA = {
     label: "Logic Gate",
     shortLabel: "Logic",
     description: "Resolve binary signal outputs through gate logic.",
-    color: "amber-violet",
+    color: "amber",
     cognitiveSkills: ["Reasoning", "Signals", "Binary Logic"],
     icon: "microchip",
   },

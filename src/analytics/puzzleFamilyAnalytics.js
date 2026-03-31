@@ -25,9 +25,16 @@ const PUZZLE_FAMILY_METADATA = {
     label: "Logic Gate",
     shortLabel: "Logic",
     accent: "amber",
-    icon: "microchip",
+    icon: "logic_gate",
   },
 };
+
+const PUZZLE_FAMILY_DISPLAY_ORDER = [
+  "pattern_rush",
+  "grid_recall",
+  "sequence_sprint",
+  "logic_gate",
+];
 
 const ACTIVE_PUZZLE_FAMILIES = Object.keys(PUZZLE_FAMILY_METADATA);
 
@@ -271,6 +278,14 @@ function buildLogicGateSummary(sessions = []) {
     toNumber(session.puzzlesAttempted),
   );
   const correct = sessions.map((session) => toNumber(session.puzzlesCorrect));
+  const trendReasonByState = {
+    Rising:
+      "Signal precision is sharpening. Binary reasoning is gaining stability across recent runs.",
+    Steadying:
+      "Circuit stability is holding. Keep reinforcing binary control so the logic flow stays consistent.",
+    Rebuilding:
+      "Recalibrate the gates and prioritize signal accuracy before pushing further intensity.",
+  };
 
   return {
     ...base,
@@ -279,6 +294,9 @@ function buildLogicGateSummary(sessions = []) {
     averageBestStreak: average(bestStreaks, 1),
     totalPuzzlesAttempted: sum(attempted),
     totalPuzzlesCorrect: sum(correct),
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Signal stability is evolving. Keep refining your gate reasoning lane.",
   };
 }
 
@@ -333,9 +351,15 @@ export function buildPuzzleFamilyPerformance(sessions = []) {
 export function buildPuzzleFamilyCards(sessions = []) {
   const performanceMap = buildPuzzleFamilyPerformance(sessions);
 
-  return Object.values(performanceMap).sort((a, b) => {
-    return (b.sessionsPlayed || 0) - (a.sessionsPlayed || 0);
-  });
+  const orderedCards = PUZZLE_FAMILY_DISPLAY_ORDER.map(
+    (puzzleType) => performanceMap[puzzleType],
+  ).filter(Boolean);
+
+  const remainingCards = Object.keys(performanceMap)
+    .filter((puzzleType) => !PUZZLE_FAMILY_DISPLAY_ORDER.includes(puzzleType))
+    .map((puzzleType) => performanceMap[puzzleType]);
+
+  return [...orderedCards, ...remainingCards];
 }
 
 export { PUZZLE_FAMILY_METADATA, ACTIVE_PUZZLE_FAMILIES };

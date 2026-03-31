@@ -359,6 +359,47 @@ const buildGridRecallResultsCopy = ({
   };
 };
 
+const buildLogicGateResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+  gate = "AND",
+} = {}) => {
+  const normalizedGate = gate || "AND";
+
+  if (accuracy >= 90) {
+    return {
+      eyebrow: "Circuit Complete",
+      title: "Logic Gate Results",
+      summary:
+        "Excellent signal control. Binary reasoning stayed precise through the circuit flow.",
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: "Circuit Complete",
+      title: "Logic Gate Results",
+      summary:
+        "Solid reasoning. Signal resolution is stabilizing and gate recognition is improving.",
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: "Circuit Complete",
+      title: "Logic Gate Results",
+      summary: `Partial progress. Keep refining your ${normalizedGate} gate recognition.`,
+    };
+  }
+
+  return {
+    eyebrow: "Circuit Complete",
+    title: "Logic Gate Results",
+    summary:
+      "Circuit timed out. Rebuild the signal path and focus on the gate relationship.",
+  };
+};
+
 // const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.PATTERN_RUSH;
 const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
 
@@ -1663,6 +1704,10 @@ function Arena({ theme }) {
     totalAnswers === 0
       ? "--"
       : `${Math.round((correctAnswers / totalAnswers) * 100)}%`;
+  const answeredAccuracyValue =
+    totalAnswers === 0
+      ? 0
+      : Math.round((correctAnswers / totalAnswers) * 100);
   const comboMultiplier =
     totalAnswers === 0
       ? null
@@ -1711,6 +1756,12 @@ function Arena({ theme }) {
             correctAnswers,
             difficulty: gridRecallPuzzle?.difficulty ?? "medium",
           })
+        : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+          ? buildLogicGateResultsCopy({
+              accuracy: answeredAccuracyValue,
+              correctAnswers,
+              gate: logicGatePuzzle?.gate,
+            })
         : {
             eyebrow: "Challenge Complete",
             title: "Pattern Rush Results",
@@ -1991,8 +2042,9 @@ function Arena({ theme }) {
           >
             <MatrixRain
               mode={matrixRainMode}
-              intensity="medium"
-              className="-inset-12 z-0 opacity-80"
+              intensity={gameOver ? "light" : "medium"}
+              opacity={gameOver ? 0.5 : 1}
+              className={`-inset-12 z-0 ${gameOver ? "opacity-40" : "opacity-80"}`}
             />
 
             <div className="relative z-10">
@@ -2080,6 +2132,42 @@ function Arena({ theme }) {
                         }`}
                       >
                         {resultsCopy.summary}
+                      </p>
+                    </>
+                  ) : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE ? (
+                    <>
+                      <p
+                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
+                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
+                        }`}
+                      >
+                        {resultsCopy.eyebrow}
+                      </p>
+
+                      <h2
+                        className={`mt-3 text-4xl font-black tracking-tight ${
+                          isCyber
+                            ? "text-white text-glow-blue"
+                            : "text-slate-900"
+                        }`}
+                      >
+                        {resultsCopy.title}
+                      </h2>
+
+                      <p
+                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
+                          isCyber ? "text-cyan-100/90" : "text-slate-600"
+                        }`}
+                      >
+                        {resultsCopy.summary}
+                      </p>
+
+                      <p
+                        className={`mt-3 text-sm font-semibold uppercase tracking-[0.2em] ${
+                          isCyber ? "text-cyan-200" : "text-slate-500"
+                        }`}
+                      >
+                        Gate Type: {logicGatePuzzle?.gate ?? "Unknown"}
                       </p>
                     </>
                   ) : (

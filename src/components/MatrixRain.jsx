@@ -91,20 +91,32 @@ function randomInt(min, max) {
 
 function buildFibonacciColumn(length) {
   const startIndex = randomInt(0, FIBONACCI_SEQUENCE.length - 1);
-  return Array.from({ length }, (_, index) => {
-    const position = (startIndex + index) % FIBONACCI_SEQUENCE.length;
-    return FIBONACCI_SEQUENCE[position];
-  }).join("\n");
-}
+  return Array.from({ length }, (_, offset) => {
+    const sequenceIndex = (startIndex + offset) % FIBONACCI_SEQUENCE.length;
+    const primary = FIBONACCI_SEQUENCE[sequenceIndex];
+    const nextValue =
+      FIBONACCI_SEQUENCE[(sequenceIndex + 1) % FIBONACCI_SEQUENCE.length];
+    const nextNextValue =
+      FIBONACCI_SEQUENCE[(sequenceIndex + 2) % FIBONACCI_SEQUENCE.length];
+    const variant = Math.random();
 
-function buildHexColumn(length) {
-  const HEX = "0123456789ABCDEF";
-  return Array.from({ length }, () => {
-    // Build a short hex-y looking snippet per line
-    const lineLen = randomInt(2, 5);
-    let s = "";
-    for (let i = 0; i < lineLen; i += 1) s += HEX[randomInt(0, HEX.length - 1)];
-    return s;
+    if (variant < 0.25) {
+      return `${primary}_${nextValue}`;
+    }
+
+    if (variant < 0.45) {
+      return `${primary} ${nextValue}`;
+    }
+
+    if (variant < 0.55) {
+      return `${primary}:${nextNextValue}`;
+    }
+
+    if (variant < 0.65) {
+      return `${primary}.${nextNextValue}`;
+    }
+
+    return primary;
   }).join("\n");
 }
 
@@ -113,14 +125,13 @@ function buildBaseColumns(count = MAX_COLUMNS) {
   for (let index = 0; index < count; index += 1) {
     const length = randomInt(16, 38);
     const palette = NEON_PALETTE[randomInt(0, NEON_PALETTE.length - 1)];
-    const contentType = Math.random() < 0.5 ? "fibonacci" : "hex"; // vary lines of code between the two types
     columns.push({
       id: `matrix-column-${index}`,
       left: `${randomFloat(0, 100).toFixed(2)}%`,
       delay: `${randomFloat(-18, 0).toFixed(2)}s`,
       baseDuration: randomFloat(5.5, 11.5),
       baseOpacity: randomFloat(0.35, 0.9),
-      content: contentType === "fibonacci" ? buildFibonacciColumn(length) : buildHexColumn(length),
+      content: buildFibonacciColumn(length),
       fontSize: `${randomFloat(13, 22).toFixed(1)}px`,
       color: palette,
     });
