@@ -80,8 +80,8 @@ const compactIdentityLabelMap = {
   'recovery builder': 'Recovering',
   climber: 'Climbing',
   climbing: 'Climbing',
-  striker: 'Striking',
-  striking: 'Striking',
+  striker: 'Dominating',
+  striking: 'Dominating',
   'precision builder': 'Refining',
   'momentum driver': 'Accelerating',
   'pattern anchor': 'Stabilizing',
@@ -101,7 +101,7 @@ const compactIdentityStyleMap = {
     'border-amber-300/60 bg-amber-500/20 text-amber-200 shadow-[0_0_26px_rgba(251,191,36,0.5)]',
   climbing:
     'border-sky-300/60 bg-sky-500/20 text-sky-200 shadow-[0_0_26px_rgba(56,189,248,0.55)]',
-  striking:
+  dominating:
     'border-fuchsia-300/60 bg-fuchsia-500/20 text-fuchsia-200 shadow-[0_0_26px_rgba(217,70,239,0.6)]',
   refining:
     'border-cyan-300/60 bg-cyan-500/20 text-cyan-200 shadow-[0_0_26px_rgba(34,211,238,0.6)]',
@@ -399,8 +399,8 @@ function formatCognitiveIdentityLabel(label) {
   ) {
     return 'Adapting';
   }
-  if (normalizedLabel === 'independent striker' || normalizedLabel === 'striking')
-    return 'Striking';
+  if (normalizedLabel === 'independent striker' || normalizedLabel === 'striking' || normalizedLabel === 'dominating')
+    return 'Dominating';
   return label;
 }
 

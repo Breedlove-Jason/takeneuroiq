@@ -72,7 +72,7 @@ export function classifyCognitiveIdentity(session = {}) {
   if (!session.isRecommendedSessionAligned && safeAccuracy >= 80 && safeAttempted >= 8) {
     return {
       identityKey: "independent_striker",
-      label: "Striking",
+      label: "Dominating",
       description: "You found your own rhythm and maintained high precision without explicit guidance.",
       primarySignal:
         "Strong self-directed performance emerged outside guidance.",

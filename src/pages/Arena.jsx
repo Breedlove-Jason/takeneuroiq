@@ -1406,7 +1406,7 @@ function Arena({ theme }) {
           Binary feed
         </span>
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-4">
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {Object.entries(logicGatePuzzle.inputs).map(([key, value]) => (
           <div
             key={key}
@@ -1449,8 +1449,10 @@ function Arena({ theme }) {
           </div>
 
           <div className="relative z-10 flex flex-col items-center">
-             <div className="flex h-20 w-24 items-center justify-center rounded-2xl border-2 border-violet-400/60 bg-slate-950 shadow-[0_0_30px_rgba(167,139,250,0.3),inset_0_0_15px_rgba(167,139,250,0.2)]">
-                <span className="text-2xl font-black tracking-tighter text-white text-glow-purple">
+             <div className="flex min-h-[96px] min-w-[150px] max-w-[280px] items-center justify-center rounded-2xl border-2 border-violet-400/60 bg-slate-950 px-6 py-4 shadow-[0_0_30px_rgba(167,139,250,0.3),inset_0_0_15px_rgba(167,139,250,0.2)]">
+                <span className={`font-black uppercase tracking-[0.2em] text-center text-white text-glow-purple break-words leading-tight ${
+                  logicGatePuzzle.gate.length > 8 ? "text-xl sm:text-2xl" : "text-2xl sm:text-[2.1rem]"
+                }`}>
                   {logicGatePuzzle.gate}
                 </span>
              </div>
@@ -1529,11 +1531,13 @@ function Arena({ theme }) {
             {accuracy}
           </p>
         </div>
-        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+        <div className="group rounded-xl border border-white/10 bg-slate-900/40 p-5 min-h-[118px] transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
             ACTIVE GATE
           </p>
-          <p className="mt-1 text-2xl font-black text-white text-glow-purple">
+          <p className={`mt-2 font-black uppercase tracking-[0.2em] text-white text-glow-purple break-words text-center leading-tight ${
+            logicGatePuzzle.gate.length > 8 ? "text-xl sm:text-2xl" : "text-[2rem]"
+          }`}>
             {logicGatePuzzle.gate}
           </p>
         </div>
