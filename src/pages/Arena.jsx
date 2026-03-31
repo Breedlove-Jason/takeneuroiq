@@ -13,7 +13,7 @@ import {
   faBrain,
   faBolt,
   faBullseye,
-} from "@fortawesome/free-solid-svg-icons";
+} from "@fortawesome/pro-duotone-svg-icons";
 import PuzzleShape from "../components/PuzzleShape";
 import MatrixRain from "../components/MatrixRain";
 import { checkAnswer, getRandomPuzzle } from "../game/puzzleEngine";
@@ -1818,7 +1818,10 @@ function Arena({ theme }) {
                       recommendedSessionTone.label
                     }`}
                   >
-                    <FontAwesomeIcon icon={faBolt} className="animate-pulse" />
+                    <FontAwesomeIcon
+                      icon={faBolt}
+                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                    />
                     Recommended Session
                   </div>
 
@@ -1872,7 +1875,10 @@ function Arena({ theme }) {
                   isCyber ? "text-cyan-300 text-glow-blue" : "text-slate-500"
                 }`}
               >
-                <FontAwesomeIcon icon={faBrain} className="text-[10px]" />
+                <FontAwesomeIcon
+                  icon={faBrain}
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                />
                 Challenge
               </p>
               <h1
@@ -1922,7 +1928,10 @@ function Arena({ theme }) {
                   isCyber ? "text-fuchsia-300 text-glow-pink" : "text-slate-500"
                 }`}
               >
-                <FontAwesomeIcon icon={faBolt} className="text-[10px]" />
+                <FontAwesomeIcon
+                  icon={faBolt}
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                />
                 Time Remaining
               </p>
               <div
@@ -1955,7 +1964,10 @@ function Arena({ theme }) {
                   isCyber ? "text-slate-400" : "text-slate-500"
                 }`}
               >
-                <FontAwesomeIcon icon={faLayerGroup} className="text-[10px]" />
+                <FontAwesomeIcon
+                  icon={faLayerGroup}
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                />
                 Mode
               </p>
               <div
@@ -2004,7 +2016,7 @@ function Arena({ theme }) {
                   >
                     <FontAwesomeIcon
                       icon={toneStyle.icon}
-                      className={`text-2xl ${toneStyle.label}`}
+                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-2xl"
                     />
                   </div>
 
@@ -2154,7 +2166,7 @@ function Arena({ theme }) {
                           <div className="flex items-center gap-2 mb-3">
                             <FontAwesomeIcon
                               icon={faBrain}
-                              className="text-cyan-400 text-xs"
+                              className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-xs"
                             />
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/90">
                               Cognitive Identity
@@ -2186,7 +2198,7 @@ function Arena({ theme }) {
                         <p className="text-xs leading-5 text-fuchsia-100/90 italic">
                           <FontAwesomeIcon
                             icon={faBolt}
-                            className="mr-2 text-[10px]"
+                            className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mr-2 text-[10px]"
                           />
                           {cognitiveIdentity.shiftSignal}
                         </p>
@@ -2202,7 +2214,7 @@ function Arena({ theme }) {
                           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-lg ring-1 ring-white/20">
                             <FontAwesomeIcon
                               icon={faArrowRight}
-                              className="text-[10px] text-cyan-400"
+                              className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-[10px]"
                             />
                             {sessionOutcome.trainingDirection}
                           </span>
@@ -2225,7 +2237,7 @@ function Arena({ theme }) {
                           <span>Start</span>
                           <FontAwesomeIcon
                             icon={faChevronRight}
-                            className="transition-transform group-hover:translate-x-1"
+                            className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] transition-transform group-hover:translate-x-1"
                           />
                         </button>
                       </div>
@@ -2247,9 +2259,7 @@ function Arena({ theme }) {
                     <div className="relative flex flex-col items-center">
                       <FontAwesomeIcon
                         icon={faBullseye}
-                        className={`mb-3 text-lg ${
-                          isCyber ? "text-cyan-400" : "text-slate-400"
-                        }`}
+                        className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mb-3 text-lg"
                       />
                       <p
                         className={`text-[10px] font-black uppercase tracking-[0.3em] ${
@@ -2283,9 +2293,7 @@ function Arena({ theme }) {
                     <div className="relative flex flex-col items-center">
                       <FontAwesomeIcon
                         icon={faBolt}
-                        className={`mb-3 text-lg ${
-                          isCyber ? "text-fuchsia-400" : "text-slate-400"
-                        }`}
+                        className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mb-3 text-lg"
                       />
                       <p
                         className={`text-[10px] font-black uppercase tracking-[0.3em] ${
@@ -2319,9 +2327,7 @@ function Arena({ theme }) {
                     <div className="relative flex flex-col items-center">
                       <FontAwesomeIcon
                         icon={faStar}
-                        className={`mb-3 text-lg ${
-                          isCyber ? "text-emerald-400" : "text-slate-400"
-                        }`}
+                        className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mb-3 text-lg"
                       />
                       <p
                         className={`text-[10px] font-black uppercase tracking-[0.3em] ${
@@ -2354,7 +2360,7 @@ function Arena({ theme }) {
                   <span className="relative z-10 flex items-center gap-3">
                     <FontAwesomeIcon
                       icon={faRotateRight}
-                      className="transition-transform duration-500 group-hover:rotate-180"
+                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] transition-transform duration-500 group-hover:rotate-180"
                     />
                     Play Again
                   </span>

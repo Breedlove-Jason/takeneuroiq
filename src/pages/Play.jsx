@@ -2,11 +2,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import {
-  faWaveSquare,
-  faArrowTrendUp,
-  faShieldHalved,
   faMicrochip,
-} from '@fortawesome/free-solid-svg-icons';
+  faStar,
+  faDiagramProject,
+  faTableCells
+} from '@fortawesome/pro-duotone-svg-icons';
 
 /**
  * Play Page Component
@@ -23,7 +23,7 @@ function Play({ theme }) {
 
   const challenges = [
     {
-      icon: 'sparkles',
+      icon: faStar,
       puzzleType: 'pattern_rush',
       title: 'Pattern Rush',
       description:
@@ -52,7 +52,7 @@ function Play({ theme }) {
       },
     },
     {
-      icon: 'chart-network',
+      icon: faDiagramProject,
       puzzleType: 'sequence_sprint',
       title: 'Sequence Sprint',
       description:
@@ -82,7 +82,7 @@ function Play({ theme }) {
       },
     },
     {
-      icon: 'table-cells',
+      icon: faTableCells,
       puzzleType: 'grid_recall',
       title: 'Grid Recall',
       description:
@@ -195,7 +195,10 @@ function Play({ theme }) {
                     : 'border-slate-200 bg-white group-hover:scale-105'
                 } ${isCyber ? challenge.iconTone.cyber : challenge.iconTone.light}`}
               >
-                <FontAwesomeIcon icon={typeof challenge.icon === 'string' ? ['fas', challenge.icon] : challenge.icon} />
+                <FontAwesomeIcon
+                  icon={challenge.icon}
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                />
               </div>
 
               <h2
@@ -230,7 +233,7 @@ function Play({ theme }) {
               )}
 
               {challenge.puzzleType ? (
-                <div className="mt-auto pt-[5px]">
+                <div className="mt-auto pt-1.25">
                   <Link
                     to="/arena"
                     state={{ puzzleType: challenge.puzzleType }}
@@ -244,7 +247,7 @@ function Play({ theme }) {
                   </Link>
                 </div>
               ) : (
-                <div className="mt-auto pt-[5px]">
+                <div className="mt-auto pt-1.25">
                   <button
                     type="button"
                     disabled

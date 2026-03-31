@@ -10,7 +10,7 @@ import {
   faLayerGroup,
   faWaveSquare,
   faShieldHalved,
-} from '@fortawesome/free-solid-svg-icons';
+} from '@fortawesome/pro-duotone-svg-icons';
 import {
   Radar,
   RadarChart,
@@ -816,7 +816,10 @@ function ProfilePage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.2)]">
-                <FontAwesomeIcon icon={faBolt} className="animate-pulse" />
+                <FontAwesomeIcon
+                  icon={faBolt}
+                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] animate-pulse"
+                />
                 Neural Identity
               </p>
 
@@ -857,9 +860,9 @@ function ProfilePage() {
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                 <FontAwesomeIcon
-                  icon={faUserAstronaut}
-                  className="text-cyan-300"
-                />
+  icon={faUserAstronaut}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+/>
                 Identity Core
               </h2>
 
@@ -907,7 +910,10 @@ function ProfilePage() {
 
             <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                <FontAwesomeIcon icon={faBrain} className="text-fuchsia-300" />
+                <FontAwesomeIcon
+                  icon={faBrain}
+                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-fuchsia-300"
+                />
                 Cognitive Tracks
               </h2>
 
@@ -1040,7 +1046,10 @@ function ProfilePage() {
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                <FontAwesomeIcon icon={faBrain} className="text-cyan-300" />
+                <FontAwesomeIcon
+                  icon={faBrain}
+                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+                />
                 Cognitive Skill Signals
               </h2>
 
@@ -1140,9 +1149,9 @@ function ProfilePage() {
               <div className="flex items-center justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                   <FontAwesomeIcon
-                    icon={faWaveSquare}
-                    className="text-cyan-300"
-                  />
+  icon={faWaveSquare}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+/>
                   Current Cognitive Focus
                 </h2>
                 <span className="text-[10px] uppercase tracking-[0.25em] text-slate-500">
@@ -1217,9 +1226,9 @@ function ProfilePage() {
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                 <FontAwesomeIcon
-                  icon={faClockRotateLeft}
-                  className="text-cyan-300"
-                />
+  icon={faClockRotateLeft}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+/>
                 Recent Sessions
               </h2>
 
@@ -1427,9 +1436,9 @@ function ProfilePage() {
                 <div className="rounded-3xl border border-emerald-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(16,185,129,0.32)] ring-1 ring-emerald-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(16,185,129,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
-                    icon={faChartLine}
-                    className="text-emerald-100 drop-shadow-[0_0_18px_rgba(16,185,129,0.9)]"
-                  />
+  icon={faChartLine}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-emerald-100 drop-shadow-[0_0_18px_rgba(16,185,129,0.9)]"
+/>
                   Progression
                 </h2>
                 <div className="mt-3 space-y-2">
@@ -1449,9 +1458,9 @@ function ProfilePage() {
                 <div className="rounded-3xl border border-cyan-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(14,165,233,0.32)] ring-1 ring-cyan-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(14,165,233,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
-                    icon={faLayerGroup}
-                    className="text-cyan-100 drop-shadow-[0_0_18px_rgba(14,165,233,0.9)]"
-                  />
+  icon={faLayerGroup}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-100 drop-shadow-[0_0_18px_rgba(14,165,233,0.9)]"
+/>
                   Adaptive Layer
                 </h2>
                 <div className="mt-3 space-y-2">
@@ -1479,9 +1488,9 @@ function ProfilePage() {
                 <div className="rounded-3xl border border-fuchsia-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(236,72,153,0.35)] ring-1 ring-fuchsia-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(236,72,153,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
-                    icon={faBolt}
-                    className="text-fuchsia-100 drop-shadow-[0_0_18px_rgba(236,72,153,0.95)]"
-                  />
+  icon={faBolt}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-fuchsia-100 drop-shadow-[0_0_18px_rgba(236,72,153,0.95)]"
+/>
                   Momentum
                 </h2>
                 <div className="mt-3 space-y-2">
@@ -1501,9 +1510,9 @@ function ProfilePage() {
               <div className="rounded-3xl border border-violet-300/80 bg-slate-900/78 p-5 backdrop-blur-md shadow-[0_0_50px_rgba(129,140,248,0.32)] ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_56px_rgba(129,140,248,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                   <FontAwesomeIcon
-                    icon={faBrain}
-                    className="text-violet-100 drop-shadow-[0_0_18px_rgba(129,140,248,0.95)]"
-                  />
+  icon={faBrain}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-violet-100 drop-shadow-[0_0_18px_rgba(129,140,248,0.95)]"
+/>
                   Cognitive Identity
                 </h2>
 

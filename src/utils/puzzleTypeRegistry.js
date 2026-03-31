@@ -12,7 +12,7 @@ export const PUZZLE_TYPE_METADATA = {
     description: "Visual pattern recognition under time pressure",
     color: "cyan",
     cognitiveSkills: ["Pattern Recognition", "Visual Processing"],
-    icon: "sparkles",
+    icon: "star",
   },
   [PUZZLE_TYPES.SEQUENCE_SPRINT]: {
     label: "Sequence Sprint",
@@ -20,7 +20,7 @@ export const PUZZLE_TYPE_METADATA = {
     description: "Sequential memory and prediction",
     color: "violet",
     cognitiveSkills: ["Working Memory", "Predictive Reasoning"],
-    icon: "chart-network",
+    icon: "diagram-project",
   },
   [PUZZLE_TYPES.GRID_RECALL]: {
     label: "Grid Recall",

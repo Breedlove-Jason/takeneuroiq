@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrophy, faBolt, faBrain } from '@fortawesome/free-solid-svg-icons';
+import { faTrophy, faBolt, faBrain } from '@fortawesome/pro-duotone-svg-icons';
 
 function FeatureHighlights() {
   const features = [
@@ -47,8 +47,11 @@ function FeatureHighlights() {
               key={feature.title}
               className="rounded-2xl border border-fuchsia-400/10 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-300 hover:border-fuchsia-400/40 hover:bg-white/10 hover:shadow-[0_0_40px_rgba(217,70,239,0.1)] hover:-translate-y-1"
             >
-              <div className="text-4xl text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">
-                <FontAwesomeIcon icon={feature.icon} />
+              <div className="text-4xl drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">
+                <FontAwesomeIcon
+                  icon={feature.icon}
+                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1]"
+                />
               </div>
 
               <h3 className="mt-5 text-xl font-semibold text-white">
