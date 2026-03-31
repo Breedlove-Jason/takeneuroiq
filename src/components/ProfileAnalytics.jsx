@@ -13,12 +13,12 @@ import { generateCoachingInsight } from "../analytics/coachingEngine";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartLine,
-  faSparkles,
-  faChartNetwork,
+  faStar,
+  faDiagramProject,
   faTableCells,
   faMicrochip,
   faBrain,
-} from "@fortawesome/free-solid-svg-icons";
+} from "@fortawesome/pro-duotone-svg-icons";
 
 /**
  * ProfileAnalytics Component
@@ -519,7 +519,7 @@ function ProfileAnalytics({
                       <div className={familyVisual.iconWrap}>
                         <FontAwesomeIcon
                           icon={familyVisual.icon}
-                          className="text-lg"
+                          className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-lg"
                         />
                       </div>
                       <div className="min-w-0">
@@ -757,14 +757,14 @@ function getFamilyCardTone(puzzleType) {
 function getPuzzleFamilyVisual(puzzleType) {
   const visualMap = {
     pattern_rush: {
-      icon: faSparkles,
+      icon: faStar,
       iconWrap:
         "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200",
       accentText: "text-cyan-200",
       accentRing: "ring-1 ring-cyan-500/30",
     },
     sequence_sprint: {
-      icon: faChartNetwork,
+      icon: faDiagramProject,
       iconWrap:
         "flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200",
       accentText: "text-fuchsia-200",
@@ -938,7 +938,10 @@ export function PerformanceSnapshot({ sessions = [] }) {
   return (
     <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
       <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-        <FontAwesomeIcon icon={faChartLine} className="text-fuchsia-300" />
+        <FontAwesomeIcon
+          icon={faChartLine}
+          className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-fuchsia-300"
+        />
         Performance Snapshot
       </h2>
 

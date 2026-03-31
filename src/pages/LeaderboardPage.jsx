@@ -5,7 +5,7 @@ import {
   faChartLine,
   faBolt,
   faBrain,
-} from '@fortawesome/free-solid-svg-icons';
+} from '@fortawesome/pro-duotone-svg-icons';
 import { useSessionData } from '../hooks/useSessionData';
 
 function LeaderboardPage() {
@@ -68,7 +68,10 @@ function LeaderboardPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.2)]">
-                <FontAwesomeIcon icon={faBolt} className="animate-pulse" />
+                <FontAwesomeIcon
+                  icon={faBolt}
+                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] animate-pulse"
+                />
                 Neural Arena Rankings
               </p>
 
@@ -120,9 +123,9 @@ function LeaderboardPage() {
               <div>
                 <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                   <FontAwesomeIcon
-                    icon={faTrophy}
-                    className="text-yellow-300"
-                  />
+  icon={faTrophy}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-yellow-300"
+/>
                   Top Competitors
                 </h2>
                 <p className="mt-1 text-sm text-slate-400">
@@ -256,7 +259,10 @@ function LeaderboardPage() {
           <aside className="space-y-6">
             <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                <FontAwesomeIcon icon={faMedal} className="text-fuchsia-300" />
+                <FontAwesomeIcon
+                  icon={faMedal}
+                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-fuchsia-300"
+                />
                 Rank Signals
               </h2>
 
@@ -290,7 +296,10 @@ function LeaderboardPage() {
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                <FontAwesomeIcon icon={faBrain} className="text-cyan-300" />
+                <FontAwesomeIcon
+                  icon={faBrain}
+                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+                />
                 Agent Note
               </h2>
               <p className="mt-3 text-sm leading-6 text-slate-300">
@@ -303,9 +312,9 @@ function LeaderboardPage() {
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-lg font-bold text-white">
                 <FontAwesomeIcon
-                  icon={faChartLine}
-                  className="text-emerald-300"
-                />
+  icon={faChartLine}
+  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-emerald-300"
+/>
                 Future Expansion
               </h2>
               <ul className="mt-3 space-y-2 text-sm text-slate-300">
