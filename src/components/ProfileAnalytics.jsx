@@ -13,6 +13,7 @@ import { generateCoachingInsight } from "../analytics/coachingEngine";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartLine,
+  faRoute,
   faStar,
   faDiagramProject,
   faTableCells,
@@ -454,7 +455,7 @@ function ProfileAnalytics({
               const valueToneMap =
                 family.puzzleType === "sequence_sprint"
                   ? {
-                      averageScore: "text-violet-200",
+                      averageScore: "text-fuchsia-200",
                       bestScore: "text-cyan-200",
                       bestAccuracy: "text-emerald-300",
                       averageNeuralPower: "text-fuchsia-200",
@@ -480,6 +481,13 @@ function ProfileAnalytics({
                           bestAccuracy: "text-emerald-300",
                           averageNeuralPower: "text-fuchsia-200",
                         }
+                        : family.puzzleType === "signal_path"
+                          ? {
+                              averageScore: "text-violet-200",
+                              bestScore: "text-cyan-200",
+                              bestAccuracy: "text-emerald-300",
+                              averageNeuralPower: "text-violet-200",
+                            }
                       : {
                           averageScore: "text-cyan-200",
                           bestScore: "text-violet-200",
@@ -519,7 +527,7 @@ function ProfileAnalytics({
                       <div className={familyVisual.iconWrap}>
                         <FontAwesomeIcon
                           icon={familyVisual.icon}
-                          className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-lg"
+                          className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-lg"
                         />
                       </div>
                       <div className="min-w-0">
@@ -718,12 +726,12 @@ function getFamilyCardTone(puzzleType) {
       trendCard: "border-cyan-500/20 bg-cyan-500/5",
     },
     sequence_sprint: {
-      card: "border-violet-400/30 bg-[linear-gradient(160deg,rgba(168,85,247,0.12)_0%,rgba(12,9,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,85,247,0.18)]",
-      label: "text-violet-200",
-      sessions: "text-violet-300/80",
-      avgBadge: "border-violet-400/35 bg-violet-500/10 text-violet-200",
-      statCard: "border-violet-500/20 bg-violet-500/5",
-      trendCard: "border-violet-500/20 bg-violet-500/5",
+      card: "border-fuchsia-400/30 bg-[linear-gradient(160deg,rgba(217,70,239,0.12)_0%,rgba(18,9,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.2)]",
+      label: "text-fuchsia-200",
+      sessions: "text-fuchsia-300/80",
+      avgBadge: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
+      statCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
+      trendCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
     },
     grid_recall: {
       card: "border-emerald-400/30 bg-[linear-gradient(160deg,rgba(16,185,129,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(16,185,129,0.18)]",
@@ -740,6 +748,14 @@ function getFamilyCardTone(puzzleType) {
       avgBadge: "border-amber-400/35 bg-amber-500/10 text-amber-200",
       statCard: "border-amber-500/20 bg-amber-500/5",
       trendCard: "border-amber-500/20 bg-amber-500/5",
+    },
+    signal_path: {
+      card: "border-violet-400/30 bg-[linear-gradient(160deg,rgba(139,92,246,0.12)_0%,rgba(12,9,27,0.92)_38%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(139,92,246,0.18)]",
+      label: "text-violet-200",
+      sessions: "text-violet-300/80",
+      avgBadge: "border-violet-400/35 bg-violet-500/10 text-violet-200",
+      statCard: "border-violet-500/20 bg-violet-500/5",
+      trendCard: "border-violet-500/20 bg-violet-500/5",
     },
     default: {
       card: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
@@ -783,6 +799,13 @@ function getPuzzleFamilyVisual(puzzleType) {
         "flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200",
       accentText: "text-amber-200",
       accentRing: "ring-1 ring-amber-500/30",
+    },
+    signal_path: {
+      icon: faRoute,
+      iconWrap:
+        "flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/10 text-violet-200",
+      accentText: "text-violet-200",
+      accentRing: "ring-1 ring-violet-500/30",
     },
     fallback: {
       icon: faBrain,
@@ -940,7 +963,7 @@ export function PerformanceSnapshot({ sessions = [] }) {
       <h2 className="flex items-center gap-2 text-xl font-bold text-white">
         <FontAwesomeIcon
           icon={faChartLine}
-          className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-fuchsia-300"
+          className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
         />
         Performance Snapshot
       </h2>

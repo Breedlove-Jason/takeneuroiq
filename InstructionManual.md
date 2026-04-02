@@ -57,13 +57,80 @@ You will see a sequence of numbers (or occasionally letters) with one missing el
 ### Pro Tip
 Always check the difference between the numbers first. If the gaps still don’t add up, examine the difference between the gaps (the second derivative). When the numbers escalate quickly, switch your brain to multiplication or exponents.
 
+🧠 # Grid Recall
+
+## Instruction Manual
+
+### Objective
+Memorize the active nodes in a grid and select the exact matching pattern from the options before time runs out.
+
+### The Grid
+You will briefly see a square grid (3x3 or 4x4 depending on difficulty) with a subset of nodes lit.
+
+### How to Play
+
+1. **Memorize.** Lock in the lit-node positions during the preview.
+2. **Recall.** When the options appear, compare each candidate grid to your memory.
+3. **Select.** Choose the grid that exactly matches the original pattern.
+4. **Advance.** Correct answers extend your run and increase your streak.
+
+### Pro Tip
+Use chunking: memorize positions by row/column (e.g., "row 1: left + right, row 2: center").
+
+🔌 # Logic Gate
+
+## Instruction Manual
+
+### Objective
+Solve the logic circuit prompt by selecting the correct output, missing gate, or missing input.
+
+### What You See
+Each puzzle shows inputs (A, B, sometimes C), a gate expression, and a prompt. The prompt changes by variant:
+
+- **Output:** Compute the result (0 or 1).
+- **Missing Gate:** Choose which gate produces the shown output.
+- **Missing Input:** Determine the missing input value that yields the output.
+
+### How to Play
+
+1. **Read the prompt.** Identify the gate expression and the required target.
+2. **Evaluate.** Apply the gate logic (AND, OR, XOR, NAND, XNOR, NOT).
+3. **Answer.** Tap the correct output, gate label, or input value.
+
+### Pro Tip
+When stuck, test input pairs quickly: AND only outputs 1 on (1,1); XOR outputs 1 only when inputs differ.
+
+🧭 # Signal Path
+
+## Instruction Manual
+
+### Objective
+Choose the correct signal route through the network that satisfies the active routing rule.
+
+### The Network
+You are shown labeled nodes with binary values (0 or 1) and several candidate paths that traverse unique nodes.
+
+### How to Play
+
+1. **Read the rule.** Note the routing rule type (e.g., all same, alternating, exactly one high).
+2. **Trace each path.** Convert the node IDs into a value sequence (e.g., A=1, C=0, D=1).
+3. **Validate.** Check which sequence satisfies the rule.
+4. **Select.** Choose the correct path to score and extend your streak.
+
+### Pro Tip
+Write the path values as a quick binary string in your head (e.g., 1-0-1) and compare to the rule.
+
 ## 📊 Game Comparison at a Glance
 For players choosing their next challenge:
 
-| Feature | Pattern Rush | Sequence Sprinter |
-| --- | --- | --- |
-| Primary Cognitive Skill | Visual-spatial recognition | Mathematical logic & deduction |
-| Core Mechanic | Tile grouping & attribute matching | Rule discovery & data input |
-| Mental Pacing | "Fluid, continuous scanning" | Burst-style calculations |
-| Failure Penalty | Immediate time deduction | Multiplier reset & point loss |
-| Ideal For... | Detail-oriented visual thinkers | Number-crunchers and logic fans |
+| Feature | Pattern Rush | Sequence Sprinter | Grid Recall | Logic Gate | Signal Path |
+| --- | --- | --- | --- | --- | --- |
+| Primary Cognitive Skill | Visual-spatial recognition | Mathematical logic & deduction | Short-term spatial memory | Binary reasoning | Constraint routing |
+| Core Mechanic | Tile grouping & attribute matching | Rule discovery & data input | Pattern memorization | Gate evaluation | Path validation |
+| Mental Pacing | "Fluid, continuous scanning" | Burst-style calculations | Quick snapshot + recall | Rapid binary checks | Fast rule filtering |
+| Failure Penalty | Immediate time deduction | Multiplier reset & point loss | Missed streak + time loss | Missed streak + time loss | Missed streak + time loss |
+| Ideal For... | Detail-oriented visual thinkers | Number-crunchers and logic fans | Memory + focus players | Systems thinkers | Planners and strategists |
+
+---
+
+More games will be added here as new arenas ship.

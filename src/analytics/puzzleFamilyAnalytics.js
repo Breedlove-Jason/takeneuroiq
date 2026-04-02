@@ -27,6 +27,12 @@ const PUZZLE_FAMILY_METADATA = {
     accent: "amber",
     icon: "logic_gate",
   },
+  signal_path: {
+    label: "Signal Path",
+    shortLabel: "Signal",
+    accent: "lime",
+    icon: "signal_path",
+  },
 };
 
 const PUZZLE_FAMILY_DISPLAY_ORDER = [
@@ -34,6 +40,7 @@ const PUZZLE_FAMILY_DISPLAY_ORDER = [
   "grid_recall",
   "sequence_sprint",
   "logic_gate",
+  "signal_path",
 ];
 
 const ACTIVE_PUZZLE_FAMILIES = Object.keys(PUZZLE_FAMILY_METADATA);
@@ -300,11 +307,64 @@ function buildLogicGateSummary(sessions = []) {
   };
 }
 
+function buildSignalPathSummary(sessions = []) {
+  const base = buildBaseSummary("signal_path", sessions);
+
+  const ruleTypes = [];
+  const nodeCounts = [];
+  const optionCounts = [];
+  const pathLengths = [];
+  const trendReasonByState = {
+    Rising:
+      "Route discipline is sharpening. Constraint reads are cleaner and signal planning is staying efficient across recent runs.",
+    Steadying:
+      "Routing control is holding. Keep reinforcing clean path selection so signal discipline stays stable under constraints.",
+    Rebuilding:
+      "Simplify the network and rebuild planning accuracy before pushing denser routing pressure.",
+  };
+
+  sessions.forEach((session) => {
+    const metrics = normalizePuzzleMetrics(session);
+
+    if (metrics.ruleType) {
+      ruleTypes.push(metrics.ruleType);
+    }
+
+    if (metrics.nodeCount != null) {
+      nodeCounts.push(toNumber(metrics.nodeCount));
+    }
+
+    if (metrics.optionCount != null) {
+      optionCounts.push(toNumber(metrics.optionCount));
+    }
+
+    if (metrics.pathLength != null) {
+      pathLengths.push(toNumber(metrics.pathLength));
+    }
+  });
+
+  return {
+    ...base,
+    familyLabel: "Signal Path",
+    averageNodeCount: average(nodeCounts, 1),
+    maxNodeCount: nodeCounts.length ? Math.max(...nodeCounts) : 0,
+    averageOptionCount: average(optionCounts, 1),
+    averagePathLength: average(pathLengths, 1),
+    maxPathLength: pathLengths.length ? Math.max(...pathLengths) : 0,
+    mostCommonRuleType: getMode(ruleTypes),
+    ruleTypeDiversity: [...new Set(ruleTypes)].length,
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Constraint routing is evolving. Keep refining clean path selection and planning under signal pressure.",
+  };
+}
+
 const FAMILY_SUMMARY_BUILDERS = {
   pattern_rush: buildPatternRushSummary,
   sequence_sprint: buildSequenceSprintSummary,
   grid_recall: buildGridRecallSummary,
   logic_gate: buildLogicGateSummary,
+  signal_path: buildSignalPathSummary,
 };
 
 function buildGenericFamilySummary(puzzleType, sessions = []) {

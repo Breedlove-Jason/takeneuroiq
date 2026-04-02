@@ -8,6 +8,7 @@ import {
   faChartLine,
   faBolt,
   faLayerGroup,
+  faRoute,
   faWaveSquare,
   faShieldHalved,
   faStar,
@@ -169,6 +170,7 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'sequence_sprint') return 'Sequence Sprint';
   if (puzzleType === 'pattern_rush') return 'Pattern Rush';
   if (puzzleType === 'grid_recall') return 'Grid Recall';
+  if (puzzleType === 'signal_path') return 'Signal Path';
   const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
   if (puzzleLabel) return puzzleLabel;
   if (mode) {
@@ -207,6 +209,13 @@ const RECENT_SESSION_FAMILY_VISUALS = {
     labelClass: 'text-amber-200',
     badgeClass: 'text-amber-300/70',
   },
+  signal_path: {
+    icon: faRoute,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/10 text-violet-200',
+    labelClass: 'text-violet-200',
+    badgeClass: 'text-violet-300/70',
+  },
   default: {
     icon: faBrain,
     iconWrap:
@@ -233,6 +242,8 @@ function getFocusLaneFromPuzzleType(puzzleType) {
       return 'Spatial Recall';
     case 'logic_gate':
       return 'Logic Processing';
+    case 'signal_path':
+      return 'Constraint Routing';
     default:
       return 'Cognitive Training';
   }
@@ -299,6 +310,25 @@ function buildFamilyAwareRecommendation(session) {
     return 'Reduce grid complexity and rebuild spatial confidence before attempting larger matrices.';
   }
 
+  if (session.puzzleType === 'signal_path') {
+    const ruleType = puzzleMetrics.ruleType
+      ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
+      : 'constraint routing';
+    const pathLength = puzzleMetrics.pathLength;
+    const pathLabel =
+      typeof pathLength === 'number' && pathLength > 0
+        ? `${pathLength}-node paths`
+        : 'longer route chains';
+
+    if (accuracy >= 90 && streak >= 8) {
+      return `Route discipline is strong. Push ${ruleType} runs with ${pathLabel} to sharpen planning under tighter constraints.`;
+    }
+    if (accuracy >= 75) {
+      return `Constraint reads are stabilizing. Repeat ${ruleType} routes and keep your path selection clean through ${pathLabel}.`;
+    }
+    return `Simplify the route map, rebuild signal planning accuracy, and reintroduce ${pathLabel} once selection feels cleaner.`;
+  }
+
   return 'Alternate puzzle families to broaden cognitive adaptation.';
 }
 
@@ -328,6 +358,12 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? 'spatial memory encoding strengthening'
       : 'spatial recall stabilizing';
+  }
+
+  if (session.puzzleType === 'signal_path') {
+    return accuracy >= 80
+      ? 'constraint routing discipline strengthening'
+      : 'signal planning recalibrating';
   }
 
   return (

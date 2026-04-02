@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import {
   faMicrochip,
+  faRoute,
   faStar,
   faDiagramProject,
   faTableCells
@@ -61,24 +62,24 @@ function Play({ theme }) {
       skills: ['Working Memory', 'Predictive Reasoning'],
       cardTone: {
         cyber:
-          'border-violet-300/35 bg-[linear-gradient(160deg,rgba(168,85,247,0.16)_0%,rgba(14,12,30,0.9)_48%,rgba(7,9,20,0.96)_100%)] shadow-[0_0_34px_rgba(168,85,247,0.2)] hover:border-violet-300/75 hover:shadow-[0_0_50px_rgba(168,85,247,0.32)]',
+          'border-fuchsia-300/35 bg-[linear-gradient(160deg,rgba(192,38,211,0.16)_0%,rgba(20,6,20,0.9)_48%,rgba(10,2,10,0.96)_100%)] shadow-[0_0_34px_rgba(192,38,211,0.2)] hover:border-fuchsia-300/75 hover:shadow-[0_0_50px_rgba(192,38,211,0.32)]',
         light:
-          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(250,245,255,0.9)_100%)] shadow-[0_14px_32px_rgba(124,58,237,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(124,58,237,0.2)]',
+          'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(253,244,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(252,231,243,0.9)_100%)] shadow-[0_14px_32px_rgba(192,38,211,0.14)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(192,38,211,0.2)]',
       },
       iconTone: {
         cyber:
-          'text-violet-300 drop-shadow-[0_0_18px_rgba(168,85,247,0.58)]',
-        light: 'text-violet-600',
+          'text-fuchsia-300 drop-shadow-[0_0_18px_rgba(192,38,211,0.58)]',
+        light: 'text-fuchsia-600',
       },
       buttonTone: {
         cyber:
-          'bg-[linear-gradient(90deg,rgba(167,139,250,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(167,139,250,0.4)] hover:brightness-110 hover:shadow-[0_0_36px_rgba(167,139,250,0.54)]',
+          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:brightness-110 hover:shadow-[0_0_36px_rgba(192,38,211,0.54)]',
         light:
-          'bg-[linear-gradient(90deg,rgba(124,58,237,0.95)_0%,rgba(14,165,233,0.95)_100%)] text-white hover:brightness-110 shadow-sm',
+          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(14,165,233,0.95)_100%)] text-white hover:brightness-110 shadow-sm',
       },
       tagTone: {
-        cyber: 'border-violet-300/30 bg-violet-400/10 text-violet-200',
-        light: 'border-violet-200 bg-violet-50 text-violet-700',
+        cyber: 'border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200',
+        light: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700',
       },
     },
     {
@@ -139,6 +140,36 @@ function Play({ theme }) {
         light: 'border-amber-200 bg-amber-50 text-amber-700',
       },
     },
+    {
+      icon: faRoute,
+      puzzleType: 'signal_path',
+      title: 'Signal Path',
+      description:
+        'Route the correct signal path through a compact network using constraint-driven logic.',
+      buttonText: 'Launch Signal Path',
+      skills: ['Planning', 'Routing', 'Constraint Logic'],
+      cardTone: {
+        cyber:
+          'border-violet-300/35 bg-[linear-gradient(160deg,rgba(139,92,246,0.18)_0%,rgba(16,10,30,0.9)_48%,rgba(8,5,18,0.96)_100%)] shadow-[0_0_34px_rgba(139,92,246,0.22)] hover:border-violet-300/75 hover:shadow-[0_0_50px_rgba(139,92,246,0.34)]',
+        light:
+          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(237,233,254,0.9)_100%)] shadow-[0_14px_32px_rgba(124,58,237,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(124,58,237,0.2)]',
+      },
+      iconTone: {
+        cyber:
+          'text-violet-300 drop-shadow-[0_0_18px_rgba(139,92,246,0.58)]',
+        light: 'text-violet-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-[linear-gradient(90deg,rgba(139,92,246,0.96)_0%,rgba(124,58,237,0.95)_100%)] text-white shadow-[0_0_24px_rgba(139,92,246,0.34)] hover:brightness-110 hover:shadow-[0_0_36px_rgba(124,58,237,0.38)]',
+        light:
+          'bg-[linear-gradient(90deg,rgba(139,92,246,0.96)_0%,rgba(124,58,237,0.92)_100%)] text-white hover:brightness-110 shadow-sm',
+      },
+      tagTone: {
+        cyber: 'border-violet-300/30 bg-violet-400/10 text-violet-200',
+        light: 'border-violet-200 bg-violet-50 text-violet-700',
+      },
+    },
   ];
 
   return (
@@ -178,7 +209,7 @@ function Play({ theme }) {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {challenges.map((challenge) => (
             <div
               key={challenge.title}

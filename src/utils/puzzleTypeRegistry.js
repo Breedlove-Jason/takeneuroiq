@@ -3,6 +3,7 @@ export const PUZZLE_TYPES = {
   SEQUENCE_SPRINT: "sequence_sprint",
   GRID_RECALL: "grid_recall",
   LOGIC_GATE: "logic_gate",
+  SIGNAL_PATH: "signal_path",
 };
 
 export const PUZZLE_TYPE_METADATA = {
@@ -18,7 +19,7 @@ export const PUZZLE_TYPE_METADATA = {
     label: "Sequence Sprint",
     shortLabel: "Sequence",
     description: "Sequential memory and prediction",
-    color: "violet",
+    color: "fuchsia",
     cognitiveSkills: ["Working Memory", "Predictive Reasoning"],
     icon: "diagram-project",
   },
@@ -37,6 +38,14 @@ export const PUZZLE_TYPE_METADATA = {
     color: "amber",
     cognitiveSkills: ["Reasoning", "Signals", "Binary Logic"],
     icon: "microchip",
+  },
+  [PUZZLE_TYPES.SIGNAL_PATH]: {
+    label: "Signal Path",
+    shortLabel: "Signal",
+    description: "Route the correct signal path under rule constraints.",
+    color: "violet",
+    cognitiveSkills: ["Planning", "Routing", "Constraint Logic"],
+    icon: "route",
   },
 };
 

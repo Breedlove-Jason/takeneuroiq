@@ -117,3 +117,73 @@
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
+@keyframes logic-signal-flow {
+  0% {
+    background-position: 180% 50%;
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    background-position: -180% 50%;
+    opacity: 0.25;
+  }
+}
+
+@keyframes logic-scanline {
+  0% {
+    transform: translateX(-180%) skewX(-12deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateX(320%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+@keyframes logic-dot-pulse {
+  0%,
+  100% {
+    transform: scale(0.95);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.95;
+  }
+}
+
+@keyframes logic-core-flicker {
+  0%,
+  100% {
+    opacity: 0.95;
+  }
+  35% {
+    opacity: 0.75;
+  }
+  70% {
+    opacity: 1;
+  }
+}
+
+.logic-signal-flow {
+  background-size: 220% 100%;
+  animation: logic-signal-flow 2.8s linear infinite;
+}
+
+.logic-scanline {
+  animation: logic-scanline 2.8s ease-in-out infinite;
+}
+
+.logic-dot-pulse {
+  animation: logic-dot-pulse 2.1s ease-in-out infinite;
+}
+
+.logic-core-flicker {
+  animation: logic-core-flicker 1.9s ease-in-out infinite;
+}
