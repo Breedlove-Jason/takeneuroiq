@@ -36,7 +36,7 @@ import {
 } from "../utils/puzzleTypeRegistry";
 import { buildAccuracySummary } from "../utils/puzzleAccuracy";
 import { PUZZLE_DEV_FLAGS } from "../config/puzzleDevFlags";
-import sequenceSprintRunner from "../assets/sequenceSprintRunner.png";
+import sequenceSprintRunner from "../assets/running.svg";
 
 /**
  * Arena Component
