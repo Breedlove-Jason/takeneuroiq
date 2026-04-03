@@ -285,21 +285,62 @@ function getFeedbackBadgeClass(feedback, isCyber) {
 
 const BASE_CORRECT_ANSWER_SCORE = 100;
 
-function getComboMultiplier(streak = 0) {
+function getComboScoreValue(streak = 0) {
   if (streak >= 6) {
-    return 4;
+    return 400;
   }
   if (streak >= 4) {
-    return 3;
+    return 300;
   }
   if (streak >= 2) {
-    return 2;
+    return 200;
   }
-  return 1;
+  return 100;
 }
 
-function getComboScore(streak = 0) {
-  return BASE_CORRECT_ANSWER_SCORE * getComboMultiplier(streak);
+function getComboMultiplier(streak = 0) {
+  return getComboScoreValue(streak) / BASE_CORRECT_ANSWER_SCORE;
+}
+
+function getSequenceSprintOverflowComboMultiplier(overflowSolvedCount = 0) {
+  if (overflowSolvedCount <= 0) {
+    return 1;
+  }
+  return Math.max(2, Math.min(4, overflowSolvedCount + 1));
+}
+
+function getScoreAwardBreakdown({
+  streak = 0,
+  puzzleType,
+  sequenceSolvedCount = 0,
+  sequenceTotalCount = 0,
+} = {}) {
+  const baseAward = BASE_CORRECT_ANSWER_SCORE;
+  const comboTierScore = getComboScoreValue(streak);
+  const streakComboBonus = Math.max(0, comboTierScore - baseAward);
+
+  const overflowSolvedCount =
+    puzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+      ? Math.max(0, sequenceSolvedCount - sequenceTotalCount)
+      : 0;
+  const overflowMultiplier = getSequenceSprintOverflowComboMultiplier(
+    overflowSolvedCount,
+  );
+  const sequenceOverflowBonus =
+    puzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+      ? BASE_CORRECT_ANSWER_SCORE * Math.max(0, overflowMultiplier - 1)
+      : 0;
+
+  const comboBonusAward = streakComboBonus + sequenceOverflowBonus;
+
+  return {
+    baseAward,
+    comboBonusAward,
+    totalAwarded: baseAward + comboBonusAward,
+    streakComboBonus,
+    sequenceOverflowBonus,
+    overflowMultiplier,
+  };
 }
 
 const buildSequenceSprintResultsCopy = ({
@@ -498,6 +539,9 @@ function Arena({ theme }) {
   const [gridRecallPhase, setGridRecallPhase] = useState("memorize");
   const [recallPulse, setRecallPulse] = useState(false);
   const [score, setScore] = useState(0);
+  const [baseScoreEarned, setBaseScoreEarned] = useState(0);
+  const [comboBonusEarned, setComboBonusEarned] = useState(0);
+  const [lastScoreGain, setLastScoreGain] = useState(null);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [feedback, setFeedback] = useState("");
@@ -761,9 +805,7 @@ function Arena({ theme }) {
     sequenceSolvedCount - sequenceTotalCount,
   );
   const sequenceSprintComboMultiplier =
-    sequenceOverflowSolvedCount > 0
-      ? Math.max(2, Math.min(4, sequenceOverflowSolvedCount + 1))
-      : 1;
+    getSequenceSprintOverflowComboMultiplier(sequenceOverflowSolvedCount);
   const sequenceSprintComboLabel =
     sequenceOverflowSolvedCount > 0
       ? `x${sequenceSprintComboMultiplier} Combo`
@@ -1161,6 +1203,8 @@ function Arena({ theme }) {
     nextStreak,
     nextBestStreak,
     nextLiveAdaptiveDifficulty,
+    puzzleType,
+    nextSequenceSolvedCount,
     afterFeedback,
     allowAfterFeedbackWhileGameOver = false,
   }) {
@@ -1196,8 +1240,16 @@ function Arena({ theme }) {
     previousTargetDifficultyRef.current = nextTarget;
 
     if (isCorrect) {
-      const correctAnswerScore = getComboScore(nextStreak);
-      setScore((prev) => prev + correctAnswerScore);
+      const scoreAward = getScoreAwardBreakdown({
+        streak: nextStreak,
+        puzzleType,
+        sequenceSolvedCount: nextSequenceSolvedCount,
+        sequenceTotalCount,
+      });
+      setScore((prev) => prev + scoreAward.totalAwarded);
+      setBaseScoreEarned((prev) => prev + scoreAward.baseAward);
+      setComboBonusEarned((prev) => prev + scoreAward.comboBonusAward);
+      setLastScoreGain(scoreAward);
       setStreak(nextStreak);
       setBestStreak(nextBestStreak);
       setCorrectAnswers(nextCorrectAnswers);
@@ -1211,6 +1263,14 @@ function Arena({ theme }) {
       }, 420);
     } else {
       setStreak(0);
+      setLastScoreGain({
+        baseAward: 0,
+        comboBonusAward: 0,
+        totalAwarded: 0,
+        streakComboBonus: 0,
+        sequenceOverflowBonus: 0,
+        overflowMultiplier: 1,
+      });
       setFeedback(adaptiveFeedback);
     }
 
@@ -2188,6 +2248,11 @@ function Arena({ theme }) {
     isTransitioningRef.current = true;
     dismissRecommendedBanner();
 
+    const nextSequenceSolvedCount =
+      activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+        ? sequenceSolvedCount + 1
+        : sequenceSolvedCount;
+
     if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       setSequenceSprintSelectedAnswer(selectedAnswer);
       setSequenceSprintSolvedCount((prev) => prev + 1);
@@ -2226,6 +2291,8 @@ function Arena({ theme }) {
       nextStreak,
       nextBestStreak,
       nextLiveAdaptiveDifficulty,
+      puzzleType: activePuzzleType,
+      nextSequenceSolvedCount,
       allowAfterFeedbackWhileGameOver:
         activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT ||
         activePuzzleType === PUZZLE_TYPES.GRID_RECALL,
@@ -2265,6 +2332,9 @@ function Arena({ theme }) {
       reason: initialAdaptiveReason,
     });
     setScore(0);
+    setBaseScoreEarned(0);
+    setComboBonusEarned(0);
+    setLastScoreGain(null);
     setStreak(0);
     setBestStreak(0);
     setFeedback("");
@@ -2291,6 +2361,9 @@ function Arena({ theme }) {
     totalAnswers === 0
       ? 0
       : Math.round((correctAnswers / totalAnswers) * 100);
+  const totalScore = score;
+  const sessionScoreEarned = baseScoreEarned + comboBonusEarned;
+  const comboScoreEarned = comboBonusEarned;
   const comboMultiplier =
     totalAnswers === 0
       ? null
@@ -2923,7 +2996,7 @@ function Arena({ theme }) {
                             : "text-slate-800"
                         }`}
                       >
-                        {score.toLocaleString()}
+                        {totalScore.toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -2962,37 +3035,44 @@ function Arena({ theme }) {
                     </div>
                   </div>
 
-                  <div
-                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
-                      isCyber
-                        ? "border-emerald-400/20 bg-emerald-400/5 hover:border-emerald-400/40 hover:bg-emerald-400/10"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
-                  >
-                    {isCyber && (
-                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-emerald-400/10 blur-2xl transition-all group-hover:bg-emerald-400/20" />
-                    )}
-                    <div className="relative flex flex-col items-center">
-                      <FontAwesomeIcon
-                        icon={faStar}
-                        className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mb-3 text-lg"
-                      />
-                      <p
-                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isCyber ? "text-emerald-300/70" : "text-slate-500"
-                        }`}
-                      >
-                        ACCURACY
+                </div>
+
+                <div className="mt-6 w-full max-w-3xl rounded-2xl border border-cyan-400/20 bg-slate-900/65 px-6 py-5 backdrop-blur-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300/80">
+                      Score Breakdown
+                    </p>
+                    {activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT &&
+                      sequenceOverflowSolvedCount > 0 && (
+                        <span className="rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-fuchsia-200">
+                          Finish-Line Combo x{sequenceSprintComboMultiplier}
+                        </span>
+                      )}
+                  </div>
+                  <div className="mt-4 grid gap-3 text-left sm:grid-cols-3">
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                        Base Score
                       </p>
-                      <div
-                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
-                          isCyber
-                            ? "text-white text-glow-emerald"
-                            : "text-slate-800"
-                        }`}
-                      >
-                        {accuracy}
-                      </div>
+                      <p className="mt-1 font-mono text-2xl font-black text-cyan-200">
+                        {baseScoreEarned.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                        Combo Bonus
+                      </p>
+                      <p className="mt-1 font-mono text-2xl font-black text-fuchsia-200">
+                        +{comboScoreEarned.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-200/80">
+                        Final Total
+                      </p>
+                      <p className="mt-1 font-mono text-2xl font-black text-white">
+                        {sessionScoreEarned.toLocaleString()}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -3015,25 +3095,25 @@ function Arena({ theme }) {
                 </button>
               </div>
               ) : (
-              <>
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p
-                      className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
-                        isCyber ? "text-slate-500" : "text-slate-500"
-                      }`}
-                    >
-                      Puzzle Feed
-                    </p>
-                    <h2
-                      className={`mt-1 text-lg font-semibold ${
-                        isCyber ? "text-white" : "text-slate-900"
-                      }`}
-                    >
-                      {puzzleFeedTitle}
-                    </h2>
+                <>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p
+                        className={`text-[10px] font-semibold uppercase tracking-[0.25em] ${
+                          isCyber ? "text-cyan-300" : "text-cyan-600"
+                        }`}
+                      >
+                        Puzzle Feed
+                      </p>
+                      <h2
+                        className={`mt-1 text-lg font-semibold ${
+                          isCyber ? "text-white" : "text-slate-900"
+                        }`}
+                      >
+                        {puzzleFeedTitle}
+                      </h2>
+                    </div>
                   </div>
-                </div>
                 <div
                   className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingTone} ${liveCoachingPressureClass}`}
                 >
@@ -3494,27 +3574,77 @@ function Arena({ theme }) {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4 xl:grid-cols-[180px_1fr_180px_180px]">
+          <div className="mt-6 grid gap-4 xl:grid-cols-[250px_minmax(0,1fr)_260px]">
             <div
-              className={`rounded-2xl border px-5 py-4 ${
+              className={`relative overflow-hidden rounded-2xl border px-5 py-4 ${
                 isCyber
                   ? "border-cyan-400/20 bg-cyan-400/5"
                   : "border-slate-200 bg-slate-50"
               }`}
             >
+              {isCyber && (
+                <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-cyan-400/10 blur-2xl" />
+              )}
               <p
-                className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
+                className={`text-[11px] font-bold uppercase tracking-[0.22em] ${
                   isCyber ? "text-slate-300" : "text-slate-500"
                 }`}
               >
                 SCORE
               </p>
               <div
-                className={`mt-1 font-mono text-2xl font-bold ${
-                  isCyber ? "text-cyan-300" : "text-slate-800"
+                className={`mt-2 font-mono text-[clamp(2rem,4vw,3rem)] font-black leading-none tracking-tight ${
+                  isCyber
+                    ? "text-cyan-200 text-glow-blue"
+                    : "text-cyan-700"
                 }`}
               >
-                {score.toString().padStart(4, "0")}
+                {totalScore.toString().padStart(4, "0")}
+              </div>
+              <div className="mt-3 space-y-1.5 border-t border-white/10 pt-2.5 text-[11px]">
+                <div className="flex items-center justify-between gap-2 uppercase tracking-[0.18em]">
+                  <span className={isCyber ? "text-slate-400" : "text-slate-500"}>
+                    Base
+                  </span>
+                  <span
+                    className={
+                      isCyber ? "font-mono text-cyan-200" : "font-mono text-slate-700"
+                    }
+                  >
+                    {baseScoreEarned.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2 uppercase tracking-[0.18em]">
+                  <span className={isCyber ? "text-slate-400" : "text-slate-500"}>
+                    Combo
+                  </span>
+                  <span
+                    className={
+                      isCyber
+                        ? "font-mono text-fuchsia-200"
+                        : "font-mono text-slate-700"
+                    }
+                  >
+                    +{comboScoreEarned.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2 uppercase tracking-[0.18em]">
+                  <span className={isCyber ? "text-slate-400" : "text-slate-500"}>
+                    Session Gain
+                  </span>
+                  <span
+                    className={
+                      isCyber ? "font-mono text-white" : "font-mono text-slate-800"
+                    }
+                  >
+                    {sessionScoreEarned.toLocaleString()}
+                  </span>
+                </div>
+                {lastScoreGain && (
+                  <div className="pt-1 text-right font-mono text-[12px] font-bold text-emerald-300">
+                    Last +{lastScoreGain.totalAwarded}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -3578,62 +3708,63 @@ function Arena({ theme }) {
               </div>
             </div>
 
-            <div className="grid gap-4">
-              <div
-                className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
-                  isCyber
-                    ? streak >= 6
-                      ? "border-fuchsia-400/90 bg-fuchsia-500/25"
-                      : streak >= 4
-                        ? "border-fuchsia-400/60 bg-fuchsia-500/18"
-                        : streak >= 2
-                          ? "border-fuchsia-400/35 bg-fuchsia-500/10"
-                          : "border-fuchsia-400/20 bg-fuchsia-500/5"
-                    : "border-slate-200 bg-slate-50"
-                }`}
-              >
+            <div
+              className={`rounded-2xl border px-5 py-4 transition-all duration-300 ${
+                isCyber
+                  ? streak >= 6
+                    ? "border-fuchsia-400/90 bg-fuchsia-500/20"
+                    : streak >= 4
+                      ? "border-fuchsia-400/60 bg-fuchsia-500/14"
+                      : streak >= 2
+                        ? "border-fuchsia-400/35 bg-fuchsia-500/8"
+                        : "border-fuchsia-400/20 bg-fuchsia-500/5"
+                  : "border-slate-200 bg-slate-50"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
                 <p
                   className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
                     isCyber ? "text-slate-300" : "text-slate-500"
                   }`}
                 >
-                  STREAK
+                  Performance
                 </p>
-                <div
-                  className={`mt-1 font-mono text-2xl font-bold ${
-                    isCyber ? "text-fuchsia-300" : "text-slate-800"
-                  }`}
-                >
-                  x{streak.toString().padStart(2, "0")}
-                </div>
-              </div>
-
-              <div
-                className={`rounded-2xl border px-5 py-4 ${
-                  isCyber
-                    ? comboMultiplier >= 3
-                      ? "border-fuchsia-400/30 bg-fuchsia-500/10"
-                      : "border-cyan-400/20 bg-cyan-400/5"
-                    : "border-slate-200 bg-slate-50"
-                }`}
-              >
-                <p
-                  className={`text-[10px] font-bold uppercase tracking-[0.25em] ${
-                    isCyber ? "text-slate-300" : "text-slate-500"
-                  }`}
-                >
-                  COMBO
-                </p>
-                <div
-                  className={`mt-1 font-mono text-2xl font-bold ${
+                <span
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.2em] ${
                     isCyber
                       ? comboMultiplier >= 3
-                        ? "text-fuchsia-300"
-                        : "text-cyan-300"
-                      : "text-slate-800"
+                        ? "bg-fuchsia-500/20 text-fuchsia-200 ring-1 ring-fuchsia-400/30"
+                        : "bg-cyan-400/10 text-cyan-200 ring-1 ring-cyan-400/20"
+                      : "bg-slate-100 text-slate-600 ring-1 ring-slate-200"
                   }`}
                 >
                   {comboMultiplier === null ? "--" : `x${comboMultiplier}`}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
+                    ACCURACY
+                  </p>
+                  <div
+                    className={`mt-1 font-mono text-2xl font-bold ${
+                      isCyber ? "text-cyan-300" : "text-slate-800"
+                    }`}
+                  >
+                    {accuracy}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
+                    STREAK
+                  </p>
+                  <div
+                    className={`mt-1 font-mono text-2xl font-bold ${
+                      isCyber ? "text-fuchsia-300" : "text-slate-800"
+                    }`}
+                  >
+                    x{streak.toString().padStart(2, "0")}
+                  </div>
                 </div>
               </div>
             </div>
