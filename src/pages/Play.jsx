@@ -53,7 +53,7 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-cyan-300 to-blue-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:scale-[1.02] active:scale-[0.98]',
+          'bg-linear-to-r from-cyan-300 to-blue-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)]',
         light: 'bg-linear-to-r from-cyan-600 to-blue-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
       tagTone: {
@@ -83,7 +83,7 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:brightness-125 hover:shadow-[0_0_42px_rgba(192,38,211,0.6)] hover:scale-[1.02] active:scale-[0.98]',
+          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:brightness-125 hover:shadow-[0_0_42px_rgba(192,38,211,0.6)]',
         light:
           'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(14,165,233,0.95)_100%)] text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
@@ -114,7 +114,7 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(16,185,129,0.6)] hover:scale-[1.02] active:scale-[0.98]',
+          'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(16,185,129,0.6)]',
         light: 'bg-linear-to-r from-emerald-600 to-teal-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
       tagTone: {
@@ -122,36 +122,6 @@ function Play({ theme }) {
         light: 'border-emerald-200 bg-emerald-50 text-emerald-700',
       },
       glowTone: 'group-hover:text-glow-emerald',
-    },
-    {
-      icon: faMicrochip,
-      puzzleType: 'logic_gate',
-      title: 'Logic Gate',
-      description:
-        'Resolve binary signal outputs through gate logic and deductive reasoning.',
-      buttonText: 'Launch Logic Gate',
-      skills: ['Reasoning', 'Signals', 'Binary Logic'],
-      cardTone: {
-        cyber:
-          'border-amber-300/35 bg-[linear-gradient(160deg,rgba(245,158,11,0.16)_0%,rgba(20,14,6,0.9)_48%,rgba(10,7,2,0.96)_100%)] shadow-[0_0_34px_rgba(245,158,11,0.2)] hover:border-amber-300/75 hover:shadow-[0_0_50px_rgba(245,158,11,0.32)]',
-        light:
-          'border-amber-300 bg-[linear-gradient(155deg,rgba(255,251,235,0.96)_0%,rgba(255,255,255,1)_58%,rgba(255,251,235,0.9)_100%)] shadow-[0_14px_32px_rgba(245,158,11,0.14)] hover:border-amber-400 hover:shadow-[0_18px_38px_rgba(245,158,11,0.2)]',
-      },
-      iconTone: {
-        cyber:
-          'text-amber-300 drop-shadow-[0_0_18px_rgba(245,158,11,0.58)]',
-        light: 'text-amber-600',
-      },
-      buttonTone: {
-        cyber:
-          'bg-linear-to-r from-amber-400 to-orange-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)] hover:scale-[1.02] active:scale-[0.98]',
-        light: 'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
-      },
-      tagTone: {
-        cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
-        light: 'border-amber-200 bg-amber-50 text-amber-700',
-      },
-      glowTone: 'group-hover:text-glow-orange',
     },
     {
       icon: faRoute,
@@ -174,7 +144,7 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-violet-400 to-fuchsia-500 text-white shadow-[0_0_24px_rgba(139,92,246,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:scale-[1.02] active:scale-[0.98]',
+          'bg-linear-to-r from-violet-400 to-fuchsia-500 text-white shadow-[0_0_24px_rgba(139,92,246,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)]',
         light:
           'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
@@ -183,6 +153,36 @@ function Play({ theme }) {
         light: 'border-violet-200 bg-violet-50 text-violet-700',
       },
       glowTone: 'group-hover:text-glow-purple',
+    },
+    {
+      icon: faMicrochip,
+      puzzleType: 'logic_gate',
+      title: 'Logic Gate',
+      description:
+        'Resolve binary signal outputs through gate logic and deductive reasoning.',
+      buttonText: 'Launch Logic Gate',
+      skills: ['Reasoning', 'Signals', 'Binary Logic'],
+      cardTone: {
+        cyber:
+          'border-amber-300/35 bg-[linear-gradient(160deg,rgba(245,158,11,0.16)_0%,rgba(20,14,6,0.9)_48%,rgba(10,7,2,0.96)_100%)] shadow-[0_0_34px_rgba(245,158,11,0.2)] hover:border-amber-300/75 hover:shadow-[0_0_50px_rgba(245,158,11,0.32)]',
+        light:
+          'border-amber-300 bg-[linear-gradient(155deg,rgba(255,251,235,0.96)_0%,rgba(255,255,255,1)_58%,rgba(255,251,235,0.9)_100%)] shadow-[0_14px_32px_rgba(245,158,11,0.14)] hover:border-amber-400 hover:shadow-[0_18px_38px_rgba(245,158,11,0.2)]',
+      },
+      iconTone: {
+        cyber:
+          'text-amber-300 drop-shadow-[0_0_18px_rgba(245,158,11,0.58)]',
+        light: 'text-amber-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-amber-400 to-orange-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)]',
+        light: 'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
+      },
+      tagTone: {
+        cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
+        light: 'border-amber-200 bg-amber-50 text-amber-700',
+      },
+      glowTone: 'group-hover:text-glow-orange',
     },
   ];
 
@@ -286,7 +286,7 @@ function Play({ theme }) {
                   <Link
                     to="/arena"
                     state={{ puzzleType: challenge.puzzleType }}
-                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-all duration-300 active:scale-95 ${
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-colors transition-shadow duration-300 ${
                       theme === 'cyber'
                         ? challenge.buttonTone.cyber
                         : challenge.buttonTone.light
