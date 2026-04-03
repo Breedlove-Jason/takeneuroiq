@@ -22,6 +22,15 @@ import {
 function Play({ theme }) {
   const isCyber = theme === 'cyber';
 
+  const TechCorners = () => (
+    <>
+      <div className="absolute -left-px -top-px h-6 w-6 rounded-tl-2xl border-l-2 border-t-2 border-cyan-400/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute -right-px -top-px h-6 w-6 rounded-tr-2xl border-r-2 border-t-2 border-fuchsia-400/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute -bottom-px -left-px h-6 w-6 rounded-bl-2xl border-b-2 border-l-2 border-fuchsia-400/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute -bottom-px -right-px h-6 w-6 rounded-br-2xl border-b-2 border-r-2 border-cyan-400/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+    </>
+  );
+
   const challenges = [
     {
       icon: faStar,
@@ -44,13 +53,14 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-cyan-300 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:bg-cyan-200 hover:shadow-[0_0_34px_rgba(34,211,238,0.56)]',
-        light: 'bg-cyan-600 text-white hover:bg-cyan-500 shadow-sm',
+          'bg-linear-to-r from-cyan-300 to-blue-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:scale-[1.02] active:scale-[0.98]',
+        light: 'bg-linear-to-r from-cyan-600 to-blue-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
       tagTone: {
         cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
         light: 'border-cyan-200 bg-cyan-50 text-cyan-700',
       },
+      glowTone: 'group-hover:text-glow-blue',
     },
     {
       icon: faDiagramProject,
@@ -73,14 +83,15 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:brightness-110 hover:shadow-[0_0_36px_rgba(192,38,211,0.54)]',
+          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:brightness-125 hover:shadow-[0_0_42px_rgba(192,38,211,0.6)] hover:scale-[1.02] active:scale-[0.98]',
         light:
-          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(14,165,233,0.95)_100%)] text-white hover:brightness-110 shadow-sm',
+          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(14,165,233,0.95)_100%)] text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
       tagTone: {
         cyber: 'border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200',
         light: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700',
       },
+      glowTone: 'group-hover:text-glow-pink',
     },
     {
       icon: faTableCells,
@@ -103,13 +114,14 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-emerald-400 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.42)] hover:bg-emerald-300 hover:shadow-[0_0_34px_rgba(16,185,129,0.56)]',
-        light: 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm',
+          'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(16,185,129,0.6)] hover:scale-[1.02] active:scale-[0.98]',
+        light: 'bg-linear-to-r from-emerald-600 to-teal-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
       tagTone: {
         cyber: 'border-emerald-300/30 bg-emerald-400/10 text-emerald-200',
         light: 'border-emerald-200 bg-emerald-50 text-emerald-700',
       },
+      glowTone: 'group-hover:text-glow-emerald',
     },
     {
       icon: faMicrochip,
@@ -132,13 +144,14 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-amber-400 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:bg-amber-300 hover:shadow-[0_0_34px_rgba(245,158,11,0.56)]',
-        light: 'bg-amber-600 text-white hover:bg-amber-500 shadow-sm',
+          'bg-linear-to-r from-amber-400 to-orange-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)] hover:scale-[1.02] active:scale-[0.98]',
+        light: 'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
       tagTone: {
         cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
         light: 'border-amber-200 bg-amber-50 text-amber-700',
       },
+      glowTone: 'group-hover:text-glow-orange',
     },
     {
       icon: faRoute,
@@ -150,9 +163,9 @@ function Play({ theme }) {
       skills: ['Planning', 'Routing', 'Constraint Logic'],
       cardTone: {
         cyber:
-          'border-violet-300/35 bg-[linear-gradient(160deg,rgba(139,92,246,0.18)_0%,rgba(16,10,30,0.9)_48%,rgba(8,5,18,0.96)_100%)] shadow-[0_0_34px_rgba(139,92,246,0.22)] hover:border-violet-300/75 hover:shadow-[0_0_50px_rgba(139,92,246,0.34)]',
+          'border-violet-200/35 bg-[linear-gradient(160deg,rgba(139,92,246,0.2)_0%,rgba(16,10,30,0.9)_48%,rgba(8,5,18,0.96)_100%)] shadow-[0_0_34px_rgba(167,139,250,0.25)] hover:border-violet-200/75 hover:shadow-[0_0_50px_rgba(167,139,250,0.38)]',
         light:
-          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(237,233,254,0.9)_100%)] shadow-[0_14px_32px_rgba(124,58,237,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(124,58,237,0.2)]',
+          'border-violet-200 bg-[linear-gradient(155deg,rgba(245,243,255,0.98)_0%,rgba(255,255,255,1)_58%,rgba(237,233,254,0.95)_100%)] shadow-[0_14px_32px_rgba(139,92,246,0.14)] hover:border-violet-300 hover:shadow-[0_18px_38px_rgba(139,92,246,0.22)]',
       },
       iconTone: {
         cyber:
@@ -161,21 +174,22 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-[linear-gradient(90deg,rgba(139,92,246,0.96)_0%,rgba(124,58,237,0.95)_100%)] text-white shadow-[0_0_24px_rgba(139,92,246,0.34)] hover:brightness-110 hover:shadow-[0_0_36px_rgba(124,58,237,0.38)]',
+          'bg-linear-to-r from-violet-400 to-fuchsia-500 text-white shadow-[0_0_24px_rgba(139,92,246,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:scale-[1.02] active:scale-[0.98]',
         light:
-          'bg-[linear-gradient(90deg,rgba(139,92,246,0.96)_0%,rgba(124,58,237,0.92)_100%)] text-white hover:brightness-110 shadow-sm',
+          'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
       },
       tagTone: {
         cyber: 'border-violet-300/30 bg-violet-400/10 text-violet-200',
         light: 'border-violet-200 bg-violet-50 text-violet-700',
       },
+      glowTone: 'group-hover:text-glow-purple',
     },
   ];
 
   return (
-    <section className="animate-fadeIn px-6 py-24">
+    <section className="px-6 py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="relative mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto max-w-3xl text-center animate-fadeIn">
           {isCyber && (
             <div className="pointer-events-none absolute inset-x-10 -bottom-6 -top-8 -z-10 rounded-full bg-cyan-400/20 blur-[100px] animate-pulse" />
           )}
@@ -209,32 +223,36 @@ function Play({ theme }) {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {challenges.map((challenge) => (
+        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3 [perspective:1200px]">
+          {challenges.map((challenge, index) => (
             <div
               key={challenge.title}
-              className={`group flex h-full flex-col rounded-2xl border p-8 backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 ${
+              style={{ animationDelay: `${index * 200}ms` }}
+              className={`group relative flex h-full flex-col rounded-2xl border p-8 backdrop-blur-md transition-all duration-500 hover:-translate-y-3 hover:scale-[1.03] hover:rotate-1 animate-puzzle-piece-in ${
                 isCyber
                   ? challenge.cardTone.cyber
                   : challenge.cardTone.light
               }`}
             >
+              {isCyber && <TechCorners />}
+              {isCyber && <div className="card-scanline absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />}
+              
               <div
                 className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl border text-4xl transition-all duration-300 ${
                   isCyber
-                    ? 'border-white/15 bg-white/5 group-hover:scale-105'
-                    : 'border-slate-200 bg-white group-hover:scale-105'
+                    ? 'border-white/15 bg-white/5 group-hover:scale-110 group-hover:rotate-6'
+                    : 'border-slate-200 bg-white group-hover:scale-110'
                 } ${isCyber ? challenge.iconTone.cyber : challenge.iconTone.light}`}
               >
                 <FontAwesomeIcon
                   icon={challenge.icon}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] animate-float-subtle"
                 />
               </div>
 
               <h2
-                className={`mt-5 text-2xl font-semibold ${
-                  isCyber ? 'text-white' : 'text-slate-900'
+                className={`mt-5 text-2xl font-semibold transition-all duration-300 ${
+                  isCyber ? `text-white ${challenge.glowTone}` : 'text-slate-900'
                 }`}
               >
                 {challenge.title}
@@ -268,7 +286,7 @@ function Play({ theme }) {
                   <Link
                     to="/arena"
                     state={{ puzzleType: challenge.puzzleType }}
-                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3 font-semibold transition-all duration-300 ${
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-all duration-300 active:scale-95 ${
                       theme === 'cyber'
                         ? challenge.buttonTone.cyber
                         : challenge.buttonTone.light
@@ -282,9 +300,9 @@ function Play({ theme }) {
                   <button
                     type="button"
                     disabled
-                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3 font-semibold transition-all duration-300 ${
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-all duration-300 ${
                       theme === 'cyber'
-                        ? 'cursor-not-allowed border border-amber-300/25 bg-amber-300/10 text-amber-200'
+                        ? 'cursor-not-allowed border border-amber-300/25 bg-amber-300/5 text-amber-200 opacity-60'
                         : 'border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
                     }`}
                   >

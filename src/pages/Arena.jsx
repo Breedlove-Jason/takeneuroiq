@@ -283,6 +283,25 @@ function getFeedbackBadgeClass(feedback, isCyber) {
     : "bg-slate-100 text-slate-700 ring-1 ring-slate-200";
 }
 
+const BASE_CORRECT_ANSWER_SCORE = 100;
+
+function getComboMultiplier(streak = 0) {
+  if (streak >= 6) {
+    return 4;
+  }
+  if (streak >= 4) {
+    return 3;
+  }
+  if (streak >= 2) {
+    return 2;
+  }
+  return 1;
+}
+
+function getComboScore(streak = 0) {
+  return BASE_CORRECT_ANSWER_SCORE * getComboMultiplier(streak);
+}
+
 const buildSequenceSprintResultsCopy = ({
   accuracy = 0,
   correctAnswers = 0,
@@ -1177,7 +1196,8 @@ function Arena({ theme }) {
     previousTargetDifficultyRef.current = nextTarget;
 
     if (isCorrect) {
-      setScore((prev) => prev + 100);
+      const correctAnswerScore = getComboScore(nextStreak);
+      setScore((prev) => prev + correctAnswerScore);
       setStreak(nextStreak);
       setBestStreak(nextBestStreak);
       setCorrectAnswers(nextCorrectAnswers);
@@ -1838,12 +1858,12 @@ function Arena({ theme }) {
     const ruleType = signalPathPuzzle?.ruleType || "unknown";
     const ruleTypeLabel = ruleType.replace(/_/g, " ").toUpperCase();
     return (
-      <div className="rounded-2xl border border-emerald-500/25 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(16,185,129,0.08)] backdrop-blur-md">
-        <div className="flex items-center justify-between border-b border-emerald-500/15 pb-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+      <div className="rounded-2xl border border-violet-500/25 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.08)] backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-violet-500/15 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
             Routing Rule
           </p>
-          <span className="max-w-[60%] min-w-0 truncate rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[8px] font-black uppercase tracking-[0.25em] text-emerald-300 sm:text-[9px] whitespace-nowrap" title={ruleTypeLabel}>
+          <span className="max-w-[60%] min-w-0 truncate rounded-full border border-violet-500/30 bg-violet-500/10 px-2.5 py-0.5 text-[8px] font-black uppercase tracking-[0.25em] text-violet-300 sm:text-[9px] whitespace-nowrap" title={ruleTypeLabel}>
             {ruleTypeLabel}
           </span>
         </div>
@@ -1851,7 +1871,7 @@ function Arena({ theme }) {
           <p className="text-sm font-semibold leading-relaxed text-white">
             {ruleText}
           </p>
-          <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-emerald-400/60">
+          <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-violet-400/60">
             Choose the path that satisfies the signal constraint.
           </p>
         </div>
@@ -1868,12 +1888,12 @@ function Arena({ theme }) {
     }, {});
 
     return (
-      <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(6,182,212,0.08)] backdrop-blur-md">
-        <div className="flex items-center justify-between border-b border-cyan-500/10 pb-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+      <div className="rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.08)] backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-violet-500/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
             Signal Network
           </p>
-          <span className="text-[10px] font-medium text-cyan-500/40 uppercase tracking-widest">
+          <span className="text-[10px] font-medium text-violet-500/40 uppercase tracking-widest">
             {nodes.length} nodes
           </span>
         </div>
@@ -1889,7 +1909,7 @@ function Arena({ theme }) {
                 key={node.id}
                 className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${
                   node.value === 1
-                    ? "border-emerald-400/40 bg-emerald-400/10 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                    ? "border-violet-400/40 bg-violet-400/10 shadow-[0_0_10px_rgba(139,92,246,0.2)]"
                     : "border-slate-600/40 bg-slate-900/60"
                 }`}
               >
@@ -1899,7 +1919,7 @@ function Arena({ theme }) {
                 <span
                   className={`text-base font-black ${
                     node.value === 1
-                      ? "text-emerald-300"
+                      ? "text-violet-300"
                       : "text-slate-500"
                   }`}
                 >
@@ -1908,7 +1928,7 @@ function Arena({ theme }) {
                 <div
                   className={`h-1.5 w-1.5 rounded-full ${
                     node.value === 1
-                      ? "bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.7)]"
+                      ? "bg-violet-400 shadow-[0_0_6px_rgba(139,92,246,0.7)]"
                       : "bg-slate-700"
                   }`}
                 />
@@ -1930,7 +1950,7 @@ function Arena({ theme }) {
                 key={path.id}
                 className="flex items-center gap-2 rounded-xl border border-white/5 bg-slate-900/40 px-3 py-2"
               >
-                <span className="w-14 shrink-0 text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400/70">
+                <span className="w-14 shrink-0 text-[9px] font-black uppercase tracking-[0.2em] text-violet-400/70">
                   {path.label || `Path ${path.id}`}
                 </span>
                 <div className="flex flex-1 flex-wrap items-center gap-1.5">
@@ -1941,14 +1961,14 @@ function Arena({ theme }) {
                         <span
                           className={`inline-flex h-6 w-6 items-center justify-center rounded-md border text-[10px] font-black ${
                             val === 1
-                              ? "border-emerald-400/50 bg-emerald-400/15 text-emerald-300"
+                              ? "border-violet-400/50 bg-violet-400/15 text-violet-300"
                               : "border-slate-600/40 bg-slate-900/70 text-slate-400"
                           }`}
                         >
                           {nodeId}
                         </span>
                         {index < path.route.length - 1 && (
-                          <span className="text-[9px] text-cyan-500/40">→</span>
+                          <span className="text-[9px] text-violet-500/40">→</span>
                         )}
                       </span>
                     );
@@ -1979,12 +1999,12 @@ function Arena({ theme }) {
     const displayOptions = options.length > 0 ? options : paths.map((p) => p.id);
 
     return (
-      <div className="rounded-2xl border border-emerald-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(16,185,129,0.08)] backdrop-blur-md">
-        <div className="flex items-center justify-between border-b border-emerald-500/10 pb-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+      <div className="rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.08)] backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-violet-500/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
             Route Selection
           </p>
-          <span className="text-[10px] font-medium text-emerald-500/40 uppercase tracking-widest">
+          <span className="text-[10px] font-medium text-violet-500/40 uppercase tracking-widest">
             Select the correct path
           </span>
         </div>
@@ -2007,13 +2027,13 @@ function Arena({ theme }) {
                 key={`signal-answer-${optionId}`}
                 type="button"
                 onClick={() => handleAnswer(optionId)}
-                className="group relative overflow-hidden rounded-xl border border-white/10 bg-cyber-bg-accent/80 p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:bg-slate-900/70 hover:shadow-[0_0_28px_rgba(16,185,129,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                className="group relative overflow-hidden rounded-xl border border-white/10 bg-cyber-bg-accent/80 p-4 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-slate-900/70 hover:shadow-[0_0_28px_rgba(139,92,246,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
-                <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-emerald-300/40 to-transparent opacity-30 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-violet-300/40 to-transparent opacity-30 transition-opacity group-hover:opacity-100" />
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/8 to-transparent opacity-10 transition-opacity group-hover:opacity-25" />
 
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400 group-hover:text-emerald-300 transition-colors">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-400 group-hover:text-violet-300 transition-colors">
                     {pathLabel}
                   </span>
                   <span className="text-[9px] font-semibold uppercase tracking-widest text-slate-500">
@@ -2029,14 +2049,14 @@ function Arena({ theme }) {
                         <span
                           className={`inline-flex h-7 min-w-7 items-center justify-center rounded-lg border px-1.5 text-[11px] font-black transition-all duration-200 ${
                             val === 1
-                              ? "border-emerald-400/50 bg-emerald-400/15 text-emerald-200 group-hover:bg-emerald-400/25 group-hover:shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                              ? "border-violet-400/50 bg-violet-400/15 text-violet-200 group-hover:bg-violet-400/25 group-hover:shadow-[0_0_8px_rgba(139,92,246,0.4)]"
                               : "border-slate-600/40 bg-slate-900/70 text-slate-400"
                           }`}
                         >
                           {nodeId}={val ?? "?"}
                         </span>
                         {index < route.length - 1 && (
-                          <span className="text-[9px] text-emerald-500/50">→</span>
+                          <span className="text-[9px] text-violet-500/50">→</span>
                         )}
                       </span>
                     );
@@ -2060,45 +2080,45 @@ function Arena({ theme }) {
     const ruleTypeDisplay = ruleType.replace(/_/g, " ").toUpperCase();
     const nodeCount = Array.isArray(signalPathPuzzle?.nodes) ? signalPathPuzzle.nodes.length : 0;
     return (
-      <div className="relative overflow-hidden rounded-2xl border border-lime-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(132,204,22,0.08)] backdrop-blur-md">
-        <div className="logic-signal-flow pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-lime-300/60 via-cyan-300/50 to-lime-300/60 opacity-55" />
-        <div className="mb-4 flex items-center justify-between border-b border-lime-500/10 pb-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-lime-400">
+      <div className="relative overflow-hidden rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.08)] backdrop-blur-md">
+        <div className="logic-signal-flow pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-violet-300/60 via-fuchsia-300/50 to-violet-300/60 opacity-55" />
+        <div className="mb-4 flex items-center justify-between border-b border-violet-500/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
             Path Readout
           </p>
-          <div className="logic-dot-pulse h-2 w-2 rounded-full bg-lime-500 shadow-[0_0_10px_rgba(132,204,22,0.6)]" />
+          <div className="logic-dot-pulse h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.6)]" />
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-lime-500/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-lime-300/80" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-lime-500/60 group-hover:text-lime-400/80 transition-colors">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
               ACCURACY
             </p>
             <p className="mt-1 text-3xl font-black text-white">
               {accuracy}
             </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-lime-500/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-lime-500/60 group-hover:text-lime-400/80 transition-colors">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
               RULE TYPE
             </p>
             <p className="mt-1 text-[clamp(0.72rem,1.8vw,1rem)] font-black uppercase tracking-widest leading-tight text-white truncate whitespace-nowrap" title={ruleTypeDisplay}>
               {ruleTypeDisplay}
             </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/70" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/70" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
               NODE COUNT
             </p>
             <p className="mt-1 text-3xl font-black text-white">
               {nodeCount}
             </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
               STREAK
             </p>
             <div className="mt-1 flex items-end gap-2">
@@ -2106,7 +2126,7 @@ function Arena({ theme }) {
                 {streak}
               </p>
               {streak >= 3 && (
-                <span className="mb-1 text-[10px] font-bold uppercase text-lime-300 animate-bounce">
+                <span className="mb-1 text-[10px] font-bold uppercase text-violet-300 animate-bounce">
                   Hot!
                 </span>
               )}
@@ -2274,13 +2294,7 @@ function Arena({ theme }) {
   const comboMultiplier =
     totalAnswers === 0
       ? null
-      : streak >= 6
-        ? 4
-        : streak >= 4
-          ? 3
-          : streak >= 2
-            ? 2
-            : 1;
+      : getComboMultiplier(streak);
   const gridRecallPhaseLabel =
     gridRecallPhase === "memorize" ? "Memorization Phase" : "Recall Phase";
   const gridRecallMatrix = useMemo(
@@ -3194,18 +3208,18 @@ function Arena({ theme }) {
                     </div>
                   </div>
                 ) : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH ? (
-                  <div className="relative overflow-hidden rounded-3xl border border-lime-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(132,204,22,0.1)] backdrop-blur-md">
+                  <div className="relative overflow-hidden rounded-3xl border border-violet-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(139,92,246,0.1)] backdrop-blur-md">
                     <div className="relative z-10">
                       <div className="mb-6 flex items-center justify-between">
                         <div>
-                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-lime-400">
+                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-400">
                             Signal Path Arena
                           </p>
                           <h2 className="text-xl font-bold text-white text-glow-blue">
                             Route the signal. Obey the rule.
                           </h2>
                         </div>
-                        <span className="rounded-full border border-lime-500/50 bg-lime-500/20 px-3 py-1 text-xs font-semibold text-lime-200 shadow-[0_0_15px_rgba(132,204,22,0.3)]">
+                        <span className="rounded-full border border-violet-500/50 bg-violet-500/20 px-3 py-1 text-xs font-semibold text-violet-200 shadow-[0_0_15px_rgba(139,92,246,0.3)]">
                           Constraint Logic Live
                         </span>
                       </div>
@@ -3223,8 +3237,8 @@ function Arena({ theme }) {
                             <DevDebugPanel title="Signal Path Dev">
                               {SHOW_SIGNAL_PATH_ANSWERS && (
                                 <div className="space-y-2">
-                                  <div className="flex items-center justify-between rounded-lg bg-lime-500/10 p-2 border border-lime-500/20">
-                                    <span className="text-[10px] font-bold text-lime-400 uppercase">Answer</span>
+                                  <div className="flex items-center justify-between rounded-lg bg-violet-500/10 p-2 border border-violet-500/20">
+                                    <span className="text-[10px] font-bold text-violet-400 uppercase">Answer</span>
                                     <span className="font-mono text-lg font-black text-white">
                                       {signalPathPuzzle?.answer ?? "—"}
                                     </span>
@@ -3235,33 +3249,33 @@ function Arena({ theme }) {
                                 <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">ID</span>
-                                    <span className="text-lime-200 font-mono">{signalPathDebugInfo.id}</span>
+                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.id}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Difficulty</span>
-                                    <span className="text-lime-200 font-mono">{signalPathDebugInfo.difficulty}</span>
+                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.difficulty}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Rule Type</span>
-                                    <span className="text-lime-200 font-mono">{signalPathDebugInfo.ruleType}</span>
+                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.ruleType}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Nodes</span>
-                                    <span className="text-lime-200 font-mono">{signalPathDebugInfo.nodeCount}</span>
+                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.nodeCount}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Paths</span>
-                                    <span className="text-lime-200 font-mono">{signalPathDebugInfo.pathCount}</span>
+                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.pathCount}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Correct Path</span>
-                                    <span className="text-lime-200 font-mono">
+                                    <span className="text-violet-200 font-mono">
                                       {signalPathPuzzle?.puzzleMetrics?.correctPathId ?? "—"}
                                     </span>
                                   </div>
                                   <div>
                                     <span className="text-slate-500 uppercase font-bold">Rule</span>
-                                    <p className="mt-1 text-[9px] leading-4 text-lime-200/80">{signalPathDebugInfo.rule}</p>
+                                    <p className="mt-1 text-[9px] leading-4 text-violet-200/80">{signalPathDebugInfo.rule}</p>
                                   </div>
                                 </div>
                               )}
