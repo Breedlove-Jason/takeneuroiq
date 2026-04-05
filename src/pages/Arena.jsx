@@ -187,6 +187,20 @@ function buildBlankGridMatrix(size = 3) {
   );
 }
 
+function formatDevValue(value, fallback = "—") {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  if (typeof value !== "string") {
+    return value;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+  return trimmed.replace(/_/g, " ");
+}
+
 function isValidGridMatrix(matrix, size) {
   const normalizedSize =
     Number.isFinite(size) && size > 0 ? Math.round(size) : 0;
@@ -291,7 +305,16 @@ function getComboMultiplier(streak = 0) {
     ? Math.max(0, Math.floor(streak))
     : 0;
 
-  return Math.min(MAX_COMBO_MULTIPLIER, Math.max(1, normalizedStreak));
+  if (normalizedStreak >= 7) {
+    return 4;
+  }
+  if (normalizedStreak >= 5) {
+    return 3;
+  }
+  if (normalizedStreak >= 3) {
+    return 2;
+  }
+  return 1;
 }
 
 function getSequenceSprintOverflowComboMultiplier(overflowSolvedCount = 0) {
@@ -325,12 +348,13 @@ function getScoreAwardBreakdown({
   const streakComboMultiplier = getComboMultiplier(streak);
   const sequenceOverflowComboMultiplier =
     getSequenceSprintOverflowComboMultiplier(sequenceOverflowSolvedCount);
-  const comboScoreValue = isSequenceSprint
-    ? sequenceOverflowSolvedCount > 0
-      ? BASE_CORRECT_ANSWER_SCORE * getComboMultiplier(sequenceOverflowSolvedCount + 1)
-      : baseAward
-    : BASE_CORRECT_ANSWER_SCORE * streakComboMultiplier;
-  const comboMultiplier = Math.max(1, comboScoreValue / baseAward);
+  const comboMultiplier = Math.max(
+    1,
+    isSequenceSprint
+      ? Math.max(streakComboMultiplier, sequenceOverflowComboMultiplier)
+      : streakComboMultiplier,
+  );
+  const comboScoreValue = baseAward * comboMultiplier;
   const comboBonusAward = Math.max(0, comboScoreValue - baseAward);
 
   return {
@@ -346,7 +370,9 @@ function getScoreAwardBreakdown({
     scoreStateLabel:
       comboMultiplier > 1
         ? isSequenceSprint
-          ? "Finish-line combo"
+          ? sequenceOverflowSolvedCount > 0
+            ? "Finish-line combo"
+            : "Combo bonus"
           : "Combo bonus"
         : isSequenceSprint
           ? sequenceFinishLineReached
@@ -467,6 +493,65 @@ const buildLogicGateResultsCopy = ({
     title: "Logic Gate Results",
     summary:
       "Circuit timed out. Rebuild the signal path and focus on the gate relationship.",
+  };
+};
+
+const formatSignalPathRuleTypeLabel = (ruleType = "unknown") => {
+  const normalizedRuleType =
+    typeof ruleType === "string" ? ruleType.trim() : "";
+
+  if (!normalizedRuleType) {
+    return "Unknown";
+  }
+
+  return normalizedRuleType
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+};
+
+const buildSignalPathResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+  ruleType = "unknown",
+} = {}) => {
+  const ruleTypeLabel = formatSignalPathRuleTypeLabel(ruleType);
+
+  if (accuracy >= 90) {
+    return {
+      eyebrow: "Route Complete",
+      title: "Signal Path Results",
+      summary:
+        "Excellent routing discipline. Constraint logic stayed sharp and your signal path remained stable under pressure.",
+      detail: `Active Rule: ${ruleTypeLabel}`,
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: "Route Complete",
+      title: "Signal Path Results",
+      summary:
+        "Solid path control. Routing logic is stabilizing and signal selection is becoming more reliable.",
+      detail: `Active Rule: ${ruleTypeLabel}`,
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: "Route Complete",
+      title: "Signal Path Results",
+      summary:
+        "Partial progress. Keep refining your route reading and constraint discipline.",
+      detail: `Active Rule: ${ruleTypeLabel}`,
+    };
+  }
+
+  return {
+    eyebrow: "Route Complete",
+    title: "Signal Path Results",
+    summary:
+      "Route timed out. Rebuild the signal path and focus on the active routing rule.",
+    detail: `Active Rule: ${ruleTypeLabel}`,
   };
 };
 
@@ -2276,14 +2361,8 @@ function Arena({ theme }) {
     isTransitioningRef.current = true;
     dismissRecommendedBanner();
 
-    const nextSequenceSolvedCount =
-      activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
-        ? sequenceSolvedCount + 1
-        : sequenceSolvedCount;
-
     if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       setSequenceSprintSelectedAnswer(selectedAnswer);
-      setSequenceSprintSolvedCount((prev) => prev + 1);
     }
 
     const isCorrect =
@@ -2296,6 +2375,15 @@ function Arena({ theme }) {
             : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
               ? selectedAnswer === signalPathPuzzle.answer
               : checkAnswer(currentPuzzle, selectedAnswer);
+
+    const nextSequenceSolvedCount =
+      activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT && isCorrect
+        ? sequenceSolvedCount + 1
+        : sequenceSolvedCount;
+
+    if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT && isCorrect) {
+      setSequenceSprintSolvedCount((prev) => prev + 1);
+    }
 
     const nextTotalAnswers = totalAnswers + 1;
     const nextCorrectAnswers = isCorrect ? correctAnswers + 1 : correctAnswers;
@@ -2466,6 +2554,12 @@ function Arena({ theme }) {
               accuracy: answeredAccuracyValue,
               correctAnswers,
             })
+          : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
+            ? buildSignalPathResultsCopy({
+                accuracy: answeredAccuracyValue,
+                correctAnswers,
+                ruleType: signalPathPuzzle?.ruleType,
+              })
         : {
             eyebrow: "Challenge Complete",
             title: "Pattern Rush Results",
@@ -2862,6 +2956,42 @@ function Arena({ theme }) {
                       </p>
 
                     </>
+                  ) : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH ? (
+                    <>
+                      <p
+                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
+                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
+                        }`}
+                      >
+                        {resultsCopy.eyebrow}
+                      </p>
+
+                      <h2
+                        className={`mt-3 text-4xl font-black tracking-tight ${
+                          isCyber
+                            ? "text-white text-glow-blue"
+                            : "text-slate-900"
+                        }`}
+                      >
+                        {resultsCopy.title}
+                      </h2>
+
+                      <p
+                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
+                          isCyber ? "text-cyan-100/90" : "text-slate-600"
+                        }`}
+                      >
+                        {resultsCopy.summary}
+                      </p>
+
+                      <p
+                        className={`mt-5 text-[11px] font-semibold uppercase tracking-[0.28em] ${
+                          isCyber ? "text-violet-300/80" : "text-slate-500"
+                        }`}
+                      >
+                        {resultsCopy.detail}
+                      </p>
+                    </>
                   ) : (
                     <>
                       <p
@@ -3063,6 +3193,40 @@ function Arena({ theme }) {
                   <div
                     className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
                       isCyber
+                        ? "border-emerald-400/20 bg-emerald-500/5 hover:border-emerald-400/40 hover:bg-emerald-500/10"
+                        : "border-slate-200 bg-slate-50"
+                    }`}
+                  >
+                    {isCyber && (
+                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-emerald-400/10 blur-2xl transition-all group-hover:bg-emerald-400/20" />
+                    )}
+                    <div className="relative flex flex-col items-center">
+                      <FontAwesomeIcon
+                        icon={faBullseye}
+                        className="text-emerald-300 [--fa-secondary-color:var(--color-cyan-400)] [--fa-secondary-opacity:1] mb-3 text-lg"
+                      />
+                      <p
+                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
+                          isCyber ? "text-emerald-300/70" : "text-slate-500"
+                        }`}
+                      >
+                        ACCURACY
+                      </p>
+                      <div
+                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
+                          isCyber
+                            ? "text-white text-glow-emerald"
+                            : "text-slate-800"
+                        }`}
+                      >
+                        {accuracy}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
+                      isCyber
                         ? "border-fuchsia-400/20 bg-fuchsia-500/5 hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10"
                         : "border-slate-200 bg-slate-50"
                     }`}
@@ -3248,7 +3412,7 @@ function Arena({ theme }) {
                                       Rule:
                                     </span>{" "}
                                     <span className="text-amber-100">
-                                      {sequenceDebugInfo.rule}
+                                      {formatDevValue(sequenceDebugInfo.rule)}
                                     </span>
                                   </div>
                                   <div>
@@ -3313,11 +3477,11 @@ function Arena({ theme }) {
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Difficulty</span>
-                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.difficulty}</span>
+                                    <span className="text-violet-200 font-mono">{formatDevValue(signalPathDebugInfo.difficulty)}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Rule Type</span>
-                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.ruleType}</span>
+                                    <span className="text-violet-200 font-mono">{formatDevValue(signalPathDebugInfo.ruleType)}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Nodes</span>
@@ -3335,7 +3499,7 @@ function Arena({ theme }) {
                                   </div>
                                   <div>
                                     <span className="text-slate-500 uppercase font-bold">Rule</span>
-                                    <p className="mt-1 text-[9px] leading-4 text-violet-200/80">{signalPathDebugInfo.rule}</p>
+                                    <p className="mt-1 text-[9px] leading-4 text-violet-200/80">{formatDevValue(signalPathDebugInfo.rule)}</p>
                                   </div>
                                 </div>
                               )}
@@ -3389,19 +3553,19 @@ function Arena({ theme }) {
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Difficulty</span>
-                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.difficulty}</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGatePuzzle.difficulty)}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Variant</span>
-                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.variant ?? "output"}</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGatePuzzle.variant ?? "output")}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Expression</span>
-                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.expression ?? "N/A"}</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGatePuzzle.expression ?? "N/A")}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Gate</span>
-                                    <span className="text-amber-200 font-mono">{logicGatePuzzle.gate ?? "Unknown"}</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGatePuzzle.gate ?? "Unknown")}</span>
                                   </div>
                                   <div>
                                     <span className="text-slate-500 uppercase font-bold">Inputs</span>
@@ -3497,7 +3661,7 @@ function Arena({ theme }) {
                                       Difficulty:
                                     </span>{" "}
                                     <span className="text-amber-100">
-                                      {gridRecallDebugInfo.difficulty}
+                                      {formatDevValue(gridRecallDebugInfo.difficulty)}
                                     </span>
                                   </div>
                                 </>
@@ -3517,9 +3681,7 @@ function Arena({ theme }) {
                             Pattern Rush Arena
                           </p>
                           <h3 className={`text-2xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
-                            {activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
-                              ? "Resolve the Signal"
-                              : currentPuzzle.title}
+                            {currentPuzzle?.title || "Pattern Rush"}
                           </h3>
                           <p className="text-xs font-medium text-slate-300">
                             Resolve the missing tile and keep the momentum
@@ -3618,16 +3780,16 @@ function Arena({ theme }) {
                                       </span>
                                     </div>
                                     <div>
-                                      <span className="font-bold text-white">
-                                        Difficulty:
-                                      </span>{" "}
-                                      <span className="text-amber-100">
-                                        {patternDebugInfo.difficulty}
-                                      </span>
-                                    </div>
-                                  </>
-                                )}
-                              </DevDebugPanel>
+                                    <span className="font-bold text-white">
+                                      Difficulty:
+                                    </span>{" "}
+                                    <span className="text-amber-100">
+                                      {formatDevValue(patternDebugInfo.difficulty)}
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                            </DevDebugPanel>
                             </div>
                           )}
                         </div>
