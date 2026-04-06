@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faTrophy,
-  faStar,
-  faWaveSquare,
-  faCircleExclamation,
-  faSkull,
   faLayerGroup,
   faRotateRight,
   faBrain,
@@ -675,6 +670,122 @@ const buildSignalPathResultsCopy = ({
 // const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.PATTERN_RUSH;
 const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
 
+const terminalAnalysisToneMap = {
+  pattern_rush: ["text-cyan-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
+  sequence_sprint: ["text-fuchsia-100/84", "text-fuchsia-100/76", "text-cyan-100/78"],
+  grid_recall: ["text-emerald-100/84", "text-cyan-100/76", "text-emerald-200/78"],
+  logic_gate: ["text-amber-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
+  signal_path: ["text-violet-100/84", "text-cyan-100/76", "text-violet-200/78"],
+};
+
+const terminalSignalProfileLabels = {
+  pattern_rush: "VISUAL SIGNAL",
+  sequence_sprint: "MOMENTUM FLOW",
+  grid_recall: "MEMORY TRACE",
+  logic_gate: "LOGIC CIRCUIT",
+  signal_path: "ROUTING DISCIPLINE",
+};
+
+function formatTerminalFallbackLabel(value, fallback = "UNCLASSIFIED") {
+  const normalized = typeof value === "string" ? value.trim() : "";
+  if (!normalized) {
+    return fallback;
+  }
+
+  return normalized.replace(/_/g, " ").toUpperCase();
+}
+
+function formatTerminalIdentityLabel(cognitiveIdentityLabel, resultsCopy) {
+  return formatTerminalFallbackLabel(
+    cognitiveIdentityLabel,
+    formatTerminalFallbackLabel(
+      resultsCopy?.title || resultsCopy?.eyebrow,
+      "UNCLASSIFIED",
+    ),
+  );
+}
+
+function buildTerminalSignalProfileLabel(
+  activePuzzleType,
+  activeAnalysisProfile,
+  resultsCopy,
+) {
+  const familyLabel =
+    terminalSignalProfileLabels[activePuzzleType] || "ADAPTIVE SIGNAL";
+  const profileTone = formatTerminalFallbackLabel(
+    activeAnalysisProfile?.tone,
+    "CALIBRATED",
+  );
+  const resultTag = formatTerminalFallbackLabel(
+    resultsCopy?.eyebrow,
+    "SESSION LOCK",
+  );
+
+  return `${familyLabel} · ${profileTone} · ${resultTag}`;
+}
+
+function terminalizeAnalysisLine(line) {
+  const normalized = typeof line === "string" ? line.trim() : "";
+
+  if (!normalized) {
+    return "SYSTEM STABLE";
+  }
+
+  const collapsed = normalized.replace(/\s+/g, " ");
+  const words = collapsed.split(" ");
+
+  if (words.length <= 1) {
+    return collapsed.toUpperCase();
+  }
+
+  const value = words.pop();
+  return `${words.join(" ").toUpperCase()}: ${value.toUpperCase()}`;
+}
+
+function buildTerminalAnalysisLines(activePuzzleType, activeAnalysisProfile) {
+  const sourceLines = Array.isArray(activeAnalysisProfile?.analysisLines)
+    ? activeAnalysisProfile.analysisLines.slice(0, 3)
+    : [];
+  const toneSet =
+    terminalAnalysisToneMap[activePuzzleType] || terminalAnalysisToneMap.pattern_rush;
+
+  return sourceLines.map((line, index) => ({
+    text: terminalizeAnalysisLine(line),
+    tone: toneSet[index] || toneSet[toneSet.length - 1],
+    delayMs: index * 180,
+    isFinal: index === sourceLines.length - 1,
+  }));
+}
+
+function buildPhantomTerminalLines({
+  cognitiveIdentityLabel,
+  activePuzzleType,
+  activeAnalysisProfile,
+  resultsCopy,
+}) {
+  return [
+    { text: "ANALYSIS COMPLETE", tone: "text-cyan-100/82", delayMs: 0 },
+    {
+      text: `IDENTITY LOCK: ${formatTerminalIdentityLabel(
+        cognitiveIdentityLabel,
+        resultsCopy,
+      )}`,
+      tone: "text-fuchsia-100/80",
+      delayMs: 220,
+    },
+    {
+      text: `SIGNAL PROFILE: ${buildTerminalSignalProfileLabel(
+        activePuzzleType,
+        activeAnalysisProfile,
+        resultsCopy,
+      )}`,
+      tone: "text-cyan-100/76",
+      delayMs: 440,
+    },
+    { text: "AWAITING NEXT INPUT", tone: "text-white/78", delayMs: 660 },
+  ];
+}
+
 function Arena({ theme }) {
   // Navigation/session context
   const isCyber = theme === "cyber";
@@ -706,6 +817,8 @@ function Arena({ theme }) {
     recommendedSessionStyles[recommendedSession?.adaptiveState] ||
     recommendedSessionStyles.default;
   const {
+    SHOW_ANSWERS,
+    SHOW_PATTERN_RULE,
     SHOW_PATTERN_RUSH_ANSWERS,
     SHOW_SEQUENCE_SPRINT_ANSWERS,
     SHOW_PUZZLE_DEBUG_META,
@@ -782,6 +895,10 @@ function Arena({ theme }) {
   const [neuralScanCompleted, setNeuralScanCompleted] = useState(false);
   const [identityLockVisible, setIdentityLockVisible] = useState(false);
   const [analysisLineCount, setAnalysisLineCount] = useState(0);
+  const [showPerformanceStrip, setShowPerformanceStrip] = useState(false);
+  const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
+  const [showActionButton, setShowActionButton] = useState(false);
+  const [terminalRevealComplete, setTerminalRevealComplete] = useState(false);
   const [scoreDisplay, setScoreDisplay] = useState(0);
   const [baseScoreDisplay, setBaseScoreDisplay] = useState(0);
   const [comboScoreDisplay, setComboScoreDisplay] = useState(0);
@@ -977,6 +1094,10 @@ function Arena({ theme }) {
         currentPuzzle?.difficultyBucket ??
         "Unknown",
       answer: currentPuzzle?.correctAnswer ?? "Unknown",
+      patternType:
+        currentPuzzle?.meta?.patternType ?? currentPuzzle?.patternType ?? "Unknown",
+      ruleDescription:
+        currentPuzzle?.meta?.ruleDescription ?? currentPuzzle?.ruleDescription ?? "Unknown",
     };
   }, [currentPuzzle]);
 
@@ -1017,7 +1138,7 @@ function Arena({ theme }) {
   }, [signalPathPuzzle]);
 
   const shouldShowPatternDebug =
-    SHOW_PATTERN_RUSH_ANSWERS || SHOW_PUZZLE_DEBUG_META;
+    SHOW_ANSWERS || SHOW_PATTERN_RUSH_ANSWERS || SHOW_PATTERN_RULE || SHOW_PUZZLE_DEBUG_META;
   const shouldShowSequenceDebug =
     SHOW_SEQUENCE_SPRINT_ANSWERS || SHOW_PUZZLE_DEBUG_META;
   const shouldShowGridRecallDebug =
@@ -1338,10 +1459,18 @@ function Arena({ theme }) {
     const scanDurationMs = activeAnalysisAnimationProfile.scanDurationMs;
     const lineStartDelayMs = activeAnalysisAnimationProfile.lineStartDelayMs;
     const lineStaggerMs = activeAnalysisAnimationProfile.lineStaggerMs;
-    const identityRevealDelayMs = 220;
-    const scanStartDelayMs = 280;
+    const identityRevealDelayMs = 180;
+    const scanStartDelayMs = 220;
     const scanCompleteDelayMs = scanStartDelayMs + scanDurationMs;
     const firstLineDelayMs = scanCompleteDelayMs + lineStartDelayMs;
+    const terminalLineCount = 4;
+    const terminalCompleteDelayMs =
+      firstLineDelayMs +
+      lineStaggerMs * Math.max(0, terminalLineCount - 1) +
+      260;
+    const performanceStripDelayMs = firstLineDelayMs + 180;
+    const scoreBreakdownDelayMs = performanceStripDelayMs + 260;
+    const actionButtonDelayMs = scoreBreakdownDelayMs + 240;
     const timerIds = [];
     const schedule = (delayMs, callback) => {
       const timerId = setTimeout(callback, delayMs);
@@ -1354,11 +1483,11 @@ function Arena({ theme }) {
     }, 0);
     const overdriveTimer = setTimeout(() => {
       setMatrixOverdrive(false);
-    }, 1300);
+    }, 1180);
 
     const revealTimer = setTimeout(() => {
       setShowNeuralProfile(true);
-    }, 100);
+    }, 120);
     const scanStartTimer = setTimeout(() => {
       setNeuralScanActive(true);
     }, scanStartDelayMs);
@@ -1374,6 +1503,18 @@ function Arena({ theme }) {
         setAnalysisLineCount(lineIndex + 1);
       });
     });
+    const performanceStripTimer = setTimeout(() => {
+      setShowPerformanceStrip(true);
+    }, performanceStripDelayMs);
+    const scoreBreakdownTimer = setTimeout(() => {
+      setShowScoreBreakdown(true);
+    }, scoreBreakdownDelayMs);
+    const actionButtonTimer = setTimeout(() => {
+      setShowActionButton(true);
+    }, actionButtonDelayMs);
+    const terminalCompleteTimer = setTimeout(() => {
+      setTerminalRevealComplete(true);
+    }, terminalCompleteDelayMs);
 
     return () => {
       clearTimeout(overdriveStartTimer);
@@ -1382,9 +1523,19 @@ function Arena({ theme }) {
       clearTimeout(scanStartTimer);
       clearTimeout(scanCompleteTimer);
       clearTimeout(identityLockTimer);
+      clearTimeout(performanceStripTimer);
+      clearTimeout(scoreBreakdownTimer);
+      clearTimeout(actionButtonTimer);
+      clearTimeout(terminalCompleteTimer);
       timerIds.forEach((timerId) => clearTimeout(timerId));
     };
-  }, [gameOver, activeAnalysisAnimationProfile, activeAnalysisProfile]);
+  }, [
+    gameOver,
+    activeAnalysisAnimationProfile,
+    activeAnalysisProfile,
+    activePuzzleType,
+    cognitiveIdentity?.label,
+  ]);
 
   useEffect(() => {
     if (previousRecommendedSessionKeyRef.current !== recommendedSessionKey) {
@@ -1466,13 +1617,6 @@ function Arena({ theme }) {
   function applyLiveAdaptiveDifficulty(nextDifficulty) {
     setLiveAdaptiveDifficulty(nextDifficulty);
   }
-
-  const handleStartRecommendedSession = () => {
-    const recommendedDifficulty =
-      sessionOutcome?.nextRecommendedDifficulty || "medium";
-
-    resetGame(recommendedDifficulty);
-  };
 
   function loadNextPuzzle(preferredDifficulty = "medium") {
     const nextPuzzle = getNextPuzzleByType(
@@ -2671,6 +2815,10 @@ function Arena({ theme }) {
     setNeuralScanCompleted(false);
     setIdentityLockVisible(false);
     setAnalysisLineCount(0);
+    setShowPerformanceStrip(false);
+    setShowScoreBreakdown(false);
+    setShowActionButton(false);
+    setTerminalRevealComplete(false);
     setScoreDisplay(0);
     setBaseScoreDisplay(0);
     setComboScoreDisplay(0);
@@ -2728,12 +2876,7 @@ function Arena({ theme }) {
   ]);
 
   useEffect(() => {
-    if (!gameOver) {
-      setScoreDisplay(0);
-      setBaseScoreDisplay(0);
-      setComboScoreDisplay(0);
-      return undefined;
-    }
+    if (!gameOver) return undefined;
 
     const durationMs = 1200;
     const startTime = performance.now();
@@ -2832,65 +2975,17 @@ function Arena({ theme }) {
     return "Unstable response under pressure. Additional reps recommended.";
   }
 
-  const outcomeToneStyles = {
-    gold: {
-      border: "border-yellow-400/50",
-      bg: "bg-yellow-400/10",
-      label: "text-yellow-300 text-glow-yellow",
-      shadow: "shadow-[0_0_40px_rgba(250,204,21,0.25)]",
-      icon: faTrophy,
-    },
-    positive: {
-      border: "border-emerald-400/40",
-      bg: "bg-emerald-500/10",
-      label: "text-emerald-300 text-glow-emerald",
-      shadow: "shadow-[0_0_30px_rgba(16,185,129,0.18)]",
-      icon: faStar,
-    },
-    supportive: {
-      border: "border-cyan-400/40",
-      bg: "bg-cyan-500/10",
-      label: "text-cyan-300 text-glow-blue",
-      shadow: "shadow-[0_0_30px_rgba(6,182,212,0.16)]",
-      icon: faWaveSquare,
-    },
-    alert: {
-      border: "border-orange-400/40",
-      bg: "bg-orange-500/10",
-      label: "text-orange-300 text-glow-orange",
-      shadow: "shadow-[0_0_28px_rgba(251,146,60,0.15)]",
-      icon: faCircleExclamation,
-    },
-    caution: {
-      border: "border-red-400/40",
-      bg: "bg-red-500/10",
-      label: "text-red-300 text-glow-red",
-      shadow: "shadow-[0_0_28px_rgba(248,113,113,0.18)]",
-      icon: faSkull,
-    },
-    neutral: {
-      border: "border-slate-500/30",
-      bg: "bg-slate-500/10",
-      label: "text-slate-300",
-      shadow: "shadow-[0_0_18px_rgba(148,163,184,0.10)]",
-      icon: faLayerGroup,
-    },
-  };
-  const toneStyle =
-    outcomeToneStyles[sessionOutcome?.tone] || outcomeToneStyles.neutral;
-  const analysisToneClassMap = {
-    calibrated: "text-cyan-200/65",
-    surging: "text-fuchsia-200/65",
-    stabilizing: "text-emerald-200/65",
-    precise: "text-amber-200/65",
-    disciplined: "text-violet-200/65",
-  };
   const activeAnalysisAccent = activeAnalysisProfile.accentColor;
-  const neuralAnalysisTitle = activeAnalysisProfile.title;
-  const neuralAnalysisLines = activeAnalysisProfile.analysisLines;
-  const neuralAnalysisToneClass =
-    analysisToneClassMap[activeAnalysisProfile.tone] ||
-    analysisToneClassMap.calibrated;
+  const terminalRevealLines = buildPhantomTerminalLines({
+    cognitiveIdentityLabel: cognitiveIdentity?.label,
+    activePuzzleType,
+    activeAnalysisProfile,
+    resultsCopy,
+  });
+  const neuralAnalysisLines = buildTerminalAnalysisLines(
+    activePuzzleType,
+    activeAnalysisProfile,
+  );
 
   return (
     <div className="animate-fadeIn px-6 py-10">
@@ -3177,8 +3272,109 @@ function Arena({ theme }) {
 
             <div className="relative z-10">
               {gameOver ? (
-              <div className="relative flex flex-col items-center justify-center gap-10 py-10 text-center">
-                <style>{`@keyframes neural-breath { 0%, 100% { transform: scale(0.985); opacity: 0.92; } 50% { transform: scale(1.02); opacity: 1; } } @keyframes neural-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.9; } }`}</style>
+              <div className="relative flex flex-col items-center justify-center gap-10 overflow-hidden py-10 text-center">
+                <style>{`@keyframes neural-breath { 0%, 100% { transform: scale(0.985); opacity: 0.92; } 50% { transform: scale(1.02); opacity: 1; } } @keyframes neural-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.9; } } @keyframes arena-terminal-line { 0% { opacity: 0; transform: translateY(8px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } } @keyframes arena-terminal-cursor-blink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } } @keyframes arena-terminal-flicker { 0%, 100% { opacity: 0.28; transform: scaleX(0.985); } 50% { opacity: 0.6; transform: scaleX(1.01); } } @keyframes arena-terminal-key-pulse { 0%, 100% { opacity: 0.5; filter: brightness(1); } 50% { opacity: 0.8; filter: brightness(1.3); } }`}</style>
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-72 overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <div
+                    className={`absolute inset-x-0 bottom-14 h-16 bg-[radial-gradient(circle_at_50%_50%,rgba(34,211,238,0.16),rgba(217,70,239,0.08)_42%,transparent_72%)] blur-3xl transition-opacity duration-700 ${
+                      terminalRevealComplete ? "opacity-100" : "opacity-70"
+                    }`}
+                    style={{ animation: "arena-terminal-flicker 4.8s ease-in-out infinite" }}
+                    aria-hidden="true"
+                  />
+                  <div className="absolute inset-x-0 bottom-16 flex justify-center px-6">
+                    <div className="w-full max-w-3xl">
+                      <div className="mb-4 flex flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-[0.32em]">
+                        {terminalRevealLines.map((line, index) => {
+                          const isFinalLine =
+                            index === terminalRevealLines.length - 1;
+                          const accentGlow =
+                            index === 1
+                              ? "rgba(217, 70, 239, 0.32)"
+                              : "rgba(34, 211, 238, 0.28)";
+                          const isPulseLine = terminalRevealComplete && isFinalLine;
+
+                          return (
+                            <p
+                              key={`${line.text}-${index}`}
+                              className={`flex items-center gap-2 transition-all duration-500 ${line.tone} ${
+                                isPulseLine ? "text-white/90" : ""
+                              }`}
+                              style={{
+                                animation: "arena-terminal-line 420ms ease-out both",
+                                animationDelay: `${line.delayMs}ms`,
+                                textShadow: isPulseLine
+                                  ? `0 0 16px ${accentGlow}`
+                                  : `0 0 10px ${accentGlow}`,
+                              }}
+                            >
+                              <span className="text-slate-300/50">&gt;</span>
+                              <span className="whitespace-nowrap">
+                                {line.text}
+                                {isFinalLine && (
+                                  <span
+                                    className="ml-0.5 inline-block text-cyan-100/90"
+                                    style={{
+                                      animation:
+                                        "arena-terminal-cursor-blink 1s steps(1, end) infinite",
+                                    }}
+                                  >
+                                    _
+                                  </span>
+                                )}
+                              </span>
+                            </p>
+                          );
+                        })}
+                      </div>
+
+                      <div
+                        className={`relative h-24 overflow-hidden rounded-[28px] border border-cyan-300/10 bg-slate-950/20 px-5 py-4 blur-sm transition-all duration-700 ${
+                          terminalRevealComplete ? "opacity-[0.11]" : "opacity-[0.08]"
+                        }`}
+                      >
+                        <div
+                          className={`pointer-events-none absolute inset-0 rounded-[28px] bg-[linear-gradient(90deg,rgba(34,211,238,0),rgba(34,211,238,0.08),rgba(217,70,239,0.08),rgba(34,211,238,0))] transition-opacity duration-700 ${
+                            terminalRevealComplete ? "opacity-100" : "opacity-40"
+                          }`}
+                        />
+                        <div className="grid grid-cols-12 gap-2">
+                          {Array.from({ length: 48 }).map((_, keyIndex) => {
+                            const isWide = keyIndex % 7 === 0 || keyIndex % 11 === 0;
+                            const keyTone =
+                              keyIndex % 6 === 0
+                                ? "bg-cyan-200/85"
+                                : keyIndex % 5 === 0
+                                  ? "bg-fuchsia-200/75"
+                                  : "bg-white/70";
+
+                            return (
+                              <span
+                                key={`phantom-key-${keyIndex}`}
+                                className={`h-2.5 rounded-sm ${isWide ? "col-span-2" : "col-span-1"} ${keyTone}`}
+                                style={{
+                                  opacity: isWide ? 0.8 : 0.65,
+                                  animation: terminalRevealComplete
+                                    ? "arena-terminal-key-pulse 1.8s ease-in-out infinite"
+                                    : undefined,
+                                  animationDelay: `${(keyIndex % 8) * 80}ms`,
+                                  filter: `drop-shadow(0 0 6px ${
+                                    keyIndex % 5 === 0
+                                      ? "rgba(217, 70, 239, 0.16)"
+                                      : "rgba(34, 211, 238, 0.12)"
+                                  })`,
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {isCyber && (
                   <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute inset-0 bg-grid-cyber opacity-[0.03]" />
@@ -3198,7 +3394,7 @@ function Arena({ theme }) {
                         }}
                       />
                       <div
-                        className={`relative h-44 w-44 overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/70 p-2 backdrop-blur-md transition-all duration-700 md:h-52 md:w-52 ${
+                        className={`relative h-44 w-44 overflow-hidden rounded-4xl border border-white/10 bg-slate-950/70 p-2 backdrop-blur-md transition-all duration-700 md:h-52 md:w-52 ${
                           showNeuralProfile ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
                         }`}
                         style={{
@@ -3215,7 +3411,7 @@ function Arena({ theme }) {
                         <img
                           src={neuralProfileImage}
                           alt="Neural identity profile"
-                          className={`relative z-10 h-full w-full rounded-[24px] object-cover transition-all duration-700 ${
+                          className={`relative z-10 h-full w-full rounded-3xl object-cover transition-all duration-700 ${
                             neuralScanActive
                               ? "brightness-110 contrast-115 saturate-125"
                               : neuralScanCompleted
@@ -3231,7 +3427,7 @@ function Arena({ theme }) {
                           }}
                         />
                         {neuralScanActive && (
-                          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[24px]">
+                          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
                             <div
                               className="neural-scan-pass absolute inset-x-0 top-0 h-20 mix-blend-screen"
                               style={{
@@ -3267,33 +3463,38 @@ function Arena({ theme }) {
                   </div>
 
                   <div className="w-full max-w-2xl text-left">
-                    <div className="space-y-2 text-sm leading-6 text-cyan-100/80">
+                    <div className="space-y-2 font-mono text-[11px] leading-6 uppercase tracking-[0.22em] text-cyan-100/80">
                       {neuralAnalysisLines.slice(0, 3).map((line, index) => {
                         const isVisible = analysisLineCount > index;
                         return (
                           <p
-                            key={`${line}-${index}`}
-                            className={`transition-all ${
+                            key={`${line.text}-${index}`}
+                            className={`flex items-center gap-2 transition-all duration-500 ${
                               isVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
-                            }`}
+                            } ${line.isFinal ? "text-white/90" : ""}`}
                             style={{
                               transitionDuration: `${activeAnalysisAnimationProfile.lineDurationMs}ms`,
                               color: isVisible
-                                ? hexToRgba(activeAnalysisAccent, 0.88)
-                                : hexToRgba(activeAnalysisAccent, 0.4),
+                                ? hexToRgba(activeAnalysisAccent, index === 2 ? 0.9 : 0.84)
+                                : hexToRgba(activeAnalysisAccent, 0.42),
                               textShadow: isVisible
-                                ? `0 0 12px ${hexToRgba(activeAnalysisAccent, 0.35)}`
+                                ? `0 0 12px ${hexToRgba(activeAnalysisAccent, index === 2 ? 0.34 : 0.22)}`
                                 : "none",
                             }}
                           >
-                            {line}
+                            <span className="text-slate-300/55">&gt;</span>
+                            <span>{line.text}</span>
                           </p>
                         );
                       })}
                     </div>
                   </div>
 
-                  <div className="flex w-full max-w-3xl flex-col items-center justify-between gap-6 rounded-2xl bg-white/5 px-6 py-4 text-center sm:flex-row">
+                  <div
+                    className={`flex w-full max-w-3xl flex-col items-center justify-between gap-6 rounded-2xl bg-white/5 px-6 py-4 text-center transition-all duration-700 sm:flex-row ${
+                      showPerformanceStrip ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                    }`}
+                  >
                     <div className="flex flex-col items-center gap-2">
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300/70">
                         Score
@@ -3322,7 +3523,11 @@ function Arena({ theme }) {
                     </div>
                   </div>
 
-                  <div className="w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 px-6 py-5 text-left shadow-[0_0_40px_rgba(34,211,238,0.15)] backdrop-blur-md">
+                  <div
+                    className={`w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 px-6 py-5 text-left shadow-[0_0_40px_rgba(34,211,238,0.15)] backdrop-blur-md transition-all duration-700 ${
+                      showScoreBreakdown ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                    }`}
+                  >
                     <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-200/80">
                         Score Breakdown
@@ -3359,7 +3564,11 @@ function Arena({ theme }) {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-4">
+                  <div
+                    className={`flex flex-col items-center gap-4 transition-all duration-700 ${
+                      showActionButton ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                    }`}
+                  >
                     {sessionOutcome?.nextRecommendedDifficulty && (
                       <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/70">
                         Suggested Difficulty: {sessionOutcome.nextRecommendedDifficulty}
@@ -3819,13 +4028,23 @@ function Arena({ theme }) {
                           {shouldShowPatternDebug && (
                             <div className="mt-4">
                               <DevDebugPanel title="Pattern Rush Dev">
-                                {SHOW_PATTERN_RUSH_ANSWERS && (
+                                {(SHOW_ANSWERS || SHOW_PATTERN_RUSH_ANSWERS) && (
                                   <div>
                                     <span className="font-bold text-white">
                                       Answer:
                                     </span>{" "}
                                     <span className="text-amber-100">
                                       {patternDebugInfo.answer}
+                                    </span>
+                                  </div>
+                                )}
+                                {(SHOW_PATTERN_RULE || SHOW_PUZZLE_DEBUG_META) && (
+                                  <div>
+                                    <span className="font-bold text-white">
+                                      Rule:
+                                    </span>{" "}
+                                    <span className="text-amber-100">
+                                      {formatDevValue(patternDebugInfo.ruleDescription)}
                                     </span>
                                   </div>
                                 )}
@@ -3840,15 +4059,23 @@ function Arena({ theme }) {
                                       </span>
                                     </div>
                                     <div>
-                                    <span className="font-bold text-white">
-                                      Difficulty:
-                                    </span>{" "}
-                                    <span className="text-amber-100">
-                                      {formatDevValue(patternDebugInfo.difficulty)}
-                                    </span>
-                                  </div>
-                                </>
-                              )}
+                                      <span className="font-bold text-white">
+                                        Pattern Type:
+                                      </span>{" "}
+                                      <span className="text-amber-100">
+                                        {formatDevValue(patternDebugInfo.patternType)}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="font-bold text-white">
+                                        Difficulty:
+                                      </span>{" "}
+                                      <span className="text-amber-100">
+                                        {formatDevValue(patternDebugInfo.difficulty)}
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
                             </DevDebugPanel>
                             </div>
                           )}

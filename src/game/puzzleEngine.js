@@ -4,28 +4,15 @@
  * This module provides functions for retrieving a random puzzle from the
  * available pool and checking if a user-provided answer is correct.
  */
-import patternPuzzles from './patternPuzzles';
+import { generatePatternRushPuzzle } from "./puzzleGenerators/patternRushGenerator.js";
 
 /**
- * Returns a random puzzle from the pool of pattern puzzles.
+ * Returns a random Pattern Rush puzzle from the procedural generator.
  *
  * @returns {Object} A puzzle object containing grid, choices, and correctAnswer.
  */
 export function getRandomPuzzle(preferredDifficulty = null) {
-  const normalizedDifficulty = preferredDifficulty?.toLowerCase?.() || null;
-
-  const filteredPuzzles = normalizedDifficulty
-    ? patternPuzzles.filter(
-        (puzzle) =>
-          (puzzle.difficulty || puzzle.difficultyBucket || "medium") ===
-          normalizedDifficulty,
-      )
-    : patternPuzzles;
-
-  const puzzlePool =
-    filteredPuzzles.length > 0 ? filteredPuzzles : patternPuzzles;
-
-  return puzzlePool[Math.floor(Math.random() * puzzlePool.length)];
+  return generatePatternRushPuzzle(preferredDifficulty || "medium");
 }
 
 /**
