@@ -7,12 +7,9 @@ import {
   faCircleExclamation,
   faSkull,
   faLayerGroup,
-  faChevronRight,
-  faArrowRight,
   faRotateRight,
   faBrain,
   faBolt,
-  faBullseye,
 } from "@fortawesome/pro-duotone-svg-icons";
 import PuzzleShape from "../components/PuzzleShape";
 import MatrixRain from "../components/MatrixRain";
@@ -785,6 +782,9 @@ function Arena({ theme }) {
   const [neuralScanCompleted, setNeuralScanCompleted] = useState(false);
   const [identityLockVisible, setIdentityLockVisible] = useState(false);
   const [analysisLineCount, setAnalysisLineCount] = useState(0);
+  const [scoreDisplay, setScoreDisplay] = useState(0);
+  const [baseScoreDisplay, setBaseScoreDisplay] = useState(0);
+  const [comboScoreDisplay, setComboScoreDisplay] = useState(0);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || "steady",
@@ -2671,6 +2671,9 @@ function Arena({ theme }) {
     setNeuralScanCompleted(false);
     setIdentityLockVisible(false);
     setAnalysisLineCount(0);
+    setScoreDisplay(0);
+    setBaseScoreDisplay(0);
+    setComboScoreDisplay(0);
     isTransitioningRef.current = false;
     setGameOver(false);
     setSessionOutcome(null);
@@ -2723,6 +2726,36 @@ function Arena({ theme }) {
     comboMultiplier,
     lastScoreGain,
   ]);
+
+  useEffect(() => {
+    if (!gameOver) {
+      setScoreDisplay(0);
+      setBaseScoreDisplay(0);
+      setComboScoreDisplay(0);
+      return undefined;
+    }
+
+    const durationMs = 1200;
+    const startTime = performance.now();
+    let rafId;
+
+    const animate = (now) => {
+      const progress = Math.min((now - startTime) / durationMs, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setScoreDisplay(Math.round(totalScore * eased));
+      setBaseScoreDisplay(Math.round(baseScoreEarned * eased));
+      setComboScoreDisplay(Math.round(comboBonusEarned * eased));
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [gameOver, totalScore, baseScoreEarned, comboBonusEarned]);
   const gridRecallPhaseLabel =
     gridRecallPhase === "memorize" ? "Memorization Phase" : "Recall Phase";
   const gridRecallMatrix = useMemo(
@@ -3077,7 +3110,7 @@ function Arena({ theme }) {
                 {isLightningActive && (
                   <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
                     <style>{`@keyframes arena-lightning-strike { 0% { opacity: 0; transform: scale(0.985) translateY(-3px); } 10% { opacity: 1; transform: scale(1.01) translateY(0); } 22% { opacity: 0.82; } 45% { opacity: 1; } 70% { opacity: 0.36; } 100% { opacity: 0; transform: scale(1.015) translateY(2px); } } @keyframes arena-lightning-flicker { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }`}</style>
-                    <div className="absolute inset-0 bg-linear-to-br from-cyan-400/0 via-cyan-200/10 to-white/0" />
+                    <div className="absolute inset-0 bg-linear-to-br from-fuchsia-500/5 via-cyan-300/10 to-transparent" />
                     <svg
                       viewBox="0 0 800 520"
                       className="absolute inset-0 h-full w-full"
@@ -3088,8 +3121,15 @@ function Arena({ theme }) {
                       <defs>
                         <linearGradient id="arenaLightningBolt" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-                          <stop offset="18%" stopColor="rgba(255,255,255,0.95)" />
-                          <stop offset="55%" stopColor="rgba(103,232,249,0.98)" />
+                          <stop offset="14%" stopColor="rgba(255,255,255,0.95)" />
+                          <stop offset="48%" stopColor="rgba(56,189,248,0.98)" />
+                          <stop offset="74%" stopColor="rgba(217,70,239,0.95)" />
+                          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                        </linearGradient>
+                        <linearGradient id="arenaLightningEdge" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+                          <stop offset="30%" stopColor="rgba(232,121,249,0.95)" />
+                          <stop offset="70%" stopColor="rgba(34,211,238,0.95)" />
                           <stop offset="100%" stopColor="rgba(255,255,255,0)" />
                         </linearGradient>
                         <filter id="arenaLightningGlow" x="-50%" y="-50%" width="200%" height="200%">
@@ -3112,6 +3152,17 @@ function Arena({ theme }) {
                         style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
                       />
                       <path
+                        d="M140 58 L260 126 L220 202 L352 250 L308 338 L450 372 L404 460 L600 486"
+                        fill="none"
+                        stroke="url(#arenaLightningEdge)"
+                        strokeWidth="6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity="0.9"
+                        filter="url(#arenaLightningGlow)"
+                        style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
+                      />
+                      <path
                         d="M116 44 L248 120 L198 192 L342 244 L290 330 L438 364 L386 454 L618 506"
                         fill="none"
                         stroke="rgba(255,255,255,0.98)"
@@ -3120,617 +3171,218 @@ function Arena({ theme }) {
                         strokeLinejoin="round"
                         style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
                       />
-                      <circle cx="618" cy="506" r="44" fill="rgba(103,232,249,0.14)" filter="url(#arenaLightningGlow)" />
-                      <circle cx="618" cy="506" r="16" fill="rgba(255,255,255,0.6)" />
                     </svg>
                   </div>
                 )}
 
             <div className="relative z-10">
               {gameOver ? (
-              <div className="relative flex flex-col items-center justify-center py-10 text-center">
+              <div className="relative flex flex-col items-center justify-center gap-10 py-10 text-center">
+                <style>{`@keyframes neural-breath { 0%, 100% { transform: scale(0.985); opacity: 0.92; } 50% { transform: scale(1.02); opacity: 1; } } @keyframes neural-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.9; } }`}</style>
                 {isCyber && (
                   <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute inset-0 bg-grid-cyber opacity-[0.03]" />
-                    <div
-                      className={`absolute -top-32 -left-32 w-80 h-80 rounded-full blur-[120px] opacity-10 ${toneStyle.bg}`}
-                    />
-                    <div
-                      className={`absolute -bottom-32 -right-32 w-80 h-80 rounded-full blur-[120px] opacity-10 ${toneStyle.bg}`}
-                    />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(217,70,239,0.12),transparent_55%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(34,211,238,0.14),transparent_60%)]" />
                   </div>
                 )}
 
-                <div className="relative z-10 flex flex-col items-center">
-                  <div
-                    className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border transition-all duration-700 ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow}`}
-                  >
-                    <FontAwesomeIcon
-                      icon={toneStyle.icon}
-                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-2xl"
-                    />
+                <div className="relative z-10 flex w-full max-w-5xl flex-col items-center gap-10">
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="relative">
+                      <div
+                        className="pointer-events-none absolute -inset-8 rounded-full blur-3xl"
+                        style={{
+                          background: `radial-gradient(circle at 50% 50%, ${hexToRgba(activeAnalysisAccent, 0.5)}, transparent 70%)`,
+                          animation: "neural-glow 5.6s ease-in-out infinite",
+                        }}
+                      />
+                      <div
+                        className={`relative h-44 w-44 overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/70 p-2 backdrop-blur-md transition-all duration-700 md:h-52 md:w-52 ${
+                          showNeuralProfile ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                        }`}
+                        style={{
+                          boxShadow: `0 0 40px ${hexToRgba(activeAnalysisAccent, 0.25)}`,
+                        }}
+                      >
+                        <div
+                          className="pointer-events-none absolute inset-0 rounded-[28px]"
+                          style={{
+                            background: `radial-gradient(circle at 50% 46%, ${hexToRgba(activeAnalysisAccent, 0.25)}, transparent 65%)`,
+                            animation: "neural-breath 6s ease-in-out infinite",
+                          }}
+                        />
+                        <img
+                          src={neuralProfileImage}
+                          alt="Neural identity profile"
+                          className={`relative z-10 h-full w-full rounded-[24px] object-cover transition-all duration-700 ${
+                            neuralScanActive
+                              ? "brightness-110 contrast-115 saturate-125"
+                              : neuralScanCompleted
+                                ? "brightness-105 contrast-125 saturate-115"
+                                : "brightness-95 contrast-105 saturate-105"
+                          }`}
+                          style={{
+                            filter:
+                              neuralScanActive || neuralScanCompleted
+                                ? `drop-shadow(0 0 ${neuralScanActive ? 30 : 20}px ${hexToRgba(activeAnalysisAccent, neuralScanActive ? 0.5 : 0.3)})`
+                                : undefined,
+                            animation: "neural-breath 6s ease-in-out infinite",
+                          }}
+                        />
+                        {neuralScanActive && (
+                          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[24px]">
+                            <div
+                              className="neural-scan-pass absolute inset-x-0 top-0 h-20 mix-blend-screen"
+                              style={{
+                                background: `linear-gradient(to bottom, ${hexToRgba(activeAnalysisAccent, 0)}, ${hexToRgba(activeAnalysisAccent, 0.34)}, ${hexToRgba(activeAnalysisAccent, 0)})`,
+                                animationDuration: `${activeAnalysisAnimationProfile.scanDurationMs}ms`,
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300/80">
+                        Neural Identity
+                      </p>
+                      <h2
+                        className={`text-4xl font-black uppercase tracking-[0.2em] transition-all duration-700 md:text-5xl ${
+                          identityLockVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                        }`}
+                        style={{
+                          color: identityLockVisible
+                            ? hexToRgba(activeAnalysisAccent, 0.98)
+                            : hexToRgba(activeAnalysisAccent, 0.45),
+                          textShadow: identityLockVisible
+                            ? `0 0 26px ${hexToRgba(activeAnalysisAccent, 0.5)}`
+                            : "none",
+                        }}
+                      >
+                        {cognitiveIdentity?.label || resultsCopy.title}
+                      </h2>
+                    </div>
                   </div>
 
-                  {activePuzzleType === "sequence_sprint" ? (
-                    <>
-                      <p
-                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
-                        }`}
-                      >
-                        {resultsCopy.eyebrow}
-                      </p>
-
-                      <h2
-                        className={`mt-3 text-4xl font-black tracking-tight ${
-                          isCyber
-                            ? "text-white text-glow-blue"
-                            : "text-slate-900"
-                        }`}
-                      >
-                        {resultsCopy.title}
-                      </h2>
-
-                      <p
-                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                          isCyber ? "text-cyan-100/90" : "text-slate-600"
-                        }`}
-                      >
-                        {resultsCopy.summary}
-                      </p>
-
-                    </>
-                  ) : activePuzzleType === "grid_recall" ? (
-                    <>
-                      <p
-                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
-                        }`}
-                      >
-                        {resultsCopy.eyebrow}
-                      </p>
-                      <h2
-                        className={`mt-3 text-4xl font-black tracking-tight ${
-                          isCyber
-                            ? "text-white text-glow-blue"
-                            : "text-slate-900"
-                        }`}
-                      >
-                        {resultsCopy.title}
-                      </h2>
-                      <p
-                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                          isCyber ? "text-cyan-100/90" : "text-slate-600"
-                        }`}
-                      >
-                        {resultsCopy.summary}
-                      </p>
-                    </>
-                  ) : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE ? (
-                    <>
-                      <p
-                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
-                        }`}
-                      >
-                        {resultsCopy.eyebrow}
-                      </p>
-
-                      <h2
-                        className={`mt-3 text-4xl font-black tracking-tight ${
-                          isCyber
-                            ? "text-white text-glow-blue"
-                            : "text-slate-900"
-                        }`}
-                      >
-                        {resultsCopy.title}
-                      </h2>
-
-                      <p
-                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                          isCyber ? "text-cyan-100/90" : "text-slate-600"
-                        }`}
-                      >
-                        {resultsCopy.summary}
-                      </p>
-
-                    </>
-                  ) : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH ? (
-                    <>
-                      <p
-                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
-                        }`}
-                      >
-                        {resultsCopy.eyebrow}
-                      </p>
-
-                      <h2
-                        className={`mt-3 text-4xl font-black tracking-tight ${
-                          isCyber
-                            ? "text-white text-glow-blue"
-                            : "text-slate-900"
-                        }`}
-                      >
-                        {resultsCopy.title}
-                      </h2>
-
-                      <p
-                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                          isCyber ? "text-cyan-100/90" : "text-slate-600"
-                        }`}
-                      >
-                        {resultsCopy.summary}
-                      </p>
-
-                      <p
-                        className={`mt-5 text-[11px] font-semibold uppercase tracking-[0.28em] ${
-                          isCyber ? "text-violet-300/80" : "text-slate-500"
-                        }`}
-                      >
-                        {resultsCopy.detail}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p
-                        className={`text-sm font-semibold uppercase tracking-[0.3em] ${
-                          isCyber ? "text-fuchsia-400" : "text-cyan-600"
-                        }`}
-                      >
-                        Round Complete
-                      </p>
-                      <h2
-                        className={`mt-3 text-4xl font-black tracking-tight ${
-                          isCyber
-                            ? "text-white text-glow-blue"
-                            : "text-slate-900"
-                        }`}
-                      >
-                        Pattern Rush{" "}
-                        <span
-                          className={
-                            isCyber ? "text-cyan-400" : "text-cyan-600"
-                          }
-                        >
-                          Results
-                        </span>
-                      </h2>
-                      <p
-                        className={`mt-4 max-w-xl text-lg font-medium leading-relaxed ${
-                          isCyber ? "text-cyan-100/90" : "text-slate-600"
-                        }`}
-                      >
-                        {getPerformanceMessage()}
-                      </p>
-                    </>
-                  )}
-                </div>
-
-                {sessionOutcome && (
-                  <div
-                    className={`relative mt-8 w-full max-w-2xl overflow-hidden rounded-3xl border transition-all duration-500 ${toneStyle.border} ${toneStyle.bg} ${toneStyle.shadow} p-6 md:p-8`}
-                    data-cognitive-identity={
-                      cognitiveIdentity?.label ?? "unknown"
-                    }
-                  >
-                    {isCyber && (
-                      <div
-                        className={`absolute top-0 left-0 h-1 w-full bg-linear-to-r from-transparent via-${
-                          toneStyle.label.split("-")[1]
-                        }-400 to-transparent opacity-50`}
-                      />
-                    )}
-
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
-                      <div className="flex-1 text-left">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-400/80">
-                            Session Insight
-                          </h3>
-                          <span
-                            className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${toneStyle.label} bg-white/5 border border-white/10`}
-                          >
-                            {sessionOutcome.alignmentLabel}
-                          </span>
-                        </div>
-
-                        <p
-                          className={`mt-4 text-3xl font-black tracking-tight text-white ${
-                            toneStyle.label.includes("text-glow")
-                              ? toneStyle.label.split(" ").pop()
-                              : ""
-                          }`}
-                        >
-                          {sessionOutcome.title}
-                        </p>
-
-                        <p className="mt-3 text-base leading-relaxed text-cyan-100/80">
-                          {sessionOutcome.summary}
-                        </p>
-                      </div>
-
-                      {cognitiveIdentity && (
-                        <div
-                          className="w-full md:w-72 shrink-0 rounded-2xl border border-white/10 bg-slate-950/55 p-4 backdrop-blur-md"
-                          style={{
-                            boxShadow: `inset 0 0 28px ${hexToRgba(activeAnalysisAccent, 0.16)}`,
-                          }}
-                        >
-                          <div
-                            className="relative overflow-hidden rounded-xl border bg-slate-950/70 p-2"
+                  <div className="w-full max-w-2xl text-left">
+                    <div className="space-y-2 text-sm leading-6 text-cyan-100/80">
+                      {neuralAnalysisLines.slice(0, 3).map((line, index) => {
+                        const isVisible = analysisLineCount > index;
+                        return (
+                          <p
+                            key={`${line}-${index}`}
+                            className={`transition-all ${
+                              isVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                            }`}
                             style={{
-                              borderColor: hexToRgba(activeAnalysisAccent, 0.3),
+                              transitionDuration: `${activeAnalysisAnimationProfile.lineDurationMs}ms`,
+                              color: isVisible
+                                ? hexToRgba(activeAnalysisAccent, 0.88)
+                                : hexToRgba(activeAnalysisAccent, 0.4),
+                              textShadow: isVisible
+                                ? `0 0 12px ${hexToRgba(activeAnalysisAccent, 0.35)}`
+                                : "none",
                             }}
                           >
-                            <div
-                              className="pointer-events-none absolute inset-0 rounded-xl neural-image-aura"
-                              style={{
-                                background: `radial-gradient(circle at 50% 46%, ${hexToRgba(activeAnalysisAccent, 0.24)}, ${hexToRgba(activeAnalysisAccent, 0.06)} 48%, transparent 78%)`,
-                                animationDuration: `${activeAnalysisAnimationProfile.auraDurationMs}ms`,
-                              }}
-                            />
-                            <div
-                              className={`pointer-events-none absolute inset-0 rounded-xl transition-opacity duration-500 ${
-                                neuralScanActive ? "opacity-75" : "opacity-0"
-                              }`}
-                              style={{
-                                background: `radial-gradient(circle at 50% 43%, ${hexToRgba(activeAnalysisAccent, 0.3)}, transparent 36%)`,
-                              }}
-                            />
-                            <img
-                              src={neuralProfileImage}
-                              alt="Neural identity profile"
-                              className={`relative z-10 w-full rounded-lg border border-white/10 object-cover transition-all duration-700 ${
-                                showNeuralProfile
-                                  ? "translate-y-0 opacity-100"
-                                  : "translate-y-2 opacity-0"
-                              } ${
-                                neuralScanActive
-                                  ? "brightness-110 contrast-115 saturate-125"
-                                  : neuralScanCompleted
-                                    ? "brightness-105 contrast-125 saturate-115"
-                                    : "brightness-90 contrast-100 saturate-100"
-                              }`}
-                              style={{
-                                filter:
-                                  neuralScanActive || neuralScanCompleted
-                                    ? `drop-shadow(0 0 ${neuralScanActive ? 30 : 20}px ${hexToRgba(activeAnalysisAccent, neuralScanActive ? 0.46 : 0.26)})`
-                                    : undefined,
-                              }}
-                            />
-                            {neuralScanActive && (
-                              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
-                                <div
-                                  className="neural-scan-pass absolute inset-x-0 top-0 h-20 mix-blend-screen"
-                                  style={{
-                                    background: `linear-gradient(to bottom, ${hexToRgba(activeAnalysisAccent, 0)}, ${hexToRgba(activeAnalysisAccent, 0.34)}, ${hexToRgba(activeAnalysisAccent, 0)})`,
-                                    animationDuration: `${activeAnalysisAnimationProfile.scanDurationMs}ms`,
-                                  }}
-                                />
-                                <div
-                                  className="neural-brain-lock absolute left-1/2 top-[43%] h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[1px]"
-                                  style={{
-                                    border: `1px solid ${hexToRgba(activeAnalysisAccent, 0.34)}`,
-                                    backgroundColor: hexToRgba(activeAnalysisAccent, 0.18),
-                                    animationDuration: `${activeAnalysisAnimationProfile.brainPulseMs}ms`,
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="mt-4 border-t border-white/10 pt-4">
-                            <div className="flex items-center gap-2">
-                              <FontAwesomeIcon
-                                icon={faBrain}
-                                className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-xs"
-                              />
-                              <p
-                                className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
-                                  identityLockVisible
-                                    ? "translate-y-0 opacity-100"
-                                    : "translate-y-1 opacity-0"
-                                }`}
-                                style={{
-                                  color: hexToRgba(activeAnalysisAccent, identityLockVisible ? 0.96 : 0.5),
-                                  textShadow: identityLockVisible
-                                    ? `0 0 10px ${hexToRgba(activeAnalysisAccent, 0.5)}`
-                                    : "none",
-                                }}
-                              >
-                                Cognitive Identity
-                              </p>
-                            </div>
-                            <p
-                              className={`mt-2 text-2xl font-black tracking-tight uppercase transition-all duration-500 ${
-                                identityLockVisible
-                                  ? "translate-y-0 text-white opacity-100 animate-[pulse_4.8s_ease-in-out_infinite]"
-                                  : "translate-y-1 text-white/30 opacity-0"
-                              }`}
-                              style={{
-                                textShadow: identityLockVisible
-                                  ? `0 0 16px ${hexToRgba(activeAnalysisAccent, 0.42)}`
-                                  : "none",
-                              }}
-                            >
-                              {cognitiveIdentity.label}
-                            </p>
-                            <p
-                              className={`mt-2 text-xs leading-5 italic transition-all duration-500 ${
-                                identityLockVisible
-                                  ? "translate-y-0 text-cyan-100/70 opacity-100"
-                                  : "translate-y-1 text-cyan-100/30 opacity-0"
-                              }`}
-                            >
-                              "{cognitiveIdentity.description}"
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div
-                      className="mt-5 rounded-2xl border px-4 py-4 text-left"
-                      style={{
-                        borderColor: hexToRgba(activeAnalysisAccent, 0.28),
-                        backgroundColor: hexToRgba(activeAnalysisAccent, 0.08),
-                      }}
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <p
-                          className="text-[10px] font-black uppercase tracking-[0.28em]"
-                          style={{ color: hexToRgba(activeAnalysisAccent, 0.9) }}
-                        >
-                          {neuralAnalysisTitle}
-                        </p>
-                        <span
-                          className={`text-[9px] font-bold uppercase tracking-[0.22em] ${neuralAnalysisToneClass}`}
-                        >
-                          {activeAnalysisProfile.tone}
-                        </span>
-                      </div>
-                      <div className="mt-3 space-y-2">
-                        {neuralAnalysisLines.map((line, index) => {
-                          const isVisible = analysisLineCount > index;
-                          return (
-                            <p
-                              key={`${line}-${index}`}
-                              className={`text-sm leading-6 transition-all ${
-                                isVisible
-                                  ? index === neuralAnalysisLines.length - 1
-                                    ? "translate-y-0 opacity-100 font-semibold"
-                                    : "translate-y-0 opacity-100"
-                                  : "translate-y-1 opacity-0"
-                              }`}
-                              style={{
-                                transitionDuration: `${activeAnalysisAnimationProfile.lineDurationMs}ms`,
-                                color: isVisible
-                                  ? index === neuralAnalysisLines.length - 1
-                                    ? hexToRgba(activeAnalysisAccent, 0.98)
-                                    : hexToRgba(activeAnalysisAccent, 0.86)
-                                  : hexToRgba(activeAnalysisAccent, 0.34),
-                                textShadow:
-                                  isVisible && index === neuralAnalysisLines.length - 1
-                                    ? `0 0 10px ${hexToRgba(activeAnalysisAccent, 0.36)}`
-                                    : "none",
-                              }}
-                            >
-                              {line}
-                            </p>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="mt-8 flex flex-wrap items-center justify-between gap-6 border-t border-white/10 pt-6">
-                      {sessionOutcome?.trainingDirection && (
-                        <div className="flex items-center gap-4">
-                          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-cyan-400/70">
-                            Direction
-                          </span>
-                          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-lg ring-1 ring-white/20">
-                            <FontAwesomeIcon
-                              icon={faArrowRight}
-                              className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-[10px]"
-                            />
-                            {sessionOutcome.trainingDirection}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-6">
-                        <div className="text-right">
-                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400/70">
-                            Next Recommendation
+                            {line}
                           </p>
-                          <p className="text-sm font-black text-white uppercase tracking-widest mt-0.5">
-                            {sessionOutcome.nextRecommendedDifficulty}
-                          </p>
-                        </div>
-                        <button
-                          onClick={handleStartRecommendedSession}
-                          className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-cyan-400 px-6 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:bg-cyan-300 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] active:scale-95"
-                        >
-                          <span>Start</span>
-                          <FontAwesomeIcon
-                            icon={faChevronRight}
-                            className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] transition-transform group-hover:translate-x-1"
-                          />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-12 grid w-full max-w-3xl grid-cols-1 gap-4 md:grid-cols-3">
-                  <div
-                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
-                      isCyber
-                        ? "border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40 hover:bg-cyan-400/10"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
-                  >
-                    {isCyber && (
-                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-cyan-400/10 blur-2xl transition-all group-hover:bg-cyan-400/20" />
-                    )}
-                    <div className="relative flex flex-col items-center">
-                      <FontAwesomeIcon
-                        icon={faBullseye}
-                        className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mb-3 text-lg"
-                      />
-                      <p
-                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isCyber ? "text-cyan-300/70" : "text-slate-500"
-                        }`}
-                      >
-                        FINAL SCORE
-                      </p>
-                      <div
-                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
-                          isCyber
-                            ? "text-white text-glow-blue"
-                            : "text-slate-800"
-                        }`}
-                      >
-                        {totalScore.toLocaleString()}
-                      </div>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div
-                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
-                      isCyber
-                        ? "border-emerald-400/20 bg-emerald-500/5 hover:border-emerald-400/40 hover:bg-emerald-500/10"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
-                  >
-                    {isCyber && (
-                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-emerald-400/10 blur-2xl transition-all group-hover:bg-emerald-400/20" />
-                    )}
-                    <div className="relative flex flex-col items-center">
-                      <FontAwesomeIcon
-                        icon={faBullseye}
-                        className="text-emerald-300 [--fa-secondary-color:var(--color-cyan-400)] [--fa-secondary-opacity:1] mb-3 text-lg"
-                      />
-                      <p
-                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isCyber ? "text-emerald-300/70" : "text-slate-500"
-                        }`}
-                      >
-                        ACCURACY
+                  <div className="flex w-full max-w-3xl flex-col items-center justify-between gap-6 rounded-2xl bg-white/5 px-6 py-4 text-center sm:flex-row">
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300/70">
+                        Score
                       </p>
-                      <div
-                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
-                          isCyber
-                            ? "text-white text-glow-emerald"
-                            : "text-slate-800"
-                        }`}
-                      >
+                      <p className="font-mono text-3xl font-black text-white text-glow-blue">
+                        {scoreDisplay.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="h-px w-20 bg-white/10 sm:h-12 sm:w-px" />
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-300/70">
+                        Accuracy
+                      </p>
+                      <p className="font-mono text-3xl font-black text-white text-glow-emerald">
                         {accuracy}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`group relative overflow-hidden rounded-2xl border px-6 py-8 transition-all duration-300 ${
-                      isCyber
-                        ? "border-fuchsia-400/20 bg-fuchsia-500/5 hover:border-fuchsia-400/40 hover:bg-fuchsia-500/10"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
-                  >
-                    {isCyber && (
-                      <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-fuchsia-400/10 blur-2xl transition-all group-hover:bg-fuchsia-400/20" />
-                    )}
-                    <div className="relative flex flex-col items-center">
-                      <FontAwesomeIcon
-                        icon={faBolt}
-                        className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mb-3 text-lg"
-                      />
-                      <p
-                        className={`text-[10px] font-black uppercase tracking-[0.3em] ${
-                          isCyber ? "text-fuchsia-300/70" : "text-slate-500"
-                        }`}
-                      >
-                        BEST STREAK
                       </p>
-                      <div
-                        className={`mt-3 font-mono text-4xl font-black tracking-tighter ${
-                          isCyber
-                            ? "text-white text-glow-pink"
-                            : "text-slate-800"
-                        }`}
-                      >
+                    </div>
+                    <div className="h-px w-20 bg-white/10 sm:h-12 sm:w-px" />
+                    <div className="flex flex-col items-center gap-2">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-fuchsia-300/70">
+                        Streak
+                      </p>
+                      <p className="font-mono text-3xl font-black text-white text-glow-pink">
                         x{bestStreak.toString().padStart(2, "0")}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 px-6 py-5 text-left shadow-[0_0_40px_rgba(34,211,238,0.15)] backdrop-blur-md">
+                    <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-200/80">
+                        Score Breakdown
+                      </p>
+                      <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-fuchsia-200/80">
+                        {scoreBreakdown.comboStateLabel}
+                      </span>
+                    </div>
+                    <div className="mt-4 grid gap-4 text-left sm:grid-cols-3">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                          Base Score
+                        </p>
+                        <p className="mt-2 font-mono text-2xl font-black text-cyan-100">
+                          {baseScoreDisplay.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                          Combo Bonus
+                        </p>
+                        <p className="mt-2 font-mono text-2xl font-black text-fuchsia-200">
+                          +{comboScoreDisplay.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                          Total
+                        </p>
+                        <p className="mt-2 font-mono text-2xl font-black text-white">
+                          {scoreDisplay.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                </div>
-
-                <div className="mt-6 w-full max-w-3xl rounded-2xl border border-cyan-400/20 bg-slate-900/65 px-6 py-5 backdrop-blur-sm">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300/80">
-                      Total Score
-                    </p>
-                    <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100">
-                      {scoreBreakdown.comboStateLabel}
-                    </span>
-                  </div>
-                  <div className="mt-4 grid gap-3 text-left sm:grid-cols-2">
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                        Base Score
+                  <div className="flex flex-col items-center gap-4">
+                    {sessionOutcome?.nextRecommendedDifficulty && (
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-200/70">
+                        Suggested Difficulty: {sessionOutcome.nextRecommendedDifficulty}
                       </p>
-                      <p className="mt-1 font-mono text-2xl font-black text-cyan-200">
-                        {scoreBreakdown.baseScoreEarned.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                        Combo Bonus
-                      </p>
-                      <p className="mt-1 font-mono text-2xl font-black text-fuchsia-200">
-                        +{scoreBreakdown.comboBonusEarned.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-200/80">
-                        Round Gain
-                      </p>
-                      <p className="mt-1 font-mono text-2xl font-black text-white">
-                        +{scoreBreakdown.roundScoreEarned.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                        Last Gain
-                      </p>
-                      <p className="mt-1 font-mono text-2xl font-black text-emerald-200">
-                            {scoreBreakdown.lastGain > 0
-                              ? `+${scoreBreakdown.lastGain.toLocaleString()}`
-                              : "--"}
-                      </p>
-                    </div>
+                    )}
+                    <button
+                      onClick={() => resetGame()}
+                      className={`group relative overflow-hidden rounded-xl px-10 py-4 font-black uppercase tracking-[0.2em] transition-all duration-300 ${
+                        isCyber
+                          ? "bg-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:bg-cyan-300 hover:shadow-[0_0_50px_rgba(34,211,238,0.5)] hover:scale-105 active:scale-95"
+                          : "bg-cyan-600 text-white hover:bg-cyan-500 shadow-lg"
+                      }`}
+                    >
+                      <span className="relative z-10 flex items-center gap-3">
+                        <FontAwesomeIcon
+                          icon={faRotateRight}
+                          className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] transition-transform duration-500 group-hover:rotate-180"
+                        />
+                        Run Again
+                      </span>
+                    </button>
                   </div>
                 </div>
-
-                <button
-                  onClick={() => resetGame()}
-                  className={`group relative mt-12 overflow-hidden rounded-xl px-10 py-4 font-black uppercase tracking-[0.2em] transition-all duration-300 ${
-                    isCyber
-                      ? "bg-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:bg-cyan-300 hover:shadow-[0_0_50px_rgba(34,211,238,0.5)] hover:scale-105 active:scale-95"
-                      : "bg-cyan-600 text-white hover:bg-cyan-500 shadow-lg"
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center gap-3">
-                    <FontAwesomeIcon
-                      icon={faRotateRight}
-                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] transition-transform duration-500 group-hover:rotate-180"
-                    />
-                    Play Again
-                  </span>
-                </button>
               </div>
               ) : (
                 <>
