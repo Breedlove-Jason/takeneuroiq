@@ -38,6 +38,7 @@ import {
 import { buildAccuracySummary } from "../utils/puzzleAccuracy";
 import { PUZZLE_DEV_FLAGS } from "../config/puzzleDevFlags";
 import sequenceSprintRunner from "../assets/running.png";
+import neuralProfileImage from "../assets/neuro.png";
 
 /**
  * Arena Component
@@ -159,6 +160,107 @@ const recommendedSessionReasonMap = {
     "The system is using your recent training behavior to shape this session.",
 };
 
+const analysisProfileMap = {
+  pattern_rush: {
+    title: "Pattern Analysis Matrix",
+    analysisLines: [
+      "Pattern recognition stable",
+      "Visual decoding efficiency high",
+      "Signal alignment consistent",
+    ],
+    tone: "calibrated",
+    accentColor: "#22d3ee",
+    animationStyle: "steady_scan",
+  },
+  sequence_sprint: {
+    title: "Momentum Analysis Matrix",
+    analysisLines: [
+      "Momentum sustained",
+      "Prediction flow accelerating",
+      "Execution rhythm stabilized",
+    ],
+    tone: "surging",
+    accentColor: "#d946ef",
+    animationStyle: "tempo_surge",
+  },
+  grid_recall: {
+    title: "Memory Analysis Matrix",
+    analysisLines: [
+      "Memory imprint retained",
+      "Spatial recall stabilizing",
+      "Retention fidelity improving",
+    ],
+    tone: "stabilizing",
+    accentColor: "#34d399",
+    animationStyle: "memory_resonance",
+  },
+  logic_gate: {
+    title: "Logic Analysis Matrix",
+    analysisLines: [
+      "Logical precision maintained",
+      "Operator consistency high",
+      "Decision pathways optimized",
+    ],
+    tone: "precise",
+    accentColor: "#f59e0b",
+    animationStyle: "precision_lock",
+  },
+  signal_path: {
+    title: "Signal Analysis Matrix",
+    analysisLines: [
+      "Routing stability confirmed",
+      "Constraint navigation improving",
+      "Signal discipline established",
+    ],
+    tone: "disciplined",
+    accentColor: "#a78bfa",
+    animationStyle: "route_trace",
+  },
+};
+
+const analysisAnimationProfileMap = {
+  steady_scan: {
+    scanDurationMs: 1700,
+    lineStartDelayMs: 220,
+    lineStaggerMs: 280,
+    lineDurationMs: 500,
+    auraDurationMs: 7200,
+    brainPulseMs: 1200,
+  },
+  tempo_surge: {
+    scanDurationMs: 1480,
+    lineStartDelayMs: 170,
+    lineStaggerMs: 230,
+    lineDurationMs: 460,
+    auraDurationMs: 6200,
+    brainPulseMs: 950,
+  },
+  memory_resonance: {
+    scanDurationMs: 1760,
+    lineStartDelayMs: 240,
+    lineStaggerMs: 300,
+    lineDurationMs: 560,
+    auraDurationMs: 7800,
+    brainPulseMs: 1320,
+  },
+  precision_lock: {
+    scanDurationMs: 1560,
+    lineStartDelayMs: 180,
+    lineStaggerMs: 250,
+    lineDurationMs: 450,
+    auraDurationMs: 6400,
+    brainPulseMs: 980,
+  },
+  route_trace: {
+    scanDurationMs: 1660,
+    lineStartDelayMs: 210,
+    lineStaggerMs: 270,
+    lineDurationMs: 490,
+    auraDurationMs: 7000,
+    brainPulseMs: 1100,
+  },
+};
+
 function DevDebugPanel({ title, children }) {
   return (
     <div className="rounded-2xl border border-amber-400/40 bg-amber-500/5 p-3 text-[10px] uppercase tracking-[0.3em] text-amber-200 shadow-[0_0_18px_rgba(251,191,36,0.25)]">
@@ -177,6 +279,24 @@ function clamp(value, min = 0, max = 100) {
     return min;
   }
   return Math.min(Math.max(value, min), max);
+}
+
+function hexToRgba(hexColor, alpha = 1) {
+  if (typeof hexColor !== "string") {
+    return `rgba(34, 211, 238, ${alpha})`;
+  }
+  const normalizedHex = hexColor.replace("#", "");
+  if (normalizedHex.length !== 6) {
+    return `rgba(34, 211, 238, ${alpha})`;
+  }
+  const intValue = Number.parseInt(normalizedHex, 16);
+  if (Number.isNaN(intValue)) {
+    return `rgba(34, 211, 238, ${alpha})`;
+  }
+  const red = (intValue >> 16) & 255;
+  const green = (intValue >> 8) & 255;
+  const blue = intValue & 255;
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
 function buildBlankGridMatrix(size = 3) {
@@ -658,6 +778,13 @@ function Arena({ theme }) {
   const [cognitiveIdentity, setCognitiveIdentity] = useState(null);
   const [showPuzzleTransitionFx, setShowPuzzleTransitionFx] = useState(false);
   const [showSolveFx, setShowSolveFx] = useState(false);
+  const [isLightningActive, setIsLightningActive] = useState(false);
+  const [matrixOverdrive, setMatrixOverdrive] = useState(false);
+  const [showNeuralProfile, setShowNeuralProfile] = useState(false);
+  const [neuralScanActive, setNeuralScanActive] = useState(false);
+  const [neuralScanCompleted, setNeuralScanCompleted] = useState(false);
+  const [identityLockVisible, setIdentityLockVisible] = useState(false);
+  const [analysisLineCount, setAnalysisLineCount] = useState(0);
 
   const [liveAdaptiveDifficulty, setLiveAdaptiveDifficulty] = useState({
     state: recommendedSession?.adaptiveState || "steady",
@@ -671,6 +798,7 @@ function Arena({ theme }) {
   const isTransitioningRef = useRef(false);
   const adaptiveShiftTimeoutRef = useRef(null);
   const feedbackTimeoutRef = useRef(null);
+  const lightningTimeoutRef = useRef(null);
   const recommendedBannerHideTimeoutRef = useRef(null);
   const recommendedBannerRemoveTimeoutRef = useRef(null);
   const hasHandledRecommendedSessionRef = useRef(false);
@@ -722,6 +850,11 @@ function Arena({ theme }) {
   const adaptiveCoachingMessage =
     adaptiveCoachingMessageMap[liveAdaptiveDifficulty.state] ??
     "Stay consistent and keep building momentum.";
+  const activeAnalysisProfile =
+    analysisProfileMap[activePuzzleType] || analysisProfileMap.pattern_rush;
+  const activeAnalysisAnimationProfile =
+    analysisAnimationProfileMap[activeAnalysisProfile.animationStyle] ||
+    analysisAnimationProfileMap.steady_scan;
 
   const matrixRainMode = useMemo(() => {
     if (gameOver) return "victory";
@@ -1036,6 +1169,9 @@ function Arena({ theme }) {
       if (solveFxTimeoutRef.current) {
         clearTimeout(solveFxTimeoutRef.current);
       }
+      if (lightningTimeoutRef.current) {
+        clearTimeout(lightningTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -1197,6 +1333,60 @@ function Arena({ theme }) {
   }, [gameOver]);
 
   useEffect(() => {
+    if (!gameOver) return undefined;
+
+    const scanDurationMs = activeAnalysisAnimationProfile.scanDurationMs;
+    const lineStartDelayMs = activeAnalysisAnimationProfile.lineStartDelayMs;
+    const lineStaggerMs = activeAnalysisAnimationProfile.lineStaggerMs;
+    const identityRevealDelayMs = 220;
+    const scanStartDelayMs = 280;
+    const scanCompleteDelayMs = scanStartDelayMs + scanDurationMs;
+    const firstLineDelayMs = scanCompleteDelayMs + lineStartDelayMs;
+    const timerIds = [];
+    const schedule = (delayMs, callback) => {
+      const timerId = setTimeout(callback, delayMs);
+      timerIds.push(timerId);
+      return timerId;
+    };
+
+    const overdriveStartTimer = setTimeout(() => {
+      setMatrixOverdrive(true);
+    }, 0);
+    const overdriveTimer = setTimeout(() => {
+      setMatrixOverdrive(false);
+    }, 1300);
+
+    const revealTimer = setTimeout(() => {
+      setShowNeuralProfile(true);
+    }, 100);
+    const scanStartTimer = setTimeout(() => {
+      setNeuralScanActive(true);
+    }, scanStartDelayMs);
+    const scanCompleteTimer = setTimeout(() => {
+      setNeuralScanActive(false);
+      setNeuralScanCompleted(true);
+    }, scanCompleteDelayMs);
+    const identityLockTimer = setTimeout(() => {
+      setIdentityLockVisible(true);
+    }, scanCompleteDelayMs + identityRevealDelayMs);
+    activeAnalysisProfile.analysisLines.forEach((_, lineIndex) => {
+      schedule(firstLineDelayMs + lineStaggerMs * lineIndex, () => {
+        setAnalysisLineCount(lineIndex + 1);
+      });
+    });
+
+    return () => {
+      clearTimeout(overdriveStartTimer);
+      clearTimeout(overdriveTimer);
+      clearTimeout(revealTimer);
+      clearTimeout(scanStartTimer);
+      clearTimeout(scanCompleteTimer);
+      clearTimeout(identityLockTimer);
+      timerIds.forEach((timerId) => clearTimeout(timerId));
+    };
+  }, [gameOver, activeAnalysisAnimationProfile, activeAnalysisProfile]);
+
+  useEffect(() => {
     if (previousRecommendedSessionKeyRef.current !== recommendedSessionKey) {
       previousRecommendedSessionKeyRef.current = recommendedSessionKey;
       hasHandledRecommendedSessionRef.current = false;
@@ -1355,6 +1545,13 @@ function Arena({ theme }) {
         sequenceSolvedCount: nextSequenceSolvedCount,
         sequenceTotalCount,
       });
+      setIsLightningActive(true);
+      if (lightningTimeoutRef.current) {
+        clearTimeout(lightningTimeoutRef.current);
+      }
+      lightningTimeoutRef.current = setTimeout(() => {
+        setIsLightningActive(false);
+      }, 240);
       setScore((prev) => prev + scoreAward.totalAwarded);
       setBaseScoreEarned((prev) => prev + scoreAward.baseAward);
       setComboBonusEarned((prev) => prev + scoreAward.comboBonusAward);
@@ -1371,6 +1568,10 @@ function Arena({ theme }) {
         setShowSolveFx(false);
       }, 420);
     } else {
+      setIsLightningActive(false);
+      if (lightningTimeoutRef.current) {
+        clearTimeout(lightningTimeoutRef.current);
+      }
       setStreak(0);
       setLastScoreGain({
         baseAward: 0,
@@ -2463,6 +2664,13 @@ function Arena({ theme }) {
     setDidBreakRecommendedAlignment(false);
     setShowPuzzleTransitionFx(false);
     setShowSolveFx(false);
+    setIsLightningActive(false);
+    setMatrixOverdrive(false);
+    setShowNeuralProfile(false);
+    setNeuralScanActive(false);
+    setNeuralScanCompleted(false);
+    setIdentityLockVisible(false);
+    setAnalysisLineCount(0);
     isTransitioningRef.current = false;
     setGameOver(false);
     setSessionOutcome(null);
@@ -2637,6 +2845,19 @@ function Arena({ theme }) {
   };
   const toneStyle =
     outcomeToneStyles[sessionOutcome?.tone] || outcomeToneStyles.neutral;
+  const analysisToneClassMap = {
+    calibrated: "text-cyan-200/65",
+    surging: "text-fuchsia-200/65",
+    stabilizing: "text-emerald-200/65",
+    precise: "text-amber-200/65",
+    disciplined: "text-violet-200/65",
+  };
+  const activeAnalysisAccent = activeAnalysisProfile.accentColor;
+  const neuralAnalysisTitle = activeAnalysisProfile.title;
+  const neuralAnalysisLines = activeAnalysisProfile.analysisLines;
+  const neuralAnalysisToneClass =
+    analysisToneClassMap[activeAnalysisProfile.tone] ||
+    analysisToneClassMap.calibrated;
 
   return (
     <div className="animate-fadeIn px-6 py-10">
@@ -2842,10 +3063,68 @@ function Arena({ theme }) {
           >
             <MatrixRain
               mode={matrixRainMode}
-              intensity={gameOver ? "light" : "medium"}
-              opacity={gameOver ? 0.5 : 1}
-              className={`-inset-12 z-0 ${gameOver ? "opacity-40" : "opacity-80"}`}
+              intensity={gameOver ? (matrixOverdrive ? "heavy" : "light") : "medium"}
+              opacity={gameOver ? (matrixOverdrive ? 0.72 : 0.5) : 1}
+              className={`-inset-12 z-0 transition-opacity duration-1000 ${
+                gameOver
+                  ? matrixOverdrive
+                    ? "opacity-[0.55]"
+                    : "opacity-40"
+                  : "opacity-80"
+              }`}
             />
+
+                {isLightningActive && (
+                  <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+                    <style>{`@keyframes arena-lightning-strike { 0% { opacity: 0; transform: scale(0.985) translateY(-3px); } 10% { opacity: 1; transform: scale(1.01) translateY(0); } 22% { opacity: 0.82; } 45% { opacity: 1; } 70% { opacity: 0.36; } 100% { opacity: 0; transform: scale(1.015) translateY(2px); } } @keyframes arena-lightning-flicker { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }`}</style>
+                    <div className="absolute inset-0 bg-linear-to-br from-cyan-400/0 via-cyan-200/10 to-white/0" />
+                    <svg
+                      viewBox="0 0 800 520"
+                      className="absolute inset-0 h-full w-full"
+                      preserveAspectRatio="none"
+                      style={{ animation: "arena-lightning-strike 240ms ease-out both" }}
+                      aria-hidden="true"
+                    >
+                      <defs>
+                        <linearGradient id="arenaLightningBolt" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+                          <stop offset="18%" stopColor="rgba(255,255,255,0.95)" />
+                          <stop offset="55%" stopColor="rgba(103,232,249,0.98)" />
+                          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                        </linearGradient>
+                        <filter id="arenaLightningGlow" x="-50%" y="-50%" width="200%" height="200%">
+                          <feGaussianBlur stdDeviation="7" result="blur" />
+                          <feColorMatrix
+                            in="blur"
+                            type="matrix"
+                            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -6"
+                          />
+                        </filter>
+                      </defs>
+                      <path
+                        d="M116 44 L248 120 L198 192 L342 244 L290 330 L438 364 L386 454 L618 506"
+                        fill="none"
+                        stroke="url(#arenaLightningBolt)"
+                        strokeWidth="14"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        filter="url(#arenaLightningGlow)"
+                        style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
+                      />
+                      <path
+                        d="M116 44 L248 120 L198 192 L342 244 L290 330 L438 364 L386 454 L618 506"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.98)"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
+                      />
+                      <circle cx="618" cy="506" r="44" fill="rgba(103,232,249,0.14)" filter="url(#arenaLightningGlow)" />
+                      <circle cx="618" cy="506" r="16" fill="rgba(255,255,255,0.6)" />
+                    </svg>
+                  </div>
+                )}
 
             <div className="relative z-10">
               {gameOver ? (
@@ -3072,48 +3351,177 @@ function Arena({ theme }) {
                       </div>
 
                       {cognitiveIdentity && (
-                        <div className="w-full md:w-64 shrink-0 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md shadow-inner">
-                          <div className="flex items-center gap-2 mb-3">
-                            <FontAwesomeIcon
-                              icon={faBrain}
-                              className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-xs"
+                        <div
+                          className="w-full md:w-72 shrink-0 rounded-2xl border border-white/10 bg-slate-950/55 p-4 backdrop-blur-md"
+                          style={{
+                            boxShadow: `inset 0 0 28px ${hexToRgba(activeAnalysisAccent, 0.16)}`,
+                          }}
+                        >
+                          <div
+                            className="relative overflow-hidden rounded-xl border bg-slate-950/70 p-2"
+                            style={{
+                              borderColor: hexToRgba(activeAnalysisAccent, 0.3),
+                            }}
+                          >
+                            <div
+                              className="pointer-events-none absolute inset-0 rounded-xl neural-image-aura"
+                              style={{
+                                background: `radial-gradient(circle at 50% 46%, ${hexToRgba(activeAnalysisAccent, 0.24)}, ${hexToRgba(activeAnalysisAccent, 0.06)} 48%, transparent 78%)`,
+                                animationDuration: `${activeAnalysisAnimationProfile.auraDurationMs}ms`,
+                              }}
                             />
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/90">
-                              Cognitive Identity
-                            </p>
+                            <div
+                              className={`pointer-events-none absolute inset-0 rounded-xl transition-opacity duration-500 ${
+                                neuralScanActive ? "opacity-75" : "opacity-0"
+                              }`}
+                              style={{
+                                background: `radial-gradient(circle at 50% 43%, ${hexToRgba(activeAnalysisAccent, 0.3)}, transparent 36%)`,
+                              }}
+                            />
+                            <img
+                              src={neuralProfileImage}
+                              alt="Neural identity profile"
+                              className={`relative z-10 w-full rounded-lg border border-white/10 object-cover transition-all duration-700 ${
+                                showNeuralProfile
+                                  ? "translate-y-0 opacity-100"
+                                  : "translate-y-2 opacity-0"
+                              } ${
+                                neuralScanActive
+                                  ? "brightness-110 contrast-115 saturate-125"
+                                  : neuralScanCompleted
+                                    ? "brightness-105 contrast-125 saturate-115"
+                                    : "brightness-90 contrast-100 saturate-100"
+                              }`}
+                              style={{
+                                filter:
+                                  neuralScanActive || neuralScanCompleted
+                                    ? `drop-shadow(0 0 ${neuralScanActive ? 30 : 20}px ${hexToRgba(activeAnalysisAccent, neuralScanActive ? 0.46 : 0.26)})`
+                                    : undefined,
+                              }}
+                            />
+                            {neuralScanActive && (
+                              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
+                                <div
+                                  className="neural-scan-pass absolute inset-x-0 top-0 h-20 mix-blend-screen"
+                                  style={{
+                                    background: `linear-gradient(to bottom, ${hexToRgba(activeAnalysisAccent, 0)}, ${hexToRgba(activeAnalysisAccent, 0.34)}, ${hexToRgba(activeAnalysisAccent, 0)})`,
+                                    animationDuration: `${activeAnalysisAnimationProfile.scanDurationMs}ms`,
+                                  }}
+                                />
+                                <div
+                                  className="neural-brain-lock absolute left-1/2 top-[43%] h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[1px]"
+                                  style={{
+                                    border: `1px solid ${hexToRgba(activeAnalysisAccent, 0.34)}`,
+                                    backgroundColor: hexToRgba(activeAnalysisAccent, 0.18),
+                                    animationDuration: `${activeAnalysisAnimationProfile.brainPulseMs}ms`,
+                                  }}
+                                />
+                              </div>
+                            )}
                           </div>
-                          <p className="text-xl font-black tracking-tight text-white">
-                            {cognitiveIdentity.label}
-                          </p>
-                          <p className="mt-2 text-xs leading-5 text-cyan-100/70 italic">
-                            "{cognitiveIdentity.description}"
-                          </p>
 
-                          {cognitiveIdentity?.primarySignal && (
-                            <div className="mt-4 border-t border-white/10 pt-4">
-                              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400/70">
-                                Primary Signal
-                              </p>
-                              <p className="mt-1 text-xs font-bold text-white uppercase tracking-wider">
-                                {cognitiveIdentity.primarySignal}
+                          <div className="mt-4 border-t border-white/10 pt-4">
+                            <div className="flex items-center gap-2">
+                              <FontAwesomeIcon
+                                icon={faBrain}
+                                className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-xs"
+                              />
+                              <p
+                                className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
+                                  identityLockVisible
+                                    ? "translate-y-0 opacity-100"
+                                    : "translate-y-1 opacity-0"
+                                }`}
+                                style={{
+                                  color: hexToRgba(activeAnalysisAccent, identityLockVisible ? 0.96 : 0.5),
+                                  textShadow: identityLockVisible
+                                    ? `0 0 10px ${hexToRgba(activeAnalysisAccent, 0.5)}`
+                                    : "none",
+                                }}
+                              >
+                                Cognitive Identity
                               </p>
                             </div>
-                          )}
+                            <p
+                              className={`mt-2 text-2xl font-black tracking-tight uppercase transition-all duration-500 ${
+                                identityLockVisible
+                                  ? "translate-y-0 text-white opacity-100 animate-[pulse_4.8s_ease-in-out_infinite]"
+                                  : "translate-y-1 text-white/30 opacity-0"
+                              }`}
+                              style={{
+                                textShadow: identityLockVisible
+                                  ? `0 0 16px ${hexToRgba(activeAnalysisAccent, 0.42)}`
+                                  : "none",
+                              }}
+                            >
+                              {cognitiveIdentity.label}
+                            </p>
+                            <p
+                              className={`mt-2 text-xs leading-5 italic transition-all duration-500 ${
+                                identityLockVisible
+                                  ? "translate-y-0 text-cyan-100/70 opacity-100"
+                                  : "translate-y-1 text-cyan-100/30 opacity-0"
+                              }`}
+                            >
+                              "{cognitiveIdentity.description}"
+                            </p>
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    {cognitiveIdentity?.shiftSignal && (
-                      <div className="mt-4 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 px-4 py-2 text-left">
-                        <p className="text-xs leading-5 text-fuchsia-100/90 italic">
-                          <FontAwesomeIcon
-                            icon={faBolt}
-                            className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] mr-2 text-[10px]"
-                          />
-                          {cognitiveIdentity.shiftSignal}
+                    <div
+                      className="mt-5 rounded-2xl border px-4 py-4 text-left"
+                      style={{
+                        borderColor: hexToRgba(activeAnalysisAccent, 0.28),
+                        backgroundColor: hexToRgba(activeAnalysisAccent, 0.08),
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <p
+                          className="text-[10px] font-black uppercase tracking-[0.28em]"
+                          style={{ color: hexToRgba(activeAnalysisAccent, 0.9) }}
+                        >
+                          {neuralAnalysisTitle}
                         </p>
+                        <span
+                          className={`text-[9px] font-bold uppercase tracking-[0.22em] ${neuralAnalysisToneClass}`}
+                        >
+                          {activeAnalysisProfile.tone}
+                        </span>
                       </div>
-                    )}
+                      <div className="mt-3 space-y-2">
+                        {neuralAnalysisLines.map((line, index) => {
+                          const isVisible = analysisLineCount > index;
+                          return (
+                            <p
+                              key={`${line}-${index}`}
+                              className={`text-sm leading-6 transition-all ${
+                                isVisible
+                                  ? index === neuralAnalysisLines.length - 1
+                                    ? "translate-y-0 opacity-100 font-semibold"
+                                    : "translate-y-0 opacity-100"
+                                  : "translate-y-1 opacity-0"
+                              }`}
+                              style={{
+                                transitionDuration: `${activeAnalysisAnimationProfile.lineDurationMs}ms`,
+                                color: isVisible
+                                  ? index === neuralAnalysisLines.length - 1
+                                    ? hexToRgba(activeAnalysisAccent, 0.98)
+                                    : hexToRgba(activeAnalysisAccent, 0.86)
+                                  : hexToRgba(activeAnalysisAccent, 0.34),
+                                textShadow:
+                                  isVisible && index === neuralAnalysisLines.length - 1
+                                    ? `0 0 10px ${hexToRgba(activeAnalysisAccent, 0.36)}`
+                                    : "none",
+                              }}
+                            >
+                              {line}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    </div>
 
                     <div className="mt-8 flex flex-wrap items-center justify-between gap-6 border-t border-white/10 pt-6">
                       {sessionOutcome?.trainingDirection && (
