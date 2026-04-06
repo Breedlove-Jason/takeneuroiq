@@ -26,11 +26,11 @@ let failed = 0;
 
 const builders = PATTERN_RUSH_PATTERN_BUILDERS;
 const expectedPatternTypes = [
-  "shapeSequence",
-  "colorSequence",
-  "rotationPattern",
-  "dualLayerPattern",
-  "alternatingRulePattern",
+  "shape_sequence",
+  "rotation_pattern",
+  "alternating_rule",
+  "dual_layer_pattern",
+  "positional_pattern",
 ];
 
 expectedPatternTypes.forEach((patternType) => {
@@ -53,10 +53,10 @@ console.log("\n🧪 Testing procedural generation and non-repetition\n");
 const signatures = new Set();
 for (let index = 0; index < 18; index += 1) {
   const puzzle = generatePatternRushPuzzle(index % 3 === 0 ? "easy" : index % 3 === 1 ? "medium" : "hard");
-  const signature = `${puzzle.meta.patternType}:${puzzle.grid.join("|")}:${puzzle.correctAnswer}`;
+  const signature = puzzle.meta.sequenceSignature;
 
   if (
-    assert(puzzle.type === "pattern-rush", `Puzzle ${index + 1} uses pattern-rush type`) &&
+    assert(puzzle.type === "pattern_rush", `Puzzle ${index + 1} uses pattern_rush type`) &&
     assert(!signatures.has(signature), `Puzzle ${index + 1} is unique`)
   ) {
     passed += 1;
@@ -66,12 +66,14 @@ for (let index = 0; index < 18; index += 1) {
   }
 
   if (
-    assert(puzzle.options.includes(puzzle.correctAnswer), `Puzzle ${index + 1} includes the correct answer in the options`) &&
-    assert(puzzle.options.length >= 4 && puzzle.options.length <= 6, `Puzzle ${index + 1} has 4-6 total options`) &&
+    assert(Array.isArray(puzzle.choices), `Puzzle ${index + 1} exposes choices`) &&
+    assert(puzzle.choices.includes(puzzle.correctAnswer), `Puzzle ${index + 1} includes the correct answer in the choices`) &&
+    assert(puzzle.choices.length >= 3 && puzzle.choices.length <= 5, `Puzzle ${index + 1} has 3-5 total choices`) &&
     assert(puzzle.grid.includes("missing"), `Puzzle ${index + 1} includes a missing tile`) &&
-    assert(puzzle.meta.difficulty === puzzle.difficulty, `Puzzle ${index + 1} keeps difficulty aligned`)
+    assert(puzzle.meta.difficulty === puzzle.difficulty, `Puzzle ${index + 1} keeps difficulty aligned`) &&
+    assert(typeof puzzle.meta.ruleDescription === "string", `Puzzle ${index + 1} exposes meta.ruleDescription`)
   ) {
-    passed += 4;
+    passed += 6;
   } else {
     failed += 1;
   }
