@@ -21,6 +21,19 @@ function cloneArray(value) {
   return Array.isArray(value) ? [...value] : [];
 }
 
+function normalizeChoiceList(puzzle, correctAnswer) {
+  const sourceChoices = cloneArray(
+    puzzle?.choices?.length ? puzzle.choices : puzzle?.options,
+  );
+  const dedupedChoices = [...new Set(sourceChoices.map((choice) => String(choice)))].filter(Boolean);
+
+  if (correctAnswer && !dedupedChoices.includes(correctAnswer)) {
+    dedupedChoices.unshift(correctAnswer);
+  }
+
+  return dedupedChoices;
+}
+
 function buildSequenceSignature(puzzle) {
   const title = puzzle?.title || "Pattern Rush";
   const gridSignature = cloneArray(puzzle?.grid).join("|");
@@ -36,24 +49,36 @@ function isValidPatternRushPuzzle(puzzle) {
 
   const title = typeof puzzle.title === "string" && puzzle.title.trim();
   const grid = Array.isArray(puzzle.grid) && puzzle.grid.length > 0;
-  const choices = Array.isArray(puzzle.choices) && puzzle.choices.length >= 3 && puzzle.choices.length <= 5;
+  const choices = Array.isArray(puzzle.choices)
+    ? puzzle.choices
+    : Array.isArray(puzzle.options)
+      ? puzzle.options
+      : [];
   const correctAnswer = String(puzzle.correctAnswer ?? puzzle.answer ?? "");
-  const hasAnswerInChoices = choices && puzzle.choices.includes(correctAnswer);
+  const hasAnswerInChoices = correctAnswer
+    ? choices.includes(correctAnswer)
+    : false;
+  const hasValidChoiceCount = choices.length >= 3 && choices.length <= 5;
 
-  return Boolean(title && grid && choices && hasAnswerInChoices);
+  return Boolean(title && grid && hasValidChoiceCount && hasAnswerInChoices);
 }
 
 function normalizePatternRushPuzzle(puzzle, preferredDifficulty = DEFAULT_DIFFICULTY) {
   const normalizedDifficulty = normalizeDifficulty(
     puzzle?.difficulty ?? puzzle?.difficultyBucket ?? preferredDifficulty,
   );
-  const choices = cloneArray(puzzle?.choices?.length ? puzzle.choices : puzzle?.options);
-  const correctAnswer = String(puzzle?.correctAnswer ?? puzzle?.answer ?? choices[0] ?? "");
+  const correctAnswer = String(puzzle?.correctAnswer ?? puzzle?.answer ?? "");
+  const choices = normalizeChoiceList(puzzle, correctAnswer);
+  const normalizedCorrectAnswer = correctAnswer || choices[0] || "";
+  const alignedChoices = choices.includes(normalizedCorrectAnswer)
+    ? choices
+    : [normalizedCorrectAnswer, ...choices].filter(Boolean);
   const sequenceSignature =
     puzzle?.meta?.sequenceSignature || puzzle?.sequenceSignature || puzzle?.signature || buildSequenceSignature(puzzle);
   const ruleDescription =
     puzzle?.meta?.ruleDescription || puzzle?.ruleDescription || "Pattern Rush sequence";
   const patternType = puzzle?.meta?.patternType || puzzle?.patternType || "static_fallback";
+  const choiceCount = alignedChoices.length;
 
   return {
     ...puzzle,
@@ -66,10 +91,10 @@ function normalizePatternRushPuzzle(puzzle, preferredDifficulty = DEFAULT_DIFFIC
         ? puzzle.prompt
         : "Resolve the missing tile and keep the momentum alive.",
     grid: cloneArray(puzzle?.grid),
-    choices,
-    options: choices,
-    correctAnswer,
-    answer: correctAnswer,
+    choices: alignedChoices,
+    options: alignedChoices,
+    correctAnswer: normalizedCorrectAnswer,
+    answer: normalizedCorrectAnswer,
     sequenceSignature,
     signature: sequenceSignature,
     meta: {
@@ -78,6 +103,7 @@ function normalizePatternRushPuzzle(puzzle, preferredDifficulty = DEFAULT_DIFFIC
       patternType,
       ruleDescription,
       sequenceSignature,
+      choiceCount,
     },
     puzzleMetrics: {
       ...(puzzle?.puzzleMetrics || {}),
@@ -85,6 +111,7 @@ function normalizePatternRushPuzzle(puzzle, preferredDifficulty = DEFAULT_DIFFIC
       patternType,
       ruleDescription,
       sequenceSignature,
+      choiceCount,
     },
   };
 }

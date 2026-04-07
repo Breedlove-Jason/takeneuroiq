@@ -576,6 +576,7 @@ function buildPatternRushPuzzle({ difficulty, patternType }) {
       recognitionWindowMs: base.recognitionWindowMs,
       sequenceLength: base.sequence.length,
       optionCount: options.length,
+      choiceCount: options.length,
     },
     puzzleMetrics: {
       patternType,
@@ -586,6 +587,7 @@ function buildPatternRushPuzzle({ difficulty, patternType }) {
       recognitionWindowMs: base.recognitionWindowMs,
       sequenceLength: base.sequence.length,
       optionCount: options.length,
+      choiceCount: options.length,
       missingIndex,
     },
   };

@@ -1078,6 +1078,36 @@ function Arena({ theme }) {
     };
   }, [activePuzzleType, signalPathPuzzle]);
 
+  const patternRushPuzzleMetrics = useMemo(() => {
+    if (activePuzzleType !== PUZZLE_TYPES.PATTERN_RUSH) {
+      return {};
+    }
+
+    const baseMetrics = currentPuzzle?.puzzleMetrics ?? {};
+    const choiceCount = Number.isInteger(baseMetrics.choiceCount)
+      ? baseMetrics.choiceCount
+      : Array.isArray(currentPuzzle?.choices)
+        ? currentPuzzle.choices.length
+        : Array.isArray(currentPuzzle?.options)
+          ? currentPuzzle.options.length
+          : 0;
+
+    return {
+      difficulty: currentPuzzle?.difficulty || currentPuzzle?.difficultyBucket || "medium",
+      patternType:
+        baseMetrics.patternType ?? currentPuzzle?.meta?.patternType ?? currentPuzzle?.patternType ?? null,
+      ruleDescription:
+        baseMetrics.ruleDescription ?? currentPuzzle?.meta?.ruleDescription ?? currentPuzzle?.ruleDescription ?? null,
+      sequenceSignature:
+        baseMetrics.sequenceSignature ??
+        currentPuzzle?.meta?.sequenceSignature ??
+        currentPuzzle?.sequenceSignature ??
+        currentPuzzle?.signature ??
+        null,
+      choiceCount,
+    };
+  }, [activePuzzleType, currentPuzzle]);
+
   const rawGridRecallGridSize =
     gridRecallPuzzle?.puzzleMetrics?.gridSize ||
     Math.sqrt(gridRecallPuzzle?.answer?.length || 9);
@@ -1355,6 +1385,8 @@ function Arena({ theme }) {
               ? logicGatePuzzleMetrics
               : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
                 ? signalPathPuzzleMetrics
+                : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
+                  ? patternRushPuzzleMetrics
                 : {},
       ...sequenceSprintOverrides,
     };
@@ -1387,6 +1419,8 @@ function Arena({ theme }) {
                 ? logicGatePuzzleMetrics
                 : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
                   ? signalPathPuzzleMetrics
+                  : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
+                    ? patternRushPuzzleMetrics
                   : {},
         ...sequenceSprintOverrides,
       };
@@ -1429,6 +1463,7 @@ function Arena({ theme }) {
     gridRecallPuzzleMetrics,
     logicGatePuzzleMetrics,
     signalPathPuzzleMetrics,
+    patternRushPuzzleMetrics,
     sequenceSprintSummary,
     isSequenceSprintSession,
   ]);
