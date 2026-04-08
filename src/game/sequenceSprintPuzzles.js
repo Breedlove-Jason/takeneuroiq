@@ -71,6 +71,7 @@ function buildPuzzle({
     options: options || createNumericOptions(answer),
     answer: String(answer),
     rule: ruleType,
+    sequenceType: ruleType,
     sequenceLength: sequence.length,
     signature: baseSignature,
     puzzleMetrics: {

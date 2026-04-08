@@ -95,7 +95,8 @@ function resolveDifficultyConfig(difficulty) {
 }
 
 function buildNodes(nodeCount) {
-  const nodeIds = NODE_ID_POOL.slice(0, nodeCount);
+  const shuffledPool = shuffleArray(NODE_ID_POOL);
+  const nodeIds = shuffledPool.slice(0, nodeCount).sort();
   let values = nodeIds.map((id) => ({ id, value: Math.random() < 0.5 ? 0 : 1 }));
 
   // Keep at least one 0 and one 1 to reduce degenerate all-same sets.

@@ -368,10 +368,13 @@ function buildLogicGridPuzzle({ difficulty, ruleType, size }) {
     id: `logic-grid-${logicGridPuzzleCounter++}`,
     type: "logic_grid",
     difficulty,
+    ruleType,
     title: `Logic Grid · ${ruleType.replace(/_/g, " ")}`,
     prompt: "Infer the missing cell using the active grid logic.",
     grid: built.grid,
     missingIndex: built.missingIndex,
+    missingRow: built.missingIndex.row,
+    missingCol: built.missingIndex.col,
     options,
     answer: built.answer,
     meta: {

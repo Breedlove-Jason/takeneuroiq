@@ -94,6 +94,8 @@ export function createGridRecallPuzzle({ difficulty = "medium" } = {}) {
     difficulty,
     answer,
     options,
+    size: config.size,
+    activeCount: config.activeNodes,
     prompt: "Memorize the active nodes",
     puzzleMetrics: {
       gridSize: config.size,
