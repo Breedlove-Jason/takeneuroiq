@@ -27,6 +27,12 @@ const PUZZLE_FAMILY_METADATA = {
     accent: "amber",
     icon: "logic_gate",
   },
+  logic_grid: {
+    label: "Logic Grid",
+    shortLabel: "Grid",
+    accent: "cyan",
+    icon: "grid",
+  },
   signal_path: {
     label: "Signal Path",
     shortLabel: "Signal",
@@ -38,6 +44,7 @@ const PUZZLE_FAMILY_METADATA = {
 const PUZZLE_FAMILY_DISPLAY_ORDER = [
   "pattern_rush",
   "grid_recall",
+  "logic_grid",
   "sequence_sprint",
   "logic_gate",
   "signal_path",
@@ -307,6 +314,36 @@ function buildLogicGateSummary(sessions = []) {
   };
 }
 
+function buildLogicGridSummary(sessions = []) {
+  const base = buildBaseSummary("logic_grid", sessions);
+
+  const bestStreaks = sessions.map((session) => toNumber(session.bestStreak));
+  const attempted = sessions.map((session) =>
+    toNumber(session.puzzlesAttempted),
+  );
+  const correct = sessions.map((session) => toNumber(session.puzzlesCorrect));
+  const trendReasonByState = {
+    Rising:
+      "Matrix reasoning is sharpening. Inferential logic is gaining stability across recent runs.",
+    Steadying:
+      "Structural stability is holding. Keep reinforcing rule deduction so the reasoning flow stays consistent.",
+    Rebuilding:
+      "Recalibrate the grid logic and prioritize rule accuracy before pushing further intensity.",
+  };
+
+  return {
+    ...base,
+    familyLabel: "Logic Grid",
+    bestStreak: bestStreaks.length ? Math.max(...bestStreaks) : 0,
+    averageBestStreak: average(bestStreaks, 1),
+    totalPuzzlesAttempted: sum(attempted),
+    totalPuzzlesCorrect: sum(correct),
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Matrix stability is evolving. Keep refining your inferential reasoning lane.",
+  };
+}
+
 function buildSignalPathSummary(sessions = []) {
   const base = buildBaseSummary("signal_path", sessions);
 
@@ -364,6 +401,7 @@ const FAMILY_SUMMARY_BUILDERS = {
   sequence_sprint: buildSequenceSprintSummary,
   grid_recall: buildGridRecallSummary,
   logic_gate: buildLogicGateSummary,
+  logic_grid: buildLogicGridSummary,
   signal_path: buildSignalPathSummary,
 };
 

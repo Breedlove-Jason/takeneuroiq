@@ -16,6 +16,7 @@ import {
   formatGridAsMatrix,
   getRandomGridRecallPuzzle,
 } from "../game/gridRecallPuzzles";
+import { getRandomLogicGridPuzzle } from "../game/logicGridPuzzles";
 import { getRandomLogicGatePuzzle } from "../game/logicGatePuzzles";
 import { getRandomSignalPathPuzzle } from "../game/signalPathPuzzles";
 import { recordSession } from "../game/sessionTracker";
@@ -186,6 +187,17 @@ const analysisProfileMap = {
     accentColor: "#34d399",
     animationStyle: "memory_resonance",
   },
+  logic_grid: {
+    title: "Inference Analysis Matrix",
+    analysisLines: [
+      "Matrix rule extraction stable",
+      "Hidden-cell inference sharpening",
+      "Structured deduction holding",
+    ],
+    tone: "deductive",
+    accentColor: "#22d3ee",
+    animationStyle: "matrix_resonance",
+  },
   logic_gate: {
     title: "Logic Analysis Matrix",
     analysisLines: [
@@ -234,6 +246,14 @@ const analysisAnimationProfileMap = {
     lineDurationMs: 560,
     auraDurationMs: 7800,
     brainPulseMs: 1320,
+  },
+  matrix_resonance: {
+    scanDurationMs: 1620,
+    lineStartDelayMs: 200,
+    lineStaggerMs: 250,
+    lineDurationMs: 500,
+    auraDurationMs: 7400,
+    brainPulseMs: 1080,
   },
   precision_lock: {
     scanDurationMs: 1560,
@@ -569,6 +589,45 @@ const buildGridRecallResultsCopy = ({
   };
 };
 
+const buildLogicGridResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+} = {}) => {
+  if (accuracy >= 90) {
+    return {
+      eyebrow: "Matrix Complete",
+      title: "Logic Grid Results",
+      summary:
+        "Excellent matrix reasoning. Rule extraction stayed sharp and hidden-cell inference held under pressure.",
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: "Matrix Complete",
+      title: "Logic Grid Results",
+      summary:
+        "Solid deduction. Structured grid reads are stabilizing and matrix logic is becoming cleaner.",
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: "Matrix Complete",
+      title: "Logic Grid Results",
+      summary:
+        "Partial progress. Keep refining matrix rule extraction and hidden-cell inference.",
+    };
+  }
+
+  return {
+    eyebrow: "Matrix Complete",
+    title: "Logic Grid Results",
+    summary:
+      "Matrix timed out. Rebuild rule reading from the grid structure and simplify deduction under pressure.",
+  };
+};
+
 const buildLogicGateResultsCopy = ({
   accuracy = 0,
   correctAnswers = 0,
@@ -674,6 +733,7 @@ const terminalAnalysisToneMap = {
   pattern_rush: ["text-cyan-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
   sequence_sprint: ["text-fuchsia-100/84", "text-fuchsia-100/76", "text-cyan-100/78"],
   grid_recall: ["text-emerald-100/84", "text-cyan-100/76", "text-emerald-200/78"],
+  logic_grid: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
   logic_gate: ["text-amber-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
   signal_path: ["text-violet-100/84", "text-cyan-100/76", "text-violet-200/78"],
 };
@@ -682,6 +742,7 @@ const terminalSignalProfileLabels = {
   pattern_rush: "VISUAL SIGNAL",
   sequence_sprint: "MOMENTUM FLOW",
   grid_recall: "MEMORY TRACE",
+  logic_grid: "MATRIX INFERENCE",
   logic_gate: "LOGIC CIRCUIT",
   signal_path: "ROUTING DISCIPLINE",
 };
@@ -833,6 +894,9 @@ function Arena({ theme }) {
     if (initialPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       return getRandomGridRecallPuzzle(initialTargetDifficulty);
     }
+    if (initialPuzzleType === PUZZLE_TYPES.LOGIC_GRID) {
+      return getRandomLogicGridPuzzle(initialTargetDifficulty);
+    }
     if (initialPuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
       return getRandomLogicGatePuzzle(initialTargetDifficulty);
     }
@@ -853,6 +917,11 @@ function Arena({ theme }) {
   const [sequenceSprintSolvedCount, setSequenceSprintSolvedCount] = useState(0);
   const [gridRecallPuzzle, setGridRecallPuzzle] = useState(() =>
     getRandomGridRecallPuzzle(initialTargetDifficulty),
+  );
+  const [logicGridPuzzle, setLogicGridPuzzle] = useState(() =>
+    initialPuzzleType === PUZZLE_TYPES.LOGIC_GRID
+      ? initialPuzzle
+      : getRandomLogicGridPuzzle(initialTargetDifficulty),
   );
   const [logicGatePuzzle, setLogicGatePuzzle] = useState(() =>
     initialPuzzleType === PUZZLE_TYPES.LOGIC_GATE
@@ -931,6 +1000,8 @@ function Arena({ theme }) {
       ? sequenceSprintPuzzle
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
         ? gridRecallPuzzle
+        : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
+          ? logicGridPuzzle
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
           ? logicGatePuzzle
           : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
@@ -942,6 +1013,8 @@ function Arena({ theme }) {
       ? "Sequence Sprint"
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
         ? "Grid Recall"
+        : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
+          ? "Logic Grid"
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
           ? "Logic Gate"
           : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
@@ -1055,6 +1128,23 @@ function Arena({ theme }) {
     };
   }, [activePuzzleType, logicGatePuzzle]);
 
+  const logicGridPuzzleMetrics = useMemo(() => {
+    if (activePuzzleType !== PUZZLE_TYPES.LOGIC_GRID) {
+      return {};
+    }
+
+    const baseMeta = logicGridPuzzle?.meta ?? {};
+    return {
+      difficulty: logicGridPuzzle?.difficulty || "medium",
+      ruleType: baseMeta.ruleType || null,
+      gridSize: baseMeta.gridSize || null,
+      ruleDescription: baseMeta.ruleDescription || null,
+      sequenceSignature: baseMeta.sequenceSignature || logicGridPuzzle?.signature || null,
+      optionCount: Array.isArray(logicGridPuzzle?.options) ? logicGridPuzzle.options.length : 0,
+      missingIndex: logicGridPuzzle?.missingIndex ?? null,
+    };
+  }, [activePuzzleType, logicGridPuzzle]);
+
   const signalPathPuzzleMetrics = useMemo(() => {
     if (activePuzzleType !== PUZZLE_TYPES.SIGNAL_PATH) {
       return {};
@@ -1116,7 +1206,33 @@ function Arena({ theme }) {
       ? Math.max(1, Math.round(rawGridRecallGridSize))
       : 3;
 
+  const logicGridDebugInfo = useMemo(() => {
+    if (activePuzzleType !== PUZZLE_TYPES.LOGIC_GRID) {
+      return null;
+    }
+
+    return {
+      id: logicGridPuzzle?.id ?? "Unknown",
+      answer: logicGridPuzzle?.answer ?? "Unknown",
+      ruleType: logicGridPuzzle?.meta?.ruleType ?? "Unknown",
+      gridSize: logicGridPuzzle?.meta?.gridSize ?? "Unknown",
+      missingIndex: logicGridPuzzle?.missingIndex ?? null,
+    };
+  }, [activePuzzleType, logicGridPuzzle]);
+
   const patternDebugInfo = useMemo(() => {
+    if (activePuzzleType === PUZZLE_TYPES.LOGIC_GRID && logicGridDebugInfo) {
+      return {
+        id: logicGridDebugInfo.id,
+        difficulty:
+          logicGridPuzzle?.difficulty ?? logicGridPuzzle?.difficultyBucket ?? "Unknown",
+        answer: logicGridDebugInfo.answer,
+        patternType: logicGridDebugInfo.ruleType,
+        ruleDescription:
+          logicGridPuzzle?.meta?.ruleDescription ?? logicGridPuzzle?.ruleDescription ?? "Unknown",
+      };
+    }
+
     return {
       id: currentPuzzle?.id ?? "Unknown",
       difficulty:
@@ -1129,7 +1245,7 @@ function Arena({ theme }) {
       ruleDescription:
         currentPuzzle?.meta?.ruleDescription ?? currentPuzzle?.ruleDescription ?? "Unknown",
     };
-  }, [currentPuzzle]);
+  }, [activePuzzleType, currentPuzzle, logicGridDebugInfo, logicGridPuzzle]);
 
   const sequenceDebugInfo = useMemo(() => {
     const sequenceArray = Array.isArray(sequenceSprintPuzzle?.sequence)
@@ -1175,6 +1291,7 @@ function Arena({ theme }) {
     SHOW_GRID_RECALL_ANSWERS || SHOW_PUZZLE_DEBUG_META;
   const shouldShowSignalPathDebug =
     SHOW_SIGNAL_PATH_ANSWERS || SHOW_PUZZLE_DEBUG_META;
+  const shouldShowLogicGridDebug = SHOW_ANSWERS || SHOW_PUZZLE_DEBUG_META;
 
   const sequenceTotalCount = SEQUENCE_SPRINT_TOTAL_PROBLEMS;
   const sequenceSolvedCount = sequenceSprintSolvedCount;
@@ -1262,6 +1379,8 @@ function Arena({ theme }) {
         return getRandomSequenceSprintPuzzle(difficulty);
       case PUZZLE_TYPES.GRID_RECALL:
         return getRandomGridRecallPuzzle(difficulty);
+      case PUZZLE_TYPES.LOGIC_GRID:
+        return getRandomLogicGridPuzzle(difficulty);
       case PUZZLE_TYPES.LOGIC_GATE:
         return getRandomLogicGatePuzzle(difficulty);
       case PUZZLE_TYPES.SIGNAL_PATH:
@@ -1381,13 +1500,15 @@ function Arena({ theme }) {
           ? sequenceSprintPuzzleMetrics
           : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
             ? gridRecallPuzzleMetrics
-            : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
-              ? logicGatePuzzleMetrics
-              : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
-                ? signalPathPuzzleMetrics
-                : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
-                  ? patternRushPuzzleMetrics
-                : {},
+            : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
+              ? logicGridPuzzleMetrics
+              : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+                ? logicGatePuzzleMetrics
+                : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
+                  ? signalPathPuzzleMetrics
+                  : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
+                    ? patternRushPuzzleMetrics
+                    : {},
       ...sequenceSprintOverrides,
     };
 
@@ -1415,13 +1536,15 @@ function Arena({ theme }) {
             ? sequenceSprintPuzzleMetrics
             : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
               ? gridRecallPuzzleMetrics
-              : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
-                ? logicGatePuzzleMetrics
-                : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
-                  ? signalPathPuzzleMetrics
-                  : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
-                    ? patternRushPuzzleMetrics
-                  : {},
+              : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
+                ? logicGridPuzzleMetrics
+                : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+                  ? logicGatePuzzleMetrics
+                  : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
+                    ? signalPathPuzzleMetrics
+                    : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
+                      ? patternRushPuzzleMetrics
+                      : {},
         ...sequenceSprintOverrides,
       };
 
@@ -1461,6 +1584,7 @@ function Arena({ theme }) {
     activePuzzleType,
     sequenceSprintPuzzleMetrics,
     gridRecallPuzzleMetrics,
+    logicGridPuzzleMetrics,
     logicGatePuzzleMetrics,
     signalPathPuzzleMetrics,
     patternRushPuzzleMetrics,
@@ -1664,6 +1788,8 @@ function Arena({ theme }) {
     } else if (activePuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       setGridRecallPuzzle(nextPuzzle);
       setGridRecallPhase("memorize");
+    } else if (activePuzzleType === PUZZLE_TYPES.LOGIC_GRID) {
+      setLogicGridPuzzle(nextPuzzle);
     } else if (activePuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
       setLogicGatePuzzle(nextPuzzle);
     } else if (activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH) {
@@ -2020,6 +2146,246 @@ function Arena({ theme }) {
       </div>
     </div>
   );
+
+  const getLogicGridSize = (puzzle = logicGridPuzzle) => {
+    const grid = Array.isArray(puzzle?.grid) ? puzzle.grid : [];
+    const metaGridSize = Number.isInteger(puzzle?.meta?.gridSize) ? puzzle.meta.gridSize : null;
+    if (metaGridSize && metaGridSize > 0) {
+      return metaGridSize;
+    }
+
+    const inferredSize = Math.sqrt(grid.length || 0);
+    return Number.isFinite(inferredSize) && inferredSize >= 2 ? Math.round(inferredSize) : 3;
+  };
+
+  const getLogicGridMissingIndex = (puzzle = logicGridPuzzle, gridSize = getLogicGridSize(puzzle)) => {
+    const missingIndex = puzzle?.missingIndex;
+    if (Number.isInteger(missingIndex)) {
+      return missingIndex;
+    }
+    if (missingIndex && typeof missingIndex === "object") {
+      if (Number.isInteger(missingIndex.index)) {
+        return missingIndex.index;
+      }
+      if (Number.isInteger(missingIndex.row) && Number.isInteger(missingIndex.col)) {
+        return missingIndex.row * gridSize + missingIndex.col;
+      }
+    }
+    return null;
+  };
+
+  const renderLogicGridRulePanel = () => {
+    const title = logicGridPuzzle?.title || "Logic Grid Arena";
+    const prompt = logicGridPuzzle?.prompt || "Resolve the missing cell using matrix reasoning.";
+    const ruleType = logicGridPuzzle?.meta?.ruleType || "unknown";
+    const ruleDescription = logicGridPuzzle?.meta?.ruleDescription || "Rule details unavailable.";
+
+    return (
+      <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(34,211,238,0.1)]" : "border-cyan-400/30 bg-slate-950/80"}`}>
+        <div className={`flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-cyan-400/10"}`}>
+          <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
+            Matrix Intel
+          </p>
+          <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] text-violet-200">
+            {formatDevValue(ruleType).replace(/_/g, " ")}
+          </span>
+        </div>
+        <div className="mt-4 space-y-3">
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500">Title</p>
+            <h3 className={`mt-1 text-lg font-black ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+              {title}
+            </h3>
+          </div>
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500">Prompt</p>
+            <p className="mt-1 text-sm leading-relaxed text-slate-200">{prompt}</p>
+          </div>
+          <div className="rounded-xl border border-cyan-500/15 bg-slate-900/40 px-3 py-2">
+            <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-cyan-300/80">Rule Type</p>
+            <p className="mt-1 text-xs leading-relaxed text-cyan-100/90">{formatDevValue(ruleType).replace(/_/g, " ")}</p>
+            <p className="mt-2 text-[10px] leading-relaxed text-slate-300/90">{ruleDescription}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderLogicGridMatrix = () => {
+    const gridSize = getLogicGridSize();
+    const grid = Array.isArray(logicGridPuzzle?.grid) ? logicGridPuzzle.grid : [];
+    const missingIndex = getLogicGridMissingIndex(logicGridPuzzle, gridSize);
+    const flatGrid = grid.flat?.() ?? grid;
+    const cellCount = Math.max(gridSize * gridSize, flatGrid.length || 0);
+    const cells = Array.from({ length: cellCount }, (_, index) => flatGrid[index]);
+
+    return (
+      <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(34,211,238,0.12)]" : "border-cyan-400/30 bg-slate-950/80"}`}>
+        <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-cyan-400/10"}`}>
+          <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
+            Matrix Display
+          </p>
+          <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-violet-300/70">
+            Solve the missing cell
+          </span>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-slate-900/55 p-4 shadow-[inset_0_0_24px_rgba(2,6,23,0.7)]">
+          <div
+            className="grid gap-3"
+            style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
+          >
+            {cells.length > 0 ? (
+              cells.map((cell, index) => {
+                const isMissing = index === missingIndex || cell === "missing" || cell === null || cell === undefined || cell === "";
+                const displayValue = isMissing ? "?" : String(cell);
+                const toneClass = isMissing
+                  ? "border-dashed border-violet-400/70 bg-linear-to-br from-violet-500/10 via-cyan-400/10 to-amber-400/5 shadow-[0_0_22px_rgba(168,85,247,0.22)] animate-pulse"
+                  : "border-cyan-400/20 bg-slate-900/80 shadow-[inset_0_0_18px_rgba(2,6,23,0.7),0_0_12px_rgba(34,211,238,0.12)] hover:border-cyan-300/50 hover:shadow-[0_0_18px_rgba(34,211,238,0.18)]";
+
+                return (
+                  <div
+                    key={`logic-grid-cell-${index}`}
+                    className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border transition-all duration-300 ${toneClass}`}
+                  >
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/30 to-transparent" />
+                    {isMissing ? (
+                      <div className="flex h-[80%] w-[80%] flex-col items-center justify-center rounded-lg border border-dashed border-violet-300/60 bg-slate-950/55 text-center shadow-[0_0_18px_rgba(168,85,247,0.22)]">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-violet-200/70">
+                          Missing
+                        </span>
+                        <span className="mt-1 font-mono text-3xl font-black text-cyan-100 text-glow-blue logic-core-flicker">
+                          ?
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="font-mono text-[clamp(1.4rem,3vw,2.35rem)] font-black uppercase tracking-[0.22em] text-white text-glow-blue">
+                        {displayValue}
+                      </span>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-full rounded-xl border border-dashed border-cyan-400/40 bg-cyan-500/5 px-4 py-10 text-center text-slate-300">
+                Matrix unavailable. Awaiting puzzle data.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderLogicGridAnswers = () => {
+    const options = Array.isArray(logicGridPuzzle?.options) ? logicGridPuzzle.options : [];
+    const fallbackOptions = logicGridPuzzle?.answer ? [logicGridPuzzle.answer] : [];
+    const answerOptions = options.length > 0 ? options : fallbackOptions;
+
+    return (
+      <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 ${isCyber ? "border-violet-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(168,85,247,0.12)]" : "border-violet-400/30 bg-slate-950/80"}`}>
+        <div className={`flex items-center justify-between border-b pb-3 px-5 pt-5 ${isCyber ? "border-violet-500/10" : "border-violet-400/10"}`}>
+          <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-violet-400 text-glow-purple" : "text-violet-400"}`}>
+            Answer Tray
+          </p>
+          <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400">Select the match</span>
+        </div>
+        <div className="space-y-4 p-5">
+          {feedback && (
+            <div className="flex justify-center">
+              <span className={`rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] shadow-lg ${getFeedbackBadgeClass(feedback, isCyber)}`}>
+                {feedback}
+              </span>
+            </div>
+          )}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {answerOptions.length > 0 ? (
+              answerOptions.map((option) => {
+                return (
+                  <button
+                    key={`logic-grid-option-${option}`}
+                    type="button"
+                    onClick={() => handleAnswer(option)}
+                    disabled={gameOver}
+                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/65 p-5 text-center text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-slate-900/85 hover:shadow-[0_0_25px_rgba(34,211,238,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  >
+                    <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/40 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/10 to-transparent opacity-20 transition-opacity duration-300 group-hover:opacity-35" />
+                    <div className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 logic-scanline" />
+                    <span className="mb-2 block text-[9px] font-black uppercase tracking-[0.25em] text-slate-500 transition-colors group-hover:text-cyan-300">
+                      Matrix Module
+                    </span>
+                    <span className="block font-mono text-3xl font-black uppercase tracking-[0.22em] text-white text-glow-blue">
+                      {option}
+                    </span>
+                  </button>
+                );
+              })
+            ) : (
+              <div className="col-span-full rounded-xl border border-dashed border-violet-400/40 bg-violet-500/5 px-4 py-6 text-center text-sm text-slate-300">
+                Answer options unavailable.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderLogicGridReadout = () => {
+    const logicGridAccuracy = totalAnswers === 0 ? 0 : Math.round((correctAnswers / totalAnswers) * 100);
+    const gridSize = getLogicGridSize();
+    const ruleType = logicGridPuzzle?.meta?.ruleType || "unknown";
+
+    return (
+      <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(34,211,238,0.1)]" : "border-cyan-400/30 bg-slate-950/80"}`}>
+        <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-cyan-400/10"}`}>
+          <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
+            Matrix Readout
+          </p>
+          <div className="flex h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.7)] animate-pulse" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-400/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/85" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+              ACCURACY
+            </p>
+            <p className="mt-1 text-3xl font-black text-white text-glow-blue">{logicGridAccuracy}%</p>
+          </div>
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-400/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/85" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
+              RULE TYPE
+            </p>
+            <p className="mt-1 text-xl font-black uppercase text-white text-glow-purple wrap-break-word leading-tight">
+              {formatDevValue(ruleType).replace(/_/g, " ")}
+            </p>
+          </div>
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-400/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-amber-300/85" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
+              GRID SIZE
+            </p>
+            <p className="mt-1 text-3xl font-black text-white text-glow-amber">{gridSize}×{gridSize}</p>
+          </div>
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-fuchsia-400/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/85" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-500/60 group-hover:text-fuchsia-400/80 transition-colors">
+              STREAK
+            </p>
+            <div className="mt-1 flex items-end gap-2">
+              <p className="text-3xl font-black text-white text-glow-pink">{streak}</p>
+              {streak >= 3 && (
+                <span className="mb-1 text-[10px] font-bold uppercase text-fuchsia-300 animate-bounce">
+                  Hot!
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderSequencePrompt = () => (
     <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-fuchsia-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(217,70,239,0.12)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
@@ -2750,6 +3116,8 @@ function Arena({ theme }) {
         ? selectedAnswer === sequenceSprintPuzzle.answer
         : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
           ? selectedAnswer === gridRecallPuzzle.answer
+          : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
+            ? selectedAnswer === logicGridPuzzle.answer
           : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
             ? selectedAnswer === logicGatePuzzle.answer
             : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
@@ -2811,6 +3179,8 @@ function Arena({ theme }) {
     } else if (nextPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       setGridRecallPuzzle(newPuzzle);
       setGridRecallPhase("memorize");
+    } else if (nextPuzzleType === PUZZLE_TYPES.LOGIC_GRID) {
+      setLogicGridPuzzle(newPuzzle);
     } else if (nextPuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
       setLogicGatePuzzle(newPuzzle);
     } else if (nextPuzzleType === PUZZLE_TYPES.SIGNAL_PATH) {
@@ -2955,7 +3325,7 @@ function Arena({ theme }) {
       sequenceSprintTotalPuzzles - totalAnswers,
   );
 
-  const resultsCopy =
+    const resultsCopy =
     activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
       ? buildSequenceSprintResultsCopy({
           accuracy: sequenceSprintAccuracy,
@@ -2968,22 +3338,27 @@ function Arena({ theme }) {
             accuracy: gridRecallAccuracy,
             correctAnswers,
           })
-        : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
-          ? buildLogicGateResultsCopy({
+        : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
+          ? buildLogicGridResultsCopy({
               accuracy: answeredAccuracyValue,
               correctAnswers,
             })
-          : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
-            ? buildSignalPathResultsCopy({
+          : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+            ? buildLogicGateResultsCopy({
                 accuracy: answeredAccuracyValue,
                 correctAnswers,
-                ruleType: signalPathPuzzle?.ruleType,
               })
-        : {
-            eyebrow: "Challenge Complete",
-            title: "Pattern Rush Results",
-            summary: getPerformanceMessage(),
-          };
+            : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
+              ? buildSignalPathResultsCopy({
+                  accuracy: answeredAccuracyValue,
+                  correctAnswers,
+                  ruleType: signalPathPuzzle?.ruleType,
+                })
+            : {
+                eyebrow: "Challenge Complete",
+                title: "Pattern Rush Results",
+                summary: getPerformanceMessage(),
+              };
   function getPerformanceMessage() {
     if (totalAnswers === 0) {
       return "No response data captured.";
@@ -3969,6 +4344,78 @@ function Arena({ theme }) {
                                     </span>
                                   </div>
                                 </>
+                              )}
+                            </DevDebugPanel>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID ? (
+                  <div className="relative overflow-hidden rounded-3xl border border-cyan-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(34,211,238,0.1)] backdrop-blur-md">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                          <p className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
+                            Logic Grid Arena
+                          </p>
+                          <h2 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                            Decode the matrix. Resolve the missing cell.
+                          </h2>
+                        </div>
+                        <span className="rounded-full border border-cyan-400/50 bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)]">
+                          Matrix Reasoning Live
+                        </span>
+                      </div>
+
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="space-y-6 lg:col-span-2">
+                          {renderLogicGridRulePanel()}
+                          {renderLogicGridMatrix()}
+                          {renderLogicGridAnswers()}
+                        </div>
+                        <div className="space-y-6 lg:col-span-1">
+                          {renderLogicGridReadout()}
+
+                          {shouldShowLogicGridDebug && (
+                            <DevDebugPanel title="Logic Grid Dev">
+                              {SHOW_ANSWERS && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-2">
+                                    <span className="text-[10px] font-bold uppercase text-cyan-300">Answer</span>
+                                    <span className="font-mono text-lg font-black text-white">
+                                      {logicGridPuzzle?.answer ?? "—"}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                              {SHOW_PUZZLE_DEBUG_META && (
+                                <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">ID</span>
+                                    <span className="font-mono text-cyan-200">{logicGridDebugInfo.id}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">Rule Type</span>
+                                    <span className="font-mono text-cyan-200">
+                                      {formatDevValue(logicGridDebugInfo.ruleType)}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">Grid Size</span>
+                                    <span className="font-mono text-cyan-200">
+                                      {formatDevValue(logicGridDebugInfo.gridSize ?? getLogicGridSize())}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">Missing Index</span>
+                                    <span className="font-mono text-cyan-200">
+                                      {logicGridDebugInfo.missingIndex !== null && logicGridDebugInfo.missingIndex !== undefined
+                                        ? JSON.stringify(logicGridDebugInfo.missingIndex)
+                                        : "—"}
+                                    </span>
+                                  </div>
+                                </div>
                               )}
                             </DevDebugPanel>
                           )}

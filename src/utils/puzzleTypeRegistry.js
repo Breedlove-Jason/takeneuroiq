@@ -2,6 +2,7 @@ export const PUZZLE_TYPES = {
   PATTERN_RUSH: "pattern_rush",
   SEQUENCE_SPRINT: "sequence_sprint",
   GRID_RECALL: "grid_recall",
+  LOGIC_GRID: "logic_grid",
   LOGIC_GATE: "logic_gate",
   SIGNAL_PATH: "signal_path",
 };
@@ -30,6 +31,14 @@ export const PUZZLE_TYPE_METADATA = {
     color: "emerald",
     cognitiveSkills: ["Spatial Memory", "Attention"],
     icon: "table-cells",
+  },
+  [PUZZLE_TYPES.LOGIC_GRID]: {
+    label: "Logic Grid",
+    shortLabel: "Grid",
+    description: "Solve the missing cell using grid-based reasoning.",
+    color: "cyan",
+    cognitiveSkills: ["Matrix Logic", "Rule Detection", "Abstract Reasoning"],
+    icon: "border-all",
   },
   [PUZZLE_TYPES.LOGIC_GATE]: {
     label: "Logic Gate",

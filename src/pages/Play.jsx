@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import {
   faMicrochip,
+  faBorderAll,
   faRoute,
   faStar,
   faDiagramProject,
@@ -39,7 +40,7 @@ function Play({ theme }) {
       description:
         'Spot sequences, decode visual patterns, and react fast under pressure.',
       buttonText: 'Launch Pattern Rush',
-      skills: ['Pattern Recognition', 'Visual Processing'],
+      skills: ['Patterns', 'Visual'],
       cardTone: {
         cyber:
           'border-cyan-300/35 bg-[linear-gradient(160deg,rgba(34,211,238,0.18)_0%,rgba(8,16,30,0.88)_45%,rgba(4,9,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.22)] hover:border-cyan-300/75 hover:shadow-[0_0_50px_rgba(34,211,238,0.32)]',
@@ -53,8 +54,9 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-cyan-300 to-blue-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)]',
-        light: 'bg-linear-to-r from-cyan-600 to-blue-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
+          'bg-linear-to-r from-cyan-300 to-blue-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:from-blue-400 hover:to-cyan-300 hover:brightness-110 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-cyan-600 to-blue-600 text-white hover:from-blue-700 hover:to-cyan-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
@@ -69,7 +71,7 @@ function Play({ theme }) {
       description:
         'Read number patterns, predict what comes next, and respond under pressure.',
       buttonText: 'Launch Sequence Sprint',
-      skills: ['Working Memory', 'Predictive Reasoning'],
+      skills: ['Memory', 'Prediction'],
       cardTone: {
         cyber:
           'border-fuchsia-300/35 bg-[linear-gradient(160deg,rgba(192,38,211,0.16)_0%,rgba(20,6,20,0.9)_48%,rgba(10,2,10,0.96)_100%)] shadow-[0_0_34px_rgba(192,38,211,0.2)] hover:border-fuchsia-300/75 hover:shadow-[0_0_50px_rgba(192,38,211,0.32)]',
@@ -83,9 +85,9 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(34,211,238,0.95)_100%)] text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:brightness-125 hover:shadow-[0_0_42px_rgba(192,38,211,0.6)]',
+          'bg-linear-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:from-cyan-400 hover:via-purple-500 hover:to-fuchsia-500 hover:brightness-125 hover:shadow-[0_0_42px_rgba(192,38,211,0.6)] hover:-translate-y-0.5',
         light:
-          'bg-[linear-gradient(90deg,rgba(192,38,211,0.95)_0%,rgba(14,165,233,0.95)_100%)] text-white hover:brightness-110 shadow-md hover:shadow-lg',
+          'bg-linear-to-r from-fuchsia-600 to-sky-600 text-white hover:from-sky-700 hover:to-fuchsia-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200',
@@ -100,7 +102,7 @@ function Play({ theme }) {
       description:
         'Memorize complex neural patterns and reconstruct them from memory.',
       buttonText: 'Launch Grid Recall',
-      skills: ['Spatial Memory', 'Attention'],
+      skills: ['Spatial', 'Attention'],
       cardTone: {
         cyber:
           'border-emerald-300/35 bg-[linear-gradient(160deg,rgba(16,185,129,0.16)_0%,rgba(6,20,13,0.9)_48%,rgba(2,10,6,0.96)_100%)] shadow-[0_0_34px_rgba(16,185,129,0.2)] hover:border-emerald-300/75 hover:shadow-[0_0_50px_rgba(16,185,129,0.32)]',
@@ -114,8 +116,9 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(16,185,129,0.6)]',
-        light: 'bg-linear-to-r from-emerald-600 to-teal-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
+          'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.4)] hover:from-teal-500 hover:to-emerald-400 hover:brightness-110 hover:shadow-[0_0_40px_rgba(16,185,129,0.6)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-emerald-600 to-teal-600 text-white hover:from-teal-700 hover:to-emerald-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-emerald-300/30 bg-emerald-400/10 text-emerald-200',
@@ -124,13 +127,44 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-emerald',
     },
     {
+      icon: faBorderAll,
+      puzzleType: 'logic_grid',
+      title: 'Logic Grid',
+      description:
+        'Solve a missing cell by tracing structured reasoning across a matrix and inferring the hidden rule.',
+      buttonText: 'Launch Logic Grid',
+      skills: ['Matrices', 'Inference'],
+      cardTone: {
+        cyber:
+          'border-cyan-300/35 bg-[linear-gradient(160deg,rgba(34,211,238,0.18)_0%,rgba(20,10,34,0.9)_46%,rgba(8,4,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.22)] hover:border-cyan-300/75 hover:shadow-[0_0_50px_rgba(34,211,238,0.34)]',
+        light:
+          'border-cyan-300 bg-[linear-gradient(155deg,rgba(236,254,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.92)_100%)] shadow-[0_14px_32px_rgba(34,211,238,0.14)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(34,211,238,0.22)]',
+      },
+      iconTone: {
+        cyber:
+          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.58)]',
+        light: 'text-cyan-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-cyan-400 via-purple-500 to-pink-500 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:from-pink-500 hover:via-purple-500 hover:to-cyan-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(34,211,238,0.62)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-cyan-600 via-purple-600 to-pink-600 text-white hover:from-pink-700 hover:via-purple-700 hover:to-cyan-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+      },
+      tagTone: {
+        cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
+        light: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+      },
+      glowTone: 'group-hover:text-glow-blue',
+    },
+    {
       icon: faRoute,
       puzzleType: 'signal_path',
       title: 'Signal Path',
       description:
         'Route the correct signal path through a compact network using constraint-driven logic.',
       buttonText: 'Launch Signal Path',
-      skills: ['Planning', 'Routing', 'Constraint Logic'],
+      skills: ['Planning', 'Routing'],
       cardTone: {
         cyber:
           'border-violet-200/35 bg-[linear-gradient(160deg,rgba(139,92,246,0.2)_0%,rgba(16,10,30,0.9)_48%,rgba(8,5,18,0.96)_100%)] shadow-[0_0_34px_rgba(167,139,250,0.25)] hover:border-violet-200/75 hover:shadow-[0_0_50px_rgba(167,139,250,0.38)]',
@@ -144,9 +178,9 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-violet-400 to-fuchsia-500 text-white shadow-[0_0_24px_rgba(139,92,246,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)]',
+          'bg-linear-to-r from-violet-400 to-fuchsia-500 text-white shadow-[0_0_24px_rgba(139,92,246,0.4)] hover:from-fuchsia-500 hover:to-violet-400 hover:brightness-110 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
+          'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:from-fuchsia-700 hover:to-violet-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-violet-300/30 bg-violet-400/10 text-violet-200',
@@ -161,7 +195,7 @@ function Play({ theme }) {
       description:
         'Resolve binary signal outputs through gate logic and deductive reasoning.',
       buttonText: 'Launch Logic Gate',
-      skills: ['Reasoning', 'Signals', 'Binary Logic'],
+      skills: ['Signals', 'Binary Logic'],
       cardTone: {
         cyber:
           'border-amber-300/35 bg-[linear-gradient(160deg,rgba(245,158,11,0.16)_0%,rgba(20,14,6,0.9)_48%,rgba(10,7,2,0.96)_100%)] shadow-[0_0_34px_rgba(245,158,11,0.2)] hover:border-amber-300/75 hover:shadow-[0_0_50px_rgba(245,158,11,0.32)]',
@@ -175,8 +209,9 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-amber-400 to-orange-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:brightness-110 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)]',
-        light: 'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:brightness-110 shadow-md hover:shadow-lg',
+          'bg-linear-to-r from-amber-400 to-orange-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:from-orange-500 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:from-orange-700 hover:to-amber-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
@@ -223,7 +258,7 @@ function Play({ theme }) {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3 [perspective:1200px]">
+        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3 perspective-distant">
           {challenges.map((challenge, index) => (
             <div
               key={challenge.title}
@@ -246,7 +281,7 @@ function Play({ theme }) {
               >
                 <FontAwesomeIcon
                   icon={challenge.icon}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] animate-float-subtle"
+                  className="animate-float-subtle [--fa-secondary-opacity:0.4]"
                 />
               </div>
 
@@ -267,11 +302,11 @@ function Play({ theme }) {
               </p>
 
               {challenge.skills && (
-                <div className="mt-5 flex flex-nowrap gap-2 overflow-x-auto pb-1">
+                <div className="mt-auto flex flex-wrap gap-2 pt-8">
                   {challenge.skills.map((skill) => (
                     <span
                       key={skill}
-                      className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] ${
+                      className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${
                         isCyber ? challenge.tagTone.cyber : challenge.tagTone.light
                       }`}
                     >
@@ -282,11 +317,11 @@ function Play({ theme }) {
               )}
 
               {challenge.puzzleType ? (
-                <div className="mt-auto pt-1.25">
+                <div className="mt-4">
                   <Link
                     to="/arena"
                     state={{ puzzleType: challenge.puzzleType }}
-                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-colors transition-shadow duration-300 ${
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-all duration-300 active:scale-[0.97] ${
                       theme === 'cyber'
                         ? challenge.buttonTone.cyber
                         : challenge.buttonTone.light
@@ -296,11 +331,11 @@ function Play({ theme }) {
                   </Link>
                 </div>
               ) : (
-                <div className="mt-auto pt-1.25">
+                <div className="mt-4">
                   <button
                     type="button"
                     disabled
-                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-all duration-300 ${
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-3.5 text-sm font-black uppercase tracking-[0.15em] transition-all duration-300 active:scale-[0.97] ${
                       theme === 'cyber'
                         ? 'cursor-not-allowed border border-amber-300/25 bg-amber-300/5 text-amber-200 opacity-60'
                         : 'border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'

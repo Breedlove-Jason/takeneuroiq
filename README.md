@@ -1,16 +1,92 @@
-# React + Vite
+# TakeNeuroIQ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TakeNeuroIQ is a React + Vite cognitive game experience focused on fast, adaptive puzzle play, session tracking, and analytics-driven progression.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```text
+takeneuroiq/
+├── AGENTS.md
+├── README.md
+├── TakeNeuroIQ-Founder- Brief.pdf
+├── business-strategy.txt
+├── dist/
+│   ├── assets/
+│   │   ├── index-B1AcRwjc.css
+│   │   ├── index-B4ILUv9d.js
+│   │   └── logo-B7RVZxgK.png
+│   └── index.html
+├── eslint.config.js
+├── index.html
+├── node_modules/
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── project-hierarchy.txt
+├── public/
+├── src/
+│   ├── App.jsx
+│   ├── index.css
+│   ├── main.jsx
+│   ├── analytics/
+│   │   ├── adaptiveDifficulty.js
+│   │   ├── coachingEngine.js
+│   │   ├── cognitiveIdentity.js
+│   │   ├── cognitiveIdentitySummary.js
+│   │   ├── cognitiveTracks.js
+│   │   ├── liveAdaptiveDifficulty.js
+│   │   ├── puzzleFamilyAnalytics.js
+│   │   ├── sessionAnalytics.js
+│   │   └── sessionOutcomeEvaluator.js
+│   ├── assets/
+│   │   └── logo.png
+│   ├── components/
+│   │   ├── FeatureHighlights.jsx
+│   │   ├── Hero.jsx
+│   │   ├── HowItWorks.jsx
+│   │   ├── ProfileAnalytics.jsx
+│   │   ├── PuzzleShape.jsx
+│   │   └── SequenceSprintPuzzle.jsx
+│   ├── game/
+│   │   ├── patternPuzzles.js
+│   │   ├── playerIdentity.js
+│   │   ├── puzzleEngine.js
+│   │   ├── puzzleGenerator.js
+│   │   ├── sequenceSprintPuzzles.js
+│   │   └── sessionTracker.js
+│   ├── hooks/
+│   │   └── useSessionData.js
+│   ├── layout/
+│   │   └── Header.jsx
+│   ├── pages/
+│   │   ├── Arena.jsx
+│   │   ├── Home.jsx
+│   │   ├── LeaderboardPage.jsx
+│   │   ├── Play.jsx
+│   │   └── ProfilePage.jsx
+│   └── utils/
+│       ├── puzzleTypeRegistry.js
+│       └── sessionTrendUtils.js
+├── tests/
+│   ├── sessionTracker.test.js
+│   ├── verify_logic.js
+│   └── verify_session_data.test.js
+├── vite.config.js
+└── .idea/
+	└── ...
+```
 
-## React Compiler
+## Key Areas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `src/pages/Arena.jsx` — main game play experience
+- `src/game/puzzleEngine.js` — puzzle selection and answer checking
+- `src/game/sessionTracker.js` — session persistence and leaderboard calculations
+- `src/analytics/` — scoring, identity, and session analysis helpers
+- `tests/` — validation scripts for core game and session behavior
 
-## Expanding the ESLint configuration
+## Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```

@@ -15,6 +15,7 @@ import {
   faDiagramProject,
   faTableCells,
   faMicrochip,
+  faBorderAll,
 } from '@fortawesome/pro-duotone-svg-icons';
 import {
   Radar,
@@ -170,6 +171,7 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'sequence_sprint') return 'Sequence Sprint';
   if (puzzleType === 'pattern_rush') return 'Pattern Rush';
   if (puzzleType === 'grid_recall') return 'Grid Recall';
+  if (puzzleType === 'logic_grid') return 'Logic Grid';
   if (puzzleType === 'signal_path') return 'Signal Path';
   const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
   if (puzzleLabel) return puzzleLabel;
@@ -201,6 +203,13 @@ const RECENT_SESSION_FAMILY_VISUALS = {
       'flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
     labelClass: 'text-emerald-200',
     badgeClass: 'text-emerald-300/70',
+  },
+  logic_grid: {
+    icon: faBorderAll,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/40 bg-gradient-to-br from-violet-500/15 via-cyan-500/10 to-amber-500/10 text-cyan-200 shadow-[0_0_20px_rgba(168,85,247,0.22)]',
+    labelClass: 'text-violet-100',
+    badgeClass: 'text-cyan-300/75',
   },
   logic_gate: {
     icon: faMicrochip,
@@ -240,6 +249,8 @@ function getFocusLaneFromPuzzleType(puzzleType) {
       return 'Pattern Recognition';
     case 'grid_recall':
       return 'Spatial Recall';
+    case 'logic_grid':
+      return 'Matrix Reasoning';
     case 'logic_gate':
       return 'Logic Processing';
     case 'signal_path':
@@ -310,6 +321,25 @@ function buildFamilyAwareRecommendation(session) {
     return 'Reduce grid complexity and rebuild spatial confidence before attempting larger matrices.';
   }
 
+  if (session.puzzleType === 'logic_grid') {
+    const ruleType = puzzleMetrics.ruleType
+      ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
+      : 'matrix rules';
+    const gridSize = puzzleMetrics.gridSize;
+    const gridLabel =
+      typeof gridSize === 'number' && gridSize > 0
+        ? `${gridSize}x${gridSize} grids`
+        : 'structured grids';
+
+    if (accuracy >= 90 && streak >= 8) {
+      return `Matrix inference is locked in. Press into ${ruleType} reads on ${gridLabel} to sharpen hidden-cell deduction under pressure.`;
+    }
+    if (accuracy >= 75) {
+      return `Keep refining ${ruleType} recognition across ${gridLabel} and preserve cleaner deduction as the matrix tightens.`;
+    }
+    return `Slow the matrix down, rebuild rule reading on ${gridLabel}, and let hidden-cell inference become cleaner before increasing pressure.`;
+  }
+
   if (session.puzzleType === 'signal_path') {
     const ruleType = puzzleMetrics.ruleType
       ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
@@ -358,6 +388,12 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? 'spatial memory encoding strengthening'
       : 'spatial recall stabilizing';
+  }
+
+  if (session.puzzleType === 'logic_grid') {
+    return accuracy >= 80
+      ? 'matrix inference discipline strengthening'
+      : 'matrix rule recognition recalibrating';
   }
 
   if (session.puzzleType === 'signal_path') {

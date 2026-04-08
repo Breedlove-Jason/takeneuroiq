@@ -19,6 +19,7 @@ import {
   faTableCells,
   faMicrochip,
   faBrain,
+  faBorderAll,
 } from "@fortawesome/pro-duotone-svg-icons";
 
 /**
@@ -488,6 +489,13 @@ function ProfileAnalytics({
                               bestAccuracy: "text-emerald-300",
                               averageNeuralPower: "text-violet-200",
                             }
+                    : family.puzzleType === "logic_grid"
+                      ? {
+                          averageScore: "text-cyan-200",
+                          bestScore: "text-purple-200",
+                          bestAccuracy: "text-emerald-300",
+                          averageNeuralPower: "text-pink-200",
+                        }
                       : {
                           averageScore: "text-cyan-200",
                           bestScore: "text-violet-200",
@@ -749,6 +757,14 @@ function getFamilyCardTone(puzzleType) {
       statCard: "border-amber-500/20 bg-amber-500/5",
       trendCard: "border-amber-500/20 bg-amber-500/5",
     },
+    logic_grid: {
+      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(13,8,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]",
+      label: "text-cyan-200",
+      sessions: "text-cyan-300/80",
+      avgBadge: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
+      statCard: "border-cyan-500/20 bg-cyan-500/5",
+      trendCard: "border-cyan-500/20 bg-cyan-500/5",
+    },
     signal_path: {
       card: "border-violet-400/30 bg-[linear-gradient(160deg,rgba(139,92,246,0.12)_0%,rgba(12,9,27,0.92)_38%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(139,92,246,0.18)]",
       label: "text-violet-200",
@@ -799,6 +815,13 @@ function getPuzzleFamilyVisual(puzzleType) {
         "flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200",
       accentText: "text-amber-200",
       accentRing: "ring-1 ring-amber-500/30",
+    },
+    logic_grid: {
+      icon: faBorderAll,
+      iconWrap:
+        "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200",
+      accentText: "text-cyan-200",
+      accentRing: "ring-1 ring-cyan-500/30",
     },
     signal_path: {
       icon: faRoute,
