@@ -9,6 +9,7 @@
  */
 
 import { runPuzzleAudit, printPuzzleAuditReport } from './puzzleAudit.js';
+import process from 'node:process';
 
 // ============================================================================
 // CONFIGURATION

@@ -58,6 +58,24 @@ const HARD_COMPOUND_LOGICS = [
     inputs: ["A", "B"],
     evaluate: (inputValues) => (inputValues.A || inputValues.B ? 0 : 1),
   },
+  {
+    idSuffix: "chain-and-nand",
+    expression: "(A OR B) AND (NOT C)",
+    inputs: ["A", "B", "C"],
+    evaluate: (inputValues) => (inputValues.A || inputValues.B) && !inputValues.C ? 1 : 0,
+  },
+  {
+    idSuffix: "chain-triple-xor",
+    expression: "A XOR B XOR C",
+    inputs: ["A", "B", "C"],
+    evaluate: (inputValues) => (inputValues.A ^ inputValues.B ^ inputValues.C) ? 1 : 0,
+  },
+  {
+    idSuffix: "chain-major",
+    expression: "Majority(A, B, C)",
+    inputs: ["A", "B", "C"],
+    evaluate: (inputValues) => (inputValues.A + inputValues.B + inputValues.C >= 2 ? 1 : 0),
+  },
 ];
 
 const GATE_LABELS = {
@@ -266,12 +284,22 @@ export function getRandomLogicGatePuzzle(difficulty = "medium") {
     return getRandomLogicGatePuzzle("medium");
   }
 
-  if (difficulty === "hard" && variant === "output" && Math.random() < 0.35) {
+  // Increased compound puzzle frequency for hard difficulty to boost diversity
+  if (difficulty === "hard" && variant === "output" && Math.random() < 0.6) {
     return buildHardCompoundPuzzle(difficulty) ?? getRandomLogicGatePuzzle(difficulty);
   }
 
   const inputKeys = gate === "NOT" ? ["A"] : ["A", "B"];
-  const inputs = buildInputs(inputKeys);
+  
+  // Attempt to balance outputs for simple gates by trying multiple input combinations
+  let inputs = buildInputs(inputKeys);
+  let output = computeGateOutput(gate, inputs);
+  
+  // 50% chance to flip inputs if we got a '0' (since '0' was over-represented)
+  if (output === "0" && Math.random() < 0.5) {
+    inputs = buildInputs(inputKeys);
+  }
+
   const expression = buildSimpleExpression(gate);
 
   if (variant === "missing_gate") {

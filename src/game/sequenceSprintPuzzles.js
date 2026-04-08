@@ -84,8 +84,8 @@ function buildPuzzle({
 
 function buildAscendingSequence(difficulty) {
   const length = difficulty === 'hard' ? 5 : 4;
-  const start = randomInt(1, 6);
-  const step = randomInt(1, 4);
+  const start = randomInt(1, 15); // Increased range from 1-6
+  const step = randomInt(1, 8); // Increased range from 1-4
   const sequence = Array.from({ length }, (_, i) => start + i * step);
   const answer = start + length * step;
   return buildPuzzle({
@@ -98,17 +98,17 @@ function buildAscendingSequence(difficulty) {
 }
 
 function buildAlternatingStepsSequence(difficulty) {
-  const length = 4;
-  const start = randomInt(1, 5);
-  const stepA = randomInt(1, 3);
-  const stepB = randomInt(1, 3);
+  const length = difficulty === 'easy' ? 4 : 5; // Varies length
+  const start = randomInt(1, 12); // Increased range from 1-5
+  const stepA = randomInt(1, 6); // Increased range from 1-3
+  const stepB = randomInt(1, 6); // Increased range from 1-3
   const sequence = [start];
   for (let i = 1; i < length; i += 1) {
     const previous = sequence[i - 1];
     const step = i % 2 === 1 ? stepA : stepB;
     sequence.push(previous + step);
   }
-  const answer = sequence[sequence.length - 1] + stepA;
+  const answer = sequence[sequence.length - 1] + (length % 2 === 1 ? stepA : stepB);
   return buildPuzzle({
     difficulty,
     ruleType: 'alternating_steps',

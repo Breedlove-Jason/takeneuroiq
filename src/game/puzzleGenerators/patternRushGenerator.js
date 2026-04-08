@@ -621,48 +621,26 @@ export const PATTERN_RUSH_PATTERN_BUILDERS = PATTERN_BUILDERS;
 function buildBelievableOptions({
   correctAnswer,
   sequence,
-  patternType,
   difficulty,
 }) {
   const [minChoices, maxChoices] = getChoiceCountBounds(difficulty);
   const targetCount = randomInt(minChoices, maxChoices);
-  const answerIndex = SHAPE_POOL.indexOf(correctAnswer);
   const sequenceShapes = unique(sequence.map((token) => token.shape).filter(Boolean));
-  const candidateShapes = unique([
-    ...sequenceShapes,
-    SHAPE_POOL[(answerIndex - 1 + SHAPE_POOL.length) % SHAPE_POOL.length],
-    SHAPE_POOL[(answerIndex + 1) % SHAPE_POOL.length],
-    SHAPE_POOL[(answerIndex + 2) % SHAPE_POOL.length],
-  ]).filter((shape) => shape !== correctAnswer);
-
-  if (
-    patternType === "dual_layer_pattern" ||
-    patternType === "alternating_rule" ||
-    patternType === "attribute_swap"
-  ) {
-    candidateShapes.push(
-      SHAPE_POOL[(answerIndex + 3) % SHAPE_POOL.length],
-      SHAPE_POOL[(answerIndex + 4) % SHAPE_POOL.length],
-    );
-  }
+  
+  // Start with shapes from the sequence (excluding correct answer)
+  const candidateShapes = sequenceShapes.filter((shape) => shape !== correctAnswer);
+  
+  // Supplement with other shapes from the pool in random order to avoid bias
+  const remainingPool = shuffleArray(SHAPE_POOL.filter(s => s !== correctAnswer && !candidateShapes.includes(s)));
+  candidateShapes.push(...remainingPool);
 
   const options = [correctAnswer];
-  const shuffledCandidates = shuffleArray(candidateShapes);
-
-  for (const candidate of shuffledCandidates) {
+  // We use the first few from candidateShapes (which now has sequence shapes first, then random pool)
+  for (const candidate of candidateShapes) {
     if (options.length >= targetCount) {
       break;
     }
-    if (candidate !== correctAnswer && !options.includes(candidate)) {
-      options.push(candidate);
-    }
-  }
-
-  while (options.length < targetCount) {
-    const fallbackCandidate = pickRandom(SHAPE_POOL);
-    if (fallbackCandidate && !options.includes(fallbackCandidate)) {
-      options.push(fallbackCandidate);
-    }
+    options.push(candidate);
   }
 
   return shuffleArray(options);

@@ -43,12 +43,20 @@ takeneuroiq/
 │   │   ├── PuzzleShape.jsx
 │   │   └── SequenceSprintPuzzle.jsx
 │   ├── game/
+│   │   ├── gridRecallPuzzles.js
+│   │   ├── logicGatePuzzles.js
+│   │   ├── logicGridPuzzles.js
 │   │   ├── patternPuzzles.js
 │   │   ├── playerIdentity.js
+│   │   ├── puzzleAudit.js
 │   │   ├── puzzleEngine.js
 │   │   ├── puzzleGenerator.js
+│   │   ├── puzzleGenerators/
+│   │   │   └── patternRushGenerator.js
+│   │   ├── runPuzzleAudit.js
 │   │   ├── sequenceSprintPuzzles.js
-│   │   └── sessionTracker.js
+│   │   ├── sessionTracker.js
+│   │   └── signalPathPuzzles.js
 │   ├── hooks/
 │   │   └── useSessionData.js
 │   ├── layout/

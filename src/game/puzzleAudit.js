@@ -108,7 +108,7 @@ function createSignature(puzzle, family) {
       default:
         return 'unknown';
     }
-  } catch (error) {
+  } catch {
     return 'signature_error';
   }
 }
@@ -387,9 +387,10 @@ const FAMILY_VALIDATORS = {
 // CORE AUDIT LOGIC
 // ============================================================================
 
-function auditFamily(family, difficulties, iterations) {
+function auditFamily(family, difficulties, iterations, debugContext = {}) {
   const generator = PUZZLE_GENERATORS[family];
   const validator = FAMILY_VALIDATORS[family];
+  const { debug = null, pushCapped, makeSnapshot } = debugContext;
 
   if (!generator) {
     return {
@@ -422,6 +423,16 @@ function auditFamily(family, difficulties, iterations) {
     optionLayouts: [],
   };
 
+  const signatureCountsByDifficulty = {};
+  const signatureCounts = {};
+  const answerCounts = {};
+  const idCounts = {};
+
+  if (debug) {
+    debug.familyWarnings[family] = Array.isArray(debug.familyWarnings[family]) ? debug.familyWarnings[family] : [];
+    debug.familyErrors[family] = Array.isArray(debug.familyErrors[family]) ? debug.familyErrors[family] : [];
+  }
+
   for (const difficulty of difficulties) {
     const difficultyResults = {
       difficulty,
@@ -432,11 +443,15 @@ function auditFamily(family, difficulties, iterations) {
       answers: [],
     };
 
+    signatureCountsByDifficulty[difficulty] = {};
+    const difficultySignatureCounts = signatureCountsByDifficulty[difficulty];
+
     for (let i = 0; i < iterations; i += 1) {
       try {
         const puzzle = generator(difficulty);
         difficultyResults.generated += 1;
         results.totalGenerated += 1;
+        const answer = extractAnswer(puzzle);
 
         // Validate structure
         const validationErrors = validator(puzzle);
@@ -449,6 +464,11 @@ function auditFamily(family, difficulties, iterations) {
             errors: validationErrors,
             puzzle: puzzle || null,
           });
+
+          if (debug) {
+            pushCapped(debug.invalidPuzzleSamples, makeSnapshot({ ...(puzzle || {}), family, difficulty, answer }, validationErrors));
+            debug.familyErrors[family].push(`Invalid puzzle (${difficulty}, iteration ${i + 1}): ${validationErrors.join('; ')}`);
+          }
         }
 
         // Collect diversity metrics
@@ -456,14 +476,33 @@ function auditFamily(family, difficulties, iterations) {
         difficultyResults.signatures.add(signature);
         results.signatures.add(signature);
 
-        const answer = extractAnswer(puzzle);
+        difficultySignatureCounts[signature] = (difficultySignatureCounts[signature] || 0) + 1;
+        signatureCounts[signature] = (signatureCounts[signature] || 0) + 1;
+
+        if (debug && signatureCounts[signature] > 1) {
+          pushCapped(debug.duplicateSignatureSamples, makeSnapshot({ ...(puzzle || {}), family, difficulty, answer, signature }));
+          debug.familyWarnings[family].push(`Duplicate signature detected (${difficulty}): ${signature}`);
+        }
+
         if (answer) {
           difficultyResults.answers.push(answer);
           results.answers.push(answer);
+
+          answerCounts[answer] = (answerCounts[answer] || 0) + 1;
+          if (debug && answerCounts[answer] > 1) {
+            pushCapped(debug.repeatedAnswerSamples, makeSnapshot({ ...(puzzle || {}), family, difficulty, answer, signature }));
+            debug.familyWarnings[family].push(`Repeated answer detected (${difficulty}): ${answer}`);
+          }
         }
 
         if (puzzle?.id) {
           results.puzzleIds.push(puzzle.id);
+
+          idCounts[puzzle.id] = (idCounts[puzzle.id] || 0) + 1;
+          if (debug && idCounts[puzzle.id] > 1) {
+            pushCapped(debug.repeatedIdSamples, makeSnapshot({ ...(puzzle || {}), family, difficulty, answer, signature }));
+            debug.familyWarnings[family].push(`Repeated ID detected (${difficulty}): ${puzzle.id}`);
+          }
         }
 
         if (puzzle?.ruleType) {
@@ -487,11 +526,17 @@ function auditFamily(family, difficulties, iterations) {
           errors: [`Generation threw error: ${error.message}`],
           puzzle: null,
         });
+
+        if (debug) {
+          debug.familyErrors[family].push(`Generation error (${difficulty}, iteration ${i + 1}): ${error.message}`);
+        }
       }
     }
 
     results.byDifficulty[difficulty] = difficultyResults;
   }
+
+  results.signatureCountsByDifficulty = signatureCountsByDifficulty;
 
   return results;
 }
@@ -520,7 +565,7 @@ function analyzeDiversity(results, duplicateThreshold) {
   const answerRepetitionRatio = totalGenerated > 0 ? maxAnswerRepetition / totalGenerated : 0;
 
   if (answerRepetitionRatio > duplicateThreshold) {
-    const topAnswer = Object.entries(answerCounts).find(([_, count]) => count === maxAnswerRepetition)?.[0];
+    const topAnswer = Object.entries(answerCounts).find(([, count]) => count === maxAnswerRepetition)?.[0];
     warnings.push(
       `High answer repetition: "${topAnswer}" appears ${maxAnswerRepetition} times (${(answerRepetitionRatio * 100).toFixed(1)}%)`
     );
@@ -563,6 +608,26 @@ function analyzeDiversity(results, duplicateThreshold) {
 export function runPuzzleAudit(options = {}) {
   const config = { ...DEFAULT_OPTIONS, ...options };
 
+  const debug = {
+    invalidPuzzleSamples: [],
+    duplicateSignatureSamples: [],
+    repeatedAnswerSamples: [],
+    repeatedIdSamples: [],
+    familyWarnings: {},
+    familyErrors: {},
+    signatureLeaders: {},
+  };
+
+  const pushCapped = (arr, item, max = 5) => { if (arr.length < max) arr.push(item); };
+  const makeSnapshot = (p, errors = []) => ({
+    family: p.family || 'unknown',
+    difficulty: p.difficulty || 'unknown',
+    id: p.id,
+    answer: p.answer,
+    signature: p.signature,
+    errors,
+  });
+
   const report = {
     timestamp: new Date().toISOString(),
     config,
@@ -576,18 +641,24 @@ export function runPuzzleAudit(options = {}) {
     families: {},
     sampleErrors: [],
     sampleWarnings: [],
+    debug,
   };
 
   // Audit each family
   for (const family of config.families) {
+    debug.familyWarnings[family] = Array.isArray(debug.familyWarnings[family]) ? debug.familyWarnings[family] : [];
+    debug.familyErrors[family] = Array.isArray(debug.familyErrors[family]) ? debug.familyErrors[family] : [];
+
     const familyResults = auditFamily(
       family,
       config.difficulties,
-      config.iterationsPerDifficulty
+      config.iterationsPerDifficulty,
+      { debug, pushCapped, makeSnapshot }
     );
 
     if (familyResults.skipped) {
       report.overall.familiesSkipped += 1;
+      debug.familyErrors[family].push(familyResults.reason);
       report.families[family] = familyResults;
       continue;
     }
@@ -599,6 +670,14 @@ export function runPuzzleAudit(options = {}) {
     // Analyze diversity
     const diversityWarnings = analyzeDiversity(familyResults, config.duplicateWarningThreshold);
     familyResults.warnings = diversityWarnings;
+
+    if (debug.familyWarnings[family]) {
+      debug.familyWarnings[family].push(...diversityWarnings);
+    }
+
+    if (familyResults.invalidCount > 0) {
+      debug.familyErrors[family].push(`Invalid puzzle count: ${familyResults.invalidCount}`);
+    }
 
     // Mark as failing if invalid puzzles found
     if (familyResults.invalidCount > 0) {
@@ -626,6 +705,20 @@ export function runPuzzleAudit(options = {}) {
     }
 
     report.families[family] = familyResults;
+  }
+
+  for (const [family, results] of Object.entries(report.families)) {
+    if (results.skipped) {
+      continue;
+    }
+
+    debug.signatureLeaders[family] = {};
+    for (const [difficulty, counts] of Object.entries(results.signatureCountsByDifficulty || {})) {
+      debug.signatureLeaders[family][difficulty] = Object.entries(counts)
+        .sort(([, countA], [, countB]) => countB - countA)
+        .slice(0, 3)
+        .map(([signature, count]) => ({ signature, count }));
+    }
   }
 
   return report;
@@ -714,6 +807,16 @@ export function printPuzzleAuditReport(report) {
       console.log(`\n[${warningEntry.family}]:`);
       console.log(`  ⚠ ${warningEntry.warning}`);
     }
+  }
+
+  console.log(`\n=== 🐞 DEBUG SUMMARY ===`);
+  console.log(`Invalid Puzzles Caught: ${report.debug.invalidPuzzleSamples.length}`);
+  console.log(`Duplicate Signatures Caught: ${report.debug.duplicateSignatureSamples.length}`);
+  if (report.debug.invalidPuzzleSamples.length > 0) {
+    console.log(`\nSample Invalid Puzzle:\n`, JSON.stringify(report.debug.invalidPuzzleSamples[0], null, 2));
+  }
+  if (Object.keys(report.debug.signatureLeaders).length > 0) {
+    console.log(`\nTop Repeated Signatures:`, JSON.stringify(report.debug.signatureLeaders, null, 2));
   }
 
   console.log('\n' + '='.repeat(80));

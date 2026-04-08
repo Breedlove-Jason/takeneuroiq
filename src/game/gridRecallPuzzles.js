@@ -1,8 +1,8 @@
 // src/game/gridRecallPuzzles.js
 const DIFFICULTY_CONFIG = {
-  easy: { size: 3, activeNodes: 3, optionCount: 4, decoyVariance: 2 },
-  medium: { size: 3, activeNodes: 4, optionCount: 4, decoyVariance: 2 },
-  hard: { size: 4, activeNodes: 6, optionCount: 6, decoyVariance: 1 },
+  easy: { size: 3, activeNodes: [2, 3], optionCount: 4, decoyVariance: 1 },
+  medium: { size: 3, activeNodes: [3, 4, 5], optionCount: 4, decoyVariance: 2 },
+  hard: { size: 4, activeNodes: [5, 6, 7, 8], optionCount: 6, decoyVariance: 2 },
 };
 
 function shuffleArray(array) {
@@ -21,14 +21,19 @@ function getConfig(difficulty) {
 function buildAnswerString(config) {
   const totalCells = config.size * config.size;
   const cells = Array.from({ length: totalCells }, () => "0");
-  const activeNodes = Math.min(totalCells, Math.max(1, config.activeNodes));
+  
+  const activeNodesCount = Array.isArray(config.activeNodes) 
+    ? config.activeNodes[Math.floor(Math.random() * config.activeNodes.length)]
+    : config.activeNodes;
+
+  const activeNodes = Math.min(totalCells, Math.max(1, activeNodesCount));
   const positions = shuffleArray(Array.from({ length: totalCells }, (_, index) => index));
 
   for (let i = 0; i < activeNodes; i += 1) {
     cells[positions[i]] = "1";
   }
 
-  return cells.join("");
+  return { answer: cells.join(""), activeCount: activeNodes };
 }
 
 function mutateGridStringWithFlips(gridString, flips) {
@@ -86,7 +91,7 @@ export function formatGridAsMatrix(gridString) {
 
 export function createGridRecallPuzzle({ difficulty = "medium" } = {}) {
   const config = getConfig(difficulty);
-  const answer = buildAnswerString(config);
+  const { answer, activeCount } = buildAnswerString(config);
   const decoys = generateDecoyGridStrings(answer, config);
   const options = shuffleArray([answer, ...decoys]);
 
@@ -95,11 +100,11 @@ export function createGridRecallPuzzle({ difficulty = "medium" } = {}) {
     answer,
     options,
     size: config.size,
-    activeCount: config.activeNodes,
+    activeCount,
     prompt: "Memorize the active nodes",
     puzzleMetrics: {
       gridSize: config.size,
-      activeNodes: config.activeNodes,
+      activeNodes: activeCount,
       optionCount: config.optionCount,
     },
   };
