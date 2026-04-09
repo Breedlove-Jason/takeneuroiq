@@ -69,6 +69,7 @@ function createSignature(puzzle, family) {
       case 'pattern_rush':
         return [
           puzzle?.meta?.patternType || 'unknown',
+          puzzle?.meta?.ruleDescription || '',
           (puzzle?.grid || []).join('|'),
           puzzle?.correctAnswer || puzzle?.answer || '',
         ].join('::');
@@ -174,6 +175,27 @@ function validatePatternRush(puzzle) {
 
   if (!puzzle.meta?.patternType) {
     errors.push('Missing pattern type metadata');
+  }
+
+  const allowedTypes = [
+    'shape_sequence',
+    'positional_pattern',
+    'rotation_pattern',
+    'dual_layer_pattern',
+    'alternating_rule',
+    'mirror_symmetry',
+    'count_progression',
+    'attribute_swap',
+    'alternating_rotation',
+    'size_progression',
+    'color_cycle',
+    'position_shift',
+    'mirror_flip',
+    'dual_attribute',
+  ];
+
+  if (puzzle.meta?.patternType && !allowedTypes.includes(puzzle.meta.patternType)) {
+    errors.push(`Invalid pattern type: ${puzzle.meta.patternType}`);
   }
 
   return errors;

@@ -20,34 +20,52 @@ const ROTATION_POOL = [0, 90, 180, 270];
 
 const PATTERN_TYPE_WEIGHTS = {
   easy: [
-    { patternType: "shape_sequence", weight: 0.24 },
-    { patternType: "positional_pattern", weight: 0.18 },
-    { patternType: "rotation_pattern", weight: 0.14 },
-    { patternType: "dual_layer_pattern", weight: 0.12 },
-    { patternType: "alternating_rule", weight: 0.1 },
-    { patternType: "mirror_symmetry", weight: 0.1 },
-    { patternType: "count_progression", weight: 0.07 },
-    { patternType: "attribute_swap", weight: 0.05 },
-  ],
-  medium: [
-    { patternType: "shape_sequence", weight: 0.16 },
-    { patternType: "positional_pattern", weight: 0.18 },
-    { patternType: "rotation_pattern", weight: 0.16 },
-    { patternType: "dual_layer_pattern", weight: 0.17 },
-    { patternType: "alternating_rule", weight: 0.16 },
-    { patternType: "mirror_symmetry", weight: 0.07 },
+    { patternType: "shape_sequence", weight: 0.15 },
+    { patternType: "positional_pattern", weight: 0.1 },
+    { patternType: "rotation_pattern", weight: 0.1 },
+    { patternType: "dual_layer_pattern", weight: 0.1 },
+    { patternType: "alternating_rule", weight: 0.05 },
+    { patternType: "mirror_symmetry", weight: 0.05 },
     { patternType: "count_progression", weight: 0.05 },
     { patternType: "attribute_swap", weight: 0.05 },
+    { patternType: "alternating_rotation", weight: 0.05 },
+    { patternType: "size_progression", weight: 0.1 },
+    { patternType: "color_cycle", weight: 0.1 },
+    { patternType: "position_shift", weight: 0.05 },
+    { patternType: "mirror_flip", weight: 0.05 },
+    { patternType: "dual_attribute", weight: 0.05 },
+  ],
+  medium: [
+    { patternType: "shape_sequence", weight: 0.1 },
+    { patternType: "positional_pattern", weight: 0.1 },
+    { patternType: "rotation_pattern", weight: 0.1 },
+    { patternType: "dual_layer_pattern", weight: 0.1 },
+    { patternType: "alternating_rule", weight: 0.05 },
+    { patternType: "mirror_symmetry", weight: 0.05 },
+    { patternType: "count_progression", weight: 0.05 },
+    { patternType: "attribute_swap", weight: 0.05 },
+    { patternType: "alternating_rotation", weight: 0.1 },
+    { patternType: "size_progression", weight: 0.05 },
+    { patternType: "color_cycle", weight: 0.05 },
+    { patternType: "position_shift", weight: 0.1 },
+    { patternType: "mirror_flip", weight: 0.1 },
+    { patternType: "dual_attribute", weight: 0.1 },
   ],
   hard: [
-    { patternType: "shape_sequence", weight: 0.1 },
-    { patternType: "positional_pattern", weight: 0.12 },
-    { patternType: "rotation_pattern", weight: 0.14 },
-    { patternType: "dual_layer_pattern", weight: 0.2 },
-    { patternType: "alternating_rule", weight: 0.2 },
-    { patternType: "mirror_symmetry", weight: 0.08 },
-    { patternType: "count_progression", weight: 0.06 },
+    { patternType: "shape_sequence", weight: 0.05 },
+    { patternType: "positional_pattern", weight: 0.05 },
+    { patternType: "rotation_pattern", weight: 0.05 },
+    { patternType: "dual_layer_pattern", weight: 0.1 },
+    { patternType: "alternating_rule", weight: 0.1 },
+    { patternType: "mirror_symmetry", weight: 0.05 },
+    { patternType: "count_progression", weight: 0.05 },
     { patternType: "attribute_swap", weight: 0.1 },
+    { patternType: "alternating_rotation", weight: 0.1 },
+    { patternType: "size_progression", weight: 0.05 },
+    { patternType: "color_cycle", weight: 0.05 },
+    { patternType: "position_shift", weight: 0.1 },
+    { patternType: "mirror_flip", weight: 0.1 },
+    { patternType: "dual_attribute", weight: 0.15 },
   ],
 };
 
@@ -223,6 +241,18 @@ function getPatternTypeRuleLabel(patternType) {
       return "Count progression";
     case "attribute_swap":
       return "Attribute swap";
+    case "alternating_rotation":
+      return "Alternating rotation";
+    case "size_progression":
+      return "Size progression";
+    case "color_cycle":
+      return "Color cycle";
+    case "position_shift":
+      return "Position shift";
+    case "mirror_flip":
+      return "Mirror / Flip logic";
+    case "dual_attribute":
+      return "Dual-attribute change";
     default:
       return "Pattern alignment";
   }
@@ -605,6 +635,176 @@ function buildAttributeSwapPuzzle(difficulty) {
   };
 }
 
+function buildAlternatingRotationPuzzle(difficulty) {
+  const profile = getDifficultyProfile(difficulty);
+  const length = randomInt(profile.sequenceLengthMin, profile.sequenceLengthMax);
+  const rotationA = pickRandom(ROTATION_POOL);
+  const rotationB = pickRandom(ROTATION_POOL.filter((r) => r !== rotationA));
+  const shapeStep = pickRandom(getShapeStepPool(difficulty)) ?? 1;
+  let shapeIndex = randomInt(0, SHAPE_POOL.length - 1);
+
+  const sequence = buildTokenSequence({
+    length,
+    shapeForIndex: () => {
+      const shape = SHAPE_POOL[shapeIndex];
+      shapeIndex = (shapeIndex + shapeStep) % SHAPE_POOL.length;
+      return shape;
+    },
+    rotationForIndex: (index) => (index % 2 === 0 ? rotationA : rotationB),
+  });
+
+  return {
+    sequence,
+    correctAnswer: sequence[length - 1].shape,
+    ruleDescription: `${getPatternTypeRuleLabel("alternating_rotation")}: rotations alternate between ${rotationA}° and ${rotationB}°.`,
+    ruleCount: 2,
+    recognitionWindowMs: profile.recognitionWindowMs,
+  };
+}
+
+function buildSizeProgressionPuzzle(difficulty) {
+  const profile = getDifficultyProfile(difficulty);
+  const length = randomInt(profile.sequenceLengthMin, profile.sequenceLengthMax);
+  const shapeStep = pickRandom(getShapeStepPool(difficulty)) ?? 1;
+  let shapeIndex = randomInt(0, SHAPE_POOL.length - 1);
+  const sizes = ["small", "medium", "large"];
+  const sizeStart = randomInt(0, sizes.length - 1);
+
+  const sequence = buildTokenSequence({
+    length,
+    shapeForIndex: () => {
+      const shape = SHAPE_POOL[shapeIndex];
+      shapeIndex = (shapeIndex + shapeStep) % SHAPE_POOL.length;
+      return shape;
+    },
+    layerForIndex: (index) => sizes[(sizeStart + index) % sizes.length],
+  });
+
+  return {
+    sequence,
+    correctAnswer: sequence[length - 1].shape,
+    ruleDescription: `${getPatternTypeRuleLabel("size_progression")}: shapes cycle through sizes.`,
+    ruleCount: 2,
+    recognitionWindowMs: profile.recognitionWindowMs,
+  };
+}
+
+function buildColorCyclePuzzle(difficulty) {
+  const profile = getDifficultyProfile(difficulty);
+  const length = randomInt(profile.sequenceLengthMin, profile.sequenceLengthMax);
+  const shapeStep = pickRandom(getShapeStepPool(difficulty)) ?? 1;
+  let shapeIndex = randomInt(0, SHAPE_POOL.length - 1);
+  const colorStep = pickRandom([1, 2]);
+  let colorIndex = randomInt(0, COLOR_POOL.length - 1);
+
+  const sequence = buildTokenSequence({
+    length,
+    shapeForIndex: () => {
+      const shape = SHAPE_POOL[shapeIndex];
+      shapeIndex = (shapeIndex + shapeStep) % SHAPE_POOL.length;
+      return shape;
+    },
+    colorForIndex: () => {
+      const color = COLOR_POOL[colorIndex];
+      colorIndex = (colorIndex + colorStep) % COLOR_POOL.length;
+      return color;
+    },
+  });
+
+  return {
+    sequence,
+    correctAnswer: sequence[length - 1].shape,
+    ruleDescription: `${getPatternTypeRuleLabel("color_cycle")}: shapes follow a specific color cycle.`,
+    ruleCount: 2,
+    recognitionWindowMs: profile.recognitionWindowMs,
+  };
+}
+
+function buildPositionShiftPuzzle(difficulty) {
+  const profile = getDifficultyProfile(difficulty);
+  const length = randomInt(profile.sequenceLengthMin, profile.sequenceLengthMax);
+  const shapeStep = pickRandom(getShapeStepPool(difficulty)) ?? 1;
+  let shapeIndex = randomInt(0, SHAPE_POOL.length - 1);
+  const positions = [
+    { row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 },
+    { row: 1, col: 2 }, { row: 2, col: 2 }, { row: 2, col: 1 },
+    { row: 2, col: 0 }, { row: 1, col: 0 },
+  ];
+  const startPos = randomInt(0, positions.length - 1);
+
+  const sequence = buildTokenSequence({
+    length,
+    shapeForIndex: () => {
+      const shape = SHAPE_POOL[shapeIndex];
+      shapeIndex = (shapeIndex + shapeStep) % SHAPE_POOL.length;
+      return shape;
+    },
+    positionForIndex: (index) => positions[(startPos + index) % positions.length],
+  });
+
+  return {
+    sequence,
+    correctAnswer: sequence[length - 1].shape,
+    ruleDescription: `${getPatternTypeRuleLabel("position_shift")}: shapes shift position around the grid.`,
+    ruleCount: 2,
+    recognitionWindowMs: profile.recognitionWindowMs,
+  };
+}
+
+function buildMirrorFlipPuzzle(difficulty) {
+  const profile = getDifficultyProfile(difficulty);
+  const length = randomInt(profile.sequenceLengthMin, profile.sequenceLengthMax);
+  const baseShapeIndex = randomInt(0, SHAPE_POOL.length - 1);
+  const shapeA = SHAPE_POOL[baseShapeIndex];
+  const shapeB = SHAPE_POOL[(baseShapeIndex + 1) % SHAPE_POOL.length];
+  
+  // Logic: Shape A, Shape A (flipped), Shape B, Shape B (flipped)...
+  const sequence = buildTokenSequence({
+    length,
+    shapeForIndex: (index) => (Math.floor(index / 2) % 2 === 0 ? shapeA : shapeB),
+    rotationForIndex: (index) => (index % 2 === 0 ? 0 : 180),
+  });
+
+  return {
+    sequence,
+    correctAnswer: sequence[length - 1].shape,
+    ruleDescription: `${getPatternTypeRuleLabel("mirror_flip")}: shapes alternate and flip vertically.`,
+    ruleCount: 2,
+    recognitionWindowMs: profile.recognitionWindowMs,
+  };
+}
+
+function buildDualAttributePuzzle(difficulty) {
+  const profile = getDifficultyProfile(difficulty);
+  const length = randomInt(profile.sequenceLengthMin, profile.sequenceLengthMax);
+  const shapeStep = pickRandom(getShapeStepPool(difficulty)) ?? 1;
+  const rotationStep = pickRandom(getRotationStepPool(difficulty)) ?? 90;
+  let shapeIndex = randomInt(0, SHAPE_POOL.length - 1);
+  let rotation = pickRandom(ROTATION_POOL);
+
+  const sequence = buildTokenSequence({
+    length,
+    shapeForIndex: () => {
+      const shape = SHAPE_POOL[shapeIndex];
+      shapeIndex = (shapeIndex + shapeStep) % SHAPE_POOL.length;
+      return shape;
+    },
+    rotationForIndex: () => {
+      const r = rotation;
+      rotation = (rotation + rotationStep) % 360;
+      return r;
+    },
+  });
+
+  return {
+    sequence,
+    correctAnswer: sequence[length - 1].shape,
+    ruleDescription: `${getPatternTypeRuleLabel("dual_attribute")}: simultaneous change in shape and rotation.`,
+    ruleCount: 2,
+    recognitionWindowMs: profile.recognitionWindowMs,
+  };
+}
+
 const PATTERN_BUILDERS = {
   shape_sequence: buildShapeSequencePuzzle,
   positional_pattern: buildColorSequencePuzzle,
@@ -614,6 +814,12 @@ const PATTERN_BUILDERS = {
   mirror_symmetry: buildMirrorSymmetryPuzzle,
   count_progression: buildCountProgressionPuzzle,
   attribute_swap: buildAttributeSwapPuzzle,
+  alternating_rotation: buildAlternatingRotationPuzzle,
+  size_progression: buildSizeProgressionPuzzle,
+  color_cycle: buildColorCyclePuzzle,
+  position_shift: buildPositionShiftPuzzle,
+  mirror_flip: buildMirrorFlipPuzzle,
+  dual_attribute: buildDualAttributePuzzle,
 };
 
 export const PATTERN_RUSH_PATTERN_BUILDERS = PATTERN_BUILDERS;
