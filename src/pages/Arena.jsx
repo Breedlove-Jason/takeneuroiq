@@ -12,6 +12,7 @@ import { checkAnswer, getRandomPuzzle } from "../game/puzzleEngine";
 import sequenceSprintPuzzles, {
   getRandomSequenceSprintPuzzle,
 } from "../game/sequenceSprintPuzzles";
+import { getRandomRuleShiftPuzzle } from "../game/puzzleGenerators/ruleShiftGenerator";
 import {
   formatGridAsMatrix,
   getRandomGridRecallPuzzle,
@@ -198,6 +199,17 @@ const analysisProfileMap = {
     accentColor: "#22d3ee",
     animationStyle: "matrix_resonance",
   },
+  rule_shift: {
+    title: "Rule Shift Analysis Matrix",
+    analysisLines: [
+      "Arithmetic transition stabilized",
+      "Shift timing held under pressure",
+      "Rule switching remained clean",
+    ],
+    tone: "adaptive",
+    accentColor: "#a78bfa",
+    animationStyle: "rule_shift_rhythm",
+  },
   logic_gate: {
     title: "Logic Analysis Matrix",
     analysisLines: [
@@ -254,6 +266,14 @@ const analysisAnimationProfileMap = {
     lineDurationMs: 500,
     auraDurationMs: 7400,
     brainPulseMs: 1080,
+  },
+  rule_shift_rhythm: {
+    scanDurationMs: 1580,
+    lineStartDelayMs: 190,
+    lineStaggerMs: 240,
+    lineDurationMs: 480,
+    auraDurationMs: 7100,
+    brainPulseMs: 1040,
   },
   precision_lock: {
     scanDurationMs: 1560,
@@ -628,6 +648,45 @@ const buildLogicGridResultsCopy = ({
   };
 };
 
+const buildRuleShiftResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+} = {}) => {
+  if (accuracy >= 90) {
+    return {
+      eyebrow: "Shift Complete",
+      title: "Rule Shift Results",
+      summary:
+        "Excellent transition control. Rule A and Rule B stayed sharply separated under pressure.",
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: "Shift Complete",
+      title: "Rule Shift Results",
+      summary:
+        "Strong rule tracking. The arithmetic shift stayed readable and your sequence logic remained clean.",
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: "Shift Complete",
+      title: "Rule Shift Results",
+      summary:
+        "Partial progress. Keep tightening the transition point and the arithmetic handoff.",
+    };
+  }
+
+  return {
+    eyebrow: "Shift Complete",
+    title: "Rule Shift Results",
+    summary:
+      "Shift timed out. Rebuild the sequence from Rule A and watch the transition into Rule B.",
+  };
+};
+
 const buildLogicGateResultsCopy = ({
   accuracy = 0,
   correctAnswers = 0,
@@ -728,12 +787,22 @@ const buildSignalPathResultsCopy = ({
 
 // const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.PATTERN_RUSH;
 const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
+const RULE_SHIFT_PUZZLE_TYPE = "rule_shift";
+const RULE_SHIFT_PUZZLE_META = {
+  label: "Rule Shift",
+  shortLabel: "Shift",
+  description: "Solve the arithmetic sequence, then catch the rule transition.",
+  color: "violet",
+  cognitiveSkills: ["Arithmetic Reasoning", "Rule Switching", "Pattern Adaptation"],
+  icon: "shuffle",
+};
 
 const terminalAnalysisToneMap = {
   pattern_rush: ["text-cyan-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
   sequence_sprint: ["text-fuchsia-100/84", "text-fuchsia-100/76", "text-cyan-100/78"],
   grid_recall: ["text-emerald-100/84", "text-cyan-100/76", "text-emerald-200/78"],
   logic_grid: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
+  rule_shift: ["text-cyan-100/84", "text-violet-100/76", "text-amber-200/78"],
   logic_gate: ["text-amber-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
   signal_path: ["text-violet-100/84", "text-cyan-100/76", "text-violet-200/78"],
 };
@@ -743,6 +812,7 @@ const terminalSignalProfileLabels = {
   sequence_sprint: "MOMENTUM FLOW",
   grid_recall: "MEMORY TRACE",
   logic_grid: "MATRIX INFERENCE",
+  rule_shift: "STRUCTURED DEDUCTION",
   logic_gate: "LOGIC CIRCUIT",
   signal_path: "ROUTING DISCIPLINE",
 };
@@ -862,11 +932,11 @@ function Arena({ theme }) {
     recommendedDifficultyLabels[initialTargetDifficulty] || "MEDIUM";
 
   const routePuzzleType = location.state?.puzzleType;
-  const initialPuzzleType = Object.values(PUZZLE_TYPES).includes(
-    routePuzzleType,
-  )
-    ? routePuzzleType
-    : DEFAULT_PUZZLE_TYPE;
+  const initialPuzzleType =
+    Object.values(PUZZLE_TYPES).includes(routePuzzleType) ||
+    routePuzzleType === RULE_SHIFT_PUZZLE_TYPE
+      ? routePuzzleType
+      : DEFAULT_PUZZLE_TYPE;
 
   const recommendedSessionReason =
     recommendedSessionReasonMap[recommendedSession?.adaptiveState] ||
@@ -897,6 +967,9 @@ function Arena({ theme }) {
     if (initialPuzzleType === PUZZLE_TYPES.LOGIC_GRID) {
       return getRandomLogicGridPuzzle(initialTargetDifficulty);
     }
+    if (initialPuzzleType === RULE_SHIFT_PUZZLE_TYPE) {
+      return getRandomRuleShiftPuzzle(initialTargetDifficulty);
+    }
     if (initialPuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
       return getRandomLogicGatePuzzle(initialTargetDifficulty);
     }
@@ -915,6 +988,12 @@ function Arena({ theme }) {
   const [sequenceSprintSelectedAnswer, setSequenceSprintSelectedAnswer] =
     useState(null);
   const [sequenceSprintSolvedCount, setSequenceSprintSolvedCount] = useState(0);
+  const [ruleShiftPuzzle, setRuleShiftPuzzle] = useState(() =>
+    initialPuzzleType === RULE_SHIFT_PUZZLE_TYPE
+      ? initialPuzzle
+      : getRandomRuleShiftPuzzle(initialTargetDifficulty),
+  );
+  const [ruleShiftSelectedAnswer, setRuleShiftSelectedAnswer] = useState(null);
   const [gridRecallPuzzle, setGridRecallPuzzle] = useState(() =>
     getRandomGridRecallPuzzle(initialTargetDifficulty),
   );
@@ -1002,12 +1081,17 @@ function Arena({ theme }) {
         ? gridRecallPuzzle
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
           ? logicGridPuzzle
+          : activePuzzleType === RULE_SHIFT_PUZZLE_TYPE
+            ? ruleShiftPuzzle
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
           ? logicGatePuzzle
           : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
             ? signalPathPuzzle
             : currentPuzzle;
-  const activePuzzleMeta = getPuzzleTypeMetadata(activePuzzleType);
+  const isRuleShiftPuzzle = activePuzzleType === RULE_SHIFT_PUZZLE_TYPE;
+  const activePuzzleMeta = isRuleShiftPuzzle
+    ? RULE_SHIFT_PUZZLE_META
+    : getPuzzleTypeMetadata(activePuzzleType);
   const puzzleFeedTitle =
     activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
       ? "Sequence Sprint"
@@ -1015,13 +1099,15 @@ function Arena({ theme }) {
         ? "Grid Recall"
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
           ? "Logic Grid"
-        : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
-          ? "Logic Gate"
-          : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
-            ? "Signal Path"
-            : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
-              ? currentPuzzle?.title || activePuzzleMeta.label || "Pattern Rush"
-              : activePuzzleMeta.label || "Arena Challenge";
+          : isRuleShiftPuzzle
+            ? "Rule Shift"
+            : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+              ? "Logic Gate"
+              : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
+                ? "Signal Path"
+                : activePuzzleType === PUZZLE_TYPES.PATTERN_RUSH
+                  ? currentPuzzle?.title || activePuzzleMeta.label || "Pattern Rush"
+                  : activePuzzleMeta.label || "Arena Challenge";
   const currentPuzzleDifficulty =
     activePuzzle?.difficulty || activePuzzle?.difficultyBucket || "medium";
   const nextTargetDifficulty =
@@ -1145,6 +1231,27 @@ function Arena({ theme }) {
     };
   }, [activePuzzleType, logicGridPuzzle]);
 
+  const ruleShiftPuzzleMetrics = useMemo(() => {
+    if (!isRuleShiftPuzzle) {
+      return {};
+    }
+
+    return {
+      difficulty: ruleShiftPuzzle?.difficulty || "medium",
+      sequenceLength: Array.isArray(ruleShiftPuzzle?.sequence)
+        ? ruleShiftPuzzle.sequence.length
+        : 0,
+      shiftIndex: Number.isInteger(ruleShiftPuzzle?.shiftIndex)
+        ? ruleShiftPuzzle.shiftIndex
+        : null,
+      ruleA: ruleShiftPuzzle?.ruleA || null,
+      ruleB: ruleShiftPuzzle?.ruleB || null,
+      optionCount: Array.isArray(ruleShiftPuzzle?.options)
+        ? ruleShiftPuzzle.options.length
+        : 0,
+    };
+  }, [isRuleShiftPuzzle, ruleShiftPuzzle]);
+
   const signalPathPuzzleMetrics = useMemo(() => {
     if (activePuzzleType !== PUZZLE_TYPES.SIGNAL_PATH) {
       return {};
@@ -1219,6 +1326,20 @@ function Arena({ theme }) {
       missingIndex: logicGridPuzzle?.missingIndex ?? null,
     };
   }, [activePuzzleType, logicGridPuzzle]);
+
+  const ruleShiftDebugInfo = useMemo(() => {
+    if (!isRuleShiftPuzzle) {
+      return null;
+    }
+
+    return {
+      id: ruleShiftPuzzle?.id ?? "Unknown",
+      answer: ruleShiftPuzzle?.answer ?? "Unknown",
+      shiftIndex: ruleShiftPuzzle?.shiftIndex ?? null,
+      ruleA: ruleShiftPuzzle?.ruleA ?? "Unknown",
+      ruleB: ruleShiftPuzzle?.ruleB ?? "Unknown",
+    };
+  }, [isRuleShiftPuzzle, ruleShiftPuzzle]);
 
   const patternDebugInfo = useMemo(() => {
     if (activePuzzleType === PUZZLE_TYPES.LOGIC_GRID && logicGridDebugInfo) {
@@ -1381,6 +1502,8 @@ function Arena({ theme }) {
         return getRandomGridRecallPuzzle(difficulty);
       case PUZZLE_TYPES.LOGIC_GRID:
         return getRandomLogicGridPuzzle(difficulty);
+      case RULE_SHIFT_PUZZLE_TYPE:
+        return getRandomRuleShiftPuzzle(difficulty);
       case PUZZLE_TYPES.LOGIC_GATE:
         return getRandomLogicGatePuzzle(difficulty);
       case PUZZLE_TYPES.SIGNAL_PATH:
@@ -1502,6 +1625,8 @@ function Arena({ theme }) {
             ? gridRecallPuzzleMetrics
             : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
               ? logicGridPuzzleMetrics
+              : activePuzzleType === RULE_SHIFT_PUZZLE_TYPE
+                ? ruleShiftPuzzleMetrics
               : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
                 ? logicGatePuzzleMetrics
                 : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
@@ -1538,6 +1663,8 @@ function Arena({ theme }) {
               ? gridRecallPuzzleMetrics
               : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
                 ? logicGridPuzzleMetrics
+                : activePuzzleType === RULE_SHIFT_PUZZLE_TYPE
+                  ? ruleShiftPuzzleMetrics
                 : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
                   ? logicGatePuzzleMetrics
                   : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
@@ -1588,6 +1715,7 @@ function Arena({ theme }) {
     logicGatePuzzleMetrics,
     signalPathPuzzleMetrics,
     patternRushPuzzleMetrics,
+    ruleShiftPuzzleMetrics,
     sequenceSprintSummary,
     isSequenceSprintSession,
   ]);
@@ -1790,6 +1918,9 @@ function Arena({ theme }) {
       setGridRecallPhase("memorize");
     } else if (activePuzzleType === PUZZLE_TYPES.LOGIC_GRID) {
       setLogicGridPuzzle(nextPuzzle);
+    } else if (activePuzzleType === RULE_SHIFT_PUZZLE_TYPE) {
+      setRuleShiftSelectedAnswer(null);
+      setRuleShiftPuzzle(nextPuzzle);
     } else if (activePuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
       setLogicGatePuzzle(nextPuzzle);
     } else if (activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH) {
@@ -1916,7 +2047,7 @@ function Arena({ theme }) {
       <div className="rounded-2xl border border-fuchsia-400/40 bg-slate-950/70 p-4 shadow-[0_0_28px_rgba(217,70,239,0.22)] backdrop-blur-md transition-all duration-300">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.35em] text-fuchsia-300">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-300">
               Sequence Sprint Lane
             </p>
             <p className="text-lg font-semibold text-white">Momentum Track</p>
@@ -1935,6 +2066,7 @@ function Arena({ theme }) {
             </span>
           </div>
         </div>
+
         <div className="mt-6 space-y-2">
           <div className="relative h-2.5 rounded-full bg-slate-900/80 shadow-[inset_0_1px_4px_rgba(0,0,0,0.5)]">
             <div
@@ -1945,12 +2077,13 @@ function Arena({ theme }) {
               className={`absolute right-0 top-0 h-full w-12 transition-opacity duration-300 ${sequenceSprintRunnerFx.finishGlow}`}
             />
             {sequenceSprintComboLabel && (
-              <div className="pointer-events-none absolute right-1.5 -top-7 z-20 animate-pulse rounded-full border border-fuchsia-300/60 bg-fuchsia-500/20 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.22em] text-fuchsia-100 shadow-[0_0_18px_rgba(217,70,239,0.55)]">
+              <div className="pointer-events-none absolute right-1.5 -top-7 z-20 animate-pulse rounded-full border border-fuchsia-300/60 bg-fuchsia-500/20 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.22em] text-fuchsia-100 shadow-[0_0_18px rgba(217,70,239,0.55)]">
                 {sequenceSprintComboLabel}
               </div>
             )}
+
             <div
-              className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-300 ${sequenceSprintRunnerFx.wrapper}`}
+              className={`absolute top-1/2 flex items-center justify-center -translate-y-1/2 transition-all duration-300 ${sequenceSprintRunnerFx.wrapper}`}
               style={{
                 left: `${sequenceSprintProgress}%`,
                 transform: "translateX(-50%)",
@@ -1960,7 +2093,6 @@ function Arena({ theme }) {
               <div
                 className={`absolute right-full top-1/2 h-1 -translate-y-1/2 transition-all duration-300 ${sequenceSprintRunnerFx.trail}`}
               />
-
               <img
                 src={sequenceSprintRunner}
                 alt="Runner"
@@ -1969,6 +2101,7 @@ function Arena({ theme }) {
               />
             </div>
           </div>
+
           <div className="flex items-center justify-between px-1 text-[10px] font-bold uppercase tracking-[0.35em] text-slate-500">
             <span>Start</span>
             <span>Finish</span>
@@ -2011,7 +2144,7 @@ function Arena({ theme }) {
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
-                className={`flex aspect-square items-center justify-center rounded-2xl border transition ${
+                className={`flex aspect-square items-center justify-center rounded-xl border transition ${
                   isVisible
                     ? "border-emerald-400/70 bg-emerald-400/90 shadow-[0_0_30px_rgba(16,185,129,0.45)]"
                     : "border-emerald-400/15 bg-white/5"
@@ -2038,16 +2171,16 @@ function Arena({ theme }) {
           Neural Recall
         </span>
       </div>
+
       <div className="mt-6 flex flex-col gap-4">
         {feedback && (
           <div className="flex justify-center">
-            <span
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${getFeedbackBadgeClass(feedback, isCyber)}`}
-            >
+            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${getFeedbackBadgeClass(feedback, isCyber)}`}>
               {feedback}
             </span>
           </div>
         )}
+
         {gridRecallPhase === "memorize" ? (
           <div className="rounded-2xl border border-emerald-500/50 bg-emerald-500/10 px-4 py-8 text-center text-emerald-100/90">
             <p className="text-sm font-semibold uppercase tracking-[0.35em]">
@@ -2071,6 +2204,7 @@ function Arena({ theme }) {
                   )
                     ? optionMatrix
                     : buildBlankGridMatrix(gridRecallGridSize);
+
                   return (
                     <button
                       key={option}
@@ -2089,15 +2223,12 @@ function Arena({ theme }) {
                           row.map((cell, colIndex) => (
                             <span
                               key={`${rowIndex}-${colIndex}`}
-                              className={`block rounded-sm border ${
-                                cell
-                                  ? "border-emerald-300 bg-emerald-300/80 shadow-[0_0_10px_rgba(16,185,129,0.65)]"
-                                  : "border-emerald-400/20 bg-transparent"
-                              }`}
+                              className={`block rounded-sm border ${cell ? "border-emerald-300 bg-emerald-300/80 shadow-[0_0_10px_rgba(16,185,129,0.65)]" : "border-white/20 bg-transparent"}`}
                             />
-                          )),
+                          ))
                         )}
                       </div>
+
                       <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-200">
                         Recall Choice
                       </span>
@@ -2124,7 +2255,7 @@ function Arena({ theme }) {
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500/60 group-hover:text-emerald-400/80 transition-colors">
             ACCURACY
           </p>
-          <p className={`mt-1 text-3xl font-black ${isCyber ? "text-white text-glow-emerald" : "text-white text-glow-emerald"}`}>
+          <p className={`mt-1 text-3xl font-black ${isCyber ? "text-white text-glow-emerald" : "text-white"}`}>
             {gridRecallAccuracy}%
           </p>
         </div>
@@ -2186,8 +2317,8 @@ function Arena({ theme }) {
           <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
             Matrix Intel
           </p>
-          <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] text-violet-200">
-            {formatDevValue(ruleType).replace(/_/g, " ")}
+          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+            Binary feed
           </span>
         </div>
         <div className="mt-4 space-y-3">
@@ -2247,7 +2378,9 @@ function Arena({ theme }) {
                     key={`logic-grid-cell-${index}`}
                     className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border transition-all duration-300 ${toneClass}`}
                   >
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/30 to-transparent" />
+                    <div className="pointer-events-none absolute inset-0 rounded-xl bg-linear-to-br from-emerald-400/0 via-emerald-300/5 to-cyan-300/0 opacity-70" />
+                    <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
+                    
                     {isMissing ? (
                       <div className="flex h-[80%] w-[80%] flex-col items-center justify-center rounded-lg border border-dashed border-violet-300/60 bg-slate-950/55 text-center shadow-[0_0_18px_rgba(168,85,247,0.22)]">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-violet-200/70">
@@ -2297,7 +2430,7 @@ function Arena({ theme }) {
               </span>
             </div>
           )}
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             {answerOptions.length > 0 ? (
               answerOptions.map((option) => {
                 return (
@@ -2308,13 +2441,12 @@ function Arena({ theme }) {
                     disabled={gameOver}
                     className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/65 p-5 text-center text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-slate-900/85 hover:shadow-[0_0_25px_rgba(34,211,238,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                   >
-                    <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/40 to-transparent opacity-50 transition-opacity group-hover:opacity-100" />
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/10 to-transparent opacity-20 transition-opacity duration-300 group-hover:opacity-35" />
-                    <div className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 logic-scanline" />
-                    <span className="mb-2 block text-[9px] font-black uppercase tracking-[0.25em] text-slate-500 transition-colors group-hover:text-cyan-300">
-                      Matrix Module
-                    </span>
-                    <span className="block font-mono text-3xl font-black uppercase tracking-[0.22em] text-white text-glow-blue">
+                    <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/40 to-transparent opacity-30 transition-opacity group-hover:opacity-100" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/8 to-transparent opacity-10 transition-opacity group-hover:opacity-25" />
+                    <div className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/18 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 logic-scanline" />
+                    <span
+                      className="block text-4xl font-black uppercase tracking-widest text-white text-glow-blue"
+                    >
                       {option}
                     </span>
                   </button>
@@ -2337,7 +2469,7 @@ function Arena({ theme }) {
     const ruleType = logicGridPuzzle?.meta?.ruleType || "unknown";
 
     return (
-      <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(34,211,238,0.1)]" : "border-cyan-400/30 bg-slate-950/80"}`}>
+      <div className={`relative overflow-hidden rounded-2xl border backdrop-blur-md transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/20 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(34,211,238,0.1)]" : "border-cyan-400/30 bg-slate-950/80"}`}>
         <div className={`mb-4 flex items-center justify-between border-b pb-3 ${isCyber ? "border-cyan-500/10" : "border-cyan-400/10"}`}>
           <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
             Matrix Readout
@@ -2345,36 +2477,42 @@ function Arena({ theme }) {
           <div className="flex h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.7)] animate-pulse" />
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-400/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/85" />
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
               ACCURACY
             </p>
-            <p className="mt-1 text-3xl font-black text-white text-glow-blue">{logicGridAccuracy}%</p>
+            <p className="mt-1 text-3xl font-black text-white text-glow-emerald">
+              {logicGridAccuracy}%
+            </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-400/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/85" />
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/80" />
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
               RULE TYPE
             </p>
-            <p className="mt-1 text-xl font-black uppercase text-white text-glow-purple wrap-break-word leading-tight">
+            <p className="mt-1 text-xl font-black uppercase text-white text-glow-purple">
               {formatDevValue(ruleType).replace(/_/g, " ")}
             </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-400/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-amber-300/85" />
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-amber-300/80" />
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
               GRID SIZE
             </p>
-            <p className="mt-1 text-3xl font-black text-white text-glow-amber">{gridSize}×{gridSize}</p>
+            <p className="mt-1 text-3xl font-black text-white text-glow-amber">
+              {gridSize}×{gridSize}
+            </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-fuchsia-400/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/85" />
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-fuchsia-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/80" />
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-500/60 group-hover:text-fuchsia-400/80 transition-colors">
               STREAK
             </p>
             <div className="mt-1 flex items-end gap-2">
-              <p className="text-3xl font-black text-white text-glow-pink">{streak}</p>
+              <p className="text-3xl font-black text-white text-glow-pink">
+                {streak}
+              </p>
               {streak >= 3 && (
                 <span className="mb-1 text-[10px] font-bold uppercase text-fuchsia-300 animate-bounce">
                   Hot!
@@ -2449,11 +2587,92 @@ function Arena({ theme }) {
                 className={`group relative rounded-xl border p-5 text-center transition-all duration-300 ${
                   isSelected
                     ? "border-fuchsia-400/80 bg-fuchsia-500/20 text-white shadow-[0_0_35px_rgba(217,70,239,0.3)] scale-[1.02]"
-                    : "border-white/10 bg-slate-900/60 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:border-fuchsia-400/40 hover:bg-slate-900/80 hover:shadow-[0_0_25px_rgba(217,70,239,0.2)]"
+                    : "border-white/10 bg-slate-900/60 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:border-cyan-400/40 hover:bg-slate-900/80 hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]"
+                }`}
+              >
+                <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/50 to-transparent opacity-40 transition-opacity group-hover:opacity-100" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/8 to-transparent opacity-10 transition-opacity group-hover:opacity-25" />
+                <div className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/18 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 logic-scanline" />
+                <span
+                  className="block text-4xl font-black uppercase tracking-widest text-white text-glow-pink"
+                >
+                  {option}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderRuleShiftPrompt = () => (
+    <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 p-5 ${isCyber ? "border-cyan-500/25 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(34,211,238,0.12)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
+      <div className={`flex items-center justify-between border-b pb-3 ${isCyber ? "border-violet-500/10" : "border-white/5"}`}>
+        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
+          Rule Shift Sequence
+        </p>
+        <span className={`text-[10px] font-medium ${isCyber ? "text-slate-400" : "text-slate-500"}`}>
+          Catch the transition
+        </span>
+      </div>
+      <div className="mt-4">
+        <h3 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+          The first rule changes mid-stream. Solve the final value.
+        </h3>
+      </div>
+      <div className="mt-6 flex flex-wrap justify-center gap-4">
+        {(ruleShiftPuzzle?.sequence ?? []).map((value, index) => (
+          <span
+            key={`${value}-${index}`}
+            className={`flex min-w-14 items-center justify-center rounded-xl border px-5 py-4 text-xl font-black transition-all ${isCyber ? "border-cyan-500/40 bg-slate-900/80 text-white shadow-[inset_0_0_15px_rgba(0,0,0,0.6),0_0_15px_rgba(34,211,238,0.25)]" : "border-cyan-500/30 bg-slate-900 text-white shadow-[inset_0_0_15px_rgba(0,0,0,0.6),0_0_15px_rgba(34,211,238,0.2)]"}`}
+          >
+            {value}
+          </span>
+        ))}
+        <span className={`flex min-w-14 animate-pulse items-center justify-center rounded-xl border px-5 py-4 text-xl font-black ${isCyber ? "border-violet-400/50 bg-violet-500/20 text-violet-200 shadow-[0_0_25px_rgba(167,139,250,0.35)]" : "border-violet-400/40 bg-violet-500/10 text-violet-200 shadow-[0_0_20px_rgba(167,139,250,0.25)]"}`}>
+          ?
+        </span>
+      </div>
+    </div>
+  );
+
+  const renderRuleShiftAnswers = () => (
+    <div className={`rounded-2xl border backdrop-blur-sm transition-all duration-300 ${isCyber ? "border-cyan-500/25 bg-slate-950/60 shadow-[inset_0_0_20px_rgba(34,211,238,0.12)]" : "border-white/10 bg-slate-950/40 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"}`}>
+      <div className={`flex items-center justify-between border-b pb-3 ${isCyber ? "border-violet-500/10" : "border-white/5"}`}>
+        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-violet-400 text-glow-pink" : "text-violet-400"}`}>
+          Answer Lane
+        </p>
+        <span className={`text-[10px] font-medium ${isCyber ? "text-slate-400" : "text-slate-500"}`}>
+          Select the final value
+        </span>
+      </div>
+      <div className="mt-6 flex flex-col items-center gap-4">
+        {feedback && (
+          <div className="flex justify-center">
+            <span
+              className={`rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] shadow-lg ${getFeedbackBadgeClass(feedback, isCyber)}`}
+            >
+              {feedback}
+            </span>
+          </div>
+        )}
+        <div className="grid w-full gap-4 sm:grid-cols-2">
+          {ruleShiftPuzzle.options.map((option) => {
+            const isSelected = ruleShiftSelectedAnswer === option;
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => handleAnswer(option)}
+                className={`group relative rounded-xl border p-5 text-center transition-all duration-300 ${
+                  isSelected
+                    ? "border-violet-400/80 bg-violet-500/20 text-white shadow-[0_0_35px_rgba(167,139,250,0.3)] scale-[1.02]"
+                    : "border-white/10 bg-slate-900/60 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:border-cyan-400/40 hover:bg-slate-900/80 hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]"
                 }`}
               >
                 <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                <span className="mb-2 block text-[9px] font-black uppercase tracking-[0.25em] text-slate-500 transition-colors group-hover:text-fuchsia-300">
+                <span className="mb-2 block text-[9px] font-black uppercase tracking-[0.25em] text-slate-500 transition-colors group-hover:text-cyan-300">
                   Response
                 </span>
                 <span className="block text-4xl font-black uppercase tracking-widest text-white text-glow-pink">
@@ -2466,6 +2685,63 @@ function Arena({ theme }) {
       </div>
     </div>
   );
+
+  const renderRuleShiftReadout = () => {
+    const sequenceLength = Array.isArray(ruleShiftPuzzle?.sequence)
+      ? ruleShiftPuzzle.sequence.length
+      : 0;
+    const shiftAfterStep = Number.isInteger(ruleShiftPuzzle?.shiftIndex)
+      ? ruleShiftPuzzle.shiftIndex
+      : null;
+    return (
+      <div className="relative overflow-hidden rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.08)] backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-violet-500/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400">
+            Shift Readout
+          </p>
+          <div className="logic-dot-pulse h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.6)]" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+              Rule A
+            </p>
+            <p className="mt-1 text-[clamp(0.72rem,1.8vw,1rem)] font-black uppercase tracking-widest leading-tight text-white text-glow-blue">
+              {ruleShiftPuzzle?.ruleA ?? "Unknown"}
+            </p>
+          </div>
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
+              Rule B
+            </p>
+            <p className="mt-1 text-[clamp(0.72rem,1.8vw,1rem)] font-black uppercase tracking-widest leading-tight text-white text-glow-purple">
+              {ruleShiftPuzzle?.ruleB ?? "Unknown"}
+            </p>
+          </div>
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-amber-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
+              Shift Point
+            </p>
+            <p className="mt-1 text-3xl font-black text-white text-glow-amber">
+              {shiftAfterStep !== null ? `After ${shiftAfterStep}` : "—"}
+            </p>
+          </div>
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+              Sequence Length
+            </p>
+            <p className="mt-1 text-3xl font-black text-white text-glow-blue">
+              {sequenceLength}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // --- RENDER HELPERS (LOGIC GATE) ---
   const LOGIC_GATE_VARIANT_META = {
@@ -2661,7 +2937,7 @@ function Arena({ theme }) {
           <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${variantHeaderClass}`}>
             {variantMeta.title}
           </p>
-          <span className="text-[10px] font-medium text-slate-500/80 uppercase tracking-widest wrap-break-word leading-tight">
+          <span className="text-[10px] font-medium text-slate-500/80 uppercase tracking-widest">
             {variantMeta.subtitle}
           </span>
         </div>
@@ -2684,10 +2960,10 @@ function Arena({ theme }) {
                 className={`group relative overflow-hidden rounded-xl border p-5 text-center transition-all duration-300 border-white/10 bg-slate-900/60 text-slate-200 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-slate-900/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${variantTone.answerGlow}`}
               >
                 <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-white/50 to-transparent opacity-40 transition-opacity group-hover:opacity-100" />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/10 to-transparent opacity-20 transition-opacity duration-300 group-hover:opacity-35" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/8 to-transparent opacity-10 transition-opacity group-hover:opacity-25" />
                 <div className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/18 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 logic-scanline" />
                 <span
-                  className={`block ${isMissingGate ? "text-2xl font-semibold uppercase tracking-[0.25em]" : "text-4xl font-black uppercase tracking-widest"} text-white text-glow-blue`}
+                  className={`block ${isMissingGate ? "text-2xl font-semibold uppercase tracking-[0.25em]" : "text-4xl font-black uppercase tracking-widest"} text-white text-glow-pink`}
                 >
                   {option}
                 </span>
@@ -2738,39 +3014,29 @@ function Arena({ theme }) {
               {accuracy}
             </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60 flex flex-col justify-between">
-            <div className={`logic-signal-flow absolute inset-x-3 top-0 h-px bg-linear-to-r ${variantTone.wire} opacity-45`} />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
-                {activeTitle}
-              </p>
-              <p className={`mt-2 font-black uppercase tracking-[0.2em] text-white text-glow-purple wrap-break-word text-center leading-tight ${
-                activeLabel.length > 12 ? "text-lg sm:text-xl" : activeLabel.length > 8 ? "text-xl sm:text-2xl" : "text-[2rem]"
-              }`}>
-                {activeLabel}
-              </p>
-            </div>
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
+              {activeTitle}
+            </p>
+            <p className="mt-1 text-2xl font-black text-white text-glow-purple">
+              {activeLabel}
+            </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-500/60 group-hover:text-cyan-400/80 transition-colors">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-fuchsia-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-500/60 group-hover:text-fuchsia-400/80 transition-colors">
               STREAK
             </p>
-            <div className="mt-1 flex items-end gap-2">
-              <p className="text-3xl font-black text-white text-glow-blue">
-                {streak}
-              </p>
-              {streak >= 3 && (
-                <span className="mb-1 text-[10px] font-bold uppercase text-cyan-300 animate-bounce">
-                  Hot!
-                </span>
-              )}
-            </div>
+            <p className="mt-1 text-3xl font-black text-white text-glow-pink">
+              {streak}
+            </p>
           </div>
         </div>
       </div>
     );
   };
+
   // --- RENDER HELPERS (SIGNAL PATH) ---
   const renderSignalPathRulePanel = () => {
     const ruleText = signalPathPuzzle?.rule || "Choose the path that satisfies the signal constraint.";
@@ -2878,16 +3144,16 @@ function Arena({ theme }) {
                     return (
                       <span key={`${nodeId}-${index}`} className="flex items-center gap-1">
                         <span
-                          className={`inline-flex h-6 w-6 items-center justify-center rounded-md border text-[10px] font-black ${
+                          className={`inline-flex h-6 w-6 items-center justify-center rounded-md border text-[10px] font-black transition-all duration-200 ${
                             val === 1
-                              ? "border-violet-400/50 bg-violet-400/15 text-violet-300"
+                              ? "border-violet-400/50 bg-violet-400/15 text-violet-200 group-hover:bg-violet-400/25 group-hover:shadow-[0_0_8px_rgba(139,92,246,0.4)]"
                               : "border-slate-600/40 bg-slate-900/70 text-slate-400"
                           }`}
                         >
-                          {nodeId}
+                          {nodeId}={val ?? "?"}
                         </span>
                         {index < path.route.length - 1 && (
-                          <span className="text-[9px] text-violet-500/40">→</span>
+                          <span className="text-[9px] text-violet-500/50">→</span>
                         )}
                       </span>
                     );
@@ -2906,15 +3172,6 @@ function Arena({ theme }) {
   const renderSignalPathAnswers = () => {
     const paths = Array.isArray(signalPathPuzzle?.paths) ? signalPathPuzzle.paths : [];
     const options = Array.isArray(signalPathPuzzle?.options) ? signalPathPuzzle.options : [];
-    const nodes = Array.isArray(signalPathPuzzle?.nodes) ? signalPathPuzzle.nodes : [];
-    const nodeValueMap = nodes.reduce((acc, node) => {
-      acc[node.id] = node.value;
-      return acc;
-    }, {});
-    const pathMap = paths.reduce((acc, path) => {
-      acc[path.id] = path;
-      return acc;
-    }, {});
     const displayOptions = options.length > 0 ? options : paths.map((p) => p.id);
 
     return (
@@ -2938,9 +3195,6 @@ function Arena({ theme }) {
           )}
 
           {displayOptions.length > 0 ? displayOptions.map((optionId) => {
-            const path = pathMap[optionId];
-            const route = path?.route ?? [];
-            const pathLabel = path?.label || `Path ${optionId}`;
             return (
               <button
                 key={`signal-answer-${optionId}`}
@@ -2950,40 +3204,12 @@ function Arena({ theme }) {
               >
                 <div className="absolute inset-x-0 -top-px h-px bg-linear-to-r from-transparent via-violet-300/40 to-transparent opacity-30 transition-opacity group-hover:opacity-100" />
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/8 to-transparent opacity-10 transition-opacity group-hover:opacity-25" />
-
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-400 group-hover:text-violet-300 transition-colors">
-                    {pathLabel}
-                  </span>
-                  <span className="text-[9px] font-semibold uppercase tracking-widest text-slate-500">
-                    {route.length} nodes
-                  </span>
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                  {route.map((nodeId, index) => {
-                    const val = nodeValueMap[nodeId];
-                    return (
-                      <span key={`${nodeId}-${index}`} className="flex items-center gap-1">
-                        <span
-                          className={`inline-flex h-7 min-w-7 items-center justify-center rounded-lg border px-1.5 text-[11px] font-black transition-all duration-200 ${
-                            val === 1
-                              ? "border-violet-400/50 bg-violet-400/15 text-violet-200 group-hover:bg-violet-400/25 group-hover:shadow-[0_0_8px_rgba(139,92,246,0.4)]"
-                              : "border-slate-600/40 bg-slate-900/70 text-slate-400"
-                          }`}
-                        >
-                          {nodeId}={val ?? "?"}
-                        </span>
-                        {index < route.length - 1 && (
-                          <span className="text-[9px] text-violet-500/50">→</span>
-                        )}
-                      </span>
-                    );
-                  })}
-                  {route.length === 0 && (
-                    <span className="text-[10px] text-slate-600">No route data</span>
-                  )}
-                </div>
+                <div className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/18 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 logic-scanline" />
+                <span
+                  className="block text-4xl font-black uppercase tracking-widest text-white text-glow-pink"
+                >
+                  {optionId}
+                </span>
               </button>
             );
           }) : (
@@ -3013,39 +3239,41 @@ function Arena({ theme }) {
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
               ACCURACY
             </p>
-            <p className="mt-1 text-3xl font-black text-white">
+            <p className="mt-1 text-3xl font-black text-white text-glow-emerald">
               {accuracy}
             </p>
           </div>
           <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/80" />
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/80" />
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
               RULE TYPE
             </p>
-            <p className="mt-1 text-[clamp(0.72rem,1.8vw,1rem)] font-black uppercase tracking-widest leading-tight text-white" title={ruleTypeDisplay}>
+            <p className={`mt-1 font-black uppercase tracking-[0.2em] text-white text-glow-purple wrap-break-word text-center leading-tight ${
+              ruleTypeDisplay.length > 12 ? "text-lg sm:text-xl" : ruleTypeDisplay.length > 8 ? "text-xl sm:text-2xl" : "text-[2rem]"
+            }`}>
               {ruleTypeDisplay}
             </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
-            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-violet-300/70" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-amber-500/30 hover:bg-slate-900/60">
+            <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-amber-300/80" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80 transition-colors">
               NODE COUNT
             </p>
-            <p className="mt-1 text-3xl font-black text-white">
+            <p className="mt-1 text-3xl font-black text-white text-glow-amber">
               {nodeCount}
             </p>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-violet-500/30 hover:bg-slate-900/60">
+          <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/40 p-4 transition-all hover:border-cyan-500/30 hover:bg-slate-900/60">
             <div className="logic-dot-pulse absolute right-3 top-3 h-1.5 w-1.5 rounded-full bg-fuchsia-300/80" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-500/60 group-hover:text-violet-400/80 transition-colors">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-500/60 group-hover:text-fuchsia-400/80 transition-colors">
               STREAK
             </p>
             <div className="mt-1 flex items-end gap-2">
-              <p className="text-3xl font-black text-white text-glow-blue">
+              <p className="text-3xl font-black text-white text-glow-pink">
                 {streak}
               </p>
               {streak >= 3 && (
-                <span className="mb-1 text-[10px] font-bold uppercase text-violet-300 animate-bounce">
+                <span className="mb-1 text-[10px] font-bold uppercase text-fuchsia-300 animate-bounce">
                   Hot!
                 </span>
               )}
@@ -3110,6 +3338,9 @@ function Arena({ theme }) {
     if (activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT) {
       setSequenceSprintSelectedAnswer(selectedAnswer);
     }
+    if (activePuzzleType === RULE_SHIFT_PUZZLE_TYPE) {
+      setRuleShiftSelectedAnswer(selectedAnswer);
+    }
 
     const isCorrect =
       activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
@@ -3118,11 +3349,13 @@ function Arena({ theme }) {
           ? selectedAnswer === gridRecallPuzzle.answer
           : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
             ? selectedAnswer === logicGridPuzzle.answer
-          : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
-            ? selectedAnswer === logicGatePuzzle.answer
-            : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
-              ? selectedAnswer === signalPathPuzzle.answer
-              : checkAnswer(currentPuzzle, selectedAnswer);
+            : activePuzzleType === RULE_SHIFT_PUZZLE_TYPE
+              ? selectedAnswer === ruleShiftPuzzle.answer
+              : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
+                ? selectedAnswer === logicGatePuzzle.answer
+                : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
+                  ? selectedAnswer === signalPathPuzzle.answer
+                  : checkAnswer(currentPuzzle, selectedAnswer);
 
     const nextSequenceSolvedCount =
       activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT && isCorrect
@@ -3181,6 +3414,9 @@ function Arena({ theme }) {
       setGridRecallPhase("memorize");
     } else if (nextPuzzleType === PUZZLE_TYPES.LOGIC_GRID) {
       setLogicGridPuzzle(newPuzzle);
+    } else if (nextPuzzleType === RULE_SHIFT_PUZZLE_TYPE) {
+      setRuleShiftSelectedAnswer(null);
+      setRuleShiftPuzzle(newPuzzle);
     } else if (nextPuzzleType === PUZZLE_TYPES.LOGIC_GATE) {
       setLogicGatePuzzle(newPuzzle);
     } else if (nextPuzzleType === PUZZLE_TYPES.SIGNAL_PATH) {
@@ -3343,6 +3579,11 @@ function Arena({ theme }) {
               accuracy: answeredAccuracyValue,
               correctAnswers,
             })
+          : activePuzzleType === RULE_SHIFT_PUZZLE_TYPE
+            ? buildRuleShiftResultsCopy({
+                accuracy: answeredAccuracyValue,
+                correctAnswers,
+              })
           : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
             ? buildLogicGateResultsCopy({
                 accuracy: answeredAccuracyValue,
@@ -3471,7 +3712,7 @@ function Arena({ theme }) {
             <div
               className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
                 isCyber
-                  ? "border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)] hover:border-cyan-400/40"
+                  ? "border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)]"
                   : "border-slate-200 bg-slate-50"
               }`}
             >
@@ -3524,7 +3765,7 @@ function Arena({ theme }) {
             <div
               className={`group relative overflow-hidden rounded-2xl border px-5 py-4 text-center transition-all duration-300 ${
                 isCyber
-                  ? "border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)] hover:border-fuchsia-400/40"
+                  ? "border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)]"
                   : "border-slate-200 bg-slate-50"
               }`}
             >
@@ -3614,76 +3855,7 @@ function Arena({ theme }) {
 
                 {isLightningActive && (
                   <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-                    <style>{`@keyframes arena-lightning-strike { 0% { opacity: 0; transform: scale(0.985) translateY(-3px); } 10% { opacity: 1; transform: scale(1.01) translateY(0); } 22% { opacity: 0.82; } 45% { opacity: 1; } 70% { opacity: 0.36; } 100% { opacity: 0; transform: scale(1.015) translateY(2px); } } @keyframes arena-lightning-flicker { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }`}</style>
-                    <div className="absolute inset-0 bg-linear-to-br from-fuchsia-500/5 via-cyan-300/10 to-transparent" />
-                    <svg
-                      viewBox="0 0 800 520"
-                      className="absolute inset-0 h-full w-full"
-                      preserveAspectRatio="none"
-                      style={{ animation: "arena-lightning-strike 240ms ease-out both" }}
-                      aria-hidden="true"
-                    >
-                      <defs>
-                        <linearGradient id="arenaLightningBolt" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-                          <stop offset="14%" stopColor="rgba(255,255,255,0.95)" />
-                          <stop offset="48%" stopColor="rgba(56,189,248,0.98)" />
-                          <stop offset="74%" stopColor="rgba(217,70,239,0.95)" />
-                          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-                        </linearGradient>
-                        <linearGradient id="arenaLightningEdge" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-                          <stop offset="30%" stopColor="rgba(232,121,249,0.95)" />
-                          <stop offset="70%" stopColor="rgba(34,211,238,0.95)" />
-                          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-                        </linearGradient>
-                        <filter id="arenaLightningGlow" x="-50%" y="-50%" width="200%" height="200%">
-                          <feGaussianBlur stdDeviation="7" result="blur" />
-                          <feColorMatrix
-                            in="blur"
-                            type="matrix"
-                            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -6"
-                          />
-                        </filter>
-                      </defs>
-                      <path
-                        d="M116 44 L248 120 L198 192 L342 244 L290 330 L438 364 L386 454 L618 506"
-                        fill="none"
-                        stroke="url(#arenaLightningBolt)"
-                        strokeWidth="14"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        filter="url(#arenaLightningGlow)"
-                        style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
-                      />
-                      <path
-                        d="M140 58 L260 126 L220 202 L352 250 L308 338 L450 372 L404 460 L600 486"
-                        fill="none"
-                        stroke="url(#arenaLightningEdge)"
-                        strokeWidth="6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        opacity="0.9"
-                        filter="url(#arenaLightningGlow)"
-                        style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
-                      />
-                      <path
-                        d="M116 44 L248 120 L198 192 L342 244 L290 330 L438 364 L386 454 L618 506"
-                        fill="none"
-                        stroke="rgba(255,255,255,0.98)"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ animation: "arena-lightning-flicker 110ms steps(2, end) infinite" }}
-                      />
-                    </svg>
-                  </div>
-                )}
-
-            <div className="relative z-10">
-              {gameOver ? (
-              <div className="relative flex flex-col items-center justify-center gap-10 overflow-hidden py-10 text-center">
-                <style>{`@keyframes neural-breath { 0%, 100% { transform: scale(0.985); opacity: 0.92; } 50% { transform: scale(1.02); opacity: 1; } } @keyframes neural-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.9; } } @keyframes arena-terminal-line { 0% { opacity: 0; transform: translateY(8px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } } @keyframes arena-terminal-cursor-blink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } } @keyframes arena-terminal-flicker { 0%, 100% { opacity: 0.28; transform: scaleX(0.985); } 50% { opacity: 0.6; transform: scaleX(1.01); } } @keyframes arena-terminal-key-pulse { 0%, 100% { opacity: 0.5; filter: brightness(1); } 50% { opacity: 0.8; filter: brightness(1.3); } }`}</style>
+                    <style>{`@keyframes arena-lightning-strike { 0% { opacity: 0; transform: scale(0.985) translateY(-3px); } 10% { opacity: 1; transform: scale(1.01) translateY(0); } 22% { opacity: 0.82; } 45% { opacity: 1; } 70% { opacity: 0.36; } 100% { opacity: 0; transform: scale(1.015) translateY(2px); } } @keyframes arena-lightning-flicker { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } } @keyframes arena-terminal-line { 0% { opacity: 0; transform: translateY(8px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } } @keyframes arena-terminal-cursor-blink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } } @keyframes arena-terminal-flicker { 0%, 100% { opacity: 0.28; transform: scaleX(0.985); } 50% { opacity: 0.6; transform: scaleX(1.01); } } @keyframes arena-terminal-key-pulse { 0%, 100% { opacity: 0.5; filter: brightness(1); } 50% { opacity: 0.8; filter: brightness(1.3); } }`}</style>
                 <div
                   className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-72 overflow-hidden"
                   aria-hidden="true"
@@ -3785,7 +3957,9 @@ function Arena({ theme }) {
                     </div>
                   </div>
                 </div>
-                {isCyber && (
+                </div>
+              )}
+              {isCyber && (
                   <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute inset-0 bg-grid-cyber opacity-[0.03]" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(217,70,239,0.12),transparent_55%)]" />
@@ -4004,7 +4178,7 @@ function Arena({ theme }) {
                 </div>
               </div>
               ) : (
-                <>
+                <div className="space-y-6">
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p
@@ -4110,6 +4284,71 @@ function Arena({ theme }) {
                       </div>
                     </div>
                   </div>
+                ) : activePuzzleType === RULE_SHIFT_PUZZLE_TYPE ? (
+                  <div className="relative overflow-hidden rounded-3xl border border-cyan-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(34,211,238,0.1)] backdrop-blur-md">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex items-center justify-between">
+                        <div>
+                          <p className={`text-[11px] uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
+                            Rule Shift Arena
+                          </p>
+                          <h2 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                            Read the first rule. Catch the shift.
+                          </h2>
+                        </div>
+                        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${isCyber ? "border-violet-500/50 bg-violet-500/20 text-violet-200 shadow-[0_0_15px_rgba(167,139,250,0.28)]" : "border-violet-500/30 bg-violet-500/20 text-violet-300"}`}>
+                          Arithmetic Transition Live
+                        </span>
+                      </div>
+
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="space-y-6 lg:col-span-2">
+                          {renderRuleShiftPrompt()}
+                          {renderRuleShiftAnswers()}
+                        </div>
+                        <div className="space-y-6 lg:col-span-1">
+                          {renderRuleShiftReadout()}
+
+                          {shouldShowSequenceDebug && (
+                            <DevDebugPanel title="Rule Shift Dev">
+                              {SHOW_ANSWERS && (
+                                <div className="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-2">
+                                  <span className="text-[10px] font-bold uppercase text-cyan-300">Answer</span>
+                                  <span className="font-mono text-lg font-black text-white">
+                                    {ruleShiftDebugInfo?.answer ?? "—"}
+                                  </span>
+                                </div>
+                              )}
+                              {SHOW_PUZZLE_DEBUG_META && (
+                                <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">ID</span>
+                                    <span className="font-mono text-cyan-200">{ruleShiftDebugInfo?.id}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">Rule A</span>
+                                    <span className="font-mono text-cyan-200">{formatDevValue(ruleShiftDebugInfo?.ruleA)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">Rule B</span>
+                                    <span className="font-mono text-violet-200">{formatDevValue(ruleShiftDebugInfo?.ruleB)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="font-bold uppercase text-slate-500">Shift Index</span>
+                                    <span className="font-mono text-amber-200">
+                                      {ruleShiftDebugInfo?.shiftIndex !== null && ruleShiftDebugInfo?.shiftIndex !== undefined
+                                        ? JSON.stringify(ruleShiftDebugInfo.shiftIndex)
+                                        : "—"}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </DevDebugPanel>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ) : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH ? (
                   <div className="relative overflow-hidden rounded-3xl border border-violet-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(139,92,246,0.1)] backdrop-blur-md">
                     <div className="relative z-10">
@@ -4152,27 +4391,27 @@ function Arena({ theme }) {
                                 <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">ID</span>
-                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.id}</span>
+                                    <span className="text-amber-200 font-mono">{signalPathDebugInfo.id}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Difficulty</span>
-                                    <span className="text-violet-200 font-mono">{formatDevValue(signalPathDebugInfo.difficulty)}</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(signalPathDebugInfo.difficulty)}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Rule Type</span>
-                                    <span className="text-violet-200 font-mono">{formatDevValue(signalPathDebugInfo.ruleType)}</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(signalPathDebugInfo.ruleType)}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Nodes</span>
-                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.nodeCount}</span>
+                                    <span className="text-amber-200 font-mono">{signalPathDebugInfo.nodeCount}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Paths</span>
-                                    <span className="text-violet-200 font-mono">{signalPathDebugInfo.pathCount}</span>
+                                    <span className="text-amber-200 font-mono">{signalPathDebugInfo.pathCount}</span>
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-slate-500 uppercase font-bold">Correct Path</span>
-                                    <span className="text-violet-200 font-mono">
+                                    <span className="text-amber-200 font-mono">
                                       {signalPathPuzzle?.puzzleMetrics?.correctPathId ?? "—"}
                                     </span>
                                   </div>
@@ -4193,10 +4432,10 @@ function Arena({ theme }) {
                     <div className="relative z-10">
                       <div className="mb-6 flex items-center justify-between">
                         <div>
-                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
+                          <p className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-amber-400 text-glow-amber" : "text-amber-400"}`}>
                             Logic Gate Arena
                           </p>
-                          <h2 className="text-xl font-bold text-white text-glow-blue">
+                          <h2 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
                             Resolve the signal. Predict the output.
                           </h2>
                         </div>
@@ -4219,7 +4458,7 @@ function Arena({ theme }) {
                               {SHOW_LOGIC_GATE_ANSWERS && (
                                 <div className="space-y-2">
                                   <div className="flex items-center justify-between rounded-lg bg-emerald-500/10 p-2 border border-emerald-500/20">
-                                    <span className="text-[10px] font-bold text-emerald-400 uppercase">Answer</span>
+                                    <span className="text-[10px] font-bold uppercase text-emerald-400">Answer</span>
                                     <span className="font-mono text-lg font-black text-white">{logicGatePuzzle.answer}</span>
                                   </div>
                                 </div>
@@ -4277,7 +4516,7 @@ function Arena({ theme }) {
                 ) : activePuzzleType === PUZZLE_TYPES.GRID_RECALL ? (
                   <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(16,185,129,0.1)] backdrop-blur-md">
                     <div className="relative z-10">
-                      <div className="mb-6 flex items-center justify-between">
+                      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
                           <p className={`text-[11px] uppercase tracking-[0.2em] ${isCyber ? "text-emerald-400 text-glow-emerald" : "text-emerald-400"}`}>
                             Grid Recall Arena
@@ -4313,7 +4552,7 @@ function Arena({ theme }) {
                                             className={`h-5 w-5 rounded-md border ${
                                               cell
                                                 ? "border-emerald-300 bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)]"
-                                                : "border-white/20 bg-black/40"
+                                                : "border-white/20 bg-transparent"
                                             }`}
                                           />
                                         ))}
@@ -4392,24 +4631,20 @@ function Arena({ theme }) {
                               {SHOW_PUZZLE_DEBUG_META && (
                                 <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
                                   <div className="flex justify-between">
-                                    <span className="font-bold uppercase text-slate-500">ID</span>
-                                    <span className="font-mono text-cyan-200">{logicGridDebugInfo.id}</span>
+                                    <span className="text-slate-500 uppercase font-bold">ID</span>
+                                    <span className="text-amber-200 font-mono">{logicGridDebugInfo.id}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="font-bold uppercase text-slate-500">Rule Type</span>
-                                    <span className="font-mono text-cyan-200">
-                                      {formatDevValue(logicGridDebugInfo.ruleType)}
-                                    </span>
+                                    <span className="text-slate-500 uppercase font-bold">Rule Type</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGridDebugInfo.ruleType)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="font-bold uppercase text-slate-500">Grid Size</span>
-                                    <span className="font-mono text-cyan-200">
-                                      {formatDevValue(logicGridDebugInfo.gridSize ?? getLogicGridSize())}
-                                    </span>
+                                    <span className="text-slate-500 uppercase font-bold">Grid Size</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGridDebugInfo.gridSize ?? getLogicGridSize())}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="font-bold uppercase text-slate-500">Missing Index</span>
-                                    <span className="font-mono text-cyan-200">
+                                    <span className="text-slate-500 uppercase font-bold">Missing Index</span>
+                                    <span className="text-amber-200 font-mono">
                                       {logicGridDebugInfo.missingIndex !== null && logicGridDebugInfo.missingIndex !== undefined
                                         ? JSON.stringify(logicGridDebugInfo.missingIndex)
                                         : "—"}
@@ -4446,10 +4681,10 @@ function Arena({ theme }) {
 
                       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
                         <div className="rounded-2xl border border-cyan-500/10 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(6,182,212,0.15)] backdrop-blur-[14px]">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-slate-300">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
                             Prompt Sequence
                           </p>
-                          <p className="text-xs font-medium text-slate-400">
+                          <p className="text-xs font-medium text-slate-300">
                             Read the pattern
                           </p>
                           <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
@@ -4558,7 +4793,7 @@ function Arena({ theme }) {
                                     </div>
                                   </>
                                 )}
-                            </DevDebugPanel>
+                              </DevDebugPanel>
                             </div>
                           )}
                         </div>
@@ -4566,10 +4801,7 @@ function Arena({ theme }) {
                     </div>
                   </div>
                 )}
-              </>
-              )}
             </div>
-          </div>
 
           <div className="mt-6 grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)_320px]">
             <div
