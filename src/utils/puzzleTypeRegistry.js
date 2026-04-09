@@ -1,6 +1,7 @@
 export const PUZZLE_TYPES = {
   PATTERN_RUSH: "pattern_rush",
   SEQUENCE_SPRINT: "sequence_sprint",
+  RULE_SHIFT: "rule_shift",
   GRID_RECALL: "grid_recall",
   LOGIC_GRID: "logic_grid",
   LOGIC_GATE: "logic_gate",
@@ -23,6 +24,18 @@ export const PUZZLE_TYPE_METADATA = {
     color: "fuchsia",
     cognitiveSkills: ["Working Memory", "Predictive Reasoning"],
     icon: "diagram-project",
+  },
+  [PUZZLE_TYPES.RULE_SHIFT]: {
+    label: "Rule Shift",
+    shortLabel: "Shift",
+    description: "Adaptive arithmetic transitions and rule switching",
+    color: "magenta",
+    cognitiveSkills: [
+      "Arithmetic Transition Tracking",
+      "Rule Switching",
+      "Adaptive Sequence Reasoning",
+    ],
+    icon: "layer-group",
   },
   [PUZZLE_TYPES.GRID_RECALL]: {
     label: "Grid Recall",

@@ -169,6 +169,7 @@ function getChallengeStatePill(challengeState) {
 
 function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'sequence_sprint') return 'Sequence Sprint';
+  if (puzzleType === 'rule_shift') return 'Rule Shift';
   if (puzzleType === 'pattern_rush') return 'Pattern Rush';
   if (puzzleType === 'grid_recall') return 'Grid Recall';
   if (puzzleType === 'logic_grid') return 'Logic Grid';
@@ -196,6 +197,13 @@ const RECENT_SESSION_FAMILY_VISUALS = {
       'flex h-9 w-9 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200',
     labelClass: 'text-fuchsia-200',
     badgeClass: 'text-fuchsia-300/70',
+  },
+  rule_shift: {
+    icon: faLayerGroup,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-gradient-to-br from-cyan-500/10 via-violet-500/10 to-amber-500/10 text-fuchsia-200 shadow-[0_0_20px_rgba(217,70,239,0.22)]',
+    labelClass: 'text-cyan-100',
+    badgeClass: 'text-violet-300/75',
   },
   grid_recall: {
     icon: faTableCells,
@@ -245,6 +253,8 @@ function getFocusLaneFromPuzzleType(puzzleType) {
   switch (puzzleType) {
     case 'sequence_sprint':
       return 'Sequential Reasoning';
+    case 'rule_shift':
+      return 'Arithmetic Transition Tracking';
     case 'pattern_rush':
       return 'Pattern Recognition';
     case 'grid_recall':
@@ -299,6 +309,29 @@ function buildFamilyAwareRecommendation(session) {
       return `Lock in ${ruleLabel} accuracy by repeating ${lengthLabel} runs before switching families.`;
     }
     return `Reset with shorter ${ruleLabel} reps to rebuild confidence before scaling ${lengthLabel}.`;
+  }
+
+  if (session.puzzleType === 'rule_shift') {
+    const ruleA = puzzleMetrics.ruleA ?? 'Rule A';
+    const ruleB = puzzleMetrics.ruleB ?? 'Rule B';
+    const shiftIndex = puzzleMetrics.shiftIndex ?? puzzleMetrics.shiftPoint;
+    const sequenceLength = puzzleMetrics.sequenceLength;
+    const shiftLabel =
+      typeof shiftIndex === 'number'
+        ? `shift point ${shiftIndex}`
+        : 'the transition point';
+    const sequenceLabel =
+      typeof sequenceLength === 'number'
+        ? `${sequenceLength}-step adaptive sequences`
+        : 'adaptive sequences';
+
+    if (accuracy >= 85 && streak >= 8) {
+      return `Your arithmetic transition tracking is sharp. Keep switching from ${ruleA} to ${ruleB} at ${shiftLabel} and extend ${sequenceLabel}.`;
+    }
+    if (accuracy >= 70) {
+      return `Reinforce the ${ruleA} to ${ruleB} switch inside ${sequenceLabel} so the transition stays clean.`;
+    }
+    return `Slow the cadence, rehearse the ${ruleA} to ${ruleB} handoff, and stabilize ${shiftLabel} before scaling ${sequenceLabel}.`;
   }
 
   if (session.puzzleType === 'pattern_rush') {
@@ -376,6 +409,14 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? `${ruleType} recognition strengthening`
       : `${ruleType} recognition rebuilding`;
+  }
+
+  if (session.puzzleType === 'rule_shift') {
+    const ruleA = puzzleMetrics.ruleA ?? 'Rule A';
+    const ruleB = puzzleMetrics.ruleB ?? 'Rule B';
+    return accuracy >= 80
+      ? `${ruleA} to ${ruleB} transition tracking strengthening`
+      : `${ruleA} to ${ruleB} rule switching recalibrating`;
   }
 
   if (session.puzzleType === 'pattern_rush') {

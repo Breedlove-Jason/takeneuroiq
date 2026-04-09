@@ -15,6 +15,12 @@ const PUZZLE_FAMILY_METADATA = {
     accent: "violet",
     icon: "waveform",
   },
+  rule_shift: {
+    label: "Rule Shift",
+    shortLabel: "Shift",
+    accent: "magenta",
+    icon: "layer-group",
+  },
   grid_recall: {
     label: "Grid Recall",
     shortLabel: "Recall",
@@ -43,9 +49,10 @@ const PUZZLE_FAMILY_METADATA = {
 
 const PUZZLE_FAMILY_DISPLAY_ORDER = [
   "pattern_rush",
+  "sequence_sprint",
+  "rule_shift",
   "grid_recall",
   "logic_grid",
-  "sequence_sprint",
   "logic_gate",
   "signal_path",
 ];
@@ -265,6 +272,61 @@ function buildSequenceSprintSummary(sessions = []) {
   };
 }
 
+function buildRuleShiftSummary(sessions = []) {
+  const base = buildBaseSummary("rule_shift", sessions);
+
+  const sequenceLengths = [];
+  const shiftIndices = [];
+  const ruleAs = [];
+  const ruleBs = [];
+  const trendReasonByState = {
+    Rising:
+      "Arithmetic transition tracking is sharpening. The rule switch is staying cleaner across recent runs.",
+    Steadying:
+      "Rule switching is holding steady. Keep reinforcing the handoff between the two sequence rules.",
+    Rebuilding:
+      "Rehearse the transition point and shorten adaptive sequences before pushing intensity again.",
+  };
+
+  sessions.forEach((session) => {
+    const metrics = normalizePuzzleMetrics(session);
+
+    if (metrics.sequenceLength != null) {
+      sequenceLengths.push(toNumber(metrics.sequenceLength));
+    }
+
+    const shiftIndex = metrics.shiftIndex ?? metrics.shiftPoint;
+    if (shiftIndex != null) {
+      shiftIndices.push(toNumber(shiftIndex));
+    }
+
+    if (metrics.ruleA) {
+      ruleAs.push(metrics.ruleA);
+    }
+
+    if (metrics.ruleB) {
+      ruleBs.push(metrics.ruleB);
+    }
+  });
+
+  return {
+    ...base,
+    familyLabel: "Rule Shift",
+    averageSequenceLength: average(sequenceLengths, 1),
+    maxSequenceLength: sequenceLengths.length
+      ? Math.max(...sequenceLengths)
+      : 0,
+    averageShiftIndex: average(shiftIndices, 1),
+    mostCommonRuleA: getMode(ruleAs),
+    mostCommonRuleB: getMode(ruleBs),
+    ruleADiversity: [...new Set(ruleAs)].length,
+    ruleBDiversity: [...new Set(ruleBs)].length,
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Rule switching is evolving. Keep refining adaptive sequence transitions under pressure.",
+  };
+}
+
 function buildGridRecallSummary(sessions = []) {
   const base = buildBaseSummary("grid_recall", sessions);
 
@@ -399,6 +461,7 @@ function buildSignalPathSummary(sessions = []) {
 const FAMILY_SUMMARY_BUILDERS = {
   pattern_rush: buildPatternRushSummary,
   sequence_sprint: buildSequenceSprintSummary,
+  rule_shift: buildRuleShiftSummary,
   grid_recall: buildGridRecallSummary,
   logic_gate: buildLogicGateSummary,
   logic_grid: buildLogicGridSummary,

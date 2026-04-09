@@ -2930,7 +2930,6 @@ function Arena({ theme }) {
         : variant === "missing_input"
           ? "border-amber-500/10"
           : "border-cyan-500/10";
-    const isMissingGate = variant === "missing_gate";
     return (
       <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md">
         <div className={`flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 gap-2 ${variantBorderClass}`}>
@@ -2963,7 +2962,7 @@ function Arena({ theme }) {
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-linear-to-b from-white/8 to-transparent opacity-10 transition-opacity group-hover:opacity-25" />
                 <div className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-white/18 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 logic-scanline" />
                 <span
-                  className={`block ${isMissingGate ? "text-2xl font-semibold uppercase tracking-[0.25em]" : "text-4xl font-black uppercase tracking-widest"} text-white text-glow-pink`}
+                  className={`block ${variant === "missing_gate" ? "text-2xl font-semibold uppercase tracking-[0.25em]" : "text-4xl font-black uppercase tracking-widest"} text-white text-glow-pink`}
                 >
                   {option}
                 </span>

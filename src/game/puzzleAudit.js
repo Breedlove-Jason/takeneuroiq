@@ -19,6 +19,7 @@ import { getRandomGridRecallPuzzle } from './gridRecallPuzzles.js';
 import { getRandomLogicGatePuzzle } from './logicGatePuzzles.js';
 import { getRandomSignalPathPuzzle } from './signalPathPuzzles.js';
 import { getRandomLogicGridPuzzle } from './logicGridPuzzles.js';
+import { getRandomRuleShiftPuzzle } from './puzzleGenerators/ruleShiftGenerator.js';
 
 // ============================================================================
 // CONFIGURATION
@@ -27,6 +28,7 @@ import { getRandomLogicGridPuzzle } from './logicGridPuzzles.js';
 const CANONICAL_FAMILIES = [
   'pattern_rush',
   'sequence_sprint',
+  'rule_shift',
   'grid_recall',
   'logic_gate',
   'signal_path',
@@ -50,6 +52,7 @@ const DEFAULT_OPTIONS = {
 const PUZZLE_GENERATORS = {
   pattern_rush: (difficulty) => generatePatternRushPuzzle(difficulty),
   sequence_sprint: (difficulty) => getRandomSequenceSprintPuzzle(difficulty),
+  rule_shift: (difficulty) => getRandomRuleShiftPuzzle(difficulty),
   grid_recall: (difficulty) => getRandomGridRecallPuzzle(difficulty),
   logic_gate: (difficulty) => getRandomLogicGatePuzzle(difficulty),
   signal_path: (difficulty) => getRandomSignalPathPuzzle(difficulty),
@@ -74,6 +77,15 @@ function createSignature(puzzle, family) {
         return [
           puzzle?.sequenceType || 'unknown',
           (puzzle?.sequence || []).join(','),
+          puzzle?.answer || '',
+        ].join('::');
+
+      case 'rule_shift':
+        return [
+          (puzzle?.sequence || []).join(','),
+          puzzle?.shiftIndex ?? 'unknown',
+          puzzle?.ruleA || 'unknown',
+          puzzle?.ruleB || 'unknown',
           puzzle?.answer || '',
         ].join('::');
 
@@ -199,6 +211,61 @@ function validateSequenceSprint(puzzle) {
 
   if (!puzzle.sequenceType) {
     errors.push('Missing sequence type');
+  }
+
+  return errors;
+}
+
+function validateRuleShift(puzzle) {
+  const errors = [];
+
+  if (!puzzle || typeof puzzle !== 'object') {
+    errors.push('Puzzle object is missing or invalid');
+    return errors;
+  }
+
+  if (puzzle.puzzleType !== 'rule_shift') {
+    errors.push(`Invalid puzzle type: ${puzzle.puzzleType}`);
+  }
+
+  if (!Array.isArray(puzzle.sequence) || puzzle.sequence.length === 0) {
+    errors.push('Missing or empty sequence array');
+  }
+
+  const answer = extractAnswer(puzzle);
+  if (!answer) {
+    errors.push('Missing correct answer');
+  }
+
+  const options = extractOptions(puzzle);
+  if (options.length === 0) {
+    errors.push('Missing options array');
+  }
+
+  const normalizedOptions = options.map((option) => String(option));
+  if (answer && options.length > 0 && !normalizedOptions.includes(answer)) {
+    errors.push('Correct answer not present in options');
+  }
+
+  if (!Number.isInteger(puzzle.shiftIndex)) {
+    errors.push('Missing or invalid shiftIndex');
+  } else if (Array.isArray(puzzle.sequence) && puzzle.sequence.length > 0) {
+    const maxShiftIndex = Math.max(0, puzzle.sequence.length - 2);
+    if (puzzle.shiftIndex < 0 || puzzle.shiftIndex > maxShiftIndex) {
+      errors.push(`Invalid shiftIndex range: ${puzzle.shiftIndex}`);
+    }
+  }
+
+  if (!puzzle.ruleA) {
+    errors.push('Missing ruleA metadata');
+  }
+
+  if (!puzzle.ruleB) {
+    errors.push('Missing ruleB metadata');
+  }
+
+  if (!puzzle.difficulty || !CANONICAL_DIFFICULTIES.includes(puzzle.difficulty)) {
+    errors.push(`Invalid difficulty: ${puzzle.difficulty}`);
   }
 
   return errors;
@@ -377,6 +444,7 @@ function validateLogicGrid(puzzle) {
 const FAMILY_VALIDATORS = {
   pattern_rush: validatePatternRush,
   sequence_sprint: validateSequenceSprint,
+  rule_shift: validateRuleShift,
   grid_recall: validateGridRecall,
   logic_gate: validateLogicGate,
   signal_path: validateSignalPath,
@@ -420,6 +488,7 @@ function auditFamily(family, difficulties, iterations, debugContext = {}) {
     puzzleIds: [],
     ruleTypes: [],
     sequenceTypes: [],
+    shiftIndices: [],
     optionLayouts: [],
   };
 
@@ -507,6 +576,20 @@ function auditFamily(family, difficulties, iterations, debugContext = {}) {
 
         if (puzzle?.ruleType) {
           results.ruleTypes.push(puzzle.ruleType);
+        }
+
+        if (family === 'rule_shift') {
+          if (puzzle?.ruleA) {
+            results.ruleTypes.push(puzzle.ruleA);
+          }
+
+          if (puzzle?.ruleB) {
+            results.ruleTypes.push(puzzle.ruleB);
+          }
+
+          if (Number.isInteger(puzzle?.shiftIndex)) {
+            results.shiftIndices.push(puzzle.shiftIndex);
+          }
         }
 
         if (puzzle?.sequenceType) {

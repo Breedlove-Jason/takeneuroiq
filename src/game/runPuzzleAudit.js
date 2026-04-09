@@ -20,6 +20,7 @@ const CONFIG = {
   families: [
     'pattern_rush',
     'sequence_sprint',
+    'rule_shift',
     'grid_recall',
     'logic_gate',
     'signal_path',
@@ -40,7 +41,7 @@ const CONFIG = {
  * families: ['pattern_rush'], iterationsPerDifficulty: 100
  *
  * 3. Heavier all-family run:
- * families: ['pattern_rush', 'sequence_sprint', 'grid_recall', 'logic_gate', 'signal_path', 'logic_grid'],
+ * families: ['pattern_rush', 'sequence_sprint', 'rule_shift', 'grid_recall', 'logic_gate', 'signal_path', 'logic_grid'],
  * iterationsPerDifficulty: 200
  */
 

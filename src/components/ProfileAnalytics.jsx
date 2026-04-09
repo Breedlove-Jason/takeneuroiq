@@ -20,6 +20,7 @@ import {
   faMicrochip,
   faBrain,
   faBorderAll,
+  faLayerGroup,
 } from "@fortawesome/pro-duotone-svg-icons";
 
 /**
@@ -461,6 +462,13 @@ function ProfileAnalytics({
                       bestAccuracy: "text-emerald-300",
                       averageNeuralPower: "text-fuchsia-200",
                     }
+                  : family.puzzleType === "rule_shift"
+                    ? {
+                        averageScore: "text-cyan-200",
+                        bestScore: "text-violet-200",
+                        bestAccuracy: "text-amber-300",
+                        averageNeuralPower: "text-fuchsia-200",
+                      }
                   : family.puzzleType === "logic_gate"
                     ? {
                         averageScore: "text-amber-200",
@@ -476,32 +484,32 @@ function ProfileAnalytics({
                         averageNeuralPower: "text-fuchsia-200",
                       }
                     : family.puzzleType === "grid_recall"
-                      ? {
-                          averageScore: "text-emerald-200",
-                          bestScore: "text-cyan-200",
-                          bestAccuracy: "text-emerald-300",
-                          averageNeuralPower: "text-fuchsia-200",
-                        }
-                        : family.puzzleType === "signal_path"
-                          ? {
-                              averageScore: "text-violet-200",
-                              bestScore: "text-cyan-200",
-                              bestAccuracy: "text-emerald-300",
-                              averageNeuralPower: "text-violet-200",
-                            }
+                    ? {
+                        averageScore: "text-emerald-200",
+                        bestScore: "text-cyan-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-fuchsia-200",
+                      }
+                    : family.puzzleType === "signal_path"
+                    ? {
+                        averageScore: "text-violet-200",
+                        bestScore: "text-cyan-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-violet-200",
+                      }
                     : family.puzzleType === "logic_grid"
-                      ? {
-                          averageScore: "text-cyan-200",
-                          bestScore: "text-purple-200",
-                          bestAccuracy: "text-emerald-300",
-                          averageNeuralPower: "text-pink-200",
-                        }
-                      : {
-                          averageScore: "text-cyan-200",
-                          bestScore: "text-violet-200",
-                          bestAccuracy: "text-emerald-300",
-                          averageNeuralPower: "text-fuchsia-200",
-                        };
+                    ? {
+                        averageScore: "text-cyan-200",
+                        bestScore: "text-purple-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-pink-200",
+                      }
+                    : {
+                        averageScore: "text-cyan-200",
+                        bestScore: "text-violet-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-fuchsia-200",
+                      };
               const statRows = [
                 {
                   label: "Avg Score",
@@ -741,6 +749,14 @@ function getFamilyCardTone(puzzleType) {
       statCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
       trendCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
     },
+    rule_shift: {
+      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(45,15,63,0.92)_44%,rgba(8,4,18,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.2)]",
+      label: "text-cyan-200",
+      sessions: "text-violet-300/80",
+      avgBadge: "border-amber-400/35 bg-amber-500/10 text-amber-200",
+      statCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
+      trendCard: "border-violet-500/20 bg-violet-500/5",
+    },
     grid_recall: {
       card: "border-emerald-400/30 bg-[linear-gradient(160deg,rgba(16,185,129,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(16,185,129,0.18)]",
       label: "text-emerald-200",
@@ -801,6 +817,13 @@ function getPuzzleFamilyVisual(puzzleType) {
         "flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200",
       accentText: "text-fuchsia-200",
       accentRing: "ring-1 ring-fuchsia-500/30",
+    },
+    rule_shift: {
+      icon: faLayerGroup,
+      iconWrap:
+        "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-gradient-to-br from-cyan-500/10 via-violet-500/10 to-amber-500/10 text-fuchsia-200 shadow-[0_0_20px_rgba(217,70,239,0.22)]",
+      accentText: "text-cyan-200",
+      accentRing: "ring-1 ring-amber-500/30",
     },
     grid_recall: {
       icon: faTableCells,
