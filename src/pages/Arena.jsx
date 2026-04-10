@@ -853,7 +853,7 @@ const MEMORY_CHAIN_PUZZLE_META = {
   shortLabel: "Chain",
   description: "Track an ordered chain and recover the hidden link.",
   color: "cyan",
-  cognitiveSkills: ["Working Memory", "Ordered Recall", "Sequence Tracking"],
+  cognitiveSkills: ["Ordered Recall", "Working Memory"],
   icon: "diagram-project",
 };
 
@@ -4691,78 +4691,10 @@ function Arena({ theme }) {
                       </div>
                     </div>
                   </div>
-                ) : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID ? (
-                  <div className="relative overflow-hidden rounded-3xl border border-cyan-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(34,211,238,0.1)] backdrop-blur-md">
+                ) : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE ? (
+                  <div className="relative w-full overflow-hidden rounded-3xl border border-cyan-400/30 bg-slate-900/80 p-6 shadow-[inset_0_0_45px_rgba(34,211,238,0.18),0_20px_40px_rgba(2,6,23,0.6)] backdrop-blur-md">
                     <div className="relative z-10">
                       <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-                        <div>
-                          <p className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
-                            Logic Grid Arena
-                          </p>
-                          <h2 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
-                            Decode the matrix. Resolve the missing cell.
-                          </h2>
-                        </div>
-                        <span className="rounded-full border border-cyan-400/50 bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)]">
-                          Matrix Reasoning Live
-                        </span>
-                      </div>
-
-                      <div className="grid gap-6 lg:grid-cols-3">
-                        <div className="space-y-6 lg:col-span-2">
-                          {renderLogicGridRulePanel()}
-                          {renderLogicGridMatrix()}
-                          {renderLogicGridAnswers()}
-                        </div>
-                        <div className="space-y-6 lg:col-span-1">
-                          {renderLogicGridReadout()}
-
-                          {shouldShowLogicGridDebug && (
-                            <DevDebugPanel title="Logic Grid Dev">
-                              {SHOW_ANSWERS && (
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-2">
-                                    <span className="text-[10px] font-bold uppercase text-cyan-300">Answer</span>
-                                    <span className="font-mono text-lg font-black text-white">
-                                      {logicGridPuzzle?.answer ?? "—"}
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                              {SHOW_PUZZLE_DEBUG_META && (
-                                <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
-                                  <div className="flex justify-between">
-                                    <span className="text-slate-500 uppercase font-bold">ID</span>
-                                    <span className="text-amber-200 font-mono">{logicGridDebugInfo.id}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-slate-500 uppercase font-bold">Rule Type</span>
-                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGridDebugInfo.ruleType)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-slate-500 uppercase font-bold">Grid Size</span>
-                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGridDebugInfo.gridSize ?? getLogicGridSize())}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-slate-500 uppercase font-bold">Missing Index</span>
-                                    <span className="text-amber-200 font-mono">
-                                      {logicGridDebugInfo.missingIndex !== null && logicGridDebugInfo.missingIndex !== undefined
-                                        ? JSON.stringify(logicGridDebugInfo.missingIndex)
-                                        : "—"}
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </DevDebugPanel>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE ? (
-                  <div className="relative mt-6 overflow-hidden rounded-3xl border border-cyan-400/30 bg-slate-900/80 p-6 shadow-[inset_0_0_45px_rgba(34,211,238,0.18),0_20px_40px_rgba(2,6,23,0.6)] backdrop-blur-md">
-                    <div className="relative z-10">
-                      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
                           <p className={`text-[10px] font-bold uppercase tracking-[0.35em] ${isCyber ? "text-cyan-300 text-glow-blue" : "text-cyan-300"}`}>
                             Memory Chain Arena
@@ -4779,7 +4711,7 @@ function Arena({ theme }) {
                         </p>
                       </div>
 
-                      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+                      <div className="mt-6 grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
                         <div className="rounded-2xl border border-violet-500/10 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_30px_rgba(168,85,247,0.12)] backdrop-blur-[14px]">
                           <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-violet-300/90">
                             Ordered Sequence
@@ -4871,6 +4803,74 @@ function Arena({ theme }) {
                                 </div>
                               </DevDebugPanel>
                             </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID ? (
+                  <div className="relative overflow-hidden rounded-3xl border border-cyan-500/30 bg-slate-900/80 p-6 shadow-[0_0_20px_rgba(34,211,238,0.1)] backdrop-blur-md">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                          <p className={`text-[11px] font-bold uppercase tracking-[0.2em] ${isCyber ? "text-cyan-400 text-glow-blue" : "text-cyan-400"}`}>
+                            Logic Grid Arena
+                          </p>
+                          <h2 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                            Decode the matrix. Resolve the missing cell.
+                          </h2>
+                        </div>
+                        <span className="rounded-full border border-cyan-400/50 bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.25)]">
+                          Matrix Reasoning Live
+                        </span>
+                      </div>
+
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="space-y-6 lg:col-span-2">
+                          {renderLogicGridRulePanel()}
+                          {renderLogicGridMatrix()}
+                          {renderLogicGridAnswers()}
+                        </div>
+                        <div className="space-y-6 lg:col-span-1">
+                          {renderLogicGridReadout()}
+
+                          {shouldShowLogicGridDebug && (
+                            <DevDebugPanel title="Logic Grid Dev">
+                              {SHOW_ANSWERS && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-2">
+                                    <span className="text-[10px] font-bold uppercase text-cyan-300">Answer</span>
+                                    <span className="font-mono text-lg font-black text-white">
+                                      {logicGridPuzzle?.answer ?? "—"}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                              {SHOW_PUZZLE_DEBUG_META && (
+                                <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-[10px]">
+                                  <div className="flex justify-between">
+                                    <span className="text-slate-500 uppercase font-bold">ID</span>
+                                    <span className="text-amber-200 font-mono">{logicGridDebugInfo.id}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-slate-500 uppercase font-bold">Rule Type</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGridDebugInfo.ruleType)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-slate-500 uppercase font-bold">Grid Size</span>
+                                    <span className="text-amber-200 font-mono">{formatDevValue(logicGridDebugInfo.gridSize ?? getLogicGridSize())}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-slate-500 uppercase font-bold">Missing Index</span>
+                                    <span className="text-amber-200 font-mono">
+                                      {logicGridDebugInfo.missingIndex !== null && logicGridDebugInfo.missingIndex !== undefined
+                                        ? JSON.stringify(logicGridDebugInfo.missingIndex)
+                                        : "—"}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </DevDebugPanel>
                           )}
                         </div>
                       </div>

@@ -7,7 +7,8 @@ import {
   faRoute,
   faStar,
   faDiagramProject,
-  faTableCells
+  faTableCells,
+  faLink
 } from '@fortawesome/pro-duotone-svg-icons';
 
 /**
@@ -43,18 +44,18 @@ function Play({ theme }) {
       skills: ['Patterns', 'Visual'],
       cardTone: {
         cyber:
-          'border-cyan-300/35 bg-[linear-gradient(160deg,rgba(34,211,238,0.18)_0%,rgba(8,16,30,0.88)_45%,rgba(4,9,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.22)] hover:border-cyan-300/75 hover:shadow-[0_0_50px_rgba(34,211,238,0.32)]',
+          'border-cyan-300/40 bg-[linear-gradient(160deg,rgba(34,211,238,0.20)_0%,rgba(22,16,54,0.88)_48%,rgba(4,9,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.24)] hover:border-cyan-300/80 hover:shadow-[0_0_54px_rgba(168,85,247,0.24)]',
         light:
           'border-cyan-300 bg-[linear-gradient(155deg,rgba(236,254,255,0.95)_0%,rgba(255,255,255,1)_55%,rgba(240,249,255,0.9)_100%)] shadow-[0_14px_32px_rgba(8,145,178,0.14)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(8,145,178,0.2)]',
       },
       iconTone: {
         cyber:
-          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.55)]',
+          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.62)]',
         light: 'text-cyan-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-cyan-300 to-blue-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:from-blue-400 hover:to-cyan-300 hover:brightness-110 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-cyan-300 via-violet-400 to-fuchsia-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:from-fuchsia-400 hover:via-violet-400 hover:to-cyan-300 hover:brightness-110 hover:shadow-[0_0_42px_rgba(168,85,247,0.45)] hover:-translate-y-0.5',
         light:
           'bg-linear-to-r from-cyan-600 to-blue-600 text-white hover:from-blue-700 hover:to-cyan-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
@@ -74,18 +75,18 @@ function Play({ theme }) {
       skills: ['Memory', 'Prediction'],
       cardTone: {
         cyber:
-          'border-fuchsia-300/35 bg-[linear-gradient(160deg,rgba(192,38,211,0.16)_0%,rgba(20,6,20,0.9)_48%,rgba(10,2,10,0.96)_100%)] shadow-[0_0_34px_rgba(192,38,211,0.2)] hover:border-fuchsia-300/75 hover:shadow-[0_0_50px_rgba(192,38,211,0.32)]',
+          'border-fuchsia-300/40 bg-[linear-gradient(160deg,rgba(236,72,153,0.18)_0%,rgba(38,10,46,0.9)_48%,rgba(16,8,6,0.96)_100%)] shadow-[0_0_34px_rgba(236,72,153,0.22)] hover:border-fuchsia-300/80 hover:shadow-[0_0_54px_rgba(245,158,11,0.22)]',
         light:
           'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(253,244,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(252,231,243,0.9)_100%)] shadow-[0_14px_32px_rgba(192,38,211,0.14)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(192,38,211,0.2)]',
       },
       iconTone: {
         cyber:
-          'text-fuchsia-300 drop-shadow-[0_0_18px_rgba(192,38,211,0.58)]',
+          'text-fuchsia-300 drop-shadow-[0_0_18px_rgba(236,72,153,0.62)]',
         light: 'text-fuchsia-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-fuchsia-500 via-purple-500 to-cyan-400 text-slate-950 shadow-[0_0_24px_rgba(192,38,211,0.4)] hover:from-cyan-400 hover:via-purple-500 hover:to-fuchsia-500 hover:brightness-125 hover:shadow-[0_0_42px_rgba(192,38,211,0.6)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-fuchsia-500 via-violet-500 to-amber-400 text-slate-950 shadow-[0_0_24px_rgba(236,72,153,0.42)] hover:from-amber-400 hover:via-violet-500 hover:to-fuchsia-500 hover:brightness-125 hover:shadow-[0_0_44px_rgba(245,158,11,0.5)] hover:-translate-y-0.5',
         light:
           'bg-linear-to-r from-fuchsia-600 to-sky-600 text-white hover:from-sky-700 hover:to-fuchsia-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
@@ -105,26 +106,26 @@ function Play({ theme }) {
       skills: ['Spatial', 'Attention'],
       cardTone: {
         cyber:
-          'border-emerald-300/35 bg-[linear-gradient(160deg,rgba(16,185,129,0.16)_0%,rgba(6,20,13,0.9)_48%,rgba(2,10,6,0.96)_100%)] shadow-[0_0_34px_rgba(16,185,129,0.2)] hover:border-emerald-300/75 hover:shadow-[0_0_50px_rgba(16,185,129,0.32)]',
+          'border-amber-300/40 bg-[linear-gradient(160deg,rgba(245,158,11,0.18)_0%,rgba(24,18,8,0.9)_48%,rgba(4,9,18,0.96)_100%)] shadow-[0_0_34px_rgba(245,158,11,0.22)] hover:border-amber-300/80 hover:shadow-[0_0_54px_rgba(34,211,238,0.24)]',
         light:
           'border-emerald-300 bg-[linear-gradient(155deg,rgba(236,253,245,0.96)_0%,rgba(255,255,255,1)_58%,rgba(240,253,244,0.9)_100%)] shadow-[0_14px_32px_rgba(16,185,129,0.14)] hover:border-emerald-400 hover:shadow-[0_18px_38px_rgba(16,185,129,0.2)]',
       },
       iconTone: {
         cyber:
-          'text-emerald-300 drop-shadow-[0_0_18px_rgba(16,185,129,0.58)]',
+          'text-amber-300 drop-shadow-[0_0_18px_rgba(245,158,11,0.62)]',
         light: 'text-emerald-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-[0_0_24px_rgba(16,185,129,0.4)] hover:from-teal-500 hover:to-emerald-400 hover:brightness-110 hover:shadow-[0_0_40px_rgba(16,185,129,0.6)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-400 via-violet-500 to-cyan-400 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:from-cyan-400 hover:via-violet-500 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(34,211,238,0.5)] hover:-translate-y-0.5',
         light:
           'bg-linear-to-r from-emerald-600 to-teal-600 text-white hover:from-teal-700 hover:to-emerald-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
-        cyber: 'border-emerald-300/30 bg-emerald-400/10 text-emerald-200',
+        cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
         light: 'border-emerald-200 bg-emerald-50 text-emerald-700',
       },
-      glowTone: 'group-hover:text-glow-emerald',
+      glowTone: 'group-hover:text-glow-orange',
     },
     {
       icon: faBorderAll,
@@ -136,26 +137,26 @@ function Play({ theme }) {
       skills: ['Matrices', 'Inference'],
       cardTone: {
         cyber:
-          'border-cyan-300/35 bg-[linear-gradient(160deg,rgba(34,211,238,0.18)_0%,rgba(20,10,34,0.9)_46%,rgba(8,4,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.22)] hover:border-cyan-300/75 hover:shadow-[0_0_50px_rgba(34,211,238,0.34)]',
+          'border-violet-400/40 bg-[linear-gradient(160deg,rgba(139,92,246,0.20)_0%,rgba(33,12,40,0.9)_46%,rgba(8,4,18,0.96)_100%)] shadow-[0_0_34px_rgba(139,92,246,0.24)] hover:border-violet-400/80 hover:shadow-[0_0_54px_rgba(217,70,239,0.22)]',
         light:
-          'border-cyan-300 bg-[linear-gradient(155deg,rgba(236,254,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.92)_100%)] shadow-[0_14px_32px_rgba(34,211,238,0.14)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(34,211,238,0.22)]',
+          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.92)_100%)] shadow-[0_14px_32px_rgba(139,92,246,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(139,92,246,0.22)]',
       },
       iconTone: {
         cyber:
-          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.58)]',
-        light: 'text-cyan-600',
+          'text-violet-300 drop-shadow-[0_0_18px_rgba(139,92,246,0.62)]',
+        light: 'text-violet-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-cyan-400 via-purple-500 to-pink-500 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:from-pink-500 hover:via-purple-500 hover:to-cyan-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(34,211,238,0.62)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-violet-500 via-fuchsia-500 to-cyan-400 text-white shadow-[0_0_24px_rgba(139,92,246,0.42)] hover:from-cyan-400 hover:via-fuchsia-500 hover:to-violet-500 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.52)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-cyan-600 via-purple-600 to-pink-600 text-white hover:from-pink-700 hover:via-purple-700 hover:to-cyan-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-violet-600 via-indigo-600 to-blue-600 text-white hover:from-blue-700 hover:via-indigo-700 hover:to-violet-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
-        cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
-        light: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+        cyber: 'border-violet-400/30 bg-violet-400/10 text-violet-200',
+        light: 'border-violet-200 bg-violet-50 text-violet-700',
       },
-      glowTone: 'group-hover:text-glow-blue',
+      glowTone: 'group-hover:text-glow-purple',
     },
     {
       icon: faRoute,
@@ -167,26 +168,26 @@ function Play({ theme }) {
       skills: ['Planning', 'Routing'],
       cardTone: {
         cyber:
-          'border-violet-200/35 bg-[linear-gradient(160deg,rgba(139,92,246,0.2)_0%,rgba(16,10,30,0.9)_48%,rgba(8,5,18,0.96)_100%)] shadow-[0_0_34px_rgba(167,139,250,0.25)] hover:border-violet-200/75 hover:shadow-[0_0_50px_rgba(167,139,250,0.38)]',
+          'border-amber-400/40 bg-[linear-gradient(160deg,rgba(245,158,11,0.22)_0%,rgba(19,18,6,0.9)_48%,rgba(10,4,24,0.96)_100%)] shadow-[0_0_34px_rgba(245,158,11,0.26)] hover:border-amber-400/80 hover:shadow-[0_0_54px_rgba(168,85,247,0.24)]',
         light:
-          'border-violet-200 bg-[linear-gradient(155deg,rgba(245,243,255,0.98)_0%,rgba(255,255,255,1)_58%,rgba(237,233,254,0.95)_100%)] shadow-[0_14px_32px_rgba(139,92,246,0.14)] hover:border-violet-300 hover:shadow-[0_18px_38px_rgba(139,92,246,0.22)]',
+          'border-amber-300 bg-[linear-gradient(155deg,rgba(255,251,235,0.98)_0%,rgba(255,255,255,1)_58%,rgba(254,243,199,0.95)_100%)] shadow-[0_14px_32px_rgba(245,158,11,0.14)] hover:border-amber-400 hover:shadow-[0_18px_38px_rgba(245,158,11,0.22)]',
       },
       iconTone: {
         cyber:
-          'text-violet-300 drop-shadow-[0_0_18px_rgba(139,92,246,0.58)]',
-        light: 'text-violet-600',
+          'text-amber-300 drop-shadow-[0_0_18px_rgba(245,158,11,0.62)]',
+        light: 'text-amber-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-violet-400 to-fuchsia-500 text-white shadow-[0_0_24px_rgba(139,92,246,0.4)] hover:from-fuchsia-500 hover:to-violet-400 hover:brightness-110 hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-400 via-cyan-400 to-violet-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:from-violet-500 hover:via-cyan-400 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(168,85,247,0.5)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-violet-600 to-fuchsia-600 text-white hover:from-fuchsia-700 hover:to-violet-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:from-orange-700 hover:to-amber-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
-        cyber: 'border-violet-300/30 bg-violet-400/10 text-violet-200',
-        light: 'border-violet-200 bg-violet-50 text-violet-700',
+        cyber: 'border-amber-400/30 bg-amber-400/10 text-amber-200',
+        light: 'border-amber-200 bg-amber-50 text-amber-700',
       },
-      glowTone: 'group-hover:text-glow-purple',
+      glowTone: 'group-hover:text-glow-orange',
     },
     {
       icon: faMicrochip,
@@ -198,26 +199,57 @@ function Play({ theme }) {
       skills: ['Signals', 'Binary Logic'],
       cardTone: {
         cyber:
-          'border-amber-300/35 bg-[linear-gradient(160deg,rgba(245,158,11,0.16)_0%,rgba(20,14,6,0.9)_48%,rgba(10,7,2,0.96)_100%)] shadow-[0_0_34px_rgba(245,158,11,0.2)] hover:border-amber-300/75 hover:shadow-[0_0_50px_rgba(245,158,11,0.32)]',
+          'border-fuchsia-400/40 bg-[linear-gradient(160deg,rgba(217,70,239,0.18)_0%,rgba(34,10,28,0.9)_48%,rgba(10,2,10,0.96)_100%)] shadow-[0_0_34px_rgba(217,70,239,0.22)] hover:border-fuchsia-400/80 hover:shadow-[0_0_54px_rgba(34,211,238,0.22)]',
         light:
-          'border-amber-300 bg-[linear-gradient(155deg,rgba(255,251,235,0.96)_0%,rgba(255,255,255,1)_58%,rgba(255,251,235,0.9)_100%)] shadow-[0_14px_32px_rgba(245,158,11,0.14)] hover:border-amber-400 hover:shadow-[0_18px_38px_rgba(245,158,11,0.2)]',
+          'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(253,244,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(252,231,243,0.9)_100%)] shadow-[0_14px_32px_rgba(217,70,239,0.14)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(217,70,239,0.2)]',
       },
       iconTone: {
         cyber:
-          'text-amber-300 drop-shadow-[0_0_18px_rgba(245,158,11,0.58)]',
-        light: 'text-amber-600',
+          'text-fuchsia-300 drop-shadow-[0_0_18px_rgba(217,70,239,0.62)]',
+        light: 'text-fuchsia-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-amber-400 to-orange-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.4)] hover:from-orange-500 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-fuchsia-400 via-violet-500 to-amber-400 text-slate-950 shadow-[0_0_24px_rgba(217,70,239,0.42)] hover:from-amber-400 hover:via-violet-500 hover:to-fuchsia-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(245,158,11,0.5)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:from-orange-700 hover:to-amber-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-fuchsia-600 to-pink-600 text-white hover:from-pink-700 hover:to-fuchsia-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
-        cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
-        light: 'border-amber-200 bg-amber-50 text-amber-700',
+        cyber: 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200',
+        light: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700',
       },
-      glowTone: 'group-hover:text-glow-orange',
+      glowTone: 'group-hover:text-glow-pink',
+    },
+    {
+      icon: faLink,
+      puzzleType: 'memory_chain',
+      title: 'Memory Chain',
+      description:
+        'An ordered chain of values is shown with one hidden. Recall the missing value to maintain the sequence.',
+      buttonText: 'Launch Memory Chain',
+      skills: ['Ordered Recall', 'Working Memory'],
+      cardTone: {
+        cyber:
+          'border-cyan-300/40 bg-[linear-gradient(160deg,rgba(34,211,238,0.20)_0%,rgba(18,12,42,0.9)_46%,rgba(4,8,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.24)] hover:border-cyan-300/80 hover:shadow-[0_0_54px_rgba(168,85,247,0.24)]',
+        light:
+          'border-cyan-300 bg-[linear-gradient(155deg,rgba(236,254,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(240,249,255,0.92)_100%)] shadow-[0_14px_32px_rgba(34,211,238,0.14)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(34,211,238,0.22)]',
+      },
+      iconTone: {
+        cyber:
+          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.62)]',
+        light: 'text-cyan-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-cyan-400 via-violet-500 to-amber-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:from-amber-400 hover:via-violet-500 hover:to-cyan-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(168,85,247,0.5)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-cyan-600 via-violet-600 to-amber-600 text-white hover:from-amber-700 hover:via-violet-700 hover:to-cyan-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+      },
+      tagTone: {
+        cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
+        light: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+      },
+      glowTone: 'group-hover:text-glow-blue',
     },
   ];
 
@@ -294,7 +326,7 @@ function Play({ theme }) {
               </h2>
 
               <p
-                className={`mt-4 font-medium leading-7 ${
+                className={`mt-4 min-h-18 font-medium leading-7 ${
                   isCyber ? 'text-slate-200' : 'text-slate-600'
                 }`}
               >
@@ -302,7 +334,7 @@ function Play({ theme }) {
               </p>
 
               {challenge.skills && (
-                <div className="mt-auto flex flex-wrap gap-2 pt-8">
+                <div className="mt-auto flex min-h-10 flex-wrap gap-2 pt-8">
                   {challenge.skills.map((skill) => (
                     <span
                       key={skill}
