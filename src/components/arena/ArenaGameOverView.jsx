@@ -54,24 +54,39 @@ const ArenaGameOverView = ({
                 animation: "neural-breath 6s ease-in-out infinite",
               }}
             />
-            <img
-              src={neuralProfileImage}
-              alt="Neural identity profile"
-              className={`relative z-10 h-full w-full rounded-3xl object-cover transition-all duration-700 ${
-                neuralScanActive
-                  ? "brightness-110 contrast-115 saturate-125"
-                  : neuralScanCompleted
-                    ? "brightness-105 contrast-125 saturate-115"
-                    : "brightness-95 contrast-105 saturate-105"
-              }`}
-              style={{
-                filter:
-                  neuralScanActive || neuralScanCompleted
-                    ? `drop-shadow(0 0 ${neuralScanActive ? 30 : 20}px ${hexToRgba(activeAnalysisAccent, neuralScanActive ? 0.5 : 0.3)})`
-                    : undefined,
-                animation: "neural-breath 6s ease-in-out infinite",
-              }}
-            />
+            <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+              <div
+                className="h-32 w-32 rounded-full border-4 opacity-0 animate-signal-pulse"
+                style={{ borderColor: activeAnalysisAccent }}
+              />
+              <div
+                className="absolute h-32 w-32 rounded-full border-2 opacity-0 animate-signal-pulse"
+                style={{ borderColor: activeAnalysisAccent, animationDelay: '0.6s' }}
+              />
+              <div
+                className="absolute h-32 w-32 rounded-full border opacity-0 animate-signal-pulse"
+                style={{ borderColor: activeAnalysisAccent, animationDelay: '1.2s' }}
+              />
+            </div>
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+              <img
+                src={neuralProfileImage}
+                alt="Neural identity profile"
+                className={`neural-image-emission h-[72%] w-[72%] rounded-3xl object-contain transition-all duration-700 ${
+                  neuralScanActive
+                    ? "brightness-110 contrast-115 saturate-125"
+                    : neuralScanCompleted
+                      ? "brightness-105 contrast-125 saturate-115"
+                      : "brightness-95 contrast-105 saturate-105"
+                }`}
+                style={{
+                  filter:
+                    neuralScanActive || neuralScanCompleted
+                      ? `drop-shadow(0 0 ${neuralScanActive ? 30 : 20}px ${hexToRgba(activeAnalysisAccent, neuralScanActive ? 0.5 : 0.3)})`
+                      : undefined,
+                }}
+              />
+            </div>
             {neuralScanActive && (
               <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
                 <div

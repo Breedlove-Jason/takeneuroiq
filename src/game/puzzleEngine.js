@@ -154,5 +154,7 @@ export function getRandomPuzzle(preferredDifficulty = null) {
  * @returns {boolean} True if the answer is correct, false otherwise.
  */
 export function checkAnswer(puzzle, answer) {
-  return puzzle.correctAnswer === answer;
+  const puzzleAnswer = puzzle.answer ?? puzzle.correctAnswer;
+  if (puzzleAnswer === undefined || puzzleAnswer === null) return false;
+  return String(puzzleAnswer) === String(answer);
 }

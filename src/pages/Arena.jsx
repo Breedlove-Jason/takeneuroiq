@@ -35,9 +35,6 @@ import { PUZZLE_DEV_FLAGS } from "../config/puzzleDevFlags";
 import sequenceSprintRunner from "../assets/running.png";
 import neuralProfileImage from "../assets/neuro.png";
 
-import ArenaActiveView from "../components/arena/ArenaActiveView";
-import ArenaGameOverView from "../components/arena/ArenaGameOverView";
-
 /**
  * Arena Component
  *
@@ -3441,17 +3438,17 @@ function Arena({ theme }) {
 
     const isCorrect =
       activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
-        ? selectedAnswer === sequenceSprintPuzzle.answer
+        ? String(selectedAnswer) === String(sequenceSprintPuzzle?.answer)
         : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
-          ? selectedAnswer === gridRecallPuzzle.answer
+          ? String(selectedAnswer) === String(gridRecallPuzzle?.answer)
           : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
-            ? selectedAnswer === logicGridPuzzle.answer
+            ? String(selectedAnswer) === String(logicGridPuzzle?.answer)
             : activePuzzleType === RULE_SHIFT_PUZZLE_TYPE
-              ? selectedAnswer === ruleShiftPuzzle.answer
+              ? String(selectedAnswer) === String(ruleShiftPuzzle?.answer)
               : activePuzzleType === PUZZLE_TYPES.LOGIC_GATE
-                ? selectedAnswer === logicGatePuzzle.answer
+                ? String(selectedAnswer) === String(logicGatePuzzle?.answer)
                 : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
-                  ? selectedAnswer === signalPathPuzzle.answer
+                  ? String(selectedAnswer) === String(signalPathPuzzle?.answer)
                   : checkAnswer(currentPuzzle, selectedAnswer);
 
     const nextSequenceSolvedCount =
@@ -3769,24 +3766,39 @@ function Arena({ theme }) {
                             animation: "neural-breath 6s ease-in-out infinite",
                           }}
                         />
-                        <img
-                          src={neuralProfileImage}
-                          alt="Neural identity profile"
-                          className={`relative z-10 h-full w-full rounded-3xl object-cover transition-all duration-700 ${
-                            neuralScanActive
-                              ? "brightness-110 contrast-115 saturate-125"
-                              : neuralScanCompleted
-                                ? "brightness-105 contrast-125 saturate-115"
-                                : "brightness-95 contrast-105 saturate-105"
-                          }`}
-                          style={{
-                            filter:
-                              neuralScanActive || neuralScanCompleted
-                                ? `drop-shadow(0 0 ${neuralScanActive ? 30 : 20}px ${hexToRgba(activeAnalysisAccent, neuralScanActive ? 0.5 : 0.3)})`
-                                : undefined,
-                            animation: "neural-breath 6s ease-in-out infinite",
-                          }}
-                        />
+                        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+                          <div
+                            className="w-32 h-32 rounded-full border-4 opacity-0 animate-signal-pulse"
+                            style={{ borderColor: activeAnalysisAccent }}
+                          />
+                          <div
+                            className="absolute w-32 h-32 rounded-full border-2 opacity-0 animate-signal-pulse"
+                            style={{ borderColor: activeAnalysisAccent, animationDelay: '0.6s' }}
+                          />
+                          <div
+                            className="absolute w-32 h-32 rounded-full border opacity-0 animate-signal-pulse"
+                            style={{ borderColor: activeAnalysisAccent, animationDelay: '1.2s' }}
+                          />
+                        </div>
+                        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+                          <img
+                            src={neuralProfileImage}
+                            alt="Neural identity profile"
+                            className={`neural-image-emission h-[72%] w-[72%] rounded-3xl object-contain transition-all duration-700 ${
+                              neuralScanActive
+                                ? "brightness-110 contrast-115 saturate-125"
+                                : neuralScanCompleted
+                                  ? "brightness-105 contrast-125 saturate-115"
+                                  : "brightness-95 contrast-105 saturate-105"
+                            }`}
+                            style={{
+                              filter:
+                                neuralScanActive || neuralScanCompleted
+                                  ? `drop-shadow(0 0 ${neuralScanActive ? 30 : 20}px ${hexToRgba(activeAnalysisAccent, neuralScanActive ? 0.5 : 0.3)})`
+                                  : undefined,
+                            }}
+                          />
+                        </div>
                         {neuralScanActive && (
                           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
                             <div
@@ -5119,6 +5131,24 @@ function Arena({ theme }) {
                 {isLightningActive && (
                   <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
                     <style>{`@keyframes arena-lightning-strike { 0% { opacity: 0; transform: scale(0.985) translateY(-3px); } 10% { opacity: 1; transform: scale(1.01) translateY(0); } 22% { opacity: 0.82; } 45% { opacity: 1; } 70% { opacity: 0.36; } 100% { opacity: 0; transform: scale(1.015) translateY(2px); } } @keyframes arena-lightning-flicker { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } } @keyframes arena-terminal-line { 0% { opacity: 0; transform: translateY(8px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } } @keyframes arena-terminal-cursor-blink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } } @keyframes arena-terminal-flicker { 0%, 100% { opacity: 0.28; transform: scaleX(0.985); } 50% { opacity: 0.6; transform: scaleX(1.01); } } @keyframes arena-terminal-key-pulse { 0%, 100% { opacity: 0.5; filter: brightness(1); } 50% { opacity: 0.8; filter: brightness(1.3); } }`}</style>
+                    <div
+                      className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(255,255,255,0.58),rgba(34,211,238,0.28)_22%,rgba(217,70,239,0.12)_42%,transparent_70%)] mix-blend-screen"
+                      style={{ animation: "arena-lightning-strike 240ms ease-out both" }}
+                      aria-hidden="true"
+                    />
+                    <div
+                      className="absolute inset-x-0 top-[31%] h-1 bg-linear-to-r from-transparent via-cyan-100 to-transparent blur-[2px]"
+                      style={{ animation: "arena-lightning-flicker 240ms ease-in-out infinite" }}
+                      aria-hidden="true"
+                    />
+                    <div
+                      className="absolute inset-x-12 top-[42%] h-px bg-linear-to-r from-transparent via-fuchsia-200/90 to-transparent blur-[1px]"
+                      style={{
+                        animation: "arena-lightning-flicker 260ms ease-in-out infinite",
+                        animationDelay: "70ms",
+                      }}
+                      aria-hidden="true"
+                    />
                 <div
                   className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-72 overflow-hidden"
                   aria-hidden="true"

@@ -246,16 +246,22 @@ const ArenaActiveView = ({
                             <span className="text-amber-200 font-mono">{logicGatePuzzle.id}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-500 uppercase font-bold">Complexity</span>
-                            <span className="text-amber-200 font-mono">{logicGatePuzzle.complexity.map((item) => (
-                              <div>
-                              
-                              </div>
-                            ))}</span>
+                            <span className="text-slate-500 uppercase font-bold">Variant</span>
+                            <span className="text-amber-200 font-mono">{logicGatePuzzle.puzzleMetrics?.variant ?? logicGatePuzzle.variant ?? "—"}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-500 uppercase font-bold">Gates</span>
-                            <span className="text-amber-200 font-mono">{logicGatePuzzle.gateCount}</span>
+                            <span className="text-slate-500 uppercase font-bold">Inputs</span>
+                            <span className="text-amber-200 font-mono">{logicGatePuzzle.puzzleMetrics?.inputCount ?? "—"}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 uppercase font-bold">Expression</span>
+                            <p className="mt-1 text-[9px] leading-4 text-amber-100/80">
+                              {logicGatePuzzle.puzzleMetrics?.expression ?? logicGatePuzzle.expression ?? "—"}
+                            </p>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 uppercase font-bold">Options</span>
+                            <span className="text-amber-200 font-mono">{logicGatePuzzle.puzzleMetrics?.optionCount ?? logicGatePuzzle.options?.length ?? "—"}</span>
                           </div>
                         </div>
                       )}
