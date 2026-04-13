@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faLayerGroup,
@@ -34,6 +34,9 @@ import { buildAccuracySummary } from "../utils/puzzleAccuracy";
 import { PUZZLE_DEV_FLAGS } from "../config/puzzleDevFlags";
 import sequenceSprintRunner from "../assets/running.png";
 import neuralProfileImage from "../assets/neuro.png";
+
+import ArenaActiveView from "../components/arena/ArenaActiveView";
+import ArenaGameOverView from "../components/arena/ArenaGameOverView";
 
 /**
  * Arena Component
@@ -3739,335 +3742,8 @@ function Arena({ theme }) {
     activeAnalysisProfile,
   );
 
-  return (
-    <div className="animate-fadeIn px-6 py-10">
-      <div className="mx-auto max-w-6xl">
-        <div
-          className={`rounded-[28px] border p-6 md:p-8 ${
-            isCyber
-              ? "border-cyan-400/20 bg-slate-950/80 shadow-[0_0_50px_rgba(14,165,233,0.15)] backdrop-blur-xl"
-              : "border-slate-200 bg-white shadow-sm"
-          }`}
-        >
-          {recommendedSession && showRecommendedBanner && (
-            <div
-              className={`overflow-hidden transition-all duration-500 ${
-                isBannerHiding
-                  ? "mb-0 max-h-0 -translate-y-4 opacity-0"
-                  : "mb-4 max-h-60 translate-y-0 opacity-100"
-              }`}
-            >
-              <div
-                className={`rounded-2xl border bg-slate-900/70 px-4 py-3 shadow-lg transition-all duration-500 ${
-                  recommendedSessionTone.border
-                } ${isBannerHiding ? "scale-[0.98]" : "scale-100"}`}
-              >
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <div
-                    className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${
-                      recommendedSessionTone.label
-                    }`}
-                  >
-                    <FontAwesomeIcon
-                      icon={faBolt}
-                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
-                    />
-                    Recommended Session
-                  </div>
-
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${
-                      recommendedSessionTone.badge
-                    }`}
-                  >
-                    {recommendedSessionLabels[
-                      recommendedSession.adaptiveState
-                    ] || recommendedSessionLabels.default}
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm text-slate-200 md:text-base">
-                    {recommendedSession.recommendation}
-                  </p>
-                  <p className="text-xs leading-6 text-slate-400 md:text-sm">
-                    {recommendedSessionReason}
-                  </p>
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 md:text-xs">
-                    Opening difficulty: {recommendedOpeningDifficulty}
-                  </p>
-                </div>
-                {activePuzzleType === PUZZLE_TYPES.GRID_RECALL && (
-                  <div className="mt-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-300">
-                    <span className="text-white">Recall phase</span>
-                    <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-200">
-                      {gridRecallPhaseLabel}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <div
-              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
-                isCyber
-                  ? "border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)]"
-                  : "border-slate-200 bg-slate-50"
-              }`}
-            >
-              {isCyber && (
-                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-cyan-400/5 blur-xl transition-all group-hover:bg-cyan-400/10" />
-              )}
-              <p
-                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
-                  isCyber ? "text-cyan-300 text-glow-blue" : "text-slate-500"
-                }`}
-              >
-                <FontAwesomeIcon
-                  icon={faBrain}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
-                />
-                Challenge
-              </p>
-              <h1
-                className={`mt-2 text-2xl font-black tracking-tight ${
-                  isCyber ? "text-cyan-400" : "text-cyan-600"
-                }`}
-              >
-                {activePuzzleMeta.label}
-              </h1>
-              <p
-                className={`mt-2 text-sm leading-5 ${
-                  isCyber ? "text-slate-200" : "text-slate-500"
-                }`}
-              >
-                {activePuzzleMeta.description}
-              </p>
-              {activePuzzleMeta.cognitiveSkills?.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {activePuzzleMeta.cognitiveSkills.map((skill) => (
-                    <span
-                      key={skill}
-                      className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-black tracking-tight uppercase ${
-                        isCyber
-                          ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-200"
-                          : "border-slate-200 bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div
-              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 text-center transition-all duration-300 ${
-                isCyber
-                  ? "border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)]"
-                  : "border-slate-200 bg-slate-50"
-              }`}
-            >
-              {isCyber && (
-                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-fuchsia-400/5 blur-xl transition-all group-hover:bg-fuchsia-400/10" />
-              )}
-              <p
-                className={`flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
-                  isCyber ? "text-fuchsia-300 text-glow-pink" : "text-slate-500"
-                }`}
-              >
-                <FontAwesomeIcon
-                  icon={faBolt}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
-                />
-                Time Remaining
-              </p>
-              <div
-                className={`mt-2 font-mono text-3xl font-black ${
-                  isCyber
-                    ? `text-fuchsia-400 ${
-                        timeLeft <= 5
-                          ? "animate-pulse text-red-400"
-                          : "text-glow-pink"
-                      }`
-                    : "text-slate-800"
-                }`}
-              >
-                {timeLeft.toString().padStart(2, "0")}s
-              </div>
-            </div>
-
-            <div
-              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
-                isCyber
-                  ? "border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40"
-                  : "border-slate-200 bg-slate-50"
-              }`}
-            >
-              {isCyber && (
-                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-cyan-400/5 blur-xl transition-all group-hover:bg-cyan-400/10" />
-              )}
-              <p
-                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
-                  isCyber ? "text-slate-400" : "text-slate-500"
-                }`}
-              >
-                <FontAwesomeIcon
-                  icon={faLayerGroup}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
-                />
-                Mode
-              </p>
-              <div
-                className={`mt-2 inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
-                  isCyber
-                    ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20"
-                    : "bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200"
-                }`}
-              >
-                Solo Arena
-              </div>
-            </div>
-          </div>
-
-          <div
-            className={`relative mt-6 overflow-hidden rounded-3xl border p-6 md:p-10 ${
-              isCyber
-                ? activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
-                  ? "border-fuchsia-500/30 bg-[linear-gradient(180deg,rgba(18,10,28,0.95)_0%,rgba(9,6,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(217,70,239,0.08)]"
-                  : "border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]"
-                : "border-slate-200 bg-white"
-            }`}
-          >
-            <MatrixRain
-              mode={matrixRainMode}
-              intensity={gameOver ? (matrixOverdrive ? "heavy" : "light") : "medium"}
-              opacity={gameOver ? (matrixOverdrive ? 0.72 : 0.5) : 1}
-              className={`-inset-12 z-0 transition-opacity duration-1000 ${
-                gameOver
-                  ? matrixOverdrive
-                    ? "opacity-[0.55]"
-                    : "opacity-40"
-                  : "opacity-80"
-              }`}
-            />
-
-                {isLightningActive && (
-                  <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-                    <style>{`@keyframes arena-lightning-strike { 0% { opacity: 0; transform: scale(0.985) translateY(-3px); } 10% { opacity: 1; transform: scale(1.01) translateY(0); } 22% { opacity: 0.82; } 45% { opacity: 1; } 70% { opacity: 0.36; } 100% { opacity: 0; transform: scale(1.015) translateY(2px); } } @keyframes arena-lightning-flicker { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } } @keyframes arena-terminal-line { 0% { opacity: 0; transform: translateY(8px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } } @keyframes arena-terminal-cursor-blink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } } @keyframes arena-terminal-flicker { 0%, 100% { opacity: 0.28; transform: scaleX(0.985); } 50% { opacity: 0.6; transform: scaleX(1.01); } } @keyframes arena-terminal-key-pulse { 0%, 100% { opacity: 0.5; filter: brightness(1); } 50% { opacity: 0.8; filter: brightness(1.3); } }`}</style>
-                <div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-72 overflow-hidden"
-                  aria-hidden="true"
-                >
-                  <div
-                    className={`absolute inset-x-0 bottom-14 h-16 bg-[radial-gradient(circle_at_50%_50%,rgba(34,211,238,0.16),rgba(217,70,239,0.08)_42%,transparent_72%)] blur-3xl transition-opacity duration-700 ${
-                      terminalRevealComplete ? "opacity-100" : "opacity-70"
-                    }`}
-                    style={{ animation: "arena-terminal-flicker 4.8s ease-in-out infinite" }}
-                    aria-hidden="true"
-                  />
-                  <div className="absolute inset-x-0 bottom-16 flex justify-center px-6">
-                    <div className="w-full max-w-3xl">
-                      <div className="mb-4 flex flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-[0.32em]">
-                        {terminalRevealLines.map((line, index) => {
-                          const isFinalLine =
-                            index === terminalRevealLines.length - 1;
-                          const accentGlow =
-                            index === 1
-                              ? "rgba(217, 70, 239, 0.32)"
-                              : "rgba(34, 211, 238, 0.28)";
-                          const isPulseLine = terminalRevealComplete && isFinalLine;
-
-                          return (
-                            <p
-                              key={`${line.text}-${index}`}
-                              className={`flex items-center gap-2 transition-all duration-500 ${line.tone} ${
-                                isPulseLine ? "text-white/90" : ""
-                              }`}
-                              style={{
-                                animation: "arena-terminal-line 420ms ease-out both",
-                                animationDelay: `${line.delayMs}ms`,
-                                textShadow: isPulseLine
-                                  ? `0 0 16px ${accentGlow}`
-                                  : `0 0 10px ${accentGlow}`,
-                              }}
-                            >
-                              <span className="text-slate-300/50">&gt;</span>
-                              <span className="whitespace-nowrap">
-                                {line.text}
-                                {isFinalLine && (
-                                  <span
-                                    className="ml-0.5 inline-block text-cyan-100/90"
-                                    style={{
-                                      animation:
-                                        "arena-terminal-cursor-blink 1s steps(1, end) infinite",
-                                    }}
-                                  >
-                                    _
-                                  </span>
-                                )}
-                              </span>
-                            </p>
-                          );
-                        })}
-                      </div>
-
-                      <div
-                        className={`relative h-24 overflow-hidden rounded-[28px] border border-cyan-300/10 bg-slate-950/20 px-5 py-4 blur-sm transition-all duration-700 ${
-                          terminalRevealComplete ? "opacity-[0.11]" : "opacity-[0.08]"
-                        }`}
-                      >
-                        <div
-                          className={`pointer-events-none absolute inset-0 rounded-[28px] bg-[linear-gradient(90deg,rgba(34,211,238,0),rgba(34,211,238,0.08),rgba(217,70,239,0.08),rgba(34,211,238,0))] transition-opacity duration-700 ${
-                            terminalRevealComplete ? "opacity-100" : "opacity-40"
-                          }`}
-                        />
-                        <div className="grid grid-cols-12 gap-2">
-                          {Array.from({ length: 48 }).map((_, keyIndex) => {
-                            const isWide = keyIndex % 7 === 0 || keyIndex % 11 === 0;
-                            const keyTone =
-                              keyIndex % 6 === 0
-                                ? "bg-cyan-200/85"
-                                : keyIndex % 5 === 0
-                                  ? "bg-fuchsia-200/75"
-                                  : "bg-white/70";
-
-                            return (
-                              <span
-                                key={`phantom-key-${keyIndex}`}
-                                className={`h-2.5 rounded-sm ${isWide ? "col-span-2" : "col-span-1"} ${keyTone}`}
-                                style={{
-                                  opacity: isWide ? 0.8 : 0.65,
-                                  animation: terminalRevealComplete
-                                    ? "arena-terminal-key-pulse 1.8s ease-in-out infinite"
-                                    : undefined,
-                                  animationDelay: `${(keyIndex % 8) * 80}ms`,
-                                  filter: `drop-shadow(0 0 6px ${
-                                    keyIndex % 5 === 0
-                                      ? "rgba(217, 70, 239, 0.16)"
-                                      : "rgba(34, 211, 238, 0.12)"
-                                  })`,
-                                }}
-                              />
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                </div>
-              )}
-              {isCyber && (
-                  <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute inset-0 bg-grid-cyber opacity-[0.03]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(217,70,239,0.12),transparent_55%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(34,211,238,0.14),transparent_60%)]" />
-                  </div>
-                )}
-
+  const renderGameOverView = () => (
+    <>
                 <div className="relative z-10 flex w-full max-w-5xl flex-col items-center gap-10">
                   <div className="flex flex-col items-center gap-6">
                     <div className="relative">
@@ -4277,8 +3953,12 @@ function Arena({ theme }) {
                     </button>
                   </div>
                 </div>
-              </div>
-              ) : (
+    </>
+  );
+
+
+  const renderActiveArenaView = () => (
+    <>
                 <div className="space-y-6">
                   <div className="flex items-center justify-between gap-4">
                     <div>
@@ -5217,6 +4897,340 @@ function Arena({ theme }) {
                 </div>
               </div>
             </div>
+          </div>
+    </>
+  );
+
+  return (
+    <div className="animate-fadeIn px-6 py-10">
+      <div className="mx-auto max-w-6xl">
+        <div
+          className={`rounded-[28px] border p-6 md:p-8 ${
+            isCyber
+              ? "border-cyan-400/20 bg-slate-950/80 shadow-[0_0_50px_rgba(14,165,233,0.15)] backdrop-blur-xl"
+              : "border-slate-200 bg-white shadow-sm"
+          }`}
+        >
+          {recommendedSession && showRecommendedBanner && (
+            <div
+              className={`overflow-hidden transition-all duration-500 ${
+                isBannerHiding
+                  ? "mb-0 max-h-0 -translate-y-4 opacity-0"
+                  : "mb-4 max-h-60 translate-y-0 opacity-100"
+              }`}
+            >
+              <div
+                className={`rounded-2xl border bg-slate-900/70 px-4 py-3 shadow-lg transition-all duration-500 ${
+                  recommendedSessionTone.border
+                } ${isBannerHiding ? "scale-[0.98]" : "scale-100"}`}
+              >
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div
+                    className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] ${
+                      recommendedSessionTone.label
+                    }`}
+                  >
+                    <FontAwesomeIcon
+                      icon={faBolt}
+                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                    />
+                    Recommended Session
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${
+                      recommendedSessionTone.badge
+                    }`}
+                  >
+                    {recommendedSessionLabels[
+                      recommendedSession.adaptiveState
+                    ] || recommendedSessionLabels.default}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm text-slate-200 md:text-base">
+                    {recommendedSession.recommendation}
+                  </p>
+                  <p className="text-xs leading-6 text-slate-400 md:text-sm">
+                    {recommendedSessionReason}
+                  </p>
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 md:text-xs">
+                    Opening difficulty: {recommendedOpeningDifficulty}
+                  </p>
+                </div>
+                {activePuzzleType === PUZZLE_TYPES.GRID_RECALL && (
+                  <div className="mt-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-300">
+                    <span className="text-white">Recall phase</span>
+                    <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-200">
+                      {gridRecallPhaseLabel}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div
+              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
+                isCyber
+                  ? "border-cyan-400/20 bg-cyan-400/5 shadow-[0_0_15px_rgba(34,211,238,0.05)]"
+                  : "border-slate-200 bg-slate-50"
+              }`}
+            >
+              {isCyber && (
+                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-cyan-400/5 blur-xl transition-all group-hover:bg-cyan-400/10" />
+              )}
+              <p
+                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
+                  isCyber ? "text-cyan-300 text-glow-blue" : "text-slate-500"
+                }`}
+              >
+                <FontAwesomeIcon
+                  icon={faBrain}
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                />
+                Challenge
+              </p>
+              <h1
+                className={`mt-2 text-2xl font-black tracking-tight ${
+                  isCyber ? "text-cyan-400" : "text-cyan-600"
+                }`}
+              >
+                {activePuzzleMeta.label}
+              </h1>
+              <p
+                className={`mt-2 text-sm leading-5 ${
+                  isCyber ? "text-slate-200" : "text-slate-500"
+                }`}
+              >
+                {activePuzzleMeta.description}
+              </p>
+              {activePuzzleMeta.cognitiveSkills?.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {activePuzzleMeta.cognitiveSkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-black tracking-tight uppercase ${
+                        isCyber
+                          ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-200"
+                          : "border-slate-200 bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div
+              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 text-center transition-all duration-300 ${
+                isCyber
+                  ? "border-fuchsia-400/20 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(217,70,239,0.05)]"
+                  : "border-slate-200 bg-slate-50"
+              }`}
+            >
+              {isCyber && (
+                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-fuchsia-400/5 blur-xl transition-all group-hover:bg-fuchsia-400/10" />
+              )}
+              <p
+                className={`flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
+                  isCyber ? "text-fuchsia-300 text-glow-pink" : "text-slate-500"
+                }`}
+              >
+                <FontAwesomeIcon
+                  icon={faBolt}
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                />
+                Time Remaining
+              </p>
+              <div
+                className={`mt-2 font-mono text-3xl font-black ${
+                  isCyber
+                    ? `text-fuchsia-400 ${
+                        timeLeft <= 5
+                          ? "animate-pulse text-red-400"
+                          : "text-glow-pink"
+                      }`
+                    : "text-slate-800"
+                }`}
+              >
+                {timeLeft.toString().padStart(2, "0")}s
+              </div>
+            </div>
+
+            <div
+              className={`group relative overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
+                isCyber
+                  ? "border-cyan-400/20 bg-cyan-400/5 hover:border-cyan-400/40"
+                  : "border-slate-200 bg-slate-50"
+              }`}
+            >
+              {isCyber && (
+                <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-cyan-400/5 blur-xl transition-all group-hover:bg-cyan-400/10" />
+              )}
+              <p
+                className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] ${
+                  isCyber ? "text-slate-400" : "text-slate-500"
+                }`}
+              >
+                <FontAwesomeIcon
+                  icon={faLayerGroup}
+                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                />
+                Mode
+              </p>
+              <div
+                className={`mt-2 inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
+                  isCyber
+                    ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20"
+                    : "bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200"
+                }`}
+              >
+                Solo Arena
+              </div>
+            </div>
+          </div>
+
+          <div
+            className={`relative mt-6 overflow-hidden rounded-3xl border p-6 md:p-10 ${
+              isCyber
+                ? activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
+                  ? "border-fuchsia-500/30 bg-[linear-gradient(180deg,rgba(18,10,28,0.95)_0%,rgba(9,6,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(217,70,239,0.08)]"
+                  : "border-cyan-400/20 bg-[linear-gradient(180deg,rgba(10,17,32,0.95)_0%,rgba(7,11,20,0.98)_100%)] shadow-[inset_0_0_0_1px_rgba(34,211,238,0.04)]"
+                : "border-slate-200 bg-white"
+            }`}
+          >
+            <MatrixRain
+              mode={matrixRainMode}
+              intensity={gameOver ? (matrixOverdrive ? "heavy" : "light") : "medium"}
+              opacity={gameOver ? (matrixOverdrive ? 0.72 : 0.5) : 1}
+              className={`-inset-12 z-0 transition-opacity duration-1000 ${
+                gameOver
+                  ? matrixOverdrive
+                    ? "opacity-[0.55]"
+                    : "opacity-40"
+                  : "opacity-80"
+              }`}
+            />
+
+                {isLightningActive && (
+                  <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+                    <style>{`@keyframes arena-lightning-strike { 0% { opacity: 0; transform: scale(0.985) translateY(-3px); } 10% { opacity: 1; transform: scale(1.01) translateY(0); } 22% { opacity: 0.82; } 45% { opacity: 1; } 70% { opacity: 0.36; } 100% { opacity: 0; transform: scale(1.015) translateY(2px); } } @keyframes arena-lightning-flicker { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } } @keyframes arena-terminal-line { 0% { opacity: 0; transform: translateY(8px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } } @keyframes arena-terminal-cursor-blink { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } } @keyframes arena-terminal-flicker { 0%, 100% { opacity: 0.28; transform: scaleX(0.985); } 50% { opacity: 0.6; transform: scaleX(1.01); } } @keyframes arena-terminal-key-pulse { 0%, 100% { opacity: 0.5; filter: brightness(1); } 50% { opacity: 0.8; filter: brightness(1.3); } }`}</style>
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-72 overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <div
+                    className={`absolute inset-x-0 bottom-14 h-16 bg-[radial-gradient(circle_at_50%_50%,rgba(34,211,238,0.16),rgba(217,70,239,0.08)_42%,transparent_72%)] blur-3xl transition-opacity duration-700 ${
+                      terminalRevealComplete ? "opacity-100" : "opacity-70"
+                    }`}
+                    style={{ animation: "arena-terminal-flicker 4.8s ease-in-out infinite" }}
+                    aria-hidden="true"
+                  />
+                  <div className="absolute inset-x-0 bottom-16 flex justify-center px-6">
+                    <div className="w-full max-w-3xl">
+                      <div className="mb-4 flex flex-col items-center gap-2 font-mono text-[10px] uppercase tracking-[0.32em]">
+                        {terminalRevealLines.map((line, index) => {
+                          const isFinalLine =
+                            index === terminalRevealLines.length - 1;
+                          const accentGlow =
+                            index === 1
+                              ? "rgba(217, 70, 239, 0.32)"
+                              : "rgba(34, 211, 238, 0.28)";
+                          const isPulseLine = terminalRevealComplete && isFinalLine;
+
+                          return (
+                            <p
+                              key={`${line.text}-${index}`}
+                              className={`flex items-center gap-2 transition-all duration-500 ${line.tone} ${
+                                isPulseLine ? "text-white/90" : ""
+                              }`}
+                              style={{
+                                animation: "arena-terminal-line 420ms ease-out both",
+                                animationDelay: `${line.delayMs}ms`,
+                                textShadow: isPulseLine
+                                  ? `0 0 16px ${accentGlow}`
+                                  : `0 0 10px ${accentGlow}`,
+                              }}
+                            >
+                              <span className="text-slate-300/50">&gt;</span>
+                              <span className="whitespace-nowrap">
+                                {line.text}
+                                {isFinalLine && (
+                                  <span
+                                    className="ml-0.5 inline-block text-cyan-100/90"
+                                    style={{
+                                      animation:
+                                        "arena-terminal-cursor-blink 1s steps(1, end) infinite",
+                                    }}
+                                  >
+                                    _
+                                  </span>
+                                )}
+                              </span>
+                            </p>
+                          );
+                        })}
+                      </div>
+
+                      <div
+                        className={`relative h-24 overflow-hidden rounded-[28px] border border-cyan-300/10 bg-slate-950/20 px-5 py-4 blur-sm transition-all duration-700 ${
+                          terminalRevealComplete ? "opacity-[0.11]" : "opacity-[0.08]"
+                        }`}
+                      >
+                        <div
+                          className={`pointer-events-none absolute inset-0 rounded-[28px] bg-[linear-gradient(90deg,rgba(34,211,238,0),rgba(34,211,238,0.08),rgba(217,70,239,0.08),rgba(34,211,238,0))] transition-opacity duration-700 ${
+                            terminalRevealComplete ? "opacity-100" : "opacity-40"
+                          }`}
+                        />
+                        <div className="grid grid-cols-12 gap-2">
+                          {Array.from({ length: 48 }).map((_, keyIndex) => {
+                            const isWide = keyIndex % 7 === 0 || keyIndex % 11 === 0;
+                            const keyTone =
+                              keyIndex % 6 === 0
+                                ? "bg-cyan-200/85"
+                                : keyIndex % 5 === 0
+                                  ? "bg-fuchsia-200/75"
+                                  : "bg-white/70";
+
+                            return (
+                              <span
+                                key={`phantom-key-${keyIndex}`}
+                                className={`h-2.5 rounded-sm ${isWide ? "col-span-2" : "col-span-1"} ${keyTone}`}
+                                style={{
+                                  opacity: isWide ? 0.8 : 0.65,
+                                  animation: terminalRevealComplete
+                                    ? "arena-terminal-key-pulse 1.8s ease-in-out infinite"
+                                    : undefined,
+                                  animationDelay: `${(keyIndex % 8) * 80}ms`,
+                                  filter: `drop-shadow(0 0 6px ${
+                                    keyIndex % 5 === 0
+                                      ? "rgba(217, 70, 239, 0.16)"
+                                      : "rgba(34, 211, 238, 0.12)"
+                                  })`,
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              )}
+              {isCyber && (
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute inset-0 bg-grid-cyber opacity-[0.03]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(217,70,239,0.12),transparent_55%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_80%,rgba(34,211,238,0.14),transparent_60%)]" />
+                  </div>
+                )}
+
+              {gameOver ? renderGameOverView() : renderActiveArenaView()}
           </div>
         </div>
       </div>
