@@ -25,6 +25,7 @@ const CONFIG = {
     'logic_gate',
     'signal_path',
     'logic_grid',
+    'odd_one_matrix',
   ],
   difficulties: ['easy', 'medium', 'hard'],
   iterationsPerDifficulty: 50,
@@ -41,8 +42,11 @@ const CONFIG = {
  * families: ['pattern_rush'], iterationsPerDifficulty: 100
  *
  * 3. Heavier all-family run:
- * families: ['pattern_rush', 'sequence_sprint', 'rule_shift', 'grid_recall', 'logic_gate', 'signal_path', 'logic_grid'],
+ * families: ['pattern_rush', 'sequence_sprint', 'rule_shift', 'grid_recall', 'logic_gate', 'signal_path', 'logic_grid', 'odd_one_matrix'],
  * iterationsPerDifficulty: 200
+ *
+ * 4. Audit only Odd One Matrix:
+ * families: ['odd_one_matrix'], iterationsPerDifficulty: 100
  */
 
 // ============================================================================

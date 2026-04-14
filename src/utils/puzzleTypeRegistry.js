@@ -6,6 +6,8 @@ export const PUZZLE_TYPES = {
   LOGIC_GRID: "logic_grid",
   LOGIC_GATE: "logic_gate",
   SIGNAL_PATH: "signal_path",
+  MEMORY_CHAIN: "memory_chain",
+  ODD_ONE_MATRIX: "odd_one_matrix",
 };
 
 export const PUZZLE_TYPE_METADATA = {
@@ -68,6 +70,22 @@ export const PUZZLE_TYPE_METADATA = {
     color: "violet",
     cognitiveSkills: ["Planning", "Routing", "Constraint Logic"],
     icon: "route",
+  },
+  [PUZZLE_TYPES.MEMORY_CHAIN]: {
+    label: "Memory Chain",
+    shortLabel: "Memory",
+    description: "Trace the sequence and identify the hidden link.",
+    color: "cyan",
+    cognitiveSkills: ["Trace Memory", "Visual Retention", "Sequential Recall"],
+    icon: "wave-square",
+  },
+  [PUZZLE_TYPES.ODD_ONE_MATRIX]: {
+    label: "Odd One Matrix",
+    shortLabel: "Odd One",
+    description: "Identify the cell that breaks the pattern.",
+    color: "cyan",
+    cognitiveSkills: ["Visual Discrimination", "Pattern Matching"],
+    icon: "shapes",
   },
 };
 

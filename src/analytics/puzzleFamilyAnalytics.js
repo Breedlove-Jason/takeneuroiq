@@ -36,14 +36,26 @@ const PUZZLE_FAMILY_METADATA = {
   logic_grid: {
     label: "Logic Grid",
     shortLabel: "Grid",
-    accent: "cyan",
+    accent: "sky",
     icon: "grid",
   },
   signal_path: {
     label: "Signal Path",
     shortLabel: "Signal",
-    accent: "lime",
+    accent: "violet",
     icon: "signal_path",
+  },
+  memory_chain: {
+    label: "Memory Chain",
+    shortLabel: "Memory",
+    accent: "indigo",
+    icon: "wave-square",
+  },
+  odd_one_matrix: {
+    label: "Odd One Matrix",
+    shortLabel: "Odd One",
+    accent: "magenta",
+    icon: "shapes",
   },
 };
 
@@ -55,6 +67,8 @@ const PUZZLE_FAMILY_DISPLAY_ORDER = [
   "logic_grid",
   "logic_gate",
   "signal_path",
+  "memory_chain",
+  "odd_one_matrix",
 ];
 
 const ACTIVE_PUZZLE_FAMILIES = Object.keys(PUZZLE_FAMILY_METADATA);
@@ -458,6 +472,94 @@ function buildSignalPathSummary(sessions = []) {
   };
 }
 
+function buildMemoryChainSummary(sessions = []) {
+  const base = buildBaseSummary("memory_chain", sessions);
+
+  const chainLengths = [];
+  const optionCounts = [];
+  const difficulties = [];
+  const trendReasonByState = {
+    Rising:
+      "Trace recall is sharpening. Visual retention is staying cleaner across recent runs.",
+    Steadying:
+      "Memory stability is holding. Keep reinforcing sequential recall so the trace discipline stays stable under load.",
+    Rebuilding:
+      "Simplify the sequences and rebuild retention accuracy before pushing denser trace pressure.",
+  };
+
+  sessions.forEach((session) => {
+    const metrics = normalizePuzzleMetrics(session);
+
+    if (metrics.chainLength != null) {
+      chainLengths.push(toNumber(metrics.chainLength));
+    }
+
+    if (metrics.optionCount != null) {
+      optionCounts.push(toNumber(metrics.optionCount));
+    }
+
+    if (metrics.difficulty) {
+      difficulties.push(metrics.difficulty);
+    }
+  });
+
+  return {
+    ...base,
+    familyLabel: "Memory Chain",
+    averageChainLength: average(chainLengths, 1),
+    maxChainLength: chainLengths.length ? Math.max(...chainLengths) : 0,
+    averageOptionCount: average(optionCounts, 1),
+    mostCommonDifficulty: getMode(difficulties),
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Trace recall is evolving. Keep refining visual retention and sequential planning.",
+  };
+}
+
+function buildOddOneMatrixSummary(sessions = []) {
+  const base = buildBaseSummary("odd_one_matrix", sessions);
+
+  const matrixSizes = [];
+  const ruleTypes = [];
+  const difficulties = [];
+
+  const trendReasonByState = {
+    Rising:
+      "Anomaly detection is sharpening. Pattern filtering is becoming more instinctive across varying matrix densities.",
+    Steadying:
+      "Visual discrimination is stable. Keep pushing against subtle attribute shifts to maintain high-precision rule filtering.",
+    Rebuilding:
+      "Focus on core attribute isolation. Rebuild contrast recognition before returning to high-density matrices.",
+  };
+
+  sessions.forEach((session) => {
+    const metrics = normalizePuzzleMetrics(session);
+
+    if (metrics.matrixSize != null) {
+      matrixSizes.push(toNumber(metrics.matrixSize));
+    }
+
+    if (metrics.ruleType) {
+      ruleTypes.push(metrics.ruleType);
+    }
+
+    if (metrics.difficulty) {
+      difficulties.push(metrics.difficulty);
+    }
+  });
+
+  return {
+    ...base,
+    familyLabel: "Odd One Matrix",
+    averageMatrixSize: average(matrixSizes, 1),
+    mostCommonRuleType: getMode(ruleTypes),
+    mostCommonDifficulty: getMode(difficulties),
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Visual filtering is evolving. Keep refining abstract comparison and anomaly detection.",
+  };
+}
+
 const FAMILY_SUMMARY_BUILDERS = {
   pattern_rush: buildPatternRushSummary,
   sequence_sprint: buildSequenceSprintSummary,
@@ -466,6 +568,8 @@ const FAMILY_SUMMARY_BUILDERS = {
   logic_gate: buildLogicGateSummary,
   logic_grid: buildLogicGridSummary,
   signal_path: buildSignalPathSummary,
+  memory_chain: buildMemoryChainSummary,
+  odd_one_matrix: buildOddOneMatrixSummary,
 };
 
 function buildGenericFamilySummary(puzzleType, sessions = []) {

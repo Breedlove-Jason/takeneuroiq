@@ -21,6 +21,7 @@ import {
 import { getRandomLogicGridPuzzle } from "../game/logicGridPuzzles";
 import { getRandomLogicGatePuzzle } from "../game/logicGatePuzzles";
 import { getRandomSignalPathPuzzle } from "../game/signalPathPuzzles";
+import { getRandomOddOneMatrixPuzzle } from "../game/puzzleGenerators/oddOneMatrixGenerator";
 import { recordSession } from "../game/sessionTracker";
 import { calculateLiveAdaptiveDifficulty } from "../analytics/liveAdaptiveDifficulty.js";
 import { useLocation } from "react-router-dom";
@@ -188,6 +189,17 @@ const analysisProfileMap = {
     tone: "sequenced",
     accentColor: "#22d3ee",
     animationStyle: "memory_resonance",
+  },
+  odd_one_matrix: {
+    title: "Odd One Matrix Analysis Matrix",
+    analysisLines: [
+      "Attribute variance isolated",
+      "Matrix scan precision stable",
+      "Odd-cell detection consistent",
+    ],
+    tone: "diagnostic",
+    accentColor: "#f59e0b",
+    animationStyle: "matrix_resonance",
   },
   grid_recall: {
     title: "Memory Analysis Matrix",
@@ -738,6 +750,45 @@ const buildMemoryChainResultsCopy = ({
   };
 };
 
+const buildOddOneMatrixResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+} = {}) => {
+  if (accuracy >= 90) {
+    return {
+      eyebrow: "Matrix Complete",
+      title: "Odd One Matrix Results",
+      summary:
+        "Excellent discrimination. The outlier cell was isolated quickly and attribute noise stayed under control.",
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: "Matrix Complete",
+      title: "Odd One Matrix Results",
+      summary:
+        "Strong matrix scanning. Visual differences stayed readable and the anomaly stood out when it counted.",
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: "Matrix Complete",
+      title: "Odd One Matrix Results",
+      summary:
+        "Partial progress. Slow the scan, compare one attribute at a time, then commit.",
+    };
+  }
+
+  return {
+    eyebrow: "Matrix Complete",
+    title: "Odd One Matrix Results",
+    summary:
+      "Matrix timed out. Re-scan for the single trait that appears only once across cells.",
+  };
+};
+
 const buildLogicGateResultsCopy = ({
   accuracy = 0,
   correctAnswers = 0,
@@ -839,6 +890,7 @@ const buildSignalPathResultsCopy = ({
 // const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.PATTERN_RUSH;
 const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
 const RULE_SHIFT_PUZZLE_TYPE = "rule_shift";
+const ODD_ONE_MATRIX_PUZZLE_TYPE = "odd_one_matrix";
 const MEMORY_CHAIN_PUZZLE_TYPE = "memory_chain";
 const RULE_SHIFT_PUZZLE_META = {
   label: "Rule Shift",
@@ -856,11 +908,20 @@ const MEMORY_CHAIN_PUZZLE_META = {
   cognitiveSkills: ["Ordered Recall", "Working Memory"],
   icon: "diagram-project",
 };
+const ODD_ONE_MATRIX_PUZZLE_META = {
+  label: "Odd One Matrix",
+  shortLabel: "Matrix",
+  description: "Identify the single cell that breaks the shared attribute pattern.",
+  color: "amber",
+  cognitiveSkills: ["Matrix Reasoning", "Visual Discrimination"],
+  icon: "border-all",
+};
 
 const terminalAnalysisToneMap = {
   pattern_rush: ["text-cyan-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
   sequence_sprint: ["text-fuchsia-100/84", "text-fuchsia-100/76", "text-cyan-100/78"],
   memory_chain: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
+  odd_one_matrix: ["text-amber-100/84", "text-cyan-100/76", "text-violet-200/78"],
   grid_recall: ["text-emerald-100/84", "text-cyan-100/76", "text-emerald-200/78"],
   logic_grid: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
   rule_shift: ["text-cyan-100/84", "text-violet-100/76", "text-amber-200/78"],
@@ -872,6 +933,7 @@ const terminalSignalProfileLabels = {
   pattern_rush: "VISUAL SIGNAL",
   sequence_sprint: "MOMENTUM FLOW",
   memory_chain: "ORDERED TRACE",
+  odd_one_matrix: "ATTRIBUTE BREAK",
   grid_recall: "MEMORY TRACE",
   logic_grid: "MATRIX INFERENCE",
   rule_shift: "STRUCTURED DEDUCTION",
@@ -997,7 +1059,8 @@ function Arena({ theme }) {
   const initialPuzzleType =
     Object.values(PUZZLE_TYPES).includes(routePuzzleType) ||
     routePuzzleType === RULE_SHIFT_PUZZLE_TYPE ||
-    routePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE
+    routePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE ||
+    routePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
       ? routePuzzleType
       : DEFAULT_PUZZLE_TYPE;
 
@@ -1026,6 +1089,9 @@ function Arena({ theme }) {
     }
     if (initialPuzzleType === MEMORY_CHAIN_PUZZLE_TYPE) {
       return getRandomMemoryChainPuzzle(initialTargetDifficulty);
+    }
+    if (initialPuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE) {
+      return getRandomOddOneMatrixPuzzle(initialTargetDifficulty);
     }
     if (initialPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       return getRandomGridRecallPuzzle(initialTargetDifficulty);
@@ -1145,6 +1211,8 @@ function Arena({ theme }) {
       ? sequenceSprintPuzzle
       : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE
         ? currentPuzzle
+        : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
+          ? currentPuzzle
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
         ? gridRecallPuzzle
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
@@ -1158,16 +1226,21 @@ function Arena({ theme }) {
             : currentPuzzle;
   const isRuleShiftPuzzle = activePuzzleType === RULE_SHIFT_PUZZLE_TYPE;
   const isMemoryChainPuzzle = activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE;
+  const isOddOneMatrixPuzzle = activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE;
   const activePuzzleMeta = isRuleShiftPuzzle
     ? RULE_SHIFT_PUZZLE_META
     : isMemoryChainPuzzle
       ? MEMORY_CHAIN_PUZZLE_META
+      : isOddOneMatrixPuzzle
+        ? ODD_ONE_MATRIX_PUZZLE_META
     : getPuzzleTypeMetadata(activePuzzleType);
   const puzzleFeedTitle =
     activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT
       ? "Sequence Sprint"
       : isMemoryChainPuzzle
         ? "Memory Chain"
+        : isOddOneMatrixPuzzle
+          ? "Odd One Matrix"
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
         ? "Grid Recall"
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
@@ -1360,6 +1433,30 @@ function Arena({ theme }) {
         : 0,
     };
   }, [activePuzzleType, signalPathPuzzle]);
+
+  const oddOneMatrixPuzzleMetrics = useMemo(() => {
+    if (activePuzzleType !== ODD_ONE_MATRIX_PUZZLE_TYPE) {
+      return {};
+    }
+
+    return {
+      difficulty: currentPuzzle?.difficulty || currentPuzzle?.difficultyBucket || "medium",
+      matrixSize: Array.isArray(currentPuzzle?.matrix) ? currentPuzzle.matrix.length : 0,
+      oddIndex: Number.isInteger(currentPuzzle?.oddIndex) ? currentPuzzle.oddIndex : null,
+      optionCount: Array.isArray(currentPuzzle?.options) ? currentPuzzle.options.length : 0,
+    };
+  }, [activePuzzleType, currentPuzzle]);
+
+  const oddOneMatrixGridCols = useMemo(() => {
+    if (activePuzzleType !== ODD_ONE_MATRIX_PUZZLE_TYPE) {
+      return 3;
+    }
+    const n = Array.isArray(currentPuzzle?.matrix) ? currentPuzzle.matrix.length : 0;
+    if (n === 4) return 2;
+    if (n === 9) return 3;
+    if (n === 16) return 4;
+    return Math.max(2, Math.round(Math.sqrt(n)) || 2);
+  }, [activePuzzleType, currentPuzzle]);
 
   const patternRushPuzzleMetrics = useMemo(() => {
     if (activePuzzleType !== PUZZLE_TYPES.PATTERN_RUSH) {
@@ -1596,6 +1693,8 @@ function Arena({ theme }) {
         return getRandomLogicGatePuzzle(difficulty);
       case PUZZLE_TYPES.SIGNAL_PATH:
         return getRandomSignalPathPuzzle(difficulty);
+      case ODD_ONE_MATRIX_PUZZLE_TYPE:
+        return getRandomOddOneMatrixPuzzle(difficulty);
       case PUZZLE_TYPES.PATTERN_RUSH:
       default:
         return getRandomPuzzle(difficulty);
@@ -1711,6 +1810,8 @@ function Arena({ theme }) {
           ? sequenceSprintPuzzleMetrics
           : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE
             ? memoryChainPuzzleMetrics
+            : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
+              ? oddOneMatrixPuzzleMetrics
           : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
             ? gridRecallPuzzleMetrics
             : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
@@ -1751,6 +1852,8 @@ function Arena({ theme }) {
             ? sequenceSprintPuzzleMetrics
             : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE
               ? memoryChainPuzzleMetrics
+              : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
+                ? oddOneMatrixPuzzleMetrics
             : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
               ? gridRecallPuzzleMetrics
               : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
@@ -1806,6 +1909,7 @@ function Arena({ theme }) {
     logicGridPuzzleMetrics,
     logicGatePuzzleMetrics,
     signalPathPuzzleMetrics,
+    oddOneMatrixPuzzleMetrics,
     patternRushPuzzleMetrics,
     memoryChainPuzzleMetrics,
     ruleShiftPuzzleMetrics,
@@ -3449,7 +3553,12 @@ function Arena({ theme }) {
                 ? String(selectedAnswer) === String(logicGatePuzzle?.answer)
                 : activePuzzleType === PUZZLE_TYPES.SIGNAL_PATH
                   ? String(selectedAnswer) === String(signalPathPuzzle?.answer)
-                  : checkAnswer(currentPuzzle, selectedAnswer);
+                  : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
+                    ? Number(selectedAnswer) ===
+                      Number(
+                        currentPuzzle?.answer ?? currentPuzzle?.oddIndex ?? -1,
+                      )
+                    : checkAnswer(currentPuzzle, selectedAnswer);
 
     const nextSequenceSolvedCount =
       activePuzzleType === PUZZLE_TYPES.SEQUENCE_SPRINT && isCorrect
@@ -3675,6 +3784,11 @@ function Arena({ theme }) {
                   accuracy: answeredAccuracyValue,
                   correctAnswers,
                 })
+              : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
+                ? buildOddOneMatrixResultsCopy({
+                    accuracy: answeredAccuracyValue,
+                    correctAnswers,
+                  })
         : activePuzzleType === PUZZLE_TYPES.LOGIC_GRID
           ? buildLogicGridResultsCopy({
               accuracy: answeredAccuracyValue,
@@ -4495,6 +4609,156 @@ function Arena({ theme }) {
                                 </div>
                               </DevDebugPanel>
                             </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE ? (
+                  <div className="relative w-full overflow-hidden rounded-3xl border border-fuchsia-500/25 bg-slate-900/80 p-6 shadow-[inset_0_0_45px_rgba(217,70,239,0.12),0_20px_40px_rgba(2,6,23,0.6)] backdrop-blur-md">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                          <p className={`text-[10px] font-bold uppercase tracking-[0.35em] ${isCyber ? "text-cyan-300 text-glow-blue" : "text-cyan-300"}`}>
+                            Odd One Matrix
+                          </p>
+                          <h3 className={`text-2xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                            {currentPuzzle?.prompt || "Identify the cell that does not belong."}
+                          </h3>
+                          <p className="text-xs font-medium text-slate-300">
+                            Tap the one cell that breaks the pattern — index {0}…{Math.max(0, (Array.isArray(currentPuzzle?.matrix) ? currentPuzzle.matrix.length : 1) - 1)}.
+                          </p>
+                        </div>
+                        <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${isCyber ? "text-violet-300/90" : "text-violet-300"}`}>
+                          Live Arena Feed
+                        </p>
+                      </div>
+
+                      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+                        <div className="rounded-2xl border border-cyan-500/15 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_28px_rgba(34,211,238,0.1)] backdrop-blur-[14px]">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
+                            Matrix
+                          </p>
+                          <p className="text-xs font-medium text-slate-300">
+                            Select a cell to submit your answer
+                          </p>
+                          <div
+                            className="mt-4 grid gap-3"
+                            style={{
+                              gridTemplateColumns: `repeat(${oddOneMatrixGridCols}, minmax(0, 1fr))`,
+                            }}
+                          >
+                            {(Array.isArray(currentPuzzle?.matrix) ? currentPuzzle.matrix : []).map((cell, index) => {
+                              const sizeScale =
+                                cell?.size === "small"
+                                  ? 0.75
+                                  : cell?.size === "large"
+                                    ? 1.1
+                                    : 0.92;
+                              return (
+                                <button
+                                  key={`${currentPuzzle?.id ?? "oom"}-${index}`}
+                                  type="button"
+                                  onClick={() => handleAnswer(index)}
+                                  disabled={gameOver}
+                                  aria-label={`Select cell index ${index}`}
+                                  className="group relative flex flex-col rounded-xl border border-cyan-500/20 bg-slate-950/75 p-3 text-left shadow-[inset_0_0_22px_rgba(2,6,23,0.88)] transition-all duration-200 hover:border-fuchsia-400/50 hover:shadow-[0_0_22px_rgba(217,70,239,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/65 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-55"
+                                >
+                                  <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.28em] text-slate-400">
+                                    <span className="font-mono text-cyan-200/90">#{index}</span>
+                                    <span className="text-violet-300/80">{String(index + 1).padStart(2, "0")}</span>
+                                  </div>
+                                  <div className="mt-2 flex flex-1 flex-col items-center justify-center gap-2">
+                                    <div
+                                      className="flex h-14 w-14 items-center justify-center"
+                                      style={{
+                                        transform: `rotate(${cell?.rotation ?? 0}deg) scale(${sizeScale})`,
+                                      }}
+                                    >
+                                      <span
+                                        className="h-10 w-10 shrink-0 rounded-full border-2 border-white/20"
+                                        style={{
+                                          backgroundColor: cell?.color || "#0f172a",
+                                          boxShadow: `0 0 22px ${cell?.color || "#22d3ee"}66`,
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="w-full min-w-0 text-center">
+                                      <p className="truncate text-[11px] font-bold uppercase tracking-[0.14em] text-white">
+                                        {formatDevValue(cell?.shape)}
+                                      </p>
+                                      <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-slate-300/95">
+                                        {formatDevValue(cell?.size)} · {formatDevValue(cell?.rotation)}° · ×
+                                        {formatDevValue(cell?.count)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="xl:sticky xl:top-6 space-y-4">
+                          <div className="rounded-2xl border border-violet-500/15 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_24px_rgba(168,85,247,0.12)]">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-violet-300/90">
+                              Status
+                            </p>
+                            <p className="text-xs font-medium text-slate-300">
+                              Feedback and session pacing match other Arena modes.
+                            </p>
+                            <div className="mt-4 flex flex-col items-center gap-3">
+                              {feedback && (
+                                <div className="flex justify-center">
+                                  <span
+                                    className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${getFeedbackBadgeClass(feedback, isCyber)}`}
+                                  >
+                                    {feedback}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="rounded-2xl border border-amber-500/15 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_20px_rgba(245,158,11,0.1)]">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-amber-300/90">Readout</p>
+                            <div className="mt-3 space-y-2 text-sm text-slate-200">
+                              <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-400">Active attribute</span>
+                                <span className="font-semibold text-white">{formatDevValue(currentPuzzle?.ruleType)}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-4">
+                                <span className="text-slate-400">Difficulty</span>
+                                <span className="font-semibold text-white">{formatDevValue(currentPuzzle?.difficulty)}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {SHOW_PUZZLE_DEBUG_META && (
+                            <DevDebugPanel title="Odd One Matrix Dev">
+                              {SHOW_ANSWERS && (
+                                <div>
+                                  <span className="font-bold text-white">Answer index:</span>{" "}
+                                  <span className="text-amber-100">{currentPuzzle?.answer ?? "—"}</span>
+                                </div>
+                              )}
+                              {SHOW_ANSWERS && (
+                                <div>
+                                  <span className="font-bold text-white">oddIndex:</span>{" "}
+                                  <span className="text-amber-100">
+                                    {Number.isInteger(currentPuzzle?.oddIndex) ? currentPuzzle.oddIndex : "—"}
+                                  </span>
+                                </div>
+                              )}
+                              <div>
+                                <span className="font-bold text-white">ID:</span>{" "}
+                                <span className="text-amber-100">{currentPuzzle?.id ?? "—"}</span>
+                              </div>
+                              <div>
+                                <span className="font-bold text-white">Cells:</span>{" "}
+                                <span className="text-amber-100">{Array.isArray(currentPuzzle?.matrix) ? currentPuzzle.matrix.length : 0}</span>
+                              </div>
+                            </DevDebugPanel>
                           )}
                         </div>
                       </div>

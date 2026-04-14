@@ -21,6 +21,8 @@ import {
   faBrain,
   faBorderAll,
   faLayerGroup,
+  faWaveSquare,
+  faShapes,
 } from "@fortawesome/pro-duotone-svg-icons";
 
 /**
@@ -504,6 +506,20 @@ function ProfileAnalytics({
                         bestAccuracy: "text-emerald-300",
                         averageNeuralPower: "text-pink-200",
                       }
+                    : family.puzzleType === "memory_chain"
+                    ? {
+                        averageScore: "text-indigo-200",
+                        bestScore: "text-violet-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-fuchsia-200",
+                      }
+                    : family.puzzleType === "odd_one_matrix"
+                    ? {
+                        averageScore: "text-magenta-200",
+                        bestScore: "text-amber-200",
+                        bestAccuracy: "text-emerald-300",
+                        averageNeuralPower: "text-cyan-200",
+                      }
                     : {
                         averageScore: "text-cyan-200",
                         bestScore: "text-violet-200",
@@ -774,12 +790,12 @@ function getFamilyCardTone(puzzleType) {
       trendCard: "border-amber-500/20 bg-amber-500/5",
     },
     logic_grid: {
-      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(13,8,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]",
-      label: "text-cyan-200",
-      sessions: "text-cyan-300/80",
-      avgBadge: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
-      statCard: "border-cyan-500/20 bg-cyan-500/5",
-      trendCard: "border-cyan-500/20 bg-cyan-500/5",
+      card: "border-sky-400/30 bg-[linear-gradient(160deg,rgba(56,189,248,0.12)_0%,rgba(8,14,32,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(56,189,248,0.18)]",
+      label: "text-sky-200",
+      sessions: "text-sky-300/80",
+      avgBadge: "border-sky-400/35 bg-sky-500/10 text-sky-200",
+      statCard: "border-sky-500/20 bg-sky-500/5",
+      trendCard: "border-sky-500/20 bg-sky-500/5",
     },
     signal_path: {
       card: "border-violet-400/30 bg-[linear-gradient(160deg,rgba(139,92,246,0.12)_0%,rgba(12,9,27,0.92)_38%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(139,92,246,0.18)]",
@@ -788,6 +804,22 @@ function getFamilyCardTone(puzzleType) {
       avgBadge: "border-violet-400/35 bg-violet-500/10 text-violet-200",
       statCard: "border-violet-500/20 bg-violet-500/5",
       trendCard: "border-violet-500/20 bg-violet-500/5",
+    },
+    memory_chain: {
+      card: "border-indigo-400/30 bg-[linear-gradient(160deg,rgba(129,140,248,0.12)_0%,rgba(7,10,32,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(129,140,248,0.18)]",
+      label: "text-indigo-200",
+      sessions: "text-indigo-300/80",
+      avgBadge: "border-indigo-400/35 bg-indigo-500/10 text-indigo-200",
+      statCard: "border-indigo-500/20 bg-indigo-500/5",
+      trendCard: "border-indigo-500/20 bg-indigo-500/5",
+    },
+    odd_one_matrix: {
+      card: "border-magenta-400/30 bg-[linear-gradient(160deg,rgba(236,72,153,0.12)_0%,rgba(10,8,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(236,72,153,0.18)]",
+      label: "text-magenta-200",
+      sessions: "text-magenta-300/80",
+      avgBadge: "border-magenta-400/35 bg-magenta-500/10 text-magenta-200",
+      statCard: "border-magenta-500/20 bg-magenta-500/5",
+      trendCard: "border-magenta-500/20 bg-magenta-500/5",
     },
     default: {
       card: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
@@ -842,9 +874,9 @@ function getPuzzleFamilyVisual(puzzleType) {
     logic_grid: {
       icon: faBorderAll,
       iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200",
-      accentText: "text-cyan-200",
-      accentRing: "ring-1 ring-cyan-500/30",
+        "flex h-10 w-10 items-center justify-center rounded-full border border-sky-400/40 bg-sky-500/10 text-sky-200",
+      accentText: "text-sky-200",
+      accentRing: "ring-1 ring-sky-500/30",
     },
     signal_path: {
       icon: faRoute,
@@ -852,6 +884,20 @@ function getPuzzleFamilyVisual(puzzleType) {
         "flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/10 text-violet-200",
       accentText: "text-violet-200",
       accentRing: "ring-1 ring-violet-500/30",
+    },
+    memory_chain: {
+      icon: faWaveSquare,
+      iconWrap:
+        "flex h-10 w-10 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/10 text-indigo-200",
+      accentText: "text-indigo-200",
+      accentRing: "ring-1 ring-indigo-500/30",
+    },
+    odd_one_matrix: {
+      icon: faShapes,
+      iconWrap:
+        "flex h-10 w-10 items-center justify-center rounded-full border border-magenta-400/40 bg-magenta-500/10 text-magenta-200",
+      accentText: "text-magenta-200",
+      accentRing: "ring-1 ring-magenta-500/30",
     },
     fallback: {
       icon: faBrain,

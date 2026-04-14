@@ -9,7 +9,8 @@ import {
   faDiagramProject,
   faTableCells,
   faLink,
-  faRotateRight
+  faRotateRight,
+  faGridRound,
 } from '@fortawesome/pro-duotone-svg-icons';
 
 /**
@@ -43,6 +44,7 @@ function Play({ theme }) {
         'Spot sequences, decode visual patterns, and react fast under pressure.',
       buttonText: 'Launch Pattern Rush',
       skills: ['Patterns', 'Visual'],
+      hasPulse: true,
       cardTone: {
         cyber:
           'border-cyan-300/40 bg-[linear-gradient(160deg,rgba(34,211,238,0.20)_0%,rgba(22,16,54,0.88)_48%,rgba(4,9,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.24)] hover:border-cyan-300/80 hover:shadow-[0_0_54px_rgba(168,85,247,0.24)]',
@@ -56,47 +58,15 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-cyan-300 via-violet-400 to-fuchsia-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:from-fuchsia-400 hover:via-violet-400 hover:to-cyan-300 hover:brightness-110 hover:shadow-[0_0_42px_rgba(168,85,247,0.45)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-cyan-300 via-violet-400 to-fuchsia-400 text-black shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:from-fuchsia-400 hover:via-violet-400 hover:to-cyan-300 hover:brightness-110 hover:shadow-[0_0_42px_rgba(168,85,247,0.45)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-cyan-600 to-blue-600 text-white hover:from-blue-700 hover:to-cyan-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-cyan-100 via-sky-100 to-violet-100 text-black border border-slate-900/10 hover:from-cyan-200 hover:via-sky-50 hover:to-violet-100 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
         light: 'border-cyan-200 bg-cyan-50 text-cyan-700',
       },
       glowTone: 'group-hover:text-glow-blue',
-    },
-    {
-      icon: faDiagramProject,
-      puzzleType: 'sequence_sprint',
-      title: 'Sequence Sprint',
-      description:
-        'Read number patterns, predict what comes next, and respond under pressure.',
-      buttonText: 'Launch Sequence Sprint',
-      skills: ['Memory', 'Prediction'],
-      hasPulse: true,
-      cardTone: {
-        cyber:
-          'border-fuchsia-300/40 bg-[linear-gradient(160deg,rgba(236,72,153,0.18)_0%,rgba(38,10,46,0.9)_48%,rgba(16,8,6,0.96)_100%)] shadow-[0_0_34px_rgba(236,72,153,0.22)] hover:border-fuchsia-300/80 hover:shadow-[0_0_54px_rgba(245,158,11,0.22)]',
-        light:
-          'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(253,244,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(252,231,243,0.9)_100%)] shadow-[0_14px_32px_rgba(192,38,211,0.14)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(192,38,211,0.2)]',
-      },
-      iconTone: {
-        cyber:
-          'text-fuchsia-300 drop-shadow-[0_0_18px_rgba(236,72,153,0.62)]',
-        light: 'text-fuchsia-600',
-      },
-      buttonTone: {
-        cyber:
-          'bg-linear-to-r from-fuchsia-500 via-violet-500 to-amber-400 text-slate-950 shadow-[0_0_24px_rgba(236,72,153,0.42)] hover:from-amber-400 hover:via-violet-500 hover:to-fuchsia-500 hover:brightness-125 hover:shadow-[0_0_44px_rgba(245,158,11,0.5)] hover:-translate-y-0.5',
-        light:
-          'bg-linear-to-r from-fuchsia-600 to-sky-600 text-white hover:from-sky-700 hover:to-fuchsia-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
-      },
-      tagTone: {
-        cyber: 'border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200',
-        light: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700',
-      },
-      glowTone: 'group-hover:text-glow-pink',
     },
     {
       icon: faRotateRight,
@@ -120,9 +90,41 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-amber-400 via-violet-500 to-cyan-400 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:from-cyan-400 hover:via-violet-500 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(34,211,238,0.5)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-400 via-violet-500 to-cyan-400 text-black shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:from-cyan-400 hover:via-violet-500 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(34,211,238,0.5)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:from-orange-700 hover:to-amber-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-100 to-orange-100 text-black border border-slate-900/10 hover:from-amber-200 hover:to-orange-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+      },
+      tagTone: {
+        cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
+        light: 'border-amber-200 bg-amber-50 text-amber-700',
+      },
+      glowTone: 'group-hover:text-glow-orange',
+    },
+    {
+      icon: faDiagramProject,
+      puzzleType: 'sequence_sprint',
+      title: 'Sequence Sprint',
+      description:
+        'Read number patterns, predict what comes next, and respond under pressure.',
+      buttonText: 'Launch Sequence Sprint',
+      skills: ['Memory', 'Prediction'],
+      hasPulse: true,
+      cardTone: {
+        cyber:
+          'border-fuchsia-300/40 bg-[linear-gradient(160deg,rgba(236,72,153,0.18)_0%,rgba(40,14,34,0.9)_48%,rgba(20,12,8,0.96)_100%)] shadow-[0_0_34px_rgba(236,72,153,0.22)] hover:border-amber-300/80 hover:shadow-[0_0_54px_rgba(245,158,11,0.24)]',
+        light:
+          'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(253,244,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(252,231,243,0.9)_100%)] shadow-[0_14px_32px_rgba(192,38,211,0.14)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(192,38,211,0.2)]',
+      },
+      iconTone: {
+        cyber:
+          'text-amber-300 drop-shadow-[0_0_18px_rgba(245,158,11,0.62)]',
+        light: 'text-amber-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-fuchsia-500 via-amber-400 to-violet-500 text-black shadow-[0_0_24px_rgba(236,72,153,0.42)] hover:from-violet-500 hover:via-amber-400 hover:to-fuchsia-500 hover:brightness-125 hover:shadow-[0_0_44px_rgba(245,158,11,0.5)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-fuchsia-100 via-amber-50 to-violet-100 text-black border border-slate-900/10 hover:from-fuchsia-200 hover:via-amber-100 hover:to-violet-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-amber-300/30 bg-amber-400/10 text-amber-200',
@@ -141,26 +143,26 @@ function Play({ theme }) {
       hasPulse: true,
       cardTone: {
         cyber:
-          'border-violet-400/40 bg-[linear-gradient(160deg,rgba(139,92,246,0.20)_0%,rgba(33,12,40,0.9)_46%,rgba(8,4,18,0.96)_100%)] shadow-[0_0_34px_rgba(139,92,246,0.24)] hover:border-violet-400/80 hover:shadow-[0_0_54px_rgba(217,70,239,0.22)]',
+          'border-blue-400/40 bg-[linear-gradient(160deg,rgba(59,130,246,0.20)_0%,rgba(16,18,48,0.92)_46%,rgba(6,8,24,0.96)_100%)] shadow-[0_0_34px_rgba(59,130,246,0.26)] hover:border-fuchsia-400/55 hover:shadow-[0_0_54px_rgba(217,70,239,0.2)]',
         light:
-          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.92)_100%)] shadow-[0_14px_32px_rgba(139,92,246,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(139,92,246,0.22)]',
+          'border-blue-300 bg-[linear-gradient(155deg,rgba(239,246,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.94)_100%)] shadow-[0_14px_32px_rgba(59,130,246,0.14)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(217,70,239,0.16)]',
       },
       iconTone: {
         cyber:
-          'text-violet-300 drop-shadow-[0_0_18px_rgba(139,92,246,0.62)]',
-        light: 'text-violet-600',
+          'text-blue-300 drop-shadow-[0_0_18px_rgba(96,165,250,0.62)]',
+        light: 'text-blue-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-violet-500 via-fuchsia-500 to-cyan-400 text-white shadow-[0_0_24px_rgba(139,92,246,0.42)] hover:from-cyan-400 hover:via-fuchsia-500 hover:to-violet-500 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.52)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-blue-400 via-violet-500 to-fuchsia-400 text-black shadow-[0_0_24px_rgba(59,130,246,0.4)] hover:from-fuchsia-400 hover:via-violet-500 hover:to-blue-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.36)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-violet-600 via-indigo-600 to-blue-600 text-white hover:from-blue-700 hover:via-indigo-700 hover:to-violet-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-blue-100 via-violet-50 to-fuchsia-50 text-black border border-slate-900/10 hover:from-blue-200 hover:via-violet-50 hover:to-fuchsia-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
-        cyber: 'border-violet-400/30 bg-violet-400/10 text-violet-200',
-        light: 'border-violet-200 bg-violet-50 text-violet-700',
+        cyber: 'border-blue-300/30 bg-blue-400/10 text-blue-100',
+        light: 'border-blue-200 bg-blue-50 text-blue-800',
       },
-      glowTone: 'group-hover:text-glow-purple',
+      glowTone: 'group-hover:text-glow-blue',
     },
     {
       icon: faBorderAll,
@@ -173,26 +175,26 @@ function Play({ theme }) {
       hasPulse: true,
       cardTone: {
         cyber:
-          'border-cyan-300/40 bg-[linear-gradient(160deg,rgba(34,211,238,0.20)_0%,rgba(18,12,42,0.9)_46%,rgba(4,8,18,0.96)_100%)] shadow-[0_0_34px_rgba(34,211,238,0.24)] hover:border-cyan-300/80 hover:shadow-[0_0_54px_rgba(168,85,247,0.24)]',
+          'border-indigo-400/45 bg-[linear-gradient(160deg,rgba(99,102,241,0.26)_0%,rgba(18,12,46,0.92)_46%,rgba(6,8,22,0.96)_100%)] shadow-[0_0_34px_rgba(99,102,241,0.32)] hover:border-fuchsia-400/55 hover:shadow-[0_0_54px_rgba(217,70,239,0.22)]',
         light:
-          'border-cyan-300 bg-[linear-gradient(155deg,rgba(236,254,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(240,249,255,0.92)_100%)] shadow-[0_14px_32px_rgba(34,211,238,0.14)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(34,211,238,0.22)]',
+          'border-indigo-300 bg-[linear-gradient(155deg,rgba(238,242,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.94)_100%)] shadow-[0_14px_32px_rgba(99,102,241,0.16)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(192,38,211,0.18)]',
       },
       iconTone: {
         cyber:
-          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.62)]',
-        light: 'text-cyan-600',
+          'text-indigo-300 drop-shadow-[0_0_18px_rgba(129,140,248,0.65)]',
+        light: 'text-indigo-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-cyan-400 via-violet-500 to-amber-400 text-slate-950 shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:from-amber-400 hover:via-violet-500 hover:to-cyan-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(168,85,247,0.5)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-indigo-400 via-fuchsia-500 to-amber-400 text-black shadow-[0_0_24px_rgba(99,102,241,0.42)] hover:from-amber-400 hover:via-fuchsia-500 hover:to-indigo-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.45)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-cyan-600 via-violet-600 to-amber-600 text-white hover:from-amber-700 hover:via-violet-700 hover:to-cyan-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-indigo-100 via-fuchsia-50 to-amber-50 text-black border border-slate-900/10 hover:from-indigo-200 hover:via-fuchsia-100 hover:to-amber-100 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
-        cyber: 'border-cyan-300/30 bg-cyan-400/10 text-cyan-200',
-        light: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+        cyber: 'border-fuchsia-400/30 bg-indigo-500/15 text-indigo-100',
+        light: 'border-indigo-200 bg-indigo-50 text-indigo-700',
       },
-      glowTone: 'group-hover:text-glow-blue',
+      glowTone: 'group-hover:text-glow-purple',
     },
     {
       icon: faRoute,
@@ -205,23 +207,55 @@ function Play({ theme }) {
       hasPulse: true,
       cardTone: {
         cyber:
-          'border-fuchsia-300/40 bg-[linear-gradient(160deg,rgba(236,72,153,0.18)_0%,rgba(38,10,46,0.9)_48%,rgba(16,8,6,0.96)_100%)] shadow-[0_0_34px_rgba(236,72,153,0.22)] hover:border-fuchsia-300/80 hover:shadow-[0_0_54px_rgba(245,158,11,0.22)]',
+          'border-sky-400/45 bg-[linear-gradient(160deg,rgba(56,189,248,0.20)_0%,rgba(10,18,46,0.94)_48%,rgba(4,10,26,0.96)_100%)] shadow-[0_0_34px_rgba(56,189,248,0.28)] hover:border-violet-400/60 hover:shadow-[0_0_54px_rgba(139,92,246,0.24)]',
         light:
-          'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(253,244,255,0.96)_0%,rgba(255,255,255,1)_58%,rgba(252,231,243,0.9)_100%)] shadow-[0_14px_32px_rgba(192,38,211,0.14)] hover:border-fuchsia-400 hover:shadow-[0_18px_38px_rgba(192,38,211,0.2)]',
+          'border-sky-300 bg-[linear-gradient(155deg,rgba(240,249,255,0.98)_0%,rgba(255,255,255,1)_56%,rgba(238,242,255,0.95)_100%)] shadow-[0_14px_32px_rgba(14,165,233,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(139,92,246,0.16)]',
       },
       iconTone: {
         cyber:
-          'text-fuchsia-300 drop-shadow-[0_0_18px_rgba(236,72,153,0.62)]',
+          'text-sky-300 drop-shadow-[0_0_18px_rgba(56,189,248,0.65)]',
+        light: 'text-sky-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-sky-400 via-violet-500 to-fuchsia-500 text-black shadow-[0_0_24px_rgba(56,189,248,0.42)] hover:from-fuchsia-500 hover:via-violet-500 hover:to-sky-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(139,92,246,0.45)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-sky-100 via-violet-50 to-fuchsia-100 text-black border border-slate-900/10 hover:from-sky-200 hover:via-violet-100 hover:to-fuchsia-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+      },
+      tagTone: {
+        cyber: 'border-sky-300/30 bg-sky-400/10 text-sky-100',
+        light: 'border-sky-200 bg-sky-50 text-sky-800',
+      },
+      glowTone: 'group-hover:text-glow-blue',
+    },
+    {
+      icon: faLink,
+      puzzleType: 'memory_chain',
+      title: 'Memory Chain',
+      description:
+        'An ordered chain of values is shown with one hidden. Recall the missing value to maintain the sequence.',
+      buttonText: 'Launch Memory Chain',
+      skills: ['Ordered Recall', 'Working Memory'],
+      hasPulse: true,
+      cardTone: {
+        cyber:
+          'border-violet-400/40 bg-[linear-gradient(160deg,rgba(139,92,246,0.20)_0%,rgba(30,12,44,0.9)_46%,rgba(8,4,18,0.96)_100%)] shadow-[0_0_34px_rgba(139,92,246,0.24)] hover:border-fuchsia-400/80 hover:shadow-[0_0_54px_rgba(217,70,239,0.22)]',
+        light:
+          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.92)_100%)] shadow-[0_14px_32px_rgba(139,92,246,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(139,92,246,0.22)]',
+      },
+      iconTone: {
+        cyber:
+          'text-fuchsia-300 drop-shadow-[0_0_18px_rgba(217,70,239,0.62)]',
         light: 'text-fuchsia-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-fuchsia-500 via-violet-500 to-amber-400 text-slate-950 shadow-[0_0_24px_rgba(236,72,153,0.42)] hover:from-amber-400 hover:via-violet-500 hover:to-fuchsia-500 hover:brightness-125 hover:shadow-[0_0_44px_rgba(245,158,11,0.5)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-violet-500 via-fuchsia-500 to-cyan-400 text-black shadow-[0_0_24px_rgba(139,92,246,0.42)] hover:from-cyan-400 hover:via-fuchsia-500 hover:to-violet-500 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.52)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-fuchsia-600 to-sky-600 text-white hover:from-sky-700 hover:to-fuchsia-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-violet-100 via-fuchsia-50 to-cyan-50 text-black border border-slate-900/10 hover:from-violet-200 hover:via-fuchsia-100 hover:to-cyan-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
-        cyber: 'border-fuchsia-300/30 bg-fuchsia-400/10 text-fuchsia-200',
+        cyber: 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200',
         light: 'border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700',
       },
       glowTone: 'group-hover:text-glow-pink',
@@ -248,9 +282,9 @@ function Play({ theme }) {
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-amber-400 via-cyan-400 to-violet-500 text-slate-950 shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:from-violet-500 hover:via-cyan-400 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(168,85,247,0.5)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-400 via-cyan-400 to-violet-500 text-black shadow-[0_0_24px_rgba(245,158,11,0.42)] hover:from-violet-500 hover:via-cyan-400 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_42px_rgba(168,85,247,0.5)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-amber-600 to-orange-600 text-white hover:from-orange-700 hover:to-amber-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-100 to-orange-100 text-black border border-slate-900/10 hover:from-amber-200 hover:to-orange-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-amber-400/30 bg-amber-400/10 text-amber-200',
@@ -259,36 +293,36 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-orange',
     },
     {
-      icon: faLink,
-      puzzleType: 'memory_chain',
-      title: 'Memory Chain',
+      icon: faGridRound,
+      puzzleType: 'odd_one_matrix',
+      title: 'Odd One Matrix',
       description:
-        'An ordered chain of values is shown with one hidden. Recall the missing value to maintain the sequence.',
-      buttonText: 'Launch Memory Chain',
-      skills: ['Ordered Recall', 'Working Memory'],
+        'Almost every cell follows the same hidden rule. One cell breaks that rule — scan the matrix and select the odd one out.',
+      buttonText: 'Launch Odd One Matrix',
+      skills: ['Pattern Filtering', 'Visual Logic'],
       hasPulse: true,
       cardTone: {
         cyber:
-          'border-violet-400/40 bg-[linear-gradient(160deg,rgba(139,92,246,0.20)_0%,rgba(33,12,40,0.9)_46%,rgba(8,4,18,0.96)_100%)] shadow-[0_0_34px_rgba(139,92,246,0.24)] hover:border-violet-400/80 hover:shadow-[0_0_54px_rgba(217,70,239,0.22)]',
+          'border-fuchsia-300/40 bg-[linear-gradient(160deg,rgba(245,158,11,0.12)_0%,rgba(26,12,44,0.9)_42%,rgba(10,6,22,0.96)_100%)] shadow-[0_0_34px_rgba(217,70,239,0.22)] hover:border-cyan-300/80 hover:shadow-[0_0_54px_rgba(34,211,238,0.26)]',
         light:
-          'border-violet-300 bg-[linear-gradient(155deg,rgba(245,243,255,0.96)_0%,rgba(255,255,255,1)_56%,rgba(245,243,255,0.92)_100%)] shadow-[0_14px_32px_rgba(139,92,246,0.14)] hover:border-violet-400 hover:shadow-[0_18px_38px_rgba(139,92,246,0.22)]',
+          'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(255,251,235,0.92)_0%,rgba(255,255,255,1)_52%,rgba(245,243,255,0.94)_100%)] shadow-[0_14px_32px_rgba(192,38,211,0.14)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(34,211,238,0.2)]',
       },
       iconTone: {
         cyber:
-          'text-violet-300 drop-shadow-[0_0_18px_rgba(139,92,246,0.62)]',
-        light: 'text-violet-600',
+          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.62)]',
+        light: 'text-cyan-600',
       },
       buttonTone: {
         cyber:
-          'bg-linear-to-r from-violet-500 via-fuchsia-500 to-cyan-400 text-white shadow-[0_0_24px_rgba(139,92,246,0.42)] hover:from-cyan-400 hover:via-fuchsia-500 hover:to-violet-500 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.52)] hover:-translate-y-0.5',
+          'bg-linear-to-r from-cyan-400 via-fuchsia-500 to-violet-500 text-black shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:from-violet-500 hover:via-fuchsia-500 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.48)] hover:-translate-y-0.5',
         light:
-          'bg-linear-to-r from-violet-600 via-indigo-600 to-blue-600 text-white hover:from-blue-700 hover:via-indigo-700 hover:to-violet-700 hover:brightness-110 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+          'bg-linear-to-r from-amber-50 via-fuchsia-100 to-cyan-100 text-black border border-slate-900/10 hover:from-amber-100 hover:via-fuchsia-50 hover:to-cyan-100 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
       },
       tagTone: {
         cyber: 'border-violet-400/30 bg-violet-400/10 text-violet-200',
         light: 'border-violet-200 bg-violet-50 text-violet-700',
       },
-      glowTone: 'group-hover:text-glow-purple',
+      glowTone: 'group-hover:text-glow-blue',
     },
   ];
 
@@ -358,7 +392,7 @@ function Play({ theme }) {
                 )}
                 <FontAwesomeIcon
                   icon={challenge.icon}
-                  className="relative z-10 animate-float-subtle [--fa-secondary-opacity:0.4]"
+                  className="relative z-10 animate-float-subtle group-hover:animate-bounce [--fa-secondary-opacity:0.4]"
                 />
               </div>
 

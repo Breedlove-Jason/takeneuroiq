@@ -20,6 +20,7 @@ import { getRandomLogicGatePuzzle } from './logicGatePuzzles.js';
 import { getRandomSignalPathPuzzle } from './signalPathPuzzles.js';
 import { getRandomLogicGridPuzzle } from './logicGridPuzzles.js';
 import { getRandomRuleShiftPuzzle } from './puzzleGenerators/ruleShiftGenerator.js';
+import { getRandomOddOneMatrixPuzzle } from './puzzleGenerators/oddOneMatrixGenerator.js';
 
 // ============================================================================
 // CONFIGURATION
@@ -33,6 +34,7 @@ const CANONICAL_FAMILIES = [
   'logic_gate',
   'signal_path',
   'logic_grid',
+  'odd_one_matrix',
 ];
 
 const CANONICAL_DIFFICULTIES = ['easy', 'medium', 'hard'];
@@ -57,6 +59,7 @@ const PUZZLE_GENERATORS = {
   logic_gate: (difficulty) => getRandomLogicGatePuzzle(difficulty),
   signal_path: (difficulty) => getRandomSignalPathPuzzle(difficulty),
   logic_grid: (difficulty) => getRandomLogicGridPuzzle(difficulty),
+  odd_one_matrix: (difficulty) => getRandomOddOneMatrixPuzzle(difficulty),
 };
 
 // ============================================================================
@@ -116,6 +119,18 @@ function createSignature(puzzle, family) {
           puzzle?.ruleType || 'unknown',
           (puzzle?.grid || []).flat().join('|'),
           puzzle?.answer || '',
+        ].join('::');
+
+      case 'odd_one_matrix':
+        return [
+          puzzle?.ruleType || 'unknown',
+          String(puzzle?.oddIndex ?? ''),
+          String(puzzle?.answer ?? ''),
+          (puzzle?.matrix || [])
+            .map((c) =>
+              [c?.shape, c?.color, c?.size, c?.rotation, c?.count].join(':'),
+            )
+            .join('|'),
         ].join('::');
 
       default:
@@ -459,6 +474,87 @@ function validateLogicGrid(puzzle) {
   return errors;
 }
 
+function validateOddOneMatrix(puzzle) {
+  const errors = [];
+
+  if (!puzzle || typeof puzzle !== 'object') {
+    errors.push('Puzzle object is missing or invalid');
+    return errors;
+  }
+
+  if (puzzle.puzzleType !== 'odd_one_matrix') {
+    errors.push(`Invalid puzzle type: ${puzzle.puzzleType}`);
+  }
+
+  const matrix = puzzle.matrix;
+  if (!Array.isArray(matrix) || matrix.length === 0) {
+    errors.push('Missing or empty matrix array');
+  }
+
+  const n = Array.isArray(matrix) ? matrix.length : 0;
+  const validSizes = [4, 9, 16];
+  if (n > 0 && !validSizes.includes(n)) {
+    errors.push(`Invalid matrix size: expected 4, 9, or 16 cells, got ${n}`);
+  }
+
+  const answerRaw = puzzle.answer ?? puzzle.correctAnswer;
+  if (answerRaw === undefined || answerRaw === null || answerRaw === '') {
+    errors.push('Missing answer');
+  } else {
+    const answerNum = Number(answerRaw);
+    if (!Number.isInteger(answerNum) || answerNum < 0) {
+      errors.push('Answer must be a non-negative integer cell index');
+    } else if (n > 0 && answerNum >= n) {
+      errors.push(`Answer index out of range: ${answerNum}`);
+    }
+  }
+
+  if (!Number.isInteger(puzzle.oddIndex)) {
+    errors.push('Missing or invalid oddIndex');
+  } else if (n > 0) {
+    if (puzzle.oddIndex < 0 || puzzle.oddIndex >= n) {
+      errors.push(`oddIndex out of range: ${puzzle.oddIndex}`);
+    }
+    if (
+      answerRaw !== undefined &&
+      answerRaw !== null &&
+      answerRaw !== '' &&
+      Number(answerRaw) !== puzzle.oddIndex
+    ) {
+      errors.push('answer and oddIndex must match');
+    }
+  }
+
+  if (!puzzle.ruleType || typeof puzzle.ruleType !== 'string' || !puzzle.ruleType.trim()) {
+    errors.push('Missing or invalid ruleType');
+  }
+
+  if (!puzzle.difficulty || !CANONICAL_DIFFICULTIES.includes(puzzle.difficulty)) {
+    errors.push(`Invalid difficulty: ${puzzle.difficulty}`);
+  }
+
+  const options = puzzle.options;
+  if (!Array.isArray(options) || (n > 0 && options.length !== n)) {
+    errors.push('options array must exist and match matrix length');
+  }
+
+  const requiredCellKeys = ['shape', 'color', 'size', 'rotation', 'count'];
+  for (let i = 0; i < n; i += 1) {
+    const cell = matrix[i];
+    if (!cell || typeof cell !== 'object') {
+      errors.push(`Invalid cell at index ${i}`);
+      continue;
+    }
+    for (const key of requiredCellKeys) {
+      if (cell[key] === undefined || cell[key] === null) {
+        errors.push(`Cell ${i} missing ${key}`);
+      }
+    }
+  }
+
+  return errors;
+}
+
 // ============================================================================
 // VALIDATOR MAPPING
 // ============================================================================
@@ -471,6 +567,7 @@ const FAMILY_VALIDATORS = {
   logic_gate: validateLogicGate,
   signal_path: validateSignalPath,
   logic_grid: validateLogicGrid,
+  odd_one_matrix: validateOddOneMatrix,
 };
 
 // ============================================================================
@@ -511,6 +608,7 @@ function auditFamily(family, difficulties, iterations, debugContext = {}) {
     ruleTypes: [],
     sequenceTypes: [],
     shiftIndices: [],
+    oddIndices: [],
     optionLayouts: [],
   };
 
@@ -612,6 +710,10 @@ function auditFamily(family, difficulties, iterations, debugContext = {}) {
           if (Number.isInteger(puzzle?.shiftIndex)) {
             results.shiftIndices.push(puzzle.shiftIndex);
           }
+        }
+
+        if (family === 'odd_one_matrix' && Number.isInteger(puzzle?.oddIndex)) {
+          results.oddIndices.push(puzzle.oddIndex);
         }
 
         if (puzzle?.sequenceType) {

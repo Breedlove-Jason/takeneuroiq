@@ -16,6 +16,7 @@ import {
   faTableCells,
   faMicrochip,
   faBorderAll,
+  faShapes,
 } from '@fortawesome/pro-duotone-svg-icons';
 import {
   Radar,
@@ -174,6 +175,8 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'grid_recall') return 'Grid Recall';
   if (puzzleType === 'logic_grid') return 'Logic Grid';
   if (puzzleType === 'signal_path') return 'Signal Path';
+  if (puzzleType === 'memory_chain') return 'Memory Chain';
+  if (puzzleType === 'odd_one_matrix') return 'Odd One Matrix';
   const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
   if (puzzleLabel) return puzzleLabel;
   if (mode) {
@@ -233,6 +236,20 @@ const RECENT_SESSION_FAMILY_VISUALS = {
     labelClass: 'text-violet-200',
     badgeClass: 'text-violet-300/70',
   },
+  memory_chain: {
+    icon: faWaveSquare,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/10 text-indigo-200',
+    labelClass: 'text-indigo-200',
+    badgeClass: 'text-indigo-300/70',
+  },
+  odd_one_matrix: {
+    icon: faShapes,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-magenta-400/40 bg-magenta-500/10 text-magenta-200',
+    labelClass: 'text-magenta-200',
+    badgeClass: 'text-magenta-300/70',
+  },
   default: {
     icon: faBrain,
     iconWrap:
@@ -265,6 +282,10 @@ function getFocusLaneFromPuzzleType(puzzleType) {
       return 'Logic Processing';
     case 'signal_path':
       return 'Constraint Routing';
+    case 'memory_chain':
+      return 'Trace Memory';
+    case 'odd_one_matrix':
+      return 'Anomaly Detection';
     default:
       return 'Cognitive Training';
   }
@@ -392,6 +413,41 @@ function buildFamilyAwareRecommendation(session) {
     return `Simplify the route map, rebuild signal planning accuracy, and reintroduce ${pathLabel} once selection feels cleaner.`;
   }
 
+  if (session.puzzleType === 'memory_chain') {
+    const chainLength = puzzleMetrics.chainLength;
+    const lengthLabel =
+      typeof chainLength === 'number' && chainLength > 0
+        ? `${chainLength}-step chains`
+        : 'longer trace sequences';
+
+    if (accuracy >= 90 && streak >= 8) {
+      return `Trace memory is sharp. Push ${lengthLabel} and keep your sequential recall clean under increasing density.`;
+    }
+    if (accuracy >= 75) {
+      return `Sequential recall is stabilizing. Repeat ${lengthLabel} runs to lock in your visual retention discipline.`;
+    }
+    return `Simplify the sequences, rebuild trace confidence, and return to ${lengthLabel} once recall feels more stable.`;
+  }
+
+  if (session.puzzleType === 'odd_one_matrix') {
+    const ruleType = puzzleMetrics.ruleType
+      ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
+      : 'attribute rules';
+    const matrixSize = puzzleMetrics.matrixSize;
+    const sizeLabel =
+      typeof matrixSize === 'number' && matrixSize > 0
+        ? `${matrixSize}x${matrixSize} matrices`
+        : 'dense matrices';
+
+    if (accuracy >= 90 && streak >= 8) {
+      return `Anomaly detection is elite. Push your rule filtering on ${sizeLabel} and keep your pattern isolation sharp.`;
+    }
+    if (accuracy >= 75) {
+      return `Visual filtering is stabilizing. Repeat ${ruleType} runs across ${sizeLabel} to maintain high-precision discrimination.`;
+    }
+    return `Focus on core attribute isolation, rebuild contrast recognition on simpler grids, and return to ${sizeLabel} once filtering stays cleaner.`;
+  }
+
   return 'Alternate puzzle families to broaden cognitive adaptation.';
 }
 
@@ -441,6 +497,18 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? 'constraint routing discipline strengthening'
       : 'signal planning recalibrating';
+  }
+
+  if (session.puzzleType === 'memory_chain') {
+    return accuracy >= 80
+      ? 'trace memory recall sharpening'
+      : 'sequential retention recalibrating';
+  }
+
+  if (session.puzzleType === 'odd_one_matrix') {
+    return accuracy >= 80
+      ? 'anomaly detection precision sharpening'
+      : 'rule filtering discipline recalibrating';
   }
 
   return (
