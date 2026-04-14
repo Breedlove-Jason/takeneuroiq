@@ -1,6 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotateRight } from "@fortawesome/pro-duotone-svg-icons";
+
+const Typewriter = ({ 
+  text, 
+  speed = 50, 
+  delay = 0, 
+  onComplete, 
+  className = "", 
+  style = {},
+  showCursor = true 
+}) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    setDisplayedText("");
+    setIsComplete(false);
+    
+    const startTimeout = setTimeout(() => {
+      let currentText = "";
+      let index = 0;
+      
+      const interval = setInterval(() => {
+        if (index < text.length) {
+          currentText += text[index];
+          setDisplayedText(currentText);
+          index++;
+        } else {
+          clearInterval(interval);
+          setIsComplete(true);
+          if (onComplete) onComplete();
+        }
+      }, speed);
+      
+      return () => clearInterval(interval);
+    }, delay);
+
+    return () => clearTimeout(startTimeout);
+  }, [text, speed, delay, onComplete]);
+
+  return (
+    <span className={`${className} phosphor-glow`} style={style}>
+      {displayedText}
+      {showCursor && !isComplete && <span className="terminal-cursor" />}
+    </span>
+  );
+};
 
 const ArenaGameOverView = ({
   isCyber,
@@ -105,46 +151,61 @@ const ArenaGameOverView = ({
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300/80">
             Neural Identity
           </p>
-          <h2
-            className={`text-4xl font-black uppercase tracking-[0.2em] transition-all duration-700 md:text-5xl ${
-              identityLockVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
-            }`}
-            style={{
-              color: identityLockVisible
-                ? hexToRgba(activeAnalysisAccent, 0.98)
-                : hexToRgba(activeAnalysisAccent, 0.45),
-              textShadow: identityLockVisible
-                ? `0 0 26px ${hexToRgba(activeAnalysisAccent, 0.5)}`
-                : "none",
-            }}
-          >
-            {cognitiveIdentity?.label || resultsCopy.title}
-          </h2>
+          <div className={`relative ${identityLockVisible ? "opacity-100" : "opacity-0"} transition-opacity duration-700`}>
+            <h2
+              className="text-4xl font-black uppercase tracking-[0.2em] md:text-5xl"
+              style={{
+                color: hexToRgba(activeAnalysisAccent, 0.98),
+                textShadow: `0 0 26px ${hexToRgba(activeAnalysisAccent, 0.5)}`
+              }}
+            >
+              {identityLockVisible ? (
+                <Typewriter 
+                  text={cognitiveIdentity?.label || resultsCopy.title} 
+                  speed={70}
+                  delay={500}
+                />
+              ) : (
+                <span className="opacity-0">{cognitiveIdentity?.label || resultsCopy.title}</span>
+              )}
+            </h2>
+          </div>
         </div>
       </div>
 
-      <div className="w-full max-w-2xl text-left">
-        <div className="space-y-2 font-mono text-[11px] leading-6 uppercase tracking-[0.22em] text-cyan-100/80">
+      <div className="crt-screen w-full max-w-2xl rounded-lg border border-white/5 bg-slate-950/40 p-6 text-left shadow-inner">
+        <div className="crt-scanline" />
+        <div className="relative z-10 space-y-2 font-mono text-[11px] leading-6 uppercase tracking-[0.22em]">
           {neuralAnalysisLines.slice(0, 3).map((line, index) => {
             const isVisible = analysisLineCount > index;
+            // Base delay: headline (500ms) + headline length (~10 chars * 70ms = 700ms) + small buffer = 1500ms
+            // Each line starts after previous line completes
+            const lineDelay = 1800 + (index * 800); 
+
             return (
               <p
                 key={`${line.text}-${index}`}
-                className={`flex items-center gap-2 transition-all duration-500 ${
-                  isVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
-                } ${line.isFinal ? "text-white/90" : ""}`}
+                className={`flex items-start gap-2 ${line.isFinal ? "text-white/90" : ""}`}
                 style={{
-                  transitionDuration: `${activeAnalysisAnimationProfile.lineDurationMs}ms`,
                   color: isVisible
                     ? hexToRgba(activeAnalysisAccent, index === 2 ? 0.9 : 0.84)
-                    : hexToRgba(activeAnalysisAccent, 0.42),
+                    : 'transparent',
                   textShadow: isVisible
                     ? `0 0 12px ${hexToRgba(activeAnalysisAccent, index === 2 ? 0.34 : 0.22)}`
                     : "none",
                 }}
               >
-                <span className="text-slate-300/55">&gt;</span>
-                <span>{line.text}</span>
+                <span className="mt-1 text-slate-300/55">&gt;</span>
+                {isVisible ? (
+                  <Typewriter 
+                    text={line.text}
+                    speed={30}
+                    delay={lineDelay}
+                    className="flex-1"
+                  />
+                ) : (
+                  <span className="flex-1" />
+                )}
               </p>
             );
           })}

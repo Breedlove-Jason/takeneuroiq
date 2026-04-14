@@ -198,7 +198,7 @@ const analysisProfileMap = {
       "Odd-cell detection consistent",
     ],
     tone: "diagnostic",
-    accentColor: "#f59e0b",
+    accentColor: "#ec4899",
     animationStyle: "matrix_resonance",
   },
   grid_recall: {
@@ -242,7 +242,7 @@ const analysisProfileMap = {
       "Decision pathways optimized",
     ],
     tone: "precise",
-    accentColor: "#f59e0b",
+    accentColor: "#22d3ee",
     animationStyle: "precision_lock",
   },
   signal_path: {
