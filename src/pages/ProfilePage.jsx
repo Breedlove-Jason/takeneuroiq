@@ -176,6 +176,7 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'logic_grid') return 'Logic Grid';
   if (puzzleType === 'signal_path') return 'Signal Path';
   if (puzzleType === 'memory_chain') return 'Memory Chain';
+  if (puzzleType === 'symbol_recall') return 'Symbol Recall';
   if (puzzleType === 'odd_one_matrix') return 'Odd One Matrix';
   const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
   if (puzzleLabel) return puzzleLabel;
@@ -243,6 +244,13 @@ const RECENT_SESSION_FAMILY_VISUALS = {
     labelClass: 'text-indigo-200',
     badgeClass: 'text-indigo-300/70',
   },
+  symbol_recall: {
+    icon: faBolt,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/10 to-cyan-500/10 text-cyan-100 shadow-[0_0_20px_rgba(217,70,239,0.22)]',
+    labelClass: 'text-cyan-100',
+    badgeClass: 'text-violet-300/75',
+  },
   odd_one_matrix: {
     icon: faShapes,
     iconWrap:
@@ -284,6 +292,8 @@ function getFocusLaneFromPuzzleType(puzzleType) {
       return 'Constraint Routing';
     case 'memory_chain':
       return 'Trace Memory';
+    case 'symbol_recall':
+      return 'Glyph Recognition';
     case 'odd_one_matrix':
       return 'Anomaly Detection';
     default:
@@ -429,6 +439,27 @@ function buildFamilyAwareRecommendation(session) {
     return `Simplify the sequences, rebuild trace confidence, and return to ${lengthLabel} once recall feels more stable.`;
   }
 
+  if (session.puzzleType === 'symbol_recall') {
+    const symbolCount = puzzleMetrics.symbolCount;
+    const optionCount = puzzleMetrics.optionCount;
+    const symbolLabel =
+      typeof symbolCount === 'number' && symbolCount > 0
+        ? `${symbolCount}-symbol flashes`
+        : 'symbol flashes';
+    const optionLabel =
+      typeof optionCount === 'number' && optionCount > 0
+        ? `${optionCount} answer options`
+        : 'the answer set';
+
+    if (accuracy >= 90 && streak >= 8) {
+      return `Glyph recognition is locked in. Push denser ${symbolLabel} and keep rapid visual retention precise under pressure.`;
+    }
+    if (accuracy >= 75) {
+      return `Target-symbol imprinting is stabilizing. Repeat ${symbolLabel} and keep ${optionLabel} scans clean.`;
+    }
+    return `Slow the reveal, rehearse the target glyph, and rebuild short-term recall before denser ${symbolLabel}.`;
+  }
+
   if (session.puzzleType === 'odd_one_matrix') {
     const ruleType = puzzleMetrics.ruleType
       ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
@@ -503,6 +534,12 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? 'trace memory recall sharpening'
       : 'sequential retention recalibrating';
+  }
+
+  if (session.puzzleType === 'symbol_recall') {
+    return accuracy >= 80
+      ? 'glyph recognition precision strengthening'
+      : 'short-term symbol recall recalibrating';
   }
 
   if (session.puzzleType === 'odd_one_matrix') {

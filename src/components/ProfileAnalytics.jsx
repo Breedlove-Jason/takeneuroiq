@@ -23,6 +23,7 @@ import {
   faRotateRight,
   faLink,
   faBullseye,
+  faBolt,
 } from "@fortawesome/pro-duotone-svg-icons";
 
 /**
@@ -513,6 +514,13 @@ function ProfileAnalytics({
                         bestAccuracy: "text-emerald-300",
                         averageNeuralPower: "text-fuchsia-200",
                       }
+                        : family.puzzleType === "symbol_recall"
+                        ? {
+                            averageScore: "text-cyan-200",
+                            bestScore: "text-violet-200",
+                            bestAccuracy: "text-amber-300",
+                            averageNeuralPower: "text-fuchsia-200",
+                          }
                     : family.puzzleType === "odd_one_matrix"
                     ? {
                         averageScore: "text-fuchsia-200",
@@ -813,6 +821,14 @@ function getFamilyCardTone(puzzleType) {
       statCard: "border-indigo-500/20 bg-indigo-500/5",
       trendCard: "border-indigo-500/20 bg-indigo-500/5",
     },
+    symbol_recall: {
+      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(45,15,63,0.92)_44%,rgba(10,8,27,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.2)]",
+      label: "text-cyan-200",
+      sessions: "text-fuchsia-300/80",
+      avgBadge: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
+      statCard: "border-cyan-500/20 bg-cyan-500/5",
+      trendCard: "border-violet-500/20 bg-violet-500/5",
+    },
     odd_one_matrix: {
       card: "border-fuchsia-400/30 bg-[linear-gradient(160deg,rgba(217,70,239,0.12)_0%,rgba(10,8,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.18)]",
       label: "text-fuchsia-200",
@@ -893,6 +909,13 @@ function getPuzzleFamilyVisual(puzzleType) {
       iconClass: "text-base",
       accentText: "text-indigo-200",
       accentRing: "ring-1 ring-indigo-500/30",
+    },
+    symbol_recall: {
+      icon: faBolt,
+      iconWrap: `${baseWrapper} border-cyan-400/40 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/10 to-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(217,70,239,0.62)]`,
+      iconClass: "text-sm",
+      accentText: "text-fuchsia-200",
+      accentRing: "ring-1 ring-fuchsia-500/30",
     },
     odd_one_matrix: {
       icon: faBullseye,

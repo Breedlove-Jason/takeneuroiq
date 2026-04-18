@@ -6,6 +6,10 @@
   --color-cyber-purple: #8b5cf6;
   --color-cyber-yellow: #facc15;
   --color-cyber-emerald: #10b981;
+  --color-cyber-blue-electric: #00d2ff;
+  --color-cyber-rose: #f43f5e;
+  --color-cyber-plasma: #6366f1;
+  --color-cyber-teal: #2dd4bf;
   --color-cyber-bg: #030712;
   --color-cyber-bg-accent: #0f172a;
 
@@ -119,6 +123,18 @@
   }
   .text-glow-red {
     text-shadow: 0 0 10px rgba(248, 113, 113, 0.5), 0 0 20px rgba(248, 113, 113, 0.3);
+  }
+  .text-glow-rose {
+    text-shadow: 0 0 10px rgba(244, 63, 94, 0.5), 0 0 20px rgba(244, 63, 94, 0.3);
+  }
+  .text-glow-teal {
+    text-shadow: 0 0 10px rgba(45, 212, 191, 0.5), 0 0 20px rgba(45, 212, 191, 0.3);
+  }
+  .text-glow-plasma {
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  .text-glow-blue-electric {
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5), 0 0 20px rgba(0, 210, 255, 0.3);
   }
   .animate-grid-scan {
     animation: grid-scan-sweep 1.2s linear infinite;

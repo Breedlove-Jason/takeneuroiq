@@ -7,6 +7,7 @@ export const PUZZLE_TYPES = {
   LOGIC_GATE: "logic_gate",
   SIGNAL_PATH: "signal_path",
   MEMORY_CHAIN: "memory_chain",
+  SYMBOL_RECALL: "symbol_recall",
   ODD_ONE_MATRIX: "odd_one_matrix",
 };
 
@@ -78,6 +79,19 @@ export const PUZZLE_TYPE_METADATA = {
     color: "cyan",
     cognitiveSkills: ["Trace Memory", "Visual Retention", "Sequential Recall"],
     icon: "link",
+  },
+  [PUZZLE_TYPES.SYMBOL_RECALL]: {
+    label: "Symbol Recall",
+    shortLabel: "Glyph",
+    description:
+      "Rapid visual retention and glyph recognition with short-term recall precision.",
+    color: "fuchsia",
+    cognitiveSkills: [
+      "Visual Memory",
+      "Glyph Recognition",
+      "Short-Term Recall Precision",
+    ],
+    icon: "bolt",
   },
   [PUZZLE_TYPES.ODD_ONE_MATRIX]: {
     label: "Odd One Matrix",

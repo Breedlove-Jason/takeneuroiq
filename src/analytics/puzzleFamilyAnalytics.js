@@ -51,6 +51,12 @@ const PUZZLE_FAMILY_METADATA = {
     accent: "indigo",
     icon: "wave-square",
   },
+  symbol_recall: {
+    label: "Symbol Recall",
+    shortLabel: "Glyph",
+    accent: "fuchsia",
+    icon: "bolt",
+  },
   odd_one_matrix: {
     label: "Odd One Matrix",
     shortLabel: "Odd One",
@@ -68,6 +74,7 @@ const PUZZLE_FAMILY_DISPLAY_ORDER = [
   "logic_gate",
   "signal_path",
   "memory_chain",
+  "symbol_recall",
   "odd_one_matrix",
 ];
 
@@ -516,6 +523,50 @@ function buildMemoryChainSummary(sessions = []) {
   };
 }
 
+function buildSymbolRecallSummary(sessions = []) {
+  const base = buildBaseSummary("symbol_recall", sessions);
+
+  const symbolCounts = [];
+  const optionCounts = [];
+  const difficulties = [];
+  const trendReasonByState = {
+    Rising:
+      "Glyph retention is sharpening. Target discrimination is staying clean across recent runs.",
+    Steadying:
+      "Symbol imprint is holding. Keep reinforcing rapid visual retention so the recall lane stays stable.",
+    Rebuilding:
+      "Simplify the symbol sets and rebuild target recognition before pushing denser glyph sequences.",
+  };
+
+  sessions.forEach((session) => {
+    const metrics = normalizePuzzleMetrics(session);
+
+    if (metrics.symbolCount != null) {
+      symbolCounts.push(toNumber(metrics.symbolCount));
+    }
+
+    if (metrics.optionCount != null) {
+      optionCounts.push(toNumber(metrics.optionCount));
+    }
+
+    if (metrics.difficulty) {
+      difficulties.push(metrics.difficulty);
+    }
+  });
+
+  return {
+    ...base,
+    familyLabel: "Symbol Recall",
+    averageSymbolCount: average(symbolCounts, 1),
+    maxSymbolCount: symbolCounts.length ? Math.max(...symbolCounts) : 0,
+    averageOptionCount: average(optionCounts, 1),
+    mostCommonDifficulty: getMode(difficulties),
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Glyph retention is evolving. Keep refining rapid recall and symbol discrimination.",
+  };
+}
+
 function buildOddOneMatrixSummary(sessions = []) {
   const base = buildBaseSummary("odd_one_matrix", sessions);
 
@@ -569,6 +620,7 @@ const FAMILY_SUMMARY_BUILDERS = {
   logic_grid: buildLogicGridSummary,
   signal_path: buildSignalPathSummary,
   memory_chain: buildMemoryChainSummary,
+  symbol_recall: buildSymbolRecallSummary,
   odd_one_matrix: buildOddOneMatrixSummary,
 };
 
