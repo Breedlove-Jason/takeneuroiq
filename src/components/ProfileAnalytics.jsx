@@ -20,9 +20,9 @@ import {
   faMicrochip,
   faBrain,
   faBorderAll,
-  faLayerGroup,
-  faWaveSquare,
-  faShapes,
+  faRotateRight,
+  faLink,
+  faBullseye,
 } from "@fortawesome/pro-duotone-svg-icons";
 
 /**
@@ -515,7 +515,7 @@ function ProfileAnalytics({
                       }
                     : family.puzzleType === "odd_one_matrix"
                     ? {
-                        averageScore: "text-magenta-200",
+                        averageScore: "text-fuchsia-200",
                         bestScore: "text-amber-200",
                         bestAccuracy: "text-emerald-300",
                         averageNeuralPower: "text-cyan-200",
@@ -552,14 +552,14 @@ function ProfileAnalytics({
               return (
                 <div
                   key={family.puzzleType ?? family.familyLabel}
-                  className={`flex h-full min-h-90 flex-col gap-3 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyTone.card} ${badgeClasses.glow} ${familyVisual.accentRing}`}
+                  className={`group flex h-full min-h-90 flex-col gap-3 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyTone.card} ${badgeClasses.glow} ${familyVisual.accentRing}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <div className={familyVisual.iconWrap}>
                         <FontAwesomeIcon
                           icon={familyVisual.icon}
-                          className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] text-lg"
+                          className={`[--fa-secondary-opacity:1] transition-transform duration-300 group-hover:scale-110 ${familyVisual.iconClass || "text-lg"}`}
                         />
                       </div>
                       <div className="min-w-0">
@@ -814,12 +814,12 @@ function getFamilyCardTone(puzzleType) {
       trendCard: "border-indigo-500/20 bg-indigo-500/5",
     },
     odd_one_matrix: {
-      card: "border-magenta-400/30 bg-[linear-gradient(160deg,rgba(236,72,153,0.12)_0%,rgba(10,8,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(236,72,153,0.18)]",
-      label: "text-magenta-200",
-      sessions: "text-magenta-300/80",
-      avgBadge: "border-magenta-400/35 bg-magenta-500/10 text-magenta-200",
-      statCard: "border-magenta-500/20 bg-magenta-500/5",
-      trendCard: "border-magenta-500/20 bg-magenta-500/5",
+      card: "border-fuchsia-400/30 bg-[linear-gradient(160deg,rgba(217,70,239,0.12)_0%,rgba(10,8,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.18)]",
+      label: "text-fuchsia-200",
+      sessions: "text-fuchsia-300/80",
+      avgBadge: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
+      statCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
+      trendCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
     },
     default: {
       card: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
@@ -835,74 +835,76 @@ function getFamilyCardTone(puzzleType) {
 }
 
 function getPuzzleFamilyVisual(puzzleType) {
+  const baseWrapper = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border overflow-hidden transition-all duration-300";
+
   const visualMap = {
     pattern_rush: {
       icon: faStar,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200",
+      iconWrap: `${baseWrapper} border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
+      iconClass: "text-[0.85rem]",
       accentText: "text-cyan-200",
       accentRing: "ring-1 ring-cyan-500/30",
     },
     sequence_sprint: {
       icon: faDiagramProject,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200",
+      iconWrap: `${baseWrapper} border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.62)]`,
+      iconClass: "text-[0.85rem]",
       accentText: "text-fuchsia-200",
       accentRing: "ring-1 ring-fuchsia-500/30",
     },
     rule_shift: {
-      icon: faLayerGroup,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-gradient-to-br from-cyan-500/10 via-violet-500/10 to-amber-500/10 text-fuchsia-200 shadow-[0_0_20px_rgba(217,70,239,0.22)]",
+      icon: faRotateRight,
+      iconWrap: `${baseWrapper} border-amber-400/40 bg-amber-500/10 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.62)]`,
+      iconClass: "text-[0.8rem]",
       accentText: "text-cyan-200",
       accentRing: "ring-1 ring-amber-500/30",
     },
     grid_recall: {
       icon: faTableCells,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200",
+      iconWrap: `${baseWrapper} border-emerald-400/40 bg-emerald-500/10 text-emerald-200 shadow-[0_0_18px_rgba(16,185,129,0.62)]`,
+      iconClass: "text-base",
       accentText: "text-emerald-200",
       accentRing: "ring-1 ring-emerald-500/30",
     },
     logic_gate: {
       icon: faMicrochip,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200",
+      iconWrap: `${baseWrapper} border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
+      iconClass: "text-sm",
       accentText: "text-amber-200",
       accentRing: "ring-1 ring-amber-500/30",
     },
     logic_grid: {
       icon: faBorderAll,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-sky-400/40 bg-sky-500/10 text-sky-200",
+      iconWrap: `${baseWrapper} border-sky-400/40 bg-sky-500/10 text-sky-200 shadow-[0_0_18px_rgba(56,189,248,0.62)]`,
+      iconClass: "text-base",
       accentText: "text-sky-200",
       accentRing: "ring-1 ring-sky-500/30",
     },
     signal_path: {
       icon: faRoute,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/10 text-violet-200",
+      iconWrap: `${baseWrapper} border-violet-400/40 bg-violet-500/10 text-violet-200 shadow-[0_0_18px_rgba(139,92,246,0.62)]`,
+      iconClass: "text-base",
       accentText: "text-violet-200",
       accentRing: "ring-1 ring-violet-500/30",
     },
     memory_chain: {
-      icon: faWaveSquare,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/10 text-indigo-200",
+      icon: faLink,
+      iconWrap: `${baseWrapper} border-indigo-400/40 bg-indigo-500/10 text-indigo-200 shadow-[0_0_18px_rgba(129,140,248,0.62)]`,
+      iconClass: "text-base",
       accentText: "text-indigo-200",
       accentRing: "ring-1 ring-indigo-500/30",
     },
     odd_one_matrix: {
-      icon: faShapes,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-magenta-400/40 bg-magenta-500/10 text-magenta-200",
-      accentText: "text-magenta-200",
-      accentRing: "ring-1 ring-magenta-500/30",
+      icon: faBullseye,
+      iconWrap: `${baseWrapper} border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.62)]`,
+      iconClass: "text-base",
+      accentText: "text-fuchsia-200",
+      accentRing: "ring-1 ring-fuchsia-500/30",
     },
     fallback: {
       icon: faBrain,
-      iconWrap:
-        "flex h-10 w-10 items-center justify-center rounded-full border border-slate-600/40 bg-slate-900/60 text-slate-200",
+      iconWrap: `${baseWrapper} border-slate-600/40 bg-slate-900/60 text-slate-200`,
+      iconClass: "text-base",
       accentText: "text-slate-200",
       accentRing: "ring-1 ring-slate-600/30",
     },

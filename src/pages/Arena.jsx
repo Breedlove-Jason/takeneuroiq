@@ -14,6 +14,7 @@ import sequenceSprintPuzzles, {
 } from "../game/sequenceSprintPuzzles";
 import { getRandomRuleShiftPuzzle } from "../game/puzzleGenerators/ruleShiftGenerator";
 import { getRandomMemoryChainPuzzle } from "../game/puzzleGenerators/memoryChainGenerator";
+import { getRandomSymbolRecallPuzzle } from "../game/puzzleGenerators/symbolRecallGenerator";
 import {
   formatGridAsMatrix,
   getRandomGridRecallPuzzle,
@@ -188,6 +189,17 @@ const analysisProfileMap = {
     ],
     tone: "sequenced",
     accentColor: "#22d3ee",
+    animationStyle: "memory_resonance",
+  },
+  symbol_recall: {
+    title: "Symbol Recall Analysis Matrix",
+    analysisLines: [
+      "Glyph retention stable",
+      "Target discrimination sharpening",
+      "Visual working memory holding",
+    ],
+    tone: "imprinted",
+    accentColor: "#d946ef",
     animationStyle: "memory_resonance",
   },
   odd_one_matrix: {
@@ -750,6 +762,45 @@ const buildMemoryChainResultsCopy = ({
   };
 };
 
+const buildSymbolRecallResultsCopy = ({
+  accuracy = 0,
+  correctAnswers = 0,
+} = {}) => {
+  if (accuracy >= 90) {
+    return {
+      eyebrow: "Recall Complete",
+      title: "Symbol Recall Results",
+      summary:
+        "Excellent glyph retention. The target symbol stayed locked under load and discrimination stayed clean.",
+    };
+  }
+
+  if (accuracy >= 70) {
+    return {
+      eyebrow: "Recall Complete",
+      title: "Symbol Recall Results",
+      summary:
+        "Strong visual working memory. Symbol sets remained readable and the target stayed within reach.",
+    };
+  }
+
+  if (correctAnswers > 0) {
+    return {
+      eyebrow: "Recall Complete",
+      title: "Symbol Recall Results",
+      summary:
+        "Partial progress. Slow the encode phase and anchor the highlighted target before the choices appear.",
+    };
+  }
+
+  return {
+    eyebrow: "Recall Complete",
+    title: "Symbol Recall Results",
+    summary:
+      "Recall timed out. Re-scan the symbol lane, isolate the highlighted target, then commit from the tray.",
+  };
+};
+
 const buildOddOneMatrixResultsCopy = ({
   accuracy = 0,
   correctAnswers = 0,
@@ -892,6 +943,7 @@ const DEFAULT_PUZZLE_TYPE = PUZZLE_TYPES.SEQUENCE_SPRINT;
 const RULE_SHIFT_PUZZLE_TYPE = "rule_shift";
 const ODD_ONE_MATRIX_PUZZLE_TYPE = "odd_one_matrix";
 const MEMORY_CHAIN_PUZZLE_TYPE = "memory_chain";
+const SYMBOL_RECALL_PUZZLE_TYPE = "symbol_recall";
 const RULE_SHIFT_PUZZLE_META = {
   label: "Rule Shift",
   shortLabel: "Shift",
@@ -908,6 +960,14 @@ const MEMORY_CHAIN_PUZZLE_META = {
   cognitiveSkills: ["Ordered Recall", "Working Memory"],
   icon: "diagram-project",
 };
+const SYMBOL_RECALL_PUZZLE_META = {
+  label: "Symbol Recall",
+  shortLabel: "Recall",
+  description: "Encode a brief symbol set and pick the designated target from options.",
+  color: "fuchsia",
+  cognitiveSkills: ["Visual Working Memory", "Targeted Recall"],
+  icon: "brain",
+};
 const ODD_ONE_MATRIX_PUZZLE_META = {
   label: "Odd One Matrix",
   shortLabel: "Matrix",
@@ -921,6 +981,7 @@ const terminalAnalysisToneMap = {
   pattern_rush: ["text-cyan-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
   sequence_sprint: ["text-fuchsia-100/84", "text-fuchsia-100/76", "text-cyan-100/78"],
   memory_chain: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
+  symbol_recall: ["text-fuchsia-100/84", "text-cyan-100/76", "text-violet-200/78"],
   odd_one_matrix: ["text-amber-100/84", "text-cyan-100/76", "text-violet-200/78"],
   grid_recall: ["text-emerald-100/84", "text-cyan-100/76", "text-emerald-200/78"],
   logic_grid: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
@@ -933,6 +994,7 @@ const terminalSignalProfileLabels = {
   pattern_rush: "VISUAL SIGNAL",
   sequence_sprint: "MOMENTUM FLOW",
   memory_chain: "ORDERED TRACE",
+  symbol_recall: "GLYPH LOCK",
   odd_one_matrix: "ATTRIBUTE BREAK",
   grid_recall: "MEMORY TRACE",
   logic_grid: "MATRIX INFERENCE",
@@ -1060,6 +1122,7 @@ function Arena({ theme }) {
     Object.values(PUZZLE_TYPES).includes(routePuzzleType) ||
     routePuzzleType === RULE_SHIFT_PUZZLE_TYPE ||
     routePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE ||
+    routePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE ||
     routePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
       ? routePuzzleType
       : DEFAULT_PUZZLE_TYPE;
@@ -1089,6 +1152,9 @@ function Arena({ theme }) {
     }
     if (initialPuzzleType === MEMORY_CHAIN_PUZZLE_TYPE) {
       return getRandomMemoryChainPuzzle(initialTargetDifficulty);
+    }
+    if (initialPuzzleType === SYMBOL_RECALL_PUZZLE_TYPE) {
+      return getRandomSymbolRecallPuzzle(initialTargetDifficulty);
     }
     if (initialPuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE) {
       return getRandomOddOneMatrixPuzzle(initialTargetDifficulty);
@@ -1211,6 +1277,8 @@ function Arena({ theme }) {
       ? sequenceSprintPuzzle
       : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE
         ? currentPuzzle
+        : activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE
+          ? currentPuzzle
         : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
           ? currentPuzzle
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
@@ -1226,11 +1294,14 @@ function Arena({ theme }) {
             : currentPuzzle;
   const isRuleShiftPuzzle = activePuzzleType === RULE_SHIFT_PUZZLE_TYPE;
   const isMemoryChainPuzzle = activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE;
+  const isSymbolRecallPuzzle = activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE;
   const isOddOneMatrixPuzzle = activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE;
   const activePuzzleMeta = isRuleShiftPuzzle
     ? RULE_SHIFT_PUZZLE_META
     : isMemoryChainPuzzle
       ? MEMORY_CHAIN_PUZZLE_META
+      : isSymbolRecallPuzzle
+        ? SYMBOL_RECALL_PUZZLE_META
       : isOddOneMatrixPuzzle
         ? ODD_ONE_MATRIX_PUZZLE_META
     : getPuzzleTypeMetadata(activePuzzleType);
@@ -1239,6 +1310,8 @@ function Arena({ theme }) {
       ? "Sequence Sprint"
       : isMemoryChainPuzzle
         ? "Memory Chain"
+        : isSymbolRecallPuzzle
+          ? "Symbol Recall"
         : isOddOneMatrixPuzzle
           ? "Odd One Matrix"
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
@@ -1333,6 +1406,18 @@ function Arena({ theme }) {
       optionCount: Array.isArray(currentPuzzle?.options) ? currentPuzzle.options.length : 0,
     };
   }, [isMemoryChainPuzzle, currentPuzzle]);
+
+  const symbolRecallPuzzleMetrics = useMemo(() => {
+    if (!isSymbolRecallPuzzle) {
+      return {};
+    }
+
+    return {
+      difficulty: currentPuzzle?.difficulty || currentPuzzle?.difficultyBucket || "medium",
+      symbolCount: Array.isArray(currentPuzzle?.symbols) ? currentPuzzle.symbols.length : 0,
+      optionCount: Array.isArray(currentPuzzle?.options) ? currentPuzzle.options.length : 0,
+    };
+  }, [isSymbolRecallPuzzle, currentPuzzle]);
 
   const gridRecallPuzzleMetrics = useMemo(() => {
     if (activePuzzleType !== PUZZLE_TYPES.GRID_RECALL) {
@@ -1683,6 +1768,8 @@ function Arena({ theme }) {
         return getRandomSequenceSprintPuzzle(difficulty);
       case MEMORY_CHAIN_PUZZLE_TYPE:
         return getRandomMemoryChainPuzzle(difficulty);
+      case SYMBOL_RECALL_PUZZLE_TYPE:
+        return getRandomSymbolRecallPuzzle(difficulty);
       case PUZZLE_TYPES.GRID_RECALL:
         return getRandomGridRecallPuzzle(difficulty);
       case PUZZLE_TYPES.LOGIC_GRID:
@@ -1810,6 +1897,8 @@ function Arena({ theme }) {
           ? sequenceSprintPuzzleMetrics
           : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE
             ? memoryChainPuzzleMetrics
+            : activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE
+              ? symbolRecallPuzzleMetrics
             : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
               ? oddOneMatrixPuzzleMetrics
           : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
@@ -1852,6 +1941,8 @@ function Arena({ theme }) {
             ? sequenceSprintPuzzleMetrics
             : activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE
               ? memoryChainPuzzleMetrics
+              : activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE
+                ? symbolRecallPuzzleMetrics
               : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
                 ? oddOneMatrixPuzzleMetrics
             : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
@@ -1912,6 +2003,7 @@ function Arena({ theme }) {
     oddOneMatrixPuzzleMetrics,
     patternRushPuzzleMetrics,
     memoryChainPuzzleMetrics,
+    symbolRecallPuzzleMetrics,
     ruleShiftPuzzleMetrics,
     sequenceSprintSummary,
     isSequenceSprintSession,
@@ -2111,6 +2203,8 @@ function Arena({ theme }) {
       setSequenceSprintSelectedAnswer(null);
       setSequenceSprintPuzzle(nextPuzzle);
     } else if (activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE) {
+      setCurrentPuzzle(nextPuzzle);
+    } else if (activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE) {
       setCurrentPuzzle(nextPuzzle);
     } else if (activePuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       setGridRecallPuzzle(nextPuzzle);
@@ -3614,6 +3708,8 @@ function Arena({ theme }) {
       setSequenceSprintPuzzle(newPuzzle);
     } else if (nextPuzzleType === MEMORY_CHAIN_PUZZLE_TYPE) {
       setCurrentPuzzle(newPuzzle);
+    } else if (nextPuzzleType === SYMBOL_RECALL_PUZZLE_TYPE) {
+      setCurrentPuzzle(newPuzzle);
     } else if (nextPuzzleType === PUZZLE_TYPES.GRID_RECALL) {
       setGridRecallPuzzle(newPuzzle);
       setGridRecallPhase("memorize");
@@ -3784,6 +3880,11 @@ function Arena({ theme }) {
                   accuracy: answeredAccuracyValue,
                   correctAnswers,
                 })
+              : activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE
+                ? buildSymbolRecallResultsCopy({
+                    accuracy: answeredAccuracyValue,
+                    correctAnswers,
+                  })
               : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
                 ? buildOddOneMatrixResultsCopy({
                     accuracy: answeredAccuracyValue,
@@ -4606,6 +4707,142 @@ function Arena({ theme }) {
                                 <div>
                                   <span className="font-bold text-white">Chain Length:</span>{" "}
                                   <span className="text-amber-100">{memoryChainPuzzleMetrics.chainLength ?? 0}</span>
+                                </div>
+                              </DevDebugPanel>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE ? (
+                  <div className="relative w-full overflow-hidden rounded-3xl border border-fuchsia-500/35 bg-slate-900/80 p-6 shadow-[inset_0_0_40px_rgba(217,70,239,0.14),0_20px_40px_rgba(2,6,23,0.55)] backdrop-blur-md">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                          <p
+                            className={`text-[10px] font-bold uppercase tracking-[0.35em] ${isCyber ? "text-fuchsia-300 text-glow-pink" : "text-fuchsia-300"}`}
+                          >
+                            Symbol Recall Arena
+                          </p>
+                          <h3
+                            className={`text-2xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}
+                          >
+                            {currentPuzzle?.prompt || "Select the symbol you were asked to remember."}
+                          </h3>
+                          <p className="text-xs font-medium text-slate-300">
+                            Encode the lane, lock onto the highlighted target, then pick it from the tray.
+                          </p>
+                        </div>
+                        <span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-amber-200 shadow-[0_0_18px_rgba(251,191,36,0.25)]">
+                          Target lock
+                        </span>
+                      </div>
+
+                      <div className="mb-5 rounded-xl border border-violet-500/25 bg-violet-500/10 px-4 py-3 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-200">
+                          Recall focus
+                        </p>
+                        <p className="mt-1 text-sm text-slate-200">
+                          The <span className="font-semibold text-cyan-200">cyan ring</span> marks your designated
+                          target in the symbol lane below.
+                        </p>
+                      </div>
+
+                      <div className="mt-6 grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+                        <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_28px_rgba(34,211,238,0.12)] backdrop-blur-[14px]">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
+                            Symbol lane
+                          </p>
+                          <p className="text-xs font-medium text-slate-300">Visible set (memorize)</p>
+                          <div className="mt-4 flex flex-wrap justify-center gap-3 md:gap-4">
+                            {(Array.isArray(currentPuzzle?.symbols) ? currentPuzzle.symbols : []).map(
+                              (glyph, index) => {
+                                const isTarget = glyph === currentPuzzle?.targetSymbol;
+                                return (
+                                  <div
+                                    key={`sr-${index}-${glyph}`}
+                                    className={`flex min-w-[3.25rem] items-center justify-center rounded-xl px-4 py-3 shadow-[inset_0_0_20px_rgba(2,6,23,0.75)] ${
+                                      isTarget
+                                        ? "border-2 border-cyan-400/90 bg-cyan-500/15 ring-2 ring-cyan-400/50 ring-offset-2 ring-offset-slate-950"
+                                        : "border border-white/10 bg-slate-900/50"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`text-[clamp(1.75rem,4vw,2.5rem)] font-black leading-none ${
+                                        isTarget
+                                          ? "text-cyan-100 drop-shadow-[0_0_12px_rgba(34,211,238,0.55)]"
+                                          : "text-white/90"
+                                      }`}
+                                    >
+                                      {glyph}
+                                    </span>
+                                  </div>
+                                );
+                              },
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="xl:sticky xl:top-6">
+                          <div className="rounded-2xl border border-violet-500/15 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_26px_rgba(167,139,250,0.14)]">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-violet-300/90">
+                              Answer tray
+                            </p>
+                            <p className="text-xs font-medium text-slate-300">Tap the correct symbol</p>
+                            <div className="mt-4 flex flex-col items-center gap-3">
+                              {feedback && (
+                                <div className="flex justify-center">
+                                  <span
+                                    className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${getFeedbackBadgeClass(feedback, isCyber)}`}
+                                  >
+                                    {feedback}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex w-full flex-wrap justify-center gap-3 md:gap-4">
+                                {(Array.isArray(currentPuzzle?.options)
+                                  ? currentPuzzle.options
+                                  : [currentPuzzle?.answer]
+                                )
+                                  .filter((option) => option !== null && option !== undefined)
+                                  .map((option, optIdx) => (
+                                    <button
+                                      key={`sr-opt-${optIdx}-${option}`}
+                                      type="button"
+                                      onClick={() => handleAnswer(option)}
+                                      disabled={gameOver}
+                                      className="flex min-h-[3.25rem] min-w-[3.25rem] items-center justify-center rounded-xl border border-fuchsia-400/35 bg-slate-900/70 px-3 py-2 text-2xl font-black text-white shadow-[0_0_18px_rgba(217,70,239,0.18)] transition-all duration-300 hover:border-cyan-400/55 hover:bg-slate-900 hover:text-cyan-50 hover:shadow-[0_0_22px_rgba(34,211,238,0.22)] disabled:cursor-not-allowed disabled:opacity-70"
+                                    >
+                                      {option}
+                                    </button>
+                                  ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {SHOW_PUZZLE_DEBUG_META && (
+                            <div className="mt-4">
+                              <DevDebugPanel title="Symbol Recall Dev">
+                                {SHOW_ANSWERS && (
+                                  <div>
+                                    <span className="font-bold text-white">Answer:</span>{" "}
+                                    <span className="text-amber-100">{currentPuzzle?.answer ?? "—"}</span>
+                                  </div>
+                                )}
+                                <div>
+                                  <span className="font-bold text-white">Target:</span>{" "}
+                                  <span className="text-amber-100">{currentPuzzle?.targetSymbol ?? "—"}</span>
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white">ID:</span>{" "}
+                                  <span className="text-amber-100">{currentPuzzle?.id ?? "—"}</span>
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white">Symbols:</span>{" "}
+                                  <span className="text-amber-100">
+                                    {symbolRecallPuzzleMetrics.symbolCount ?? 0}
+                                  </span>
                                 </div>
                               </DevDebugPanel>
                             </div>

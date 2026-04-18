@@ -10,7 +10,8 @@ import {
   faTableCells,
   faLink,
   faRotateRight,
-  faGridRound,
+  faBullseye,
+  faShapes,
 } from '@fortawesome/pro-duotone-svg-icons';
 
 /**
@@ -261,6 +262,38 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-pink',
     },
     {
+      icon: faShapes,
+      puzzleType: 'symbol_recall',
+      title: 'Symbol Recall',
+      description:
+        'A target symbol is shown first, then you must remember it and identify the same symbol from the answer options.',
+      buttonText: 'Launch Symbol Recall',
+      skills: ['Visual Memory', 'Rapid Recall'],
+      hasPulse: true,
+      cardTone: {
+        cyber:
+          'border-fuchsia-400/45 bg-[linear-gradient(160deg,rgba(236,72,153,0.22)_0%,rgba(34,12,58,0.94)_46%,rgba(8,10,24,0.98)_100%)] shadow-[0_0_34px_rgba(217,70,239,0.26)] hover:border-cyan-300/80 hover:shadow-[0_0_54px_rgba(34,211,238,0.26)]',
+        light:
+          'border-fuchsia-300 bg-[linear-gradient(155deg,rgba(253,244,255,0.98)_0%,rgba(255,255,255,1)_56%,rgba(238,242,255,0.96)_100%)] shadow-[0_14px_32px_rgba(217,70,239,0.16)] hover:border-cyan-400 hover:shadow-[0_18px_38px_rgba(34,211,238,0.18)]',
+      },
+      iconTone: {
+        cyber:
+          'text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.65)]',
+        light: 'text-fuchsia-600',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-cyan-400 via-fuchsia-500 to-violet-500 text-black shadow-[0_0_24px_rgba(34,211,238,0.42)] hover:from-violet-500 hover:via-fuchsia-500 hover:to-amber-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.48)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-cyan-100 via-fuchsia-50 to-violet-100 text-black border border-slate-900/10 hover:from-cyan-200 hover:via-fuchsia-100 hover:to-violet-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+      },
+      tagTone: {
+        cyber: 'border-cyan-300/30 bg-fuchsia-400/10 text-cyan-100',
+        light: 'border-cyan-200 bg-cyan-50 text-cyan-800',
+      },
+      glowTone: 'group-hover:text-glow-blue',
+    },
+    {
       icon: faMicrochip,
       puzzleType: 'logic_gate',
       title: 'Logic Gate',
@@ -293,7 +326,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-orange',
     },
     {
-      icon: faGridRound,
+      icon: faBullseye,
       puzzleType: 'odd_one_matrix',
       title: 'Odd One Matrix',
       description:

@@ -77,7 +77,7 @@ export const PUZZLE_TYPE_METADATA = {
     description: "Trace the sequence and identify the hidden link.",
     color: "cyan",
     cognitiveSkills: ["Trace Memory", "Visual Retention", "Sequential Recall"],
-    icon: "wave-square",
+    icon: "link",
   },
   [PUZZLE_TYPES.ODD_ONE_MATRIX]: {
     label: "Odd One Matrix",
@@ -85,7 +85,7 @@ export const PUZZLE_TYPE_METADATA = {
     description: "Identify the cell that breaks the pattern.",
     color: "cyan",
     cognitiveSkills: ["Visual Discrimination", "Pattern Matching"],
-    icon: "shapes",
+    icon: "bullseye",
   },
 };
 
