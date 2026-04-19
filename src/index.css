@@ -13,6 +13,25 @@
   --color-cyber-bg: #030712;
   --color-cyber-bg-accent: #0f172a;
 
+  /* Cyberpunk-Pastel Accents */
+  --color-lilac-glow: #C9B6FF;
+  --color-lilac-border: #A88BFF;
+  --color-lilac-icon: #E9DDFF;
+  --color-lilac-accent: #8F6BFF;
+  --color-lilac-tint: rgba(169, 139, 255, 0.12);
+
+  --color-rose-glow: #FFB7D5;
+  --color-rose-border: #FF8FC0;
+  --color-rose-icon: #FFE0EE;
+  --color-rose-accent: #E96BA7;
+  --color-rose-tint: rgba(255, 143, 192, 0.12);
+
+  --color-aqua-glow: #A8F0EA;
+  --color-aqua-border: #68D9CF;
+  --color-aqua-icon: #DFFFFB;
+  --color-aqua-accent: #37C3B7;
+  --color-aqua-tint: rgba(104, 217, 207, 0.12);
+
   --shadow-neon-blue: 0 0 10px rgba(14, 165, 233, 0.5), 0 0 20px rgba(14, 165, 233, 0.3);
   --shadow-neon-pink: 0 0 10px rgba(217, 70, 239, 0.5), 0 0 20px rgba(217, 70, 239, 0.3);
   --shadow-neon-purple: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
@@ -117,6 +136,15 @@
   }
   .text-glow-emerald {
     text-shadow: 0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+  .text-glow-lilac {
+    text-shadow: 0 0 10px #C9B6FF, 0 0 20px rgba(201, 182, 255, 0.4);
+  }
+  .text-glow-rose {
+    text-shadow: 0 0 10px #FFB7D5, 0 0 20px rgba(255, 183, 213, 0.4);
+  }
+  .text-glow-aqua {
+    text-shadow: 0 0 10px #A8F0EA, 0 0 20px rgba(168, 240, 234, 0.4);
   }
   .text-glow-orange {
     text-shadow: 0 0 10px rgba(251, 146, 60, 0.5), 0 0 20px rgba(251, 146, 60, 0.3);

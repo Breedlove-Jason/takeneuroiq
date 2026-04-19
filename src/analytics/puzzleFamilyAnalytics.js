@@ -66,12 +66,12 @@ const PUZZLE_FAMILY_METADATA = {
 };
 
 const PUZZLE_FAMILY_DISPLAY_ORDER = [
-  "pattern_rush",
+  "logic_gate",
   "sequence_sprint",
   "rule_shift",
   "grid_recall",
   "logic_grid",
-  "logic_gate",
+  "pattern_rush",
   "signal_path",
   "memory_chain",
   "symbol_recall",

@@ -198,65 +198,65 @@ const RECENT_SESSION_FAMILY_VISUALS = {
   sequence_sprint: {
     icon: faDiagramProject,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-200',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-fuchsia-400/45 bg-fuchsia-500/12 text-fuchsia-200 shadow-[0_0_20px_rgba(217,70,239,0.28)]',
     labelClass: 'text-fuchsia-200',
-    badgeClass: 'text-fuchsia-300/70',
+    badgeClass: 'text-pink-300/75',
   },
   rule_shift: {
     icon: faLayerGroup,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-gradient-to-br from-cyan-500/10 via-violet-500/10 to-amber-500/10 text-fuchsia-200 shadow-[0_0_20px_rgba(217,70,239,0.22)]',
-    labelClass: 'text-cyan-100',
-    badgeClass: 'text-violet-300/75',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-amber-400/45 bg-amber-500/12 text-amber-200 shadow-[0_0_20px_rgba(245,158,11,0.28)]',
+    labelClass: 'text-amber-100',
+    badgeClass: 'text-orange-300/75',
   },
   grid_recall: {
     icon: faTableCells,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
-    labelClass: 'text-emerald-200',
-    badgeClass: 'text-emerald-300/70',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-aqua-border)]/45 bg-gradient-to-br from-[var(--color-aqua-accent)]/12 to-[var(--color-aqua-tint)] text-[var(--color-aqua-icon)] shadow-[0_0_20px_rgba(104,217,207,0.26)]',
+    labelClass: 'text-[var(--color-aqua-icon)]',
+    badgeClass: 'text-[var(--color-aqua-accent)]',
   },
   logic_grid: {
     icon: faBorderAll,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/40 bg-gradient-to-br from-violet-500/15 via-cyan-500/10 to-amber-500/10 text-cyan-200 shadow-[0_0_20px_rgba(168,85,247,0.22)]',
-    labelClass: 'text-violet-100',
-    badgeClass: 'text-cyan-300/75',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-sky-400/45 bg-gradient-to-br from-sky-500/14 via-blue-500/12 to-indigo-500/10 text-sky-200 shadow-[0_0_20px_rgba(56,189,248,0.28)]',
+    labelClass: 'text-sky-100',
+    badgeClass: 'text-blue-300/75',
   },
   logic_gate: {
     icon: faMicrochip,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200',
-    labelClass: 'text-amber-200',
-    badgeClass: 'text-amber-300/70',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_20px_rgba(168,139,255,0.26)]',
+    labelClass: 'text-[var(--color-lilac-icon)]',
+    badgeClass: 'text-[var(--color-lilac-accent)]',
   },
   signal_path: {
     icon: faRoute,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/10 text-violet-200',
-    labelClass: 'text-violet-200',
-    badgeClass: 'text-violet-300/70',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-500/45 bg-gradient-to-br from-cyan-600/14 via-blue-600/12 to-indigo-600/10 text-cyan-200 shadow-[0_0_22px_rgba(8,145,178,0.22)]',
+    labelClass: 'text-cyan-200',
+    badgeClass: 'text-blue-300/70',
   },
   memory_chain: {
     icon: faWaveSquare,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/10 text-indigo-200',
-    labelClass: 'text-indigo-200',
-    badgeClass: 'text-indigo-300/70',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_20px_rgba(168,139,255,0.28)]',
+    labelClass: 'text-[var(--color-lilac-icon)]',
+    badgeClass: 'text-[var(--color-lilac-accent)]',
   },
   symbol_recall: {
     icon: faBolt,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/10 to-cyan-500/10 text-cyan-100 shadow-[0_0_20px_rgba(217,70,239,0.22)]',
-    labelClass: 'text-cyan-100',
-    badgeClass: 'text-violet-300/75',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-rose-border)]/45 bg-gradient-to-br from-[var(--color-rose-accent)]/14 via-[var(--color-rose-icon)]/12 to-[var(--color-rose-tint)] text-[var(--color-rose-icon)] shadow-[0_0_22px_rgba(255,143,192,0.28)]',
+    labelClass: 'text-[var(--color-rose-icon)]',
+    badgeClass: 'text-[var(--color-rose-accent)]',
   },
   odd_one_matrix: {
     icon: faShapes,
     iconWrap:
-      'flex h-9 w-9 items-center justify-center rounded-full border border-magenta-400/40 bg-magenta-500/10 text-magenta-200',
-    labelClass: 'text-magenta-200',
-    badgeClass: 'text-magenta-300/70',
+      'flex h-9 w-9 items-center justify-center rounded-full border border-rose-400/45 bg-gradient-to-br from-rose-500/12 via-fuchsia-500/10 to-pink-500/8 text-rose-200 shadow-[0_0_20px_rgba(244,63,94,0.24)]',
+    labelClass: 'text-rose-200',
+    badgeClass: 'text-fuchsia-300/70',
   },
   default: {
     icon: faBrain,

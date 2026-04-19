@@ -980,14 +980,14 @@ const ODD_ONE_MATRIX_PUZZLE_META = {
 const terminalAnalysisToneMap = {
   pattern_rush: ["text-cyan-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
   sequence_sprint: ["text-fuchsia-100/84", "text-fuchsia-100/76", "text-cyan-100/78"],
-  memory_chain: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
-  symbol_recall: ["text-fuchsia-100/84", "text-cyan-100/76", "text-violet-200/78"],
+  memory_chain: ["text-[var(--color-lilac-glow)]/84", "text-violet-100/76", "text-fuchsia-200/78"],
+  symbol_recall: ["text-[var(--color-rose-glow)]/84", "text-cyan-100/76", "text-violet-200/78"],
   odd_one_matrix: ["text-amber-100/84", "text-cyan-100/76", "text-violet-200/78"],
-  grid_recall: ["text-emerald-100/84", "text-cyan-100/76", "text-emerald-200/78"],
+  grid_recall: ["text-[var(--color-aqua-glow)]/84", "text-cyan-100/76", "text-emerald-200/78"],
   logic_grid: ["text-cyan-100/84", "text-violet-100/76", "text-fuchsia-200/78"],
   rule_shift: ["text-cyan-100/84", "text-violet-100/76", "text-amber-200/78"],
-  logic_gate: ["text-amber-100/84", "text-cyan-100/76", "text-fuchsia-200/78"],
-  signal_path: ["text-violet-100/84", "text-cyan-100/76", "text-violet-200/78"],
+  logic_gate: ["text-[var(--color-lilac-glow)]/84", "text-cyan-100/76", "text-[var(--color-lilac-border)]/78"],
+  signal_path: ["text-cyan-100/84", "text-blue-100/76", "text-indigo-200/78"],
 };
 
 const terminalSignalProfileLabels = {
@@ -3048,20 +3048,20 @@ function Arena({ theme }) {
     output: {
       shell: "border-cyan-500/20 bg-slate-950/60",
       label: "text-cyan-300",
-      wire: "from-cyan-300/70 via-violet-300/60 to-cyan-300/70",
+      wire: "from-cyan-300/70 via-[var(--color-lilac-accent)]/60 to-cyan-300/70",
       answerGlow: "group-hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]",
     },
     missing_gate: {
-      shell: "border-violet-500/25 bg-slate-950/65",
-      label: "text-violet-300",
-      wire: "from-violet-300/70 via-amber-300/60 to-violet-300/70",
-      answerGlow: "group-hover:shadow-[0_0_32px_rgba(167,139,250,0.24)]",
+      shell: "border-[var(--color-lilac-border)]/25 bg-slate-950/65",
+      label: "text-[var(--color-lilac-icon)]",
+      wire: "from-[var(--color-lilac-border)]/70 via-cyan-300/60 to-[var(--color-lilac-border)]/70",
+      answerGlow: "group-hover:shadow-[0_0_32px_rgba(168,139,255,0.24)]",
     },
     missing_input: {
-      shell: "border-amber-500/25 bg-slate-950/65",
-      label: "text-amber-300",
-      wire: "from-amber-300/70 via-cyan-300/50 to-amber-300/70",
-      answerGlow: "group-hover:shadow-[0_0_28px_rgba(251,191,36,0.2)]",
+      shell: "border-[var(--color-lilac-border)]/25 bg-slate-950/65",
+      label: "text-[var(--color-lilac-accent)]",
+      wire: "from-[var(--color-lilac-accent)]/70 via-cyan-300/50 to-[var(--color-lilac-accent)]/70",
+      answerGlow: "group-hover:shadow-[0_0_28px_rgba(168,139,255,0.2)]",
     },
   };
   const getLogicGateVariantTone = (variant) =>
@@ -3079,12 +3079,12 @@ function Arena({ theme }) {
     };
 
     return (
-      <div className={`rounded-2xl border p-5 shadow-[inset_0_0_20px_rgba(245,158,11,0.1)] backdrop-blur-md ${variantTone.shell}`}>
-        <div className="flex items-center justify-between border-b border-amber-500/10 pb-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 text-glow-amber">
+      <div className={`rounded-2xl border p-5 shadow-[inset_0_0_20px_rgba(168,139,255,0.1)] backdrop-blur-md ${variantTone.shell}`}>
+        <div className="flex items-center justify-between border-b border-[var(--color-lilac-border)]/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-lilac-accent)] text-glow-lilac">
             Signal Inputs
           </p>
-          <span className="text-[10px] font-medium text-amber-500/40 uppercase tracking-widest">
+          <span className="text-[10px] font-medium text-[var(--color-lilac-border)]/40 uppercase tracking-widest">
             Binary feed
           </span>
         </div>
@@ -3093,7 +3093,7 @@ function Arena({ theme }) {
             const isMissing = value === "?" || value === null || value === undefined;
             const displayValue = isMissing ? "?" : String(value);
             const baseClass = isMissing
-              ? "border-amber-400/45 border-dashed bg-linear-to-br from-amber-400/12 via-slate-900/80 to-amber-500/5 shadow-[0_0_14px_rgba(245,158,11,0.26)]"
+              ? "border-[var(--color-lilac-border)]/45 border-dashed bg-linear-to-br from-[var(--color-lilac-border)]/12 via-slate-900/80 to-[var(--color-lilac-accent)]/5 shadow-[0_0_14px_rgba(168,139,255,0.26)]"
               : "border-white/10 bg-slate-900/45 shadow-[inset_0_0_22px_rgba(15,23,42,0.45)] hover:border-emerald-400/35 hover:bg-slate-900/70";
             return (
               <div
@@ -3108,21 +3108,21 @@ function Arena({ theme }) {
                 )}
                 {isMissing && (
                   <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl">
-                    <div className="logic-scanline absolute inset-y-0 w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-amber-300/25 to-transparent" />
+                    <div className="logic-scanline absolute inset-y-0 w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-[var(--color-lilac-icon)]/25 to-transparent" />
                   </div>
                 )}
-                <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-amber-400/20 to-transparent" />
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500/60 group-hover:text-amber-400/80">
+                <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-[var(--color-lilac-border)]/20 to-transparent" />
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-lilac-border)]/60 group-hover:text-[var(--color-lilac-accent)]">
                   Input {key}
                 </span>
                 <span
-                  className={`mt-2 text-4xl font-black ${isMissing ? "text-amber-200 text-glow-amber logic-core-flicker" : "text-white text-glow-blue"}`}
+                  className={`mt-2 text-4xl font-black ${isMissing ? "text-[var(--color-lilac-icon)] text-glow-lilac logic-core-flicker" : "text-white text-glow-blue"}`}
                 >
                   {displayValue}
                 </span>
                 <div className="mt-3 flex gap-1">
                   <div
-                    className={`h-1 w-3 rounded-full ${isMissing ? "bg-amber-400 logic-core-flicker shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "bg-emerald-300 logic-dot-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]"}`}
+                    className={`h-1 w-3 rounded-full ${isMissing ? "bg-[var(--color-lilac-accent)] logic-core-flicker shadow-[0_0_8px_rgba(168,139,255,0.6)]" : "bg-emerald-300 logic-dot-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]"}`}
                   />
                   <div className="h-1 w-3 rounded-full bg-slate-800" />
                 </div>
@@ -3146,12 +3146,12 @@ function Arena({ theme }) {
     const rightInputLabel = inputLabels[inputLabels.length - 1] ?? "B";
 
     return (
-      <div className="rounded-2xl border border-violet-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(139,92,246,0.1)] backdrop-blur-md">
-        <div className="flex items-center justify-between border-b border-violet-500/10 pb-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400 text-glow-purple">
+      <div className="rounded-2xl border border-[var(--color-lilac-border)]/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(168,139,255,0.1)] backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-[var(--color-lilac-border)]/10 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-lilac-accent)] text-glow-lilac">
             Gate Core
           </p>
-          <span className="text-[10px] font-medium text-violet-500/40 uppercase tracking-widest">
+          <span className="text-[10px] font-medium text-[var(--color-lilac-border)]/40 uppercase tracking-widest">
             Resolve the output
           </span>
         </div>
@@ -3160,38 +3160,38 @@ function Arena({ theme }) {
             {/* Connector Lines */}
             <div className="absolute inset-x-10 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-white/10" />
             <div className={`logic-signal-flow absolute inset-x-10 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-linear-to-r ${variantTone.wire}`} />
-            <div className="logic-dot-pulse absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-300/90 shadow-[0_0_10px_rgba(167,139,250,0.9)]" />
+            <div className="logic-dot-pulse absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-lilac-icon)] shadow-[0_0_10px_rgba(201,182,255,0.9)]" />
             
-            <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)] ${variant === "missing_input" ? "logic-core-flicker" : ""}`}>
-              <span className="font-mono text-xl font-black text-amber-300">{leftInputLabel}</span>
+            <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--color-lilac-border)]/40 bg-slate-900 shadow-[0_0_15px_rgba(168,139,255,0.25)] ${variant === "missing_input" ? "logic-core-flicker" : ""}`}>
+              <span className="font-mono text-xl font-black text-[var(--color-lilac-icon)]">{leftInputLabel}</span>
             </div>
 
             <div className="relative z-10 flex flex-col items-center">
-               <div className={`relative overflow-hidden flex min-h-24 min-w-37.5 max-w-70 items-center justify-center rounded-2xl border-2 px-6 sm:px-7 py-4 shadow-[0_0_30px_rgba(167,139,250,0.3),inset_0_0_15px_rgba(167,139,250,0.2)] ${variant === "missing_gate" ? "border-amber-400/65 bg-linear-to-br from-slate-950 via-amber-950/20 to-slate-950" : "border-violet-400/60 bg-slate-950"}`}>
+               <div className={`relative overflow-hidden flex min-h-24 min-w-37.5 max-w-70 items-center justify-center rounded-2xl border-2 px-6 sm:px-7 py-4 shadow-[0_0_30px_rgba(168,139,255,0.3),inset_0_0_15px_rgba(168,139,255,0.2)] ${variant === "missing_gate" ? "border-[var(--color-lilac-border)]/65 bg-linear-to-br from-slate-950 via-[var(--color-lilac-accent)]/20 to-slate-950" : "border-[var(--color-lilac-border)]/60 bg-slate-950"}`}>
                   {variant === "missing_gate" && (
                     <>
-                      <div className="logic-scanline absolute inset-y-0 w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-amber-300/30 to-transparent" />
-                      <div className="logic-core-flicker absolute inset-0 bg-amber-400/5" />
+                      <div className="logic-scanline absolute inset-y-0 w-1/3 -skew-x-12 bg-linear-to-r from-transparent via-[var(--color-lilac-icon)]/30 to-transparent" />
+                      <div className="logic-core-flicker absolute inset-0 bg-[var(--color-lilac-border)]/5" />
                     </>
                   )}
-                  <span className={`font-black uppercase tracking-[0.2em] text-center text-white text-glow-purple wrap-break-word leading-tight ${displaySizeClass}`}>
+                  <span className={`font-black uppercase tracking-[0.2em] text-center text-white text-glow-lilac wrap-break-word leading-tight ${displaySizeClass}`}>
                     {coreDisplay}
                   </span>
                </div>
-               <div className={`mt-3 rounded-full border px-3 py-0.5 ${variant === "missing_gate" ? "border-amber-400/45 bg-amber-500/15" : "border-violet-500/30 bg-violet-500/10"}`}>
-                 <span className={`text-[8px] font-bold uppercase tracking-[0.25em] ${variant === "missing_gate" ? "text-amber-200 logic-core-flicker" : "text-violet-300"}`}>
+               <div className={`mt-3 rounded-full border px-3 py-0.5 ${variant === "missing_gate" ? "border-[var(--color-lilac-border)]/45 bg-[var(--color-lilac-accent)]/15" : "border-[var(--color-lilac-border)]/30 bg-[var(--color-lilac-accent)]/10"}`}>
+                 <span className={`text-[8px] font-bold uppercase tracking-[0.25em] ${variant === "missing_gate" ? "text-[var(--color-lilac-icon)] logic-core-flicker" : "text-[var(--color-lilac-icon)]"}`}>
                    {variant === "missing_gate" ? "Unknown Logic" : "Active Logic"}
                  </span>
                </div>
                {variant !== "missing_gate" && expression && expression !== gateLabel && (
-                 <p className="mt-1 text-[8px] uppercase tracking-[0.3em] text-amber-200">
+                 <p className="mt-1 text-[8px] uppercase tracking-[0.3em] text-[var(--color-lilac-icon)]">
                    {gateLabel}
                  </p>
                )}
             </div>
 
-            <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-amber-500/40 bg-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.25)] ${variant === "missing_input" ? "logic-core-flicker" : ""}`}>
-              <span className="font-mono text-xl font-black text-amber-300">{rightInputLabel}</span>
+            <div className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-lg border border-[var(--color-lilac-border)]/40 bg-slate-900 shadow-[0_0_15px_rgba(168,139,255,0.25)] ${variant === "missing_input" ? "logic-core-flicker" : ""}`}>
+              <span className="font-mono text-xl font-black text-[var(--color-lilac-icon)]">{rightInputLabel}</span>
             </div>
           </div>
         </div>
@@ -3213,15 +3213,15 @@ function Arena({ theme }) {
         : fallbackOptions;
     const variantHeaderClass =
       variant === "missing_gate"
-        ? "text-violet-400 text-glow-purple"
+        ? "text-[var(--color-lilac-glow)] text-glow-lilac"
         : variant === "missing_input"
-          ? "text-amber-400 text-glow-amber"
+          ? "text-[var(--color-lilac-accent)] text-glow-lilac"
           : "text-cyan-400 text-glow-blue";
     const variantBorderClass =
       variant === "missing_gate"
-        ? "border-violet-500/10"
+        ? "border-[var(--color-lilac-border)]/10"
         : variant === "missing_input"
-          ? "border-amber-500/10"
+          ? "border-[var(--color-lilac-border)]/10"
           : "border-cyan-500/10";
     return (
       <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md">
