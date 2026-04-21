@@ -450,133 +450,70 @@ function ProfileAnalytics({
             </p>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {puzzleFamilyCards.map((family) => {
+            {puzzleFamilyCards.map((family, index) => {
+              // Row-based color assignment logic:
+              // Mobile: 1 column -> row = index
+              // Tablet (md): 2 columns -> row = Math.floor(index / 2)
+              // Desktop (lg): 3 columns -> row = Math.floor(index / 3)
+              // We'll use a fixed row-to-palette mapping based on the 3-column layout as it's the most common "full" view.
+              const rowPalettes = [
+                "pattern_rush",      // Cyan
+                "sequence_sprint",   // Fuchsia
+                "rule_shift",        // Amber
+                "grid_recall",       // Aqua
+                "logic_gate",        // Orange
+                "logic_grid",        // Sky
+                "signal_path",       // Cyan/Blue
+                "memory_chain",      // Lilac
+              ];
+              const rowIndex = Math.floor(index / 3);
+              const rowPalette = rowPalettes[rowIndex % rowPalettes.length];
+
+              const familyConfig = getFamilyCardTone(family.puzzleType, rowPalette);
               const badgeClasses = getTrendBadgeClasses(family.trendState);
-              const familyVisual = getPuzzleFamilyVisual(family.puzzleType);
-              const familyTone = getFamilyCardTone(family.puzzleType);
               const accuracyBadge = Number.isFinite(family.averageAccuracy)
                 ? `${Math.round(family.averageAccuracy)}%`
                 : "0%";
-              const valueToneMap =
-                family.puzzleType === "sequence_sprint"
-                  ? {
-                      averageScore: "text-fuchsia-200",
-                      bestScore: "text-pink-200",
-                      bestAccuracy: "text-fuchsia-300",
-                      averageNeuralPower: "text-pink-200",
-                    }
-                  : family.puzzleType === "rule_shift"
-                    ? {
-                        averageScore: "text-amber-200",
-                        bestScore: "text-orange-200",
-                        bestAccuracy: "text-amber-300",
-                        averageNeuralPower: "text-yellow-200",
-                      }
-                  : family.puzzleType === "logic_gate"
-                    ? {
-                        averageScore: "text-yellow-200",
-                        bestScore: "text-amber-200",
-                        bestAccuracy: "text-orange-300",
-                        averageNeuralPower: "text-amber-200",
-                      }
-                    : family.puzzleType === "pattern_rush"
-                    ? {
-                        averageScore: "text-cyan-200",
-                        bestScore: "text-sky-200",
-                        bestAccuracy: "text-cyan-300",
-                        averageNeuralPower: "text-sky-200",
-                      }
-                    : family.puzzleType === "grid_recall"
-                    ? {
-                        averageScore: "text-teal-200",
-                        bestScore: "text-cyan-200",
-                        bestAccuracy: "text-teal-300",
-                        averageNeuralPower: "text-cyan-200",
-                      }
-                    : family.puzzleType === "signal_path"
-                    ? {
-                        averageScore: "text-teal-200",
-                        bestScore: "text-violet-200",
-                        bestAccuracy: "text-fuchsia-300",
-                        averageNeuralPower: "text-violet-200",
-                      }
-                    : family.puzzleType === "logic_grid"
-                    ? {
-                        averageScore: "text-sky-200",
-                        bestScore: "text-blue-200",
-                        bestAccuracy: "text-indigo-300",
-                        averageNeuralPower: "text-blue-200",
-                      }
-                    : family.puzzleType === "memory_chain"
-                    ? {
-                        averageScore: "text-indigo-200",
-                        bestScore: "text-violet-200",
-                        bestAccuracy: "text-violet-300",
-                        averageNeuralPower: "text-fuchsia-200",
-                      }
-                        : family.puzzleType === "symbol_recall"
-                        ? {
-                            averageScore: "text-violet-200",
-                            bestScore: "text-fuchsia-200",
-                            bestAccuracy: "text-pink-300",
-                            averageNeuralPower: "text-fuchsia-200",
-                          }
-                    : family.puzzleType === "odd_one_matrix"
-                    ? {
-                        averageScore: "text-rose-200",
-                        bestScore: "text-fuchsia-200",
-                        bestAccuracy: "text-rose-300",
-                        averageNeuralPower: "text-pink-200",
-                      }
-                    : {
-                        averageScore: "text-cyan-200",
-                        bestScore: "text-violet-200",
-                        bestAccuracy: "text-emerald-300",
-                        averageNeuralPower: "text-fuchsia-200",
-                      };
+
               const statRows = [
                 {
                   label: "Avg Score",
                   value: family.averageScore ?? 0,
-                  valueClass: valueToneMap.averageScore,
                 },
                 {
                   label: "Best Score",
                   value: family.bestScore ?? 0,
-                  valueClass: valueToneMap.bestScore,
                 },
                 {
                   label: "Best Accuracy",
                   value: `${family.bestAccuracy ?? 0}%`,
-                  valueClass: valueToneMap.bestAccuracy,
                 },
                 {
                   label: "Avg Neural Power",
                   value: `${family.averageNeuralPower ?? 0} NP`,
-                  valueClass: valueToneMap.averageNeuralPower,
                 },
               ];
 
               return (
                 <div
                   key={family.puzzleType ?? family.familyLabel}
-                  className={`group flex h-full min-h-90 flex-col gap-3 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyTone.card} ${badgeClasses.glow} ${familyVisual.accentRing}`}
+                  className={`group flex h-full min-h-90 flex-col gap-3 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyConfig.card} ${badgeClasses.glow} ${familyConfig.accentRing}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className={familyVisual.iconWrap}>
+                      <div className={familyConfig.iconWrap}>
                         <FontAwesomeIcon
-                          icon={familyVisual.icon}
-                          className={`[--fa-secondary-opacity:1] transition-transform duration-300 group-hover:scale-110 ${familyVisual.iconClass || "text-lg"}`}
+                          icon={familyConfig.icon}
+                          className={`[--fa-secondary-opacity:1] transition-transform duration-300 group-hover:scale-110 ${familyConfig.iconClass || "text-lg"}`}
                         />
                       </div>
                       <div className="min-w-0">
                         <p
-                          className={`text-sm font-semibold uppercase tracking-[0.35em] leading-[1.4] ${familyVisual.accentText}`}
+                          className={`text-sm font-semibold uppercase tracking-[0.35em] leading-[1.4] ${familyConfig.title}`}
                         >
                           {family.familyLabel}
                         </p>
-                        <p className={`text-[11px] ${familyTone.sessions}`}>
+                        <p className={`text-[11px] ${familyConfig.meta}`}>
                           {family.sessionsPlayed ?? 0} sessions played
                         </p>
                       </div>
@@ -588,7 +525,7 @@ function ProfileAnalytics({
                         {family.trendState || "Calibrating"}
                       </span>
                       <span
-                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${familyTone.avgBadge}`}
+                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${avgAccuracyBadgeClasses}`}
                       >
                         Avg {accuracyBadge}
                       </span>
@@ -599,13 +536,13 @@ function ProfileAnalytics({
                     {statRows.map((stat) => (
                       <div
                         key={`${family.familyLabel}-${stat.label}`}
-                        className={`flex flex-col gap-1 rounded-xl border p-3 ${familyTone.statCard}`}
+                        className={`flex flex-col gap-1 rounded-xl border p-3 ${familyConfig.statTile}`}
                       >
-                        <span className="text-[9px] font-semibold uppercase tracking-[0.3em] text-slate-400">
+                        <span className={`text-[9px] font-semibold uppercase tracking-[0.3em] opacity-80 ${familyConfig.statLabel}`}>
                           {stat.label}
                         </span>
                         <span
-                          className={`text-lg font-semibold ${stat.valueClass}`}
+                          className={`text-lg font-semibold ${familyConfig.statValue}`}
                         >
                           {stat.value}
                         </span>
@@ -614,12 +551,12 @@ function ProfileAnalytics({
                   </div>
 
                   <div
-                    className={`mt-auto rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 ${familyTone.trendCard} ${familyVisual.accentRing}`}
+                    className={`mt-auto rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] ${familyConfig.trendPanel}`}
                   >
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400">
+                    <p className={`text-[10px] font-semibold uppercase tracking-[0.35em] opacity-80 ${familyConfig.trendLabel}`}>
                       Trend Read
                     </p>
-                    <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-200">
+                    <p className={`mt-1 text-sm font-semibold leading-relaxed ${familyConfig.trendText}`}>
                       {family.trendReason || "Trend data is still calibrating."}
                     </p>
                   </div>
@@ -727,213 +664,260 @@ function getTrendBadgeClasses(trendState) {
   const trendBadgeToneMap = {
     Rising: {
       badge:
-        "border-emerald-400/60 bg-emerald-500/10 text-emerald-200 shadow-[0_0_25px_rgba(16,185,129,0.35)]",
-      glow: "shadow-[0_0_30px_rgba(16,185,129,0.2)]",
+        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
+      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
     },
     Steadying: {
       badge:
-        "border-cyan-400/60 bg-cyan-500/10 text-cyan-200 shadow-[0_0_25px_rgba(6,182,212,0.35)]",
-      glow: "shadow-[0_0_30px_rgba(6,182,212,0.2)]",
+        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
+      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
     },
     Rebuilding: {
       badge:
-        "border-amber-400/60 bg-amber-500/10 text-amber-200 shadow-[0_0_25px_rgba(251,191,36,0.35)]",
-      glow: "shadow-[0_0_30px_rgba(251,191,36,0.2)]",
+        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
+      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
     },
     Calibrating: {
       badge:
-        "border-fuchsia-400/60 bg-fuchsia-500/10 text-fuchsia-200 shadow-[0_0_25px_rgba(236,72,153,0.35)]",
-      glow: "shadow-[0_0_30px_rgba(236,72,153,0.2)]",
+        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
+      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
     },
     fallback: {
       badge:
-        "border-slate-500/60 bg-slate-900/70 text-slate-200 shadow-[0_0_15px_rgba(15,23,42,0.6)]",
-      glow: "shadow-[0_0_20px_rgba(15,23,42,0.3)]",
+        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
+      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
     },
   };
 
   return trendBadgeToneMap[trendState] || trendBadgeToneMap.fallback;
 }
 
-function getFamilyCardTone(puzzleType) {
-  const familyToneMap = {
+const avgAccuracyBadgeClasses =
+  "border-fuchsia-500/40 bg-fuchsia-700/60 text-white shadow-[0_0_15px_rgba(217,70,239,0.2)]";
+
+function getFamilyCardTone(puzzleType, rowPalette = null) {
+  const baseIconWrapper = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border overflow-hidden transition-all duration-300";
+
+  const familyConfigMap = {
     pattern_rush: {
       card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]",
-      label: "text-cyan-200",
-      sessions: "text-cyan-300/80",
-      avgBadge: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
-      statCard: "border-cyan-500/20 bg-cyan-500/5",
-      trendCard: "border-cyan-500/20 bg-cyan-500/5",
+      iconWrap: `${baseIconWrapper} border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
+      iconClass: "text-[0.85rem]",
+      icon: faStar,
+      title: "text-cyan-200",
+      meta: "text-cyan-300/80",
+      badge: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
+      statTile: "border-cyan-500/20 bg-cyan-500/5",
+      statLabel: "text-cyan-300/80",
+      statValue: "text-cyan-100",
+      trendPanel: "border-cyan-500/20 bg-cyan-500/5 ring-1 ring-cyan-500/30",
+      trendLabel: "text-cyan-300/80",
+      trendText: "text-cyan-100",
+      accentRing: "ring-1 ring-cyan-500/30",
+      accentText: "text-cyan-200",
     },
     sequence_sprint: {
       card: "border-fuchsia-400/30 bg-[linear-gradient(160deg,rgba(217,70,239,0.14)_0%,rgba(48,10,40,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.22)]",
-      label: "text-fuchsia-200",
-      sessions: "text-pink-300/80",
-      avgBadge: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
-      statCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
-      trendCard: "border-pink-500/20 bg-pink-500/5",
+      iconWrap: `${baseIconWrapper} border-fuchsia-400/45 bg-fuchsia-500/12 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.65)]`,
+      iconClass: "text-[0.85rem]",
+      icon: faDiagramProject,
+      title: "text-fuchsia-200",
+      meta: "text-fuchsia-300/80",
+      badge: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
+      statTile: "border-fuchsia-500/20 bg-fuchsia-500/5",
+      statLabel: "text-fuchsia-300/80",
+      statValue: "text-fuchsia-100",
+      trendPanel: "border-fuchsia-500/20 bg-fuchsia-500/5 ring-1 ring-fuchsia-500/30",
+      trendLabel: "text-fuchsia-300/80",
+      trendText: "text-fuchsia-100",
+      accentRing: "ring-1 ring-fuchsia-500/30",
+      accentText: "text-fuchsia-200",
     },
     rule_shift: {
       card: "border-amber-400/30 bg-[linear-gradient(160deg,rgba(245,158,11,0.14)_0%,rgba(36,22,8,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(245,158,11,0.22)]",
-      label: "text-amber-200",
-      sessions: "text-orange-300/80",
-      avgBadge: "border-amber-400/35 bg-amber-500/10 text-amber-200",
-      statCard: "border-amber-500/20 bg-amber-500/5",
-      trendCard: "border-orange-500/20 bg-orange-500/5",
+      iconWrap: `${baseIconWrapper} border-amber-400/45 bg-amber-500/12 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.62)]`,
+      iconClass: "text-[0.8rem]",
+      icon: faRotateRight,
+      title: "text-amber-200",
+      meta: "text-amber-300/80",
+      badge: "border-amber-400/35 bg-amber-500/10 text-amber-200",
+      statTile: "border-amber-500/20 bg-amber-500/5",
+      statLabel: "text-amber-300/80",
+      statValue: "text-amber-100",
+      trendPanel: "border-amber-500/20 bg-amber-500/5 ring-1 ring-amber-500/30",
+      trendLabel: "text-amber-300/80",
+      trendText: "text-amber-100",
+      accentRing: "ring-1 ring-amber-500/30",
+      accentText: "text-amber-200",
     },
     grid_recall: {
       card: "border-[var(--color-aqua-border)]/30 bg-[linear-gradient(160deg,var(--color-aqua-tint)_0%,rgba(34,211,238,0.08)_42%,rgba(6,14,20,0.94)_100%)] shadow-[0_0_40px_rgba(104,217,207,0.2)]",
-      label: "text-[var(--color-aqua-icon)]",
-      sessions: "text-[var(--color-aqua-accent)]/80",
-      avgBadge: "border-[var(--color-aqua-border)]/35 bg-[var(--color-aqua-accent)]/10 text-[var(--color-aqua-icon)]",
-      statCard: "border-[var(--color-aqua-accent)]/20 bg-[var(--color-aqua-accent)]/5",
-      trendCard: "border-[var(--color-aqua-accent)]/20 bg-[var(--color-aqua-accent)]/5",
+      iconWrap: `${baseIconWrapper} border-[var(--color-aqua-border)]/45 bg-gradient-to-br from-[var(--color-aqua-accent)]/12 via-[var(--color-aqua-icon)]/10 to-[var(--color-aqua-tint)] text-[var(--color-aqua-icon)] shadow-[0_0_18px_rgba(104,217,207,0.58)]`,
+      iconClass: "text-base",
+      icon: faTableCells,
+      title: "text-[var(--color-aqua-icon)]",
+      meta: "text-[var(--color-aqua-accent)]/80",
+      badge: "border-[var(--color-aqua-border)]/35 bg-[var(--color-aqua-accent)]/10 text-[var(--color-aqua-icon)]",
+      statTile: "border-[var(--color-aqua-border)]/25 bg-[var(--color-aqua-tint)]",
+      statLabel: "text-[var(--color-aqua-accent)]/80",
+      statValue: "text-[var(--color-aqua-icon)]",
+      trendPanel: "border-[var(--color-aqua-border)]/25 bg-[var(--color-aqua-tint)] ring-1 ring-[var(--color-aqua-border)]/30",
+      trendLabel: "text-[var(--color-aqua-accent)]/80",
+      trendText: "text-[var(--color-aqua-icon)]",
+      accentRing: "ring-1 ring-[var(--color-aqua-accent)]/30",
+      accentText: "text-[var(--color-aqua-icon)]",
     },
     logic_gate: {
-      card: "border-[var(--color-lilac-border)]/30 bg-[linear-gradient(160deg,var(--color-lilac-tint)_0%,rgba(76,29,149,0.12)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,139,255,0.2)]",
-      label: "text-[var(--color-lilac-icon)]",
-      sessions: "text-[var(--color-lilac-accent)]/80",
-      avgBadge: "border-[var(--color-lilac-border)]/35 bg-[var(--color-lilac-accent)]/10 text-[var(--color-lilac-icon)]",
-      statCard: "border-[var(--color-lilac-accent)]/20 bg-[var(--color-lilac-accent)]/5",
-      trendCard: "border-[var(--color-lilac-accent)]/20 bg-[var(--color-lilac-accent)]/5",
+      card: "border-orange-500/30 bg-[linear-gradient(160deg,rgba(249,115,22,0.14)_0%,rgba(43,20,6,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(249,115,22,0.2)]",
+      iconWrap: `${baseIconWrapper} border-orange-400/45 bg-orange-500/12 text-orange-200 shadow-[0_0_18px_rgba(249,115,22,0.58)]`,
+      iconClass: "text-sm",
+      icon: faMicrochip,
+      title: "text-orange-200",
+      meta: "text-orange-300/80",
+      badge: "border-orange-400/35 bg-orange-500/10 text-orange-200",
+      statTile: "border-orange-500/20 bg-orange-500/5",
+      statLabel: "text-orange-300/80",
+      statValue: "text-orange-100",
+      trendPanel: "border-orange-500/20 bg-orange-500/5 ring-1 ring-orange-500/30",
+      trendLabel: "text-orange-300/80",
+      trendText: "text-orange-100",
+      accentRing: "ring-1 ring-orange-500/30",
+      accentText: "text-orange-200",
     },
     logic_grid: {
-      card: "border-sky-400/30 bg-[linear-gradient(160deg,rgba(56,189,248,0.14)_0%,rgba(12,28,58,0.92)_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(59,130,246,0.22)]",
-      label: "text-sky-200",
-      sessions: "text-blue-300/80",
-      avgBadge: "border-sky-400/35 bg-sky-500/10 text-sky-200",
-      statCard: "border-sky-500/20 bg-sky-500/5",
-      trendCard: "border-blue-500/20 bg-blue-500/5",
+      card: "border-sky-400/30 bg-[linear-gradient(160deg,rgba(56,189,248,0.14)_0%,#091a2f_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(59,130,246,0.22)]",
+      iconWrap: `${baseIconWrapper} border-sky-400/45 bg-gradient-to-br from-sky-500/14 to-blue-500/12 text-sky-200 shadow-[0_0_18px_rgba(56,189,248,0.65)]`,
+      iconClass: "text-base",
+      icon: faBorderAll,
+      title: "text-sky-200",
+      meta: "text-sky-300/80",
+      badge: "border-sky-400/35 bg-sky-500/10 text-sky-200",
+      statTile: "border-sky-400/25 bg-sky-500/10",
+      statLabel: "text-sky-300/80",
+      statValue: "text-sky-100",
+      trendPanel: "border-sky-400/25 bg-sky-500/10 ring-1 ring-sky-400/30",
+      trendLabel: "text-sky-300/80",
+      trendText: "text-sky-100",
+      accentRing: "ring-1 ring-sky-500/30",
+      accentText: "text-sky-200",
     },
     signal_path: {
       card: "border-cyan-600/30 bg-[linear-gradient(160deg,rgba(8,145,178,0.12)_0%,rgba(30,58,138,0.1)_36%,rgba(8,18,22,0.94)_100%)] shadow-[0_0_40px_rgba(37,99,235,0.2)]",
-      label: "text-cyan-200",
-      sessions: "text-blue-300/80",
-      avgBadge: "border-cyan-600/35 bg-blue-600/10 text-cyan-200",
-      statCard: "border-cyan-600/20 bg-cyan-600/5",
-      trendCard: "border-blue-600/20 bg-blue-600/5",
+      iconWrap: `${baseIconWrapper} border-cyan-500/45 bg-gradient-to-br from-cyan-600/14 via-blue-600/12 to-indigo-600/10 text-cyan-200 shadow-[0_0_20px_rgba(8,145,178,0.45)]`,
+      iconClass: "text-base",
+      icon: faRoute,
+      title: "text-cyan-200",
+      meta: "text-cyan-300/80",
+      badge: "border-cyan-600/35 bg-cyan-600/10 text-cyan-200",
+      statTile: "border-cyan-600/20 bg-cyan-600/5",
+      statLabel: "text-cyan-300/80",
+      statValue: "text-cyan-100",
+      trendPanel: "border-cyan-600/20 bg-cyan-600/5 ring-1 ring-cyan-600/30",
+      trendLabel: "text-cyan-300/80",
+      trendText: "text-cyan-100",
+      accentRing: "ring-1 ring-blue-500/30",
+      accentText: "text-cyan-200",
+    },
+    spatial_rotation: {
+      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.14)_0%,rgba(10,18,36,0.92)_44%,rgba(4,10,22,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.2)]",
+      iconWrap: `${baseIconWrapper} border-cyan-400/45 bg-gradient-to-br from-cyan-500/14 via-fuchsia-500/10 to-violet-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
+      iconClass: "text-base",
+      icon: faRotateRight,
+      title: "text-cyan-100",
+      meta: "text-fuchsia-300/80",
+      badge: "border-cyan-400/35 bg-fuchsia-500/10 text-cyan-100",
+      statTile: "border-cyan-500/20 bg-cyan-500/5",
+      statLabel: "text-cyan-300/80",
+      statValue: "text-cyan-100",
+      trendPanel: "border-cyan-500/20 bg-[linear-gradient(160deg,rgba(6,13,27,0.9)_0%,rgba(16,24,48,0.92)_100%)] ring-1 ring-fuchsia-500/30",
+      trendLabel: "text-cyan-300/80",
+      trendText: "text-cyan-100",
+      accentRing: "ring-1 ring-cyan-400/30",
+      accentText: "text-cyan-100",
     },
     memory_chain: {
       card: "border-[var(--color-lilac-border)]/30 bg-[linear-gradient(160deg,var(--color-lilac-tint)_0%,rgba(76,29,149,0.12)_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,139,255,0.22)]",
-      label: "text-[var(--color-lilac-icon)]",
-      sessions: "text-[var(--color-lilac-accent)]/80",
-      avgBadge: "border-[var(--color-lilac-border)]/35 bg-[var(--color-lilac-accent)]/10 text-[var(--color-lilac-icon)]",
-      statCard: "border-[var(--color-lilac-accent)]/20 bg-[var(--color-lilac-accent)]/5",
-      trendCard: "border-[var(--color-lilac-accent)]/20 bg-[var(--color-lilac-accent)]/5",
+      iconWrap: `${baseIconWrapper} border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_18px_rgba(168,139,255,0.62)]`,
+      iconClass: "text-base",
+      icon: faLink,
+      title: "text-[var(--color-lilac-icon)]",
+      meta: "text-[var(--color-lilac-accent)]/80",
+      badge: "border-[var(--color-lilac-border)]/35 bg-[var(--color-lilac-accent)]/10 text-[var(--color-lilac-icon)]",
+      statTile: "border-[var(--color-lilac-border)]/25 bg-[var(--color-lilac-tint)]",
+      statLabel: "text-[var(--color-lilac-accent)]/80",
+      statValue: "text-[var(--color-lilac-icon)]",
+      trendPanel: "border-[var(--color-lilac-border)]/25 bg-[var(--color-lilac-tint)] ring-1 ring-[var(--color-lilac-border)]/30",
+      trendLabel: "text-[var(--color-lilac-accent)]/80",
+      trendText: "text-[var(--color-lilac-icon)]",
+      accentRing: "ring-1 ring-[var(--color-lilac-accent)]/30",
+      accentText: "text-[var(--color-lilac-icon)]",
     },
     symbol_recall: {
       card: "border-[var(--color-rose-border)]/30 bg-[linear-gradient(160deg,var(--color-rose-tint)_0%,rgba(192,38,211,0.1)_40%,rgba(10,6,22,0.96)_100%)] shadow-[0_0_40px_rgba(255,143,192,0.22)]",
-      label: "text-[var(--color-rose-icon)]",
-      sessions: "text-[var(--color-rose-accent)]/80",
-      avgBadge: "border-[var(--color-rose-border)]/35 bg-[var(--color-rose-accent)]/10 text-[var(--color-rose-icon)]",
-      statCard: "border-[var(--color-rose-accent)]/20 bg-[var(--color-rose-accent)]/5",
-      trendCard: "border-[var(--color-rose-accent)]/20 bg-[var(--color-rose-accent)]/5",
+      iconWrap: `${baseIconWrapper} border-[var(--color-rose-border)]/45 bg-gradient-to-br from-[var(--color-rose-accent)]/14 via-[var(--color-rose-icon)]/12 to-[var(--color-rose-tint)] text-[var(--color-rose-icon)] shadow-[0_0_18px_rgba(255,143,192,0.58)]`,
+      iconClass: "text-sm",
+      icon: faBolt,
+      title: "text-[var(--color-rose-icon)]",
+      meta: "text-[var(--color-rose-accent)]/80",
+      badge: "border-[var(--color-rose-border)]/35 bg-[var(--color-rose-accent)]/10 text-[var(--color-rose-icon)]",
+      statTile: "border-[var(--color-rose-border)]/25 bg-[var(--color-rose-tint)]",
+      statLabel: "text-[var(--color-rose-accent)]/80",
+      statValue: "text-[var(--color-rose-icon)]",
+      trendPanel: "border-[var(--color-rose-border)]/25 bg-[var(--color-rose-tint)] ring-1 ring-[var(--color-rose-border)]/30",
+      trendLabel: "text-[var(--color-rose-accent)]/80",
+      trendText: "text-[var(--color-rose-icon)]",
+      accentRing: "ring-1 ring-[var(--color-rose-accent)]/30",
+      accentText: "text-[var(--color-rose-icon)]",
     },
     odd_one_matrix: {
       card: "border-rose-400/30 bg-[linear-gradient(160deg,rgba(244,63,94,0.12)_0%,rgba(120,20,72,0.1)_42%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.18)]",
-      label: "text-rose-200",
-      sessions: "text-fuchsia-300/80",
-      avgBadge: "border-rose-400/35 bg-rose-500/10 text-rose-200",
-      statCard: "border-rose-500/20 bg-rose-500/5",
-      trendCard: "border-fuchsia-500/20 bg-fuchsia-500/5",
+      iconWrap: `${baseIconWrapper} border-rose-400/45 bg-gradient-to-br from-rose-500/12 via-fuchsia-500/10 to-pink-500/8 text-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.55)]`,
+      iconClass: "text-base",
+      icon: faBullseye,
+      title: "text-rose-200",
+      meta: "text-rose-300/80",
+      badge: "border-rose-400/35 bg-rose-500/10 text-rose-200",
+      statTile: "border-rose-500/20 bg-rose-500/5",
+      statLabel: "text-rose-300/80",
+      statValue: "text-rose-100",
+      trendPanel: "border-rose-500/20 bg-rose-500/5 ring-1 ring-rose-500/30",
+      trendLabel: "text-rose-300/80",
+      trendText: "text-rose-100",
+      accentRing: "ring-1 ring-rose-500/30",
+      accentText: "text-rose-200",
     },
     default: {
       card: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
-      label: "text-slate-200",
-      sessions: "text-slate-400",
-      avgBadge: "border-slate-700/70 bg-slate-900/70 text-slate-200",
-      statCard: "border-slate-800/70 bg-slate-900/60",
-      trendCard: "border-slate-800/70 bg-slate-950/40",
-    },
-  };
-
-  return familyToneMap[puzzleType] || familyToneMap.default;
-}
-
-function getPuzzleFamilyVisual(puzzleType) {
-  const baseWrapper = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border overflow-hidden transition-all duration-300";
-
-  const visualMap = {
-    pattern_rush: {
-      icon: faStar,
-      iconWrap: `${baseWrapper} border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
-      iconClass: "text-[0.85rem]",
-      accentText: "text-cyan-200",
-      accentRing: "ring-1 ring-cyan-500/30",
-    },
-    sequence_sprint: {
-      icon: faDiagramProject,
-      iconWrap: `${baseWrapper} border-fuchsia-400/45 bg-fuchsia-500/12 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.65)]`,
-      iconClass: "text-[0.85rem]",
-      accentText: "text-fuchsia-200",
-      accentRing: "ring-1 ring-fuchsia-500/30",
-    },
-    rule_shift: {
-      icon: faRotateRight,
-      iconWrap: `${baseWrapper} border-amber-400/45 bg-amber-500/12 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.62)]`,
-      iconClass: "text-[0.8rem]",
-      accentText: "text-amber-200",
-      accentRing: "ring-1 ring-amber-500/30",
-    },
-    grid_recall: {
-      icon: faTableCells,
-      iconWrap: `${baseWrapper} border-[var(--color-aqua-border)]/45 bg-gradient-to-br from-[var(--color-aqua-accent)]/12 via-[var(--color-aqua-icon)]/10 to-[var(--color-aqua-tint)] text-[var(--color-aqua-icon)] shadow-[0_0_18px_rgba(104,217,207,0.58)]`,
+      iconWrap: `${baseIconWrapper} border-slate-600/40 bg-slate-900/60 text-slate-200`,
       iconClass: "text-base",
-      accentText: "text-[var(--color-aqua-icon)]",
-      accentRing: "ring-1 ring-[var(--color-aqua-accent)]/30",
-    },
-    logic_gate: {
-      icon: faMicrochip,
-      iconWrap: `${baseWrapper} border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/12 via-[var(--color-lilac-icon)]/10 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_18px_rgba(168,139,255,0.58)]`,
-      iconClass: "text-sm",
-      accentText: "text-[var(--color-lilac-icon)]",
-      accentRing: "ring-1 ring-[var(--color-lilac-accent)]/30",
-    },
-    logic_grid: {
-      icon: faBorderAll,
-      iconWrap: `${baseWrapper} border-sky-400/45 bg-gradient-to-br from-sky-500/14 to-blue-500/12 text-sky-200 shadow-[0_0_18px_rgba(56,189,248,0.65)]`,
-      iconClass: "text-base",
-      accentText: "text-sky-200",
-      accentRing: "ring-1 ring-sky-500/30",
-    },
-    signal_path: {
-      icon: faRoute,
-      iconWrap: `${baseWrapper} border-cyan-500/45 bg-gradient-to-br from-cyan-600/14 via-blue-600/12 to-indigo-600/10 text-cyan-200 shadow-[0_0_20px_rgba(8,145,178,0.45)]`,
-      iconClass: "text-base",
-      accentText: "text-cyan-200",
-      accentRing: "ring-1 ring-blue-500/30",
-    },
-    memory_chain: {
-      icon: faLink,
-      iconWrap: `${baseWrapper} border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_18px_rgba(168,139,255,0.62)]`,
-      iconClass: "text-base",
-      accentText: "text-[var(--color-lilac-icon)]",
-      accentRing: "ring-1 ring-[var(--color-lilac-accent)]/30",
-    },
-    symbol_recall: {
-      icon: faBolt,
-      iconWrap: `${baseWrapper} border-[var(--color-rose-border)]/45 bg-gradient-to-br from-[var(--color-rose-accent)]/14 via-[var(--color-rose-icon)]/12 to-[var(--color-rose-tint)] text-[var(--color-rose-icon)] shadow-[0_0_18px_rgba(255,143,192,0.58)]`,
-      iconClass: "text-sm",
-      accentText: "text-[var(--color-rose-icon)]",
-      accentRing: "ring-1 ring-[var(--color-rose-accent)]/30",
-    },
-    odd_one_matrix: {
-      icon: faBullseye,
-      iconWrap: `${baseWrapper} border-rose-400/45 bg-gradient-to-br from-rose-500/12 via-fuchsia-500/10 to-pink-500/8 text-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.55)]`,
-      iconClass: "text-base",
-      accentText: "text-rose-200",
-      accentRing: "ring-1 ring-rose-500/30",
-    },
-    fallback: {
       icon: faBrain,
-      iconWrap: `${baseWrapper} border-slate-600/40 bg-slate-900/60 text-slate-200`,
-      iconClass: "text-base",
-      accentText: "text-slate-200",
+      title: "text-slate-200",
+      meta: "text-slate-400",
+      badge: "border-slate-700/70 bg-slate-900/70 text-slate-200",
+      statTile: "border-slate-800/70 bg-slate-900/60",
+      statLabel: "text-slate-400",
+      statValue: "text-slate-100",
+      trendPanel: "border-slate-800/70 bg-slate-950/40 ring-1 ring-slate-600/30",
+      trendLabel: "text-slate-400",
+      trendText: "text-slate-200",
       accentRing: "ring-1 ring-slate-600/30",
+      accentText: "text-slate-200",
     },
   };
 
-  return visualMap[puzzleType] || visualMap.fallback;
+  const config = familyConfigMap[puzzleType] || familyConfigMap.default;
+
+  if (rowPalette && familyConfigMap[rowPalette]) {
+    const palette = familyConfigMap[rowPalette];
+    return {
+      ...palette,
+      // Keep the family-specific icon
+      icon: config.icon,
+      iconClass: config.iconClass,
+    };
+  }
+
+  return config;
 }
 
 /**

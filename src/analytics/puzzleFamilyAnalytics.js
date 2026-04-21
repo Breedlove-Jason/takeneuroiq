@@ -45,6 +45,12 @@ const PUZZLE_FAMILY_METADATA = {
     accent: "violet",
     icon: "signal_path",
   },
+  spatial_rotation: {
+    label: "Spatial Rotation",
+    shortLabel: "Rotate",
+    accent: "cyan",
+    icon: "rotate-right",
+  },
   memory_chain: {
     label: "Memory Chain",
     shortLabel: "Memory",
@@ -73,6 +79,7 @@ const PUZZLE_FAMILY_DISPLAY_ORDER = [
   "logic_grid",
   "pattern_rush",
   "signal_path",
+  "spatial_rotation",
   "memory_chain",
   "symbol_recall",
   "odd_one_matrix",
@@ -479,6 +486,64 @@ function buildSignalPathSummary(sessions = []) {
   };
 }
 
+function buildSpatialRotationSummary(sessions = []) {
+  const base = buildBaseSummary("spatial_rotation", sessions);
+
+  const gridSizes = [];
+  const optionCounts = [];
+  const rotations = [];
+  const shapeNames = [];
+  const difficulties = [];
+
+  const trendReasonByState = {
+    Rising:
+      "Mental rotation is sharpening. Shape alignment is becoming cleaner across recent transforms.",
+    Steadying:
+      "Spatial reasoning is holding. Keep repeating matched rotations so transformation accuracy stays stable.",
+    Rebuilding:
+      "Slow the transforms and simplify the shape set before pushing denser rotation matches.",
+  };
+
+  sessions.forEach((session) => {
+    const metrics = normalizePuzzleMetrics(session);
+
+    if (metrics.gridSize != null) {
+      gridSizes.push(toNumber(metrics.gridSize));
+    }
+
+    if (metrics.optionCount != null) {
+      optionCounts.push(toNumber(metrics.optionCount));
+    }
+
+    if (metrics.correctRotation != null || metrics.targetRotation != null) {
+      rotations.push(toNumber(metrics.correctRotation ?? metrics.targetRotation));
+    }
+
+    if (metrics.shapeName || metrics.sourceShapeName || metrics.templateName) {
+      shapeNames.push(
+        metrics.shapeName ?? metrics.sourceShapeName ?? metrics.templateName,
+      );
+    }
+
+    if (metrics.difficulty) {
+      difficulties.push(metrics.difficulty);
+    }
+  });
+
+  return {
+    ...base,
+    familyLabel: "Spatial Rotation",
+    averageGridSize: average(gridSizes, 1),
+    averageOptionCount: average(optionCounts, 1),
+    averageTargetRotation: average(rotations, 1),
+    mostCommonShapeName: getMode(shapeNames),
+    mostCommonDifficulty: getMode(difficulties),
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Spatial transformation is evolving. Keep refining mental rotation and shape matching.",
+  };
+}
+
 function buildMemoryChainSummary(sessions = []) {
   const base = buildBaseSummary("memory_chain", sessions);
 
@@ -619,6 +684,7 @@ const FAMILY_SUMMARY_BUILDERS = {
   logic_gate: buildLogicGateSummary,
   logic_grid: buildLogicGridSummary,
   signal_path: buildSignalPathSummary,
+  spatial_rotation: buildSpatialRotationSummary,
   memory_chain: buildMemoryChainSummary,
   symbol_recall: buildSymbolRecallSummary,
   odd_one_matrix: buildOddOneMatrixSummary,

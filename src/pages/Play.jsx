@@ -230,6 +230,38 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-blue',
     },
     {
+      icon: faRotateRight,
+      puzzleType: 'spatial_rotation',
+      title: 'Spatial Rotation',
+      description:
+        'A source shape is shown first. Identify the correctly rotated match while ignoring distractors that look similar but are not the true rotation.',
+      buttonText: 'Launch Spatial Rotation',
+      skills: ['Mental Rotation', 'Visual Reasoning'],
+      hasPulse: true,
+      cardTone: {
+        cyber:
+          'border-fuchsia-500/45 bg-[linear-gradient(160deg,rgba(217,70,239,0.22)_0%,rgba(34,12,52,0.92)_42%,rgba(4,10,22,0.96)_100%)] shadow-[0_0_34px_rgba(217,70,239,0.28)] hover:border-cyan-400/80 hover:shadow-[0_0_54px_rgba(34,211,238,0.3)]',
+        light:
+          'border-fuchsia-400 bg-[linear-gradient(155deg,rgba(253,244,255,0.98)_0%,rgba(255,255,255,1)_52%,rgba(245,243,255,0.96)_100%)] shadow-[0_14px_32px_rgba(217,70,239,0.15)] hover:border-cyan-500 hover:shadow-[0_18px_38px_rgba(34,211,238,0.18)]',
+      },
+      iconTone: {
+        cyber:
+          'text-cyan-300 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]',
+        light: 'text-fuchsia-700',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-cyan-400 via-fuchsia-500 to-violet-500 text-white shadow-[0_0_24px_rgba(34,211,238,0.45)] hover:from-violet-500 hover:via-fuchsia-500 hover:to-cyan-400 hover:brightness-110 hover:shadow-[0_0_44px_rgba(217,70,239,0.48)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-cyan-100 via-fuchsia-50 to-violet-100 text-white border border-slate-900/10 hover:from-cyan-200 hover:via-fuchsia-100 hover:to-violet-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+      },
+      tagTone: {
+        cyber: 'border-cyan-400/35 bg-fuchsia-500/10 text-cyan-100',
+        light: 'border-cyan-200 bg-fuchsia-50 text-cyan-800',
+      },
+      glowTone: 'group-hover:text-glow-blue',
+    },
+    {
       icon: faLink,
       puzzleType: 'memory_chain',
       title: 'Memory Chain',

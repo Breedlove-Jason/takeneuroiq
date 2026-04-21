@@ -17,6 +17,7 @@ import {
   faMicrochip,
   faBorderAll,
   faShapes,
+  faRotateRight,
 } from '@fortawesome/pro-duotone-svg-icons';
 import {
   Radar,
@@ -177,6 +178,7 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'signal_path') return 'Signal Path';
   if (puzzleType === 'memory_chain') return 'Memory Chain';
   if (puzzleType === 'symbol_recall') return 'Symbol Recall';
+  if (puzzleType === 'spatial_rotation') return 'Spatial Rotation';
   if (puzzleType === 'odd_one_matrix') return 'Odd One Matrix';
   const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
   if (puzzleLabel) return puzzleLabel;
@@ -237,6 +239,13 @@ const RECENT_SESSION_FAMILY_VISUALS = {
     labelClass: 'text-cyan-200',
     badgeClass: 'text-blue-300/70',
   },
+  spatial_rotation: {
+    icon: faRotateRight,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/45 bg-gradient-to-br from-cyan-500/14 via-fuchsia-500/10 to-violet-500/10 text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,0.3)]',
+    labelClass: 'text-cyan-100',
+    badgeClass: 'text-fuchsia-200/75',
+  },
   memory_chain: {
     icon: faWaveSquare,
     iconWrap:
@@ -294,6 +303,8 @@ function getFocusLaneFromPuzzleType(puzzleType) {
       return 'Trace Memory';
     case 'symbol_recall':
       return 'Glyph Recognition';
+    case 'spatial_rotation':
+      return 'Mental Rotation';
     case 'odd_one_matrix':
       return 'Anomaly Detection';
     default:
@@ -460,6 +471,25 @@ function buildFamilyAwareRecommendation(session) {
     return `Slow the reveal, rehearse the target glyph, and rebuild short-term recall before denser ${symbolLabel}.`;
   }
 
+  if (session.puzzleType === 'spatial_rotation') {
+    const shapeName = puzzleMetrics.shapeName
+      ? formatSnakeCaseToTitle(puzzleMetrics.shapeName)
+      : 'source shapes';
+    const rotationValue = puzzleMetrics.correctRotation ?? puzzleMetrics.targetRotation;
+    const rotationLabel =
+      typeof rotationValue === 'number'
+        ? `${rotationValue}° turns`
+        : 'rotation drills';
+
+    if (accuracy >= 90 && streak >= 8) {
+      return `Mental rotation is locked in. Push ${rotationLabel} with harder distractors and protect transformation accuracy.`;
+    }
+    if (accuracy >= 75) {
+      return `Spatial reasoning is stabilizing. Repeat ${rotationLabel} on ${shapeName} to refine shape matching and transformation accuracy.`;
+    }
+    return `Slow the rotation pace, rehearse ${shapeName}, and rebuild mental rotation accuracy before denser match sets.`;
+  }
+
   if (session.puzzleType === 'odd_one_matrix') {
     const ruleType = puzzleMetrics.ruleType
       ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
@@ -540,6 +570,12 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? 'glyph recognition precision strengthening'
       : 'short-term symbol recall recalibrating';
+  }
+
+  if (session.puzzleType === 'spatial_rotation') {
+    return accuracy >= 80
+      ? 'spatial transformation accuracy sharpening'
+      : 'mental rotation recalibrating';
   }
 
   if (session.puzzleType === 'odd_one_matrix') {

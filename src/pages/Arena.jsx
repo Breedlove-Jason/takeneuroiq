@@ -23,6 +23,7 @@ import { getRandomLogicGridPuzzle } from "../game/logicGridPuzzles";
 import { getRandomLogicGatePuzzle } from "../game/logicGatePuzzles";
 import { getRandomSignalPathPuzzle } from "../game/signalPathPuzzles";
 import { getRandomOddOneMatrixPuzzle } from "../game/puzzleGenerators/oddOneMatrixGenerator";
+import { getRandomSpatialRotationPuzzle } from "../game/puzzleGenerators/spatialRotationGenerator";
 import { recordSession } from "../game/sessionTracker";
 import { calculateLiveAdaptiveDifficulty } from "../analytics/liveAdaptiveDifficulty.js";
 import { useLocation } from "react-router-dom";
@@ -267,6 +268,17 @@ const analysisProfileMap = {
     tone: "disciplined",
     accentColor: "#a78bfa",
     animationStyle: "route_trace",
+  },
+  spatial_rotation: {
+    title: "Spatial Rotation Analysis Matrix",
+    analysisLines: [
+      "Rotation alignment stable",
+      "Shape matching stayed precise",
+      "Mental transform speed improving",
+    ],
+    tone: "rotational",
+    accentColor: "#d946ef",
+    animationStyle: "matrix_resonance",
   },
 };
 
@@ -944,6 +956,7 @@ const RULE_SHIFT_PUZZLE_TYPE = "rule_shift";
 const ODD_ONE_MATRIX_PUZZLE_TYPE = "odd_one_matrix";
 const MEMORY_CHAIN_PUZZLE_TYPE = "memory_chain";
 const SYMBOL_RECALL_PUZZLE_TYPE = "symbol_recall";
+const SPATIAL_ROTATION_PUZZLE_TYPE = "spatial_rotation";
 const RULE_SHIFT_PUZZLE_META = {
   label: "Rule Shift",
   shortLabel: "Shift",
@@ -968,6 +981,14 @@ const SYMBOL_RECALL_PUZZLE_META = {
   cognitiveSkills: ["Visual Working Memory", "Targeted Recall"],
   icon: "brain",
 };
+const SPATIAL_ROTATION_PUZZLE_META = {
+  label: "Spatial Rotation",
+  shortLabel: "Rotate",
+  description: "Mentally rotate a source shape and choose the matching result.",
+  color: "cyan",
+  cognitiveSkills: ["Mental Rotation", "Spatial Mapping", "Visual Reasoning"],
+  icon: "rotate-right",
+};
 const ODD_ONE_MATRIX_PUZZLE_META = {
   label: "Odd One Matrix",
   shortLabel: "Matrix",
@@ -988,6 +1009,7 @@ const terminalAnalysisToneMap = {
   rule_shift: ["text-cyan-100/84", "text-violet-100/76", "text-amber-200/78"],
   logic_gate: ["text-[var(--color-lilac-glow)]/84", "text-cyan-100/76", "text-[var(--color-lilac-border)]/78"],
   signal_path: ["text-cyan-100/84", "text-blue-100/76", "text-indigo-200/78"],
+  spatial_rotation: ["text-cyan-100/84", "text-fuchsia-100/76", "text-violet-200/78"],
 };
 
 const terminalSignalProfileLabels = {
@@ -1001,6 +1023,7 @@ const terminalSignalProfileLabels = {
   rule_shift: "STRUCTURED DEDUCTION",
   logic_gate: "LOGIC CIRCUIT",
   signal_path: "ROUTING DISCIPLINE",
+  spatial_rotation: "MENTAL ROTATION",
 };
 
 function formatTerminalFallbackLabel(value, fallback = "UNCLASSIFIED") {
@@ -1123,6 +1146,7 @@ function Arena({ theme }) {
     routePuzzleType === RULE_SHIFT_PUZZLE_TYPE ||
     routePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE ||
     routePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE ||
+    routePuzzleType === SPATIAL_ROTATION_PUZZLE_TYPE ||
     routePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
       ? routePuzzleType
       : DEFAULT_PUZZLE_TYPE;
@@ -1155,6 +1179,9 @@ function Arena({ theme }) {
     }
     if (initialPuzzleType === SYMBOL_RECALL_PUZZLE_TYPE) {
       return getRandomSymbolRecallPuzzle(initialTargetDifficulty);
+    }
+    if (initialPuzzleType === SPATIAL_ROTATION_PUZZLE_TYPE) {
+      return getRandomSpatialRotationPuzzle(initialTargetDifficulty);
     }
     if (initialPuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE) {
       return getRandomOddOneMatrixPuzzle(initialTargetDifficulty);
@@ -1279,6 +1306,8 @@ function Arena({ theme }) {
         ? currentPuzzle
         : activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE
           ? currentPuzzle
+        : activePuzzleType === SPATIAL_ROTATION_PUZZLE_TYPE
+          ? currentPuzzle
         : activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE
           ? currentPuzzle
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
@@ -1295,6 +1324,7 @@ function Arena({ theme }) {
   const isRuleShiftPuzzle = activePuzzleType === RULE_SHIFT_PUZZLE_TYPE;
   const isMemoryChainPuzzle = activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE;
   const isSymbolRecallPuzzle = activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE;
+  const isSpatialRotationPuzzle = activePuzzleType === SPATIAL_ROTATION_PUZZLE_TYPE;
   const isOddOneMatrixPuzzle = activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE;
   const activePuzzleMeta = isRuleShiftPuzzle
     ? RULE_SHIFT_PUZZLE_META
@@ -1302,6 +1332,8 @@ function Arena({ theme }) {
       ? MEMORY_CHAIN_PUZZLE_META
       : isSymbolRecallPuzzle
         ? SYMBOL_RECALL_PUZZLE_META
+      : isSpatialRotationPuzzle
+        ? SPATIAL_ROTATION_PUZZLE_META
       : isOddOneMatrixPuzzle
         ? ODD_ONE_MATRIX_PUZZLE_META
     : getPuzzleTypeMetadata(activePuzzleType);
@@ -1312,6 +1344,8 @@ function Arena({ theme }) {
         ? "Memory Chain"
         : isSymbolRecallPuzzle
           ? "Symbol Recall"
+            : isSpatialRotationPuzzle
+              ? "Spatial Rotation"
         : isOddOneMatrixPuzzle
           ? "Odd One Matrix"
       : activePuzzleType === PUZZLE_TYPES.GRID_RECALL
@@ -1770,6 +1804,8 @@ function Arena({ theme }) {
         return getRandomMemoryChainPuzzle(difficulty);
       case SYMBOL_RECALL_PUZZLE_TYPE:
         return getRandomSymbolRecallPuzzle(difficulty);
+      case SPATIAL_ROTATION_PUZZLE_TYPE:
+        return getRandomSpatialRotationPuzzle(difficulty);
       case PUZZLE_TYPES.GRID_RECALL:
         return getRandomGridRecallPuzzle(difficulty);
       case PUZZLE_TYPES.LOGIC_GRID:
@@ -2570,6 +2606,47 @@ function Arena({ theme }) {
       </div>
     </div>
   );
+
+  const renderSpatialRotationMatrix = (
+    matrix,
+    {
+      compact = false,
+      filledClassName = "bg-linear-to-br from-cyan-300 via-fuchsia-400 to-violet-500 border-cyan-200 shadow-[0_0_16px_rgba(34,211,238,0.35)]",
+      emptyClassName = "border-white/10 bg-slate-950/35",
+      showIndex = false,
+    } = {},
+  ) => {
+    const safeMatrix = Array.isArray(matrix) ? matrix : [];
+    const gridSize = safeMatrix.length > 0 ? safeMatrix.length : 1;
+
+    return (
+      <div
+        className={`grid gap-1.5 ${compact ? "w-full max-w-64" : "w-full max-w-96"}`}
+        style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
+      >
+        {safeMatrix.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            const key = `${rowIndex}-${colIndex}`;
+            return (
+              <div
+                key={key}
+                className={`relative aspect-square rounded-md border transition-all duration-200 ${cell ? filledClassName : emptyClassName}`}
+              >
+                {cell ? (
+                  <span className="absolute inset-[18%] rounded-[3px] bg-white/80 shadow-[0_0_12px_rgba(255,255,255,0.25)]" />
+                ) : null}
+                {showIndex && (
+                  <span className="absolute inset-x-0 bottom-0.5 text-center text-[8px] font-semibold uppercase tracking-[0.2em] text-white/30">
+                    {rowIndex}:{colIndex}
+                  </span>
+                )}
+              </div>
+            );
+          }),
+        )}
+      </div>
+    );
+  };
 
   const getLogicGridSize = (puzzle = logicGridPuzzle) => {
     const grid = Array.isArray(puzzle?.grid) ? puzzle.grid : [];
@@ -4707,6 +4784,146 @@ function Arena({ theme }) {
                                 <div>
                                   <span className="font-bold text-white">Chain Length:</span>{" "}
                                   <span className="text-amber-100">{memoryChainPuzzleMetrics.chainLength ?? 0}</span>
+                                </div>
+                              </DevDebugPanel>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : isSpatialRotationPuzzle ? (
+                  <div className="relative w-full overflow-hidden rounded-3xl border border-cyan-500/35 bg-slate-900/80 p-6 shadow-[inset_0_0_40px_rgba(34,211,238,0.12),0_20px_40px_rgba(2,6,23,0.55)] backdrop-blur-md">
+                    <div className="relative z-10">
+                      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                        <div>
+                          <p className={`text-[10px] font-bold uppercase tracking-[0.35em] ${isCyber ? "text-cyan-300 text-glow-blue" : "text-cyan-300"}`}>
+                            Spatial Rotation Arena
+                          </p>
+                          <h3 className={`text-2xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                            {currentPuzzle?.prompt || "Rotate the source shape and choose the matching option."}
+                          </h3>
+                          <p className="text-xs font-medium text-slate-300">
+                            Rotate the source shape <span className="font-semibold text-fuchsia-200">{currentPuzzle?.targetRotation ?? "?"}° clockwise</span> and tap the option that matches.
+                          </p>
+                        </div>
+                        <span className="inline-flex items-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.25)]">
+                          Rotation match
+                        </span>
+                      </div>
+
+                      <div className="mb-5 rounded-xl border border-violet-500/25 bg-violet-500/10 px-4 py-3 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-200">
+                          Rotation focus
+                        </p>
+                        <p className="mt-1 text-sm text-slate-200">
+                          Study the <span className="font-semibold text-cyan-200">source shape</span>, then find the tray option that matches its <span className="font-semibold text-fuchsia-200">rotated silhouette</span>.
+                        </p>
+                      </div>
+
+                      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+                        <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_28px_rgba(34,211,238,0.12)] backdrop-blur-[14px]">
+                          <div className="flex items-center justify-between border-b border-cyan-500/10 pb-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
+                              Source Shape
+                            </p>
+                            <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-violet-300/70">
+                              {formatDevValue(currentPuzzle?.sourceShape?.shapeName ?? "Grid")}
+                            </span>
+                          </div>
+                          <p className="mt-3 text-xs font-medium text-slate-300">
+                            Rotate this exact arrangement by <span className="font-semibold text-fuchsia-200">{currentPuzzle?.targetRotation ?? "?"}°</span> clockwise.
+                          </p>
+                          <div className="mt-5 flex justify-center">
+                            <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/50 p-4 shadow-[inset_0_0_30px_rgba(2,6,23,0.75)]">
+                              {renderSpatialRotationMatrix(currentPuzzle?.sourceShape?.matrix, {
+                                compact: false,
+                                filledClassName: "bg-linear-to-br from-cyan-300 via-fuchsia-400 to-violet-500 border-cyan-200 shadow-[0_0_16px_rgba(34,211,238,0.45)]",
+                                emptyClassName: "border-cyan-500/15 bg-slate-950/35",
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="xl:sticky xl:top-6">
+                          <div className="rounded-2xl border border-fuchsia-500/15 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_26px_rgba(217,70,239,0.14)]">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-fuchsia-300/90">
+                              Answer Tray
+                            </p>
+                            <p className="text-xs font-medium text-slate-300">
+                              Choose the rotated match
+                            </p>
+                            <div className="mt-4 flex flex-col items-center gap-3">
+                              {feedback && (
+                                <div className="flex justify-center">
+                                  <span
+                                    className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${getFeedbackBadgeClass(feedback, isCyber)}`}
+                                  >
+                                    {feedback}
+                                  </span>
+                                </div>
+                              )}
+
+                              <div className="grid w-full gap-3">
+                                {(Array.isArray(currentPuzzle?.options) ? currentPuzzle.options : [])
+                                  .filter((option) => option !== null && option !== undefined)
+                                  .map((option, index) => {
+                                    const optionLabel = option.label || String.fromCharCode(65 + index);
+                                    return (
+                                      <button
+                                        key={option.id ?? `${optionLabel}-${index}`}
+                                        type="button"
+                                        onClick={() => handleAnswer(option.id)}
+                                        disabled={gameOver}
+                                        className="group rounded-2xl border border-cyan-400/25 bg-slate-900/70 p-3 text-left shadow-[0_0_18px_rgba(34,211,238,0.12)] transition-all duration-300 hover:border-fuchsia-400/50 hover:bg-slate-900 hover:shadow-[0_0_24px_rgba(217,70,239,0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+                                      >
+                                        <div className="flex items-center justify-between gap-3">
+                                          <div>
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-200/90">
+                                              Choice {optionLabel}
+                                            </p>
+                                            <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-slate-400">
+                                              {formatDevValue(option?.rotation ?? currentPuzzle?.targetRotation)}° preview
+                                            </p>
+                                          </div>
+                                          <span className="rounded-full border border-fuchsia-400/25 bg-fuchsia-500/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.22em] text-fuchsia-200">
+                                            Tap to answer
+                                          </span>
+                                        </div>
+                                        <div className="mt-3 flex justify-center rounded-xl border border-white/5 bg-slate-950/40 p-3">
+                                          {renderSpatialRotationMatrix(option?.matrix, {
+                                            compact: true,
+                                            filledClassName: "bg-linear-to-br from-cyan-300 via-fuchsia-400 to-violet-500 border-cyan-200 shadow-[0_0_14px_rgba(34,211,238,0.4)]",
+                                            emptyClassName: "border-white/10 bg-slate-950/35",
+                                          })}
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          </div>
+
+                          {SHOW_PUZZLE_DEBUG_META && (
+                            <div className="mt-4">
+                              <DevDebugPanel title="Spatial Rotation Dev">
+                                {SHOW_ANSWERS && (
+                                  <div>
+                                    <span className="font-bold text-white">Answer:</span>{" "}
+                                    <span className="text-amber-100">{currentPuzzle?.answer ?? "—"}</span>
+                                  </div>
+                                )}
+                                <div>
+                                  <span className="font-bold text-white">Target Rotation:</span>{" "}
+                                  <span className="text-amber-100">{currentPuzzle?.targetRotation ?? "—"}°</span>
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white">Shape:</span>{" "}
+                                  <span className="text-amber-100">{formatDevValue(currentPuzzle?.sourceShape?.shapeName ?? "Grid")}</span>
+                                </div>
+                                <div>
+                                  <span className="font-bold text-white">ID:</span>{" "}
+                                  <span className="text-amber-100">{currentPuzzle?.id ?? "—"}</span>
                                 </div>
                               </DevDebugPanel>
                             </div>

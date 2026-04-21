@@ -6,6 +6,7 @@ export const PUZZLE_TYPES = {
   LOGIC_GRID: "logic_grid",
   LOGIC_GATE: "logic_gate",
   SIGNAL_PATH: "signal_path",
+  SPATIAL_ROTATION: "spatial_rotation",
   MEMORY_CHAIN: "memory_chain",
   SYMBOL_RECALL: "symbol_recall",
   ODD_ONE_MATRIX: "odd_one_matrix",
@@ -71,6 +72,15 @@ export const PUZZLE_TYPE_METADATA = {
     color: "cyan",
     cognitiveSkills: ["Planning", "Routing", "Constraint Logic"],
     icon: "route",
+  },
+  [PUZZLE_TYPES.SPATIAL_ROTATION]: {
+    label: "Spatial Rotation",
+    shortLabel: "Rotate",
+    description:
+      "Mentally rotate a source shape and identify the correctly transformed match.",
+    color: "cyan",
+    cognitiveSkills: ["Mental Rotation", "Spatial Reasoning", "Transformation Accuracy"],
+    icon: "rotate-right",
   },
   [PUZZLE_TYPES.MEMORY_CHAIN]: {
     label: "Memory Chain",
