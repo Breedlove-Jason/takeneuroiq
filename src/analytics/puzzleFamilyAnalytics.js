@@ -69,6 +69,12 @@ const PUZZLE_FAMILY_METADATA = {
     accent: "magenta",
     icon: "shapes",
   },
+  number_weave: {
+    label: "Number Weave",
+    shortLabel: "Weave",
+    accent: "emerald",
+    icon: "waveform",
+  },
 };
 
 const PUZZLE_FAMILY_DISPLAY_ORDER = [
@@ -80,6 +86,7 @@ const PUZZLE_FAMILY_DISPLAY_ORDER = [
   "pattern_rush",
   "signal_path",
   "spatial_rotation",
+  "number_weave",
   "memory_chain",
   "symbol_recall",
   "odd_one_matrix",
@@ -676,6 +683,53 @@ function buildOddOneMatrixSummary(sessions = []) {
   };
 }
 
+function buildNumberWeaveSummary(sessions = []) {
+  const base = buildBaseSummary("number_weave", sessions);
+
+  const sequenceLengths = [];
+  const patternTypes = [];
+  const difficulties = [];
+
+  const trendReasonByState = {
+    Rising:
+      "Numerical pattern fusion is sharpening. Interwoven sequence inference is gaining stability across recent runs.",
+    Steadying:
+      "Rule tracking is holding steady. Keep reinforcing dual-lane sequence logic so the inference flow stays consistent.",
+    Rebuilding:
+      "Recalibrate the sequence rules and prioritize individual lane accuracy before pushing further interwoven intensity.",
+  };
+
+  sessions.forEach((session) => {
+    const metrics = normalizePuzzleMetrics(session);
+
+    if (metrics.sequenceLength != null) {
+      sequenceLengths.push(toNumber(metrics.sequenceLength));
+    }
+
+    if (metrics.patternType) {
+      patternTypes.push(metrics.patternType);
+    }
+
+    if (metrics.difficulty) {
+      difficulties.push(metrics.difficulty);
+    }
+  });
+
+  return {
+    ...base,
+    familyLabel: "Number Weave",
+    averageSequenceLength: average(sequenceLengths, 1),
+    maxSequenceLength: sequenceLengths.length
+      ? Math.max(...sequenceLengths)
+      : 0,
+    mostCommonPatternType: getMode(patternTypes),
+    mostCommonDifficulty: getMode(difficulties),
+    trendReason:
+      trendReasonByState[base.trendState] ||
+      "Numerical pattern fusion is evolving. Keep refining interwoven sequence inference.",
+  };
+}
+
 const FAMILY_SUMMARY_BUILDERS = {
   pattern_rush: buildPatternRushSummary,
   sequence_sprint: buildSequenceSprintSummary,
@@ -688,6 +742,7 @@ const FAMILY_SUMMARY_BUILDERS = {
   memory_chain: buildMemoryChainSummary,
   symbol_recall: buildSymbolRecallSummary,
   odd_one_matrix: buildOddOneMatrixSummary,
+  number_weave: buildNumberWeaveSummary,
 };
 
 function buildGenericFamilySummary(puzzleType, sessions = []) {

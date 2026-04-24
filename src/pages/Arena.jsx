@@ -24,6 +24,7 @@ import { getRandomLogicGatePuzzle } from "../game/logicGatePuzzles";
 import { getRandomSignalPathPuzzle } from "../game/signalPathPuzzles";
 import { getRandomOddOneMatrixPuzzle } from "../game/puzzleGenerators/oddOneMatrixGenerator";
 import { getRandomSpatialRotationPuzzle } from "../game/puzzleGenerators/spatialRotationGenerator";
+import { getRandomNumberWeavePuzzle } from "../game/puzzleGenerators/numberWeaveGenerator";
 import { recordSession } from "../game/sessionTracker";
 import { calculateLiveAdaptiveDifficulty } from "../analytics/liveAdaptiveDifficulty.js";
 import { useLocation } from "react-router-dom";
@@ -280,6 +281,17 @@ const analysisProfileMap = {
     accentColor: "#d946ef",
     animationStyle: "matrix_resonance",
   },
+  number_weave: {
+    title: "Fusion Analysis Matrix",
+    analysisLines: [
+      "Interwoven patterns isolated",
+      "Sequence inference logic stable",
+      "Multi-lane tracking calibrated",
+    ],
+    tone: "fused",
+    accentColor: "#10b981",
+    animationStyle: "steady_scan",
+  },
 };
 
 const analysisAnimationProfileMap = {
@@ -391,8 +403,18 @@ function formatDevValue(value, fallback = "—") {
   if (value === null || value === undefined) {
     return fallback;
   }
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : fallback;
+  }
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
   if (typeof value !== "string") {
-    return value;
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return fallback;
+    }
   }
   const trimmed = value.trim();
   if (!trimmed) {
@@ -957,6 +979,7 @@ const ODD_ONE_MATRIX_PUZZLE_TYPE = "odd_one_matrix";
 const MEMORY_CHAIN_PUZZLE_TYPE = "memory_chain";
 const SYMBOL_RECALL_PUZZLE_TYPE = "symbol_recall";
 const SPATIAL_ROTATION_PUZZLE_TYPE = "spatial_rotation";
+const NUMBER_WEAVE_PUZZLE_TYPE = "number_weave";
 const RULE_SHIFT_PUZZLE_META = {
   label: "Rule Shift",
   shortLabel: "Shift",
@@ -1010,6 +1033,7 @@ const terminalAnalysisToneMap = {
   logic_gate: ["text-[var(--color-lilac-glow)]/84", "text-cyan-100/76", "text-[var(--color-lilac-border)]/78"],
   signal_path: ["text-cyan-100/84", "text-blue-100/76", "text-indigo-200/78"],
   spatial_rotation: ["text-cyan-100/84", "text-fuchsia-100/76", "text-violet-200/78"],
+  number_weave: ["text-emerald-100/84", "text-cyan-100/76", "text-teal-200/78"],
 };
 
 const terminalSignalProfileLabels = {
@@ -1024,6 +1048,7 @@ const terminalSignalProfileLabels = {
   logic_gate: "LOGIC CIRCUIT",
   signal_path: "ROUTING DISCIPLINE",
   spatial_rotation: "MENTAL ROTATION",
+  number_weave: "PATTERN FUSION",
 };
 
 function formatTerminalFallbackLabel(value, fallback = "UNCLASSIFIED") {
@@ -1183,6 +1208,9 @@ function Arena({ theme }) {
     if (initialPuzzleType === SPATIAL_ROTATION_PUZZLE_TYPE) {
       return getRandomSpatialRotationPuzzle(initialTargetDifficulty);
     }
+    if (initialPuzzleType === NUMBER_WEAVE_PUZZLE_TYPE) {
+      return getRandomNumberWeavePuzzle(initialTargetDifficulty);
+    }
     if (initialPuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE) {
       return getRandomOddOneMatrixPuzzle(initialTargetDifficulty);
     }
@@ -1325,6 +1353,7 @@ function Arena({ theme }) {
   const isMemoryChainPuzzle = activePuzzleType === MEMORY_CHAIN_PUZZLE_TYPE;
   const isSymbolRecallPuzzle = activePuzzleType === SYMBOL_RECALL_PUZZLE_TYPE;
   const isSpatialRotationPuzzle = activePuzzleType === SPATIAL_ROTATION_PUZZLE_TYPE;
+  const isNumberWeavePuzzle = activePuzzleType === NUMBER_WEAVE_PUZZLE_TYPE;
   const isOddOneMatrixPuzzle = activePuzzleType === ODD_ONE_MATRIX_PUZZLE_TYPE;
   const activePuzzleMeta = isRuleShiftPuzzle
     ? RULE_SHIFT_PUZZLE_META
@@ -1806,6 +1835,8 @@ function Arena({ theme }) {
         return getRandomSymbolRecallPuzzle(difficulty);
       case SPATIAL_ROTATION_PUZZLE_TYPE:
         return getRandomSpatialRotationPuzzle(difficulty);
+      case NUMBER_WEAVE_PUZZLE_TYPE:
+        return getRandomNumberWeavePuzzle(difficulty);
       case PUZZLE_TYPES.GRID_RECALL:
         return getRandomGridRecallPuzzle(difficulty);
       case PUZZLE_TYPES.LOGIC_GRID:
@@ -2644,6 +2675,88 @@ function Arena({ theme }) {
             );
           }),
         )}
+      </div>
+    );
+  };
+
+  const renderNumberWeaveContent = () => {
+    const puzzle = currentPuzzle;
+    if (!puzzle) return null;
+
+    const { sequence, prompt } = puzzle;
+
+    return (
+      <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto space-y-12">
+        {/* Family Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10">
+            <FontAwesomeIcon icon={faBrain} className="text-cyan-400 text-xs" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Number Weave</span>
+          </div>
+          <h2 className={`text-2xl font-black tracking-tight ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+            {formatDevValue(prompt) || "Complete the interwoven sequence"}
+          </h2>
+        </div>
+
+        {/* Sequence Display */}
+        <div className="flex flex-wrap justify-center gap-4 py-8">
+          {sequence.map((value, idx) => (
+            <div
+              key={idx}
+              className={`
+                relative flex items-center justify-center w-20 h-24 rounded-2xl border-2 transition-all duration-500
+                ${value === null 
+                  ? "border-dashed border-fuchsia-500/50 bg-fuchsia-500/5 shadow-[0_0_20px_rgba(217,70,239,0.1)]" 
+                  : "border-cyan-500/30 bg-slate-900/60 shadow-[inset_0_0_15px_rgba(34,211,238,0.05)]"
+                }
+              `}
+            >
+              <div className="absolute top-2 left-2 text-[8px] font-bold text-slate-500 uppercase tracking-widest">
+                {String(idx + 1).padStart(2, '0')}
+              </div>
+              
+              {value === null ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl font-black text-fuchsia-400 animate-pulse">?</span>
+                  <div className="absolute -bottom-6 w-12 h-1 bg-fuchsia-500/40 blur-[2px] rounded-full" />
+                </div>
+              ) : (
+                <span className={`text-3xl font-black ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                  {formatDevValue(value)}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Answer Options */}
+        <div className="w-full max-w-2xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+          {puzzle.options.map((option, idx) => {
+            const optionId = typeof option === "object" && option !== null ? option.id : option;
+            const optionLabel =
+              typeof option === "object" && option !== null && "value" in option ? option.value : option;
+            return (
+            <button
+              key={optionId ?? idx}
+              onClick={() => handleAnswer(optionId)}
+              className={`
+                group relative flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all duration-300
+                ${isCyber 
+                  ? "border-slate-800 bg-slate-900/40 hover:border-cyan-500/50 hover:bg-cyan-500/5 hover:shadow-[0_0_25px_rgba(34,211,238,0.15)]" 
+                  : "border-slate-200 bg-white hover:border-cyan-400 hover:bg-cyan-50"
+                }
+              `}
+            >
+              <span className={`text-3xl font-black transition-transform duration-300 group-hover:scale-110 ${isCyber ? "text-white" : "text-slate-900"}`}>
+                {formatDevValue(optionLabel)}
+              </span>
+              <div className="absolute bottom-2 right-2 text-[8px] font-bold text-slate-600 uppercase">
+                OPT-{idx + 1}
+              </div>
+            </button>
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -4792,6 +4905,8 @@ function Arena({ theme }) {
                       </div>
                     </div>
                   </div>
+                ) : isNumberWeavePuzzle ? (
+                  renderNumberWeaveContent()
                 ) : isSpatialRotationPuzzle ? (
                   <div className="relative w-full overflow-hidden rounded-3xl border border-cyan-500/35 bg-slate-900/80 p-4 shadow-[inset_0_0_40px_rgba(34,211,238,0.12),0_20px_40px_rgba(2,6,23,0.55)] backdrop-blur-md">
                     <div className="relative z-10">
@@ -4801,10 +4916,10 @@ function Arena({ theme }) {
                             Spatial Rotation Arena
                           </p>
                           <h3 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
-                            {currentPuzzle?.prompt || "Rotate the source shape and choose the matching option."}
+                            {formatDevValue(currentPuzzle?.prompt) || "Rotate the source shape and choose the matching option."}
                           </h3>
                           <p className="text-xs font-medium text-slate-300">
-                            Rotate the source shape <span className="font-semibold text-fuchsia-200">{currentPuzzle?.targetRotation ?? "?"}° clockwise</span> and tap the option that matches.
+                            Rotate the source shape <span className="font-semibold text-fuchsia-200">{formatDevValue(currentPuzzle?.targetRotation)}° clockwise</span> and tap the option that matches.
                           </p>
                         </div>
                         <span className="inline-flex items-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.28em] text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.25)]">
@@ -4832,7 +4947,7 @@ function Arena({ theme }) {
                             </span>
                           </div>
                           <p className="mt-2 text-[11px] font-medium text-slate-300">
-                            Rotate this exact arrangement by <span className="font-semibold text-fuchsia-200">{currentPuzzle?.targetRotation ?? "?"}°</span> clockwise.
+                            Rotate this exact arrangement by <span className="font-semibold text-fuchsia-200">{formatDevValue(currentPuzzle?.targetRotation)}°</span> clockwise.
                           </p>
                           <div className="mt-3 flex justify-center">
                             <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/50 p-3 shadow-[inset_0_0_30px_rgba(2,6,23,0.75)]">
@@ -4881,7 +4996,7 @@ function Arena({ theme }) {
                                       >
                                         <div className="flex items-center justify-between gap-2 px-1">
                                           <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-200/90">
-                                            Choice {optionLabel}
+                                            Choice {formatDevValue(optionLabel)}
                                           </p>
                                           <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-1.5 py-0.5 text-[8px] font-bold uppercase text-fuchsia-200/70">
                                             {formatDevValue(option?.rotation ?? currentPuzzle?.targetRotation)}°

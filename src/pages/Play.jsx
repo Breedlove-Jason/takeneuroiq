@@ -12,6 +12,7 @@ import {
   faRotateRight,
   faBullseye,
   faShapes,
+  faLayerGroup,
 } from '@fortawesome/pro-duotone-svg-icons';
 
 /**
@@ -388,6 +389,38 @@ function Play({ theme }) {
         light: 'border-rose-200 bg-fuchsia-50 text-rose-800',
       },
       glowTone: 'group-hover:text-glow-rose',
+    },
+    {
+      icon: faLayerGroup,
+      puzzleType: 'number_weave',
+      title: 'Number Weave',
+      description:
+        'Two number rules are interwoven into one visible sequence. Infer the combined pattern and identify the missing value.',
+      buttonText: 'Launch Number Weave',
+      skills: ['Number Reasoning', 'Pattern Fusion'],
+      hasPulse: true,
+      cardTone: {
+        cyber:
+          'border-emerald-400/45 bg-[linear-gradient(160deg,rgba(52,211,153,0.18)_0%,rgba(6,32,24,0.9)_40%,rgba(16,185,129,0.08)_72%,rgba(4,10,12,0.96)_100%)] shadow-[0_0_34px_rgba(52,211,153,0.26)] hover:border-emerald-300/80 hover:shadow-[0_0_54px_rgba(52,211,153,0.32)]',
+        light:
+          'border-emerald-300 bg-[linear-gradient(155deg,rgba(236,253,245,0.96)_0%,rgba(255,255,255,1)_52%,rgba(209,250,229,0.94)_100%)] shadow-[0_14px_32px_rgba(16,185,129,0.14)] hover:border-emerald-400 hover:shadow-[0_18px_38px_rgba(16,185,129,0.18)]',
+      },
+      iconTone: {
+        cyber:
+          'text-emerald-300 drop-shadow-[0_0_18px_rgba(52,211,153,0.58)]',
+        light: 'text-emerald-700',
+      },
+      buttonTone: {
+        cyber:
+          'bg-linear-to-r from-emerald-400 via-teal-500 to-emerald-600 text-white shadow-[0_0_24px_rgba(52,211,153,0.42)] hover:from-emerald-300 hover:via-teal-400 hover:to-emerald-500 hover:brightness-110 hover:shadow-[0_0_42px_rgba(52,211,153,0.45)] hover:-translate-y-0.5',
+        light:
+          'bg-linear-to-r from-emerald-100 via-teal-50 to-emerald-50 text-white border border-slate-900/10 hover:from-emerald-200 hover:via-teal-100 hover:to-emerald-50 hover:brightness-105 shadow-md hover:shadow-lg hover:-translate-y-0.5',
+      },
+      tagTone: {
+        cyber: 'border-emerald-400/35 bg-emerald-500/10 text-emerald-100',
+        light: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+      },
+      glowTone: 'group-hover:text-glow-emerald',
     },
   ];
 

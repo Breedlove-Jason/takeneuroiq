@@ -18,6 +18,7 @@ import {
   faBorderAll,
   faShapes,
   faRotateRight,
+  faWaveform,
 } from '@fortawesome/pro-duotone-svg-icons';
 import {
   Radar,
@@ -179,6 +180,7 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
   if (puzzleType === 'memory_chain') return 'Memory Chain';
   if (puzzleType === 'symbol_recall') return 'Symbol Recall';
   if (puzzleType === 'spatial_rotation') return 'Spatial Rotation';
+  if (puzzleType === 'number_weave') return 'Number Weave';
   if (puzzleType === 'odd_one_matrix') return 'Odd One Matrix';
   const puzzleLabel = formatSnakeCaseToTitle(puzzleType);
   if (puzzleLabel) return puzzleLabel;
@@ -267,6 +269,13 @@ const RECENT_SESSION_FAMILY_VISUALS = {
     labelClass: 'text-rose-200',
     badgeClass: 'text-fuchsia-300/70',
   },
+  number_weave: {
+    icon: faWaveform,
+    iconWrap:
+      'flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/45 bg-gradient-to-br from-emerald-500/14 via-teal-500/10 to-cyan-500/10 text-emerald-200 shadow-[0_0_22px_rgba(16,185,129,0.3)]',
+    labelClass: 'text-emerald-100',
+    badgeClass: 'text-teal-200/75',
+  },
   default: {
     icon: faBrain,
     iconWrap:
@@ -305,6 +314,8 @@ function getFocusLaneFromPuzzleType(puzzleType) {
       return 'Glyph Recognition';
     case 'spatial_rotation':
       return 'Mental Rotation';
+    case 'number_weave':
+      return 'Numerical Logic';
     case 'odd_one_matrix':
       return 'Anomaly Detection';
     default:
@@ -490,6 +501,25 @@ function buildFamilyAwareRecommendation(session) {
     return `Slow the rotation pace, rehearse ${shapeName}, and rebuild mental rotation accuracy before denser match sets.`;
   }
 
+  if (session.puzzleType === 'number_weave') {
+    const patternType = puzzleMetrics.patternType
+      ? formatSnakeCaseToTitle(puzzleMetrics.patternType)
+      : 'numerical patterns';
+    const sequenceLength = puzzleMetrics.sequenceLength;
+    const lengthLabel =
+      typeof sequenceLength === 'number'
+        ? `length ${sequenceLength} weaves`
+        : 'complex interwoven sequences';
+
+    if (accuracy >= 90 && streak >= 8) {
+      return `Numerical pattern fusion is sharp. Push harder ${patternType} across ${lengthLabel} to maintain your inference streak.`;
+    }
+    if (accuracy >= 75) {
+      return `Rule tracking is stabilizing. Repeat ${patternType} inside ${lengthLabel} to refine your sequence fusion precision.`;
+    }
+    return `Slow the cadence, focus on individual rule lanes, and rebuild sequence inference before returning to ${lengthLabel}.`;
+  }
+
   if (session.puzzleType === 'odd_one_matrix') {
     const ruleType = puzzleMetrics.ruleType
       ? formatSnakeCaseToTitle(puzzleMetrics.ruleType)
@@ -576,6 +606,12 @@ function buildPrimarySignalLabel(session) {
     return accuracy >= 80
       ? 'spatial transformation accuracy sharpening'
       : 'mental rotation recalibrating';
+  }
+
+  if (session.puzzleType === 'number_weave') {
+    return accuracy >= 80
+      ? 'numerical pattern fusion sharpening'
+      : 'sequence inference recalibrating';
   }
 
   if (session.puzzleType === 'odd_one_matrix') {

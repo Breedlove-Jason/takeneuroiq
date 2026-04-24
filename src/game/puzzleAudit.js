@@ -22,6 +22,7 @@ import { getRandomLogicGridPuzzle } from './logicGridPuzzles.js';
 import { getRandomRuleShiftPuzzle } from './puzzleGenerators/ruleShiftGenerator.js';
 import { getRandomOddOneMatrixPuzzle } from './puzzleGenerators/oddOneMatrixGenerator.js';
 import { getRandomSpatialRotationPuzzle } from './puzzleGenerators/spatialRotationGenerator.js';
+import { getRandomNumberWeavePuzzle } from './puzzleGenerators/numberWeaveGenerator.js';
 
 // ============================================================================
 // CONFIGURATION
@@ -37,6 +38,7 @@ const CANONICAL_FAMILIES = [
   'logic_grid',
   'odd_one_matrix',
   'spatial_rotation',
+  'number_weave',
 ];
 
 const CANONICAL_DIFFICULTIES = ['easy', 'medium', 'hard'];
@@ -63,6 +65,7 @@ const PUZZLE_GENERATORS = {
   logic_grid: (difficulty) => getRandomLogicGridPuzzle(difficulty),
   odd_one_matrix: (difficulty) => getRandomOddOneMatrixPuzzle(difficulty),
   spatial_rotation: (difficulty) => getRandomSpatialRotationPuzzle(difficulty),
+  number_weave: (difficulty) => getRandomNumberWeavePuzzle(difficulty),
 };
 
 // ============================================================================
@@ -141,7 +144,13 @@ function createSignature(puzzle, family) {
           puzzle?.meta?.shapeName || 'unknown',
           String(puzzle?.targetRotation || 0),
           puzzle?.meta?.sourceSignature || '',
-          puzzle?.answer || '',
+        ].join('::');
+
+      case 'number_weave':
+        return [
+          puzzle?.meta?.weaveType || 'unknown',
+          (puzzle?.sequence || []).join(','),
+          (puzzle?.options || []).find((o) => o.id === puzzle?.answer)?.value ?? '',
         ].join('::');
 
       default:
@@ -614,6 +623,52 @@ function validateSpatialRotation(puzzle) {
   return errors;
 }
 
+function validateNumberWeave(puzzle) {
+  const errors = [];
+
+  if (!puzzle || typeof puzzle !== 'object') {
+    errors.push('Puzzle object is missing or invalid');
+    return errors;
+  }
+
+  if (puzzle.puzzleType !== 'number_weave') {
+    errors.push(`Invalid puzzleType: expected number_weave, got ${puzzle.puzzleType}`);
+  }
+
+  if (!puzzle.prompt || typeof puzzle.prompt !== 'string') {
+    errors.push('Missing or invalid prompt');
+  }
+
+  if (!Array.isArray(puzzle.sequence) || puzzle.sequence.length === 0) {
+    errors.push('Missing or empty sequence array');
+  }
+
+  const choices = extractOptions(puzzle);
+  if (choices.length === 0) {
+    errors.push('Missing or empty options array');
+  }
+
+  const answer = extractAnswer(puzzle);
+  if (!answer) {
+    errors.push('Missing correct answer ID');
+  }
+
+  const answerInOptions = choices.some((opt) => opt.id === answer);
+  if (answer && !answerInOptions) {
+    errors.push('Correct answer ID not present in options');
+  }
+
+  if (!puzzle.meta || typeof puzzle.meta !== 'object') {
+    errors.push('Missing or invalid meta object');
+  }
+
+  if (!puzzle.difficulty || !CANONICAL_DIFFICULTIES.includes(puzzle.difficulty)) {
+    errors.push(`Invalid difficulty: ${puzzle.difficulty}`);
+  }
+
+  return errors;
+}
+
 // ============================================================================
 // VALIDATOR MAPPING
 // ============================================================================
@@ -628,6 +683,7 @@ const FAMILY_VALIDATORS = {
   logic_grid: validateLogicGrid,
   odd_one_matrix: validateOddOneMatrix,
   spatial_rotation: validateSpatialRotation,
+  number_weave: validateNumberWeave,
 };
 
 // ============================================================================
@@ -774,6 +830,10 @@ function auditFamily(family, difficulties, iterations, debugContext = {}) {
 
         if (family === 'odd_one_matrix' && Number.isInteger(puzzle?.oddIndex)) {
           results.oddIndices.push(puzzle.oddIndex);
+        }
+
+        if (family === 'number_weave' && puzzle?.meta?.patternType) {
+          results.ruleTypes.push(puzzle.meta.patternType);
         }
 
         if (puzzle?.sequenceType) {

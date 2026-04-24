@@ -21,6 +21,7 @@ import {
   faBrain,
   faBorderAll,
   faRotateRight,
+  faWaveform,
   faLink,
   faBullseye,
   faBolt,
@@ -465,13 +466,13 @@ function ProfileAnalytics({
                 "logic_grid",        // Sky
                 "signal_path",       // Cyan/Blue
                 "spatial_rotation",   // Cyan/Violet/Fuchsia
+                "number_weave",      // Emerald/Teal/Cyan
                 "memory_chain",      // Lilac
               ];
               const rowIndex = Math.floor(index / 3);
               const rowPalette = rowPalettes[rowIndex % rowPalettes.length];
 
               const familyConfig = getFamilyCardTone(family.puzzleType, rowPalette);
-              const badgeClasses = getTrendBadgeClasses(family.trendState);
               const accuracyBadge = Number.isFinite(family.averageAccuracy)
                 ? `${Math.round(family.averageAccuracy)}%`
                 : "0%";
@@ -498,11 +499,11 @@ function ProfileAnalytics({
               return (
                 <div
                   key={family.puzzleType ?? family.familyLabel}
-                  className={`group flex h-full min-h-90 flex-col gap-3 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyConfig.card} ${badgeClasses.glow} ${familyConfig.accentRing}`}
+                  className={`group flex h-full min-h-90 flex-col gap-3 rounded-2xl border p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${familyConfig.cardClass} ${familyConfig.accentRingClass}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className={familyConfig.iconWrap}>
+                      <div className={familyConfig.iconWrapClass}>
                         <FontAwesomeIcon
                           icon={familyConfig.icon}
                           className={`[--fa-secondary-opacity:1] transition-transform duration-300 group-hover:scale-110 ${familyConfig.iconClass || "text-lg"}`}
@@ -510,23 +511,23 @@ function ProfileAnalytics({
                       </div>
                       <div className="min-w-0">
                         <p
-                          className={`text-sm font-semibold uppercase tracking-[0.35em] leading-[1.4] ${familyConfig.title}`}
+                          className={`text-sm font-semibold uppercase tracking-[0.35em] leading-[1.4] ${familyConfig.accentTextClass}`}
                         >
                           {family.familyLabel}
                         </p>
-                        <p className={`text-[11px] ${familyConfig.meta}`}>
+                        <p className={`text-[11px] ${familyConfig.sessionsTextClass}`}>
                           {family.sessionsPlayed ?? 0} sessions played
                         </p>
                       </div>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2">
                       <span
-                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${badgeClasses.badge}`}
+                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${familyConfig.trendBadgeClass}`}
                       >
                         {family.trendState || "Calibrating"}
                       </span>
                       <span
-                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${avgAccuracyBadgeClasses}`}
+                        className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] ${familyConfig.avgBadgeClass}`}
                       >
                         Avg {accuracyBadge}
                       </span>
@@ -537,13 +538,13 @@ function ProfileAnalytics({
                     {statRows.map((stat) => (
                       <div
                         key={`${family.familyLabel}-${stat.label}`}
-                        className={`flex flex-col gap-1 rounded-xl border p-3 ${familyConfig.statTile}`}
+                        className={`flex flex-col gap-1 rounded-xl border p-3 ${familyConfig.statTileClass}`}
                       >
-                        <span className={`text-[9px] font-semibold uppercase tracking-[0.3em] opacity-80 ${familyConfig.statLabel}`}>
+                        <span className={`text-[9px] font-semibold uppercase tracking-[0.3em] opacity-80 ${familyConfig.statLabelClass}`}>
                           {stat.label}
                         </span>
                         <span
-                          className={`text-lg font-semibold ${familyConfig.statValue}`}
+                          className={`text-lg font-semibold ${familyConfig.statValueClass}`}
                         >
                           {stat.value}
                         </span>
@@ -552,12 +553,12 @@ function ProfileAnalytics({
                   </div>
 
                   <div
-                    className={`mt-auto rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] ${familyConfig.trendPanel}`}
+                    className={`mt-auto rounded-2xl border px-3 py-2 text-xs uppercase tracking-[0.3em] ${familyConfig.trendPanelClass}`}
                   >
-                    <p className={`text-[10px] font-semibold uppercase tracking-[0.35em] opacity-80 ${familyConfig.trendLabel}`}>
+                    <p className={`text-[10px] font-semibold uppercase tracking-[0.35em] opacity-80 ${familyConfig.trendTitleClass}`}>
                       Trend Read
                     </p>
-                    <p className={`mt-1 text-sm font-semibold leading-relaxed ${familyConfig.trendText}`}>
+                    <p className={`mt-1 text-sm font-semibold leading-relaxed ${familyConfig.trendTextClass}`}>
                       {family.trendReason || "Trend data is still calibrating."}
                     </p>
                   </div>
@@ -661,248 +662,231 @@ function calculatePerformanceMetrics(sessions) {
   };
 }
 
-function getTrendBadgeClasses(trendState) {
-  const trendBadgeToneMap = {
-    Rising: {
-      badge:
-        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
-      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
-    },
-    Steadying: {
-      badge:
-        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
-      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
-    },
-    Rebuilding: {
-      badge:
-        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
-      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
-    },
-    Calibrating: {
-      badge:
-        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
-      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
-    },
-    fallback: {
-      badge:
-        "border-purple-500/40 bg-purple-900/60 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]",
-      glow: "shadow-[0_0_30px_rgba(168,85,247,0.2)]",
-    },
-  };
-
-  return trendBadgeToneMap[trendState] || trendBadgeToneMap.fallback;
-}
-
-const avgAccuracyBadgeClasses =
-  "border-fuchsia-500/40 bg-fuchsia-700/60 text-white shadow-[0_0_15px_rgba(217,70,239,0.2)]";
 
 function getFamilyCardTone(puzzleType, rowPalette = null) {
   const baseIconWrapper = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border overflow-hidden transition-all duration-300";
 
   const familyConfigMap = {
     pattern_rush: {
-      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]",
-      iconWrap: `${baseIconWrapper} border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
+      cardClass: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]",
+      iconWrapClass: `${baseIconWrapper} border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
       iconClass: "text-[0.85rem]",
       icon: faStar,
-      title: "text-cyan-200",
-      meta: "text-cyan-300/80",
-      badge: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
-      statTile: "border-cyan-500/20 bg-cyan-500/5",
-      statLabel: "text-cyan-300/80",
-      statValue: "text-cyan-100",
-      trendPanel: "border-cyan-500/20 bg-cyan-500/5 ring-1 ring-cyan-500/30",
-      trendLabel: "text-cyan-300/80",
-      trendText: "text-cyan-100",
-      accentRing: "ring-1 ring-cyan-500/30",
-      accentText: "text-cyan-200",
+      accentTextClass: "text-cyan-200",
+      sessionsTextClass: "text-cyan-300/80",
+      trendBadgeClass: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
+      avgBadgeClass: "border-cyan-400/35 bg-cyan-500/20 text-cyan-100",
+      statTileClass: "border-cyan-500/20 bg-cyan-500/5",
+      statLabelClass: "text-cyan-300/80",
+      statValueClass: "text-cyan-100",
+      trendPanelClass: "border-cyan-500/20 bg-cyan-500/5 ring-1 ring-cyan-500/30",
+      trendTitleClass: "text-cyan-300/80",
+      trendTextClass: "text-cyan-100",
+      accentRingClass: "ring-1 ring-cyan-500/30",
     },
     sequence_sprint: {
-      card: "border-fuchsia-400/30 bg-[linear-gradient(160deg,rgba(217,70,239,0.14)_0%,rgba(48,10,40,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.22)]",
-      iconWrap: `${baseIconWrapper} border-fuchsia-400/45 bg-fuchsia-500/12 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.65)]`,
+      cardClass: "border-fuchsia-400/30 bg-[linear-gradient(160deg,rgba(217,70,239,0.14)_0%,rgba(48,10,40,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.22)]",
+      iconWrapClass: `${baseIconWrapper} border-fuchsia-400/45 bg-fuchsia-500/12 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.65)]`,
       iconClass: "text-[0.85rem]",
       icon: faDiagramProject,
-      title: "text-fuchsia-200",
-      meta: "text-fuchsia-300/80",
-      badge: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
-      statTile: "border-fuchsia-500/20 bg-fuchsia-500/5",
-      statLabel: "text-fuchsia-300/80",
-      statValue: "text-fuchsia-100",
-      trendPanel: "border-fuchsia-500/20 bg-fuchsia-500/5 ring-1 ring-fuchsia-500/30",
-      trendLabel: "text-fuchsia-300/80",
-      trendText: "text-fuchsia-100",
-      accentRing: "ring-1 ring-fuchsia-500/30",
-      accentText: "text-fuchsia-200",
+      accentTextClass: "text-fuchsia-200",
+      sessionsTextClass: "text-fuchsia-300/80",
+      trendBadgeClass: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
+      avgBadgeClass: "border-fuchsia-400/35 bg-fuchsia-500/20 text-fuchsia-100",
+      statTileClass: "border-fuchsia-500/20 bg-fuchsia-500/5",
+      statLabelClass: "text-fuchsia-300/80",
+      statValueClass: "text-fuchsia-100",
+      trendPanelClass: "border-fuchsia-500/20 bg-fuchsia-500/5 ring-1 ring-fuchsia-500/30",
+      trendTitleClass: "text-fuchsia-300/80",
+      trendTextClass: "text-fuchsia-100",
+      accentRingClass: "ring-1 ring-fuchsia-500/30",
     },
     rule_shift: {
-      card: "border-amber-400/30 bg-[linear-gradient(160deg,rgba(245,158,11,0.14)_0%,rgba(36,22,8,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(245,158,11,0.22)]",
-      iconWrap: `${baseIconWrapper} border-amber-400/45 bg-amber-500/12 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.62)]`,
+      cardClass: "border-amber-400/30 bg-[linear-gradient(160deg,rgba(245,158,11,0.14)_0%,rgba(36,22,8,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(245,158,11,0.22)]",
+      iconWrapClass: `${baseIconWrapper} border-amber-400/45 bg-amber-500/12 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.62)]`,
       iconClass: "text-[0.8rem]",
       icon: faRotateRight,
-      title: "text-amber-200",
-      meta: "text-amber-300/80",
-      badge: "border-amber-400/35 bg-amber-500/10 text-amber-200",
-      statTile: "border-amber-500/20 bg-amber-500/5",
-      statLabel: "text-amber-300/80",
-      statValue: "text-amber-100",
-      trendPanel: "border-amber-500/20 bg-amber-500/5 ring-1 ring-amber-500/30",
-      trendLabel: "text-amber-300/80",
-      trendText: "text-amber-100",
-      accentRing: "ring-1 ring-amber-500/30",
-      accentText: "text-amber-200",
+      accentTextClass: "text-amber-200",
+      sessionsTextClass: "text-amber-300/80",
+      trendBadgeClass: "border-amber-400/35 bg-amber-500/10 text-amber-200",
+      avgBadgeClass: "border-amber-400/35 bg-amber-500/20 text-amber-100",
+      statTileClass: "border-amber-500/20 bg-amber-500/5",
+      statLabelClass: "text-amber-300/80",
+      statValueClass: "text-amber-100",
+      trendPanelClass: "border-amber-500/20 bg-amber-500/5 ring-1 ring-amber-500/30",
+      trendTitleClass: "text-amber-300/80",
+      trendTextClass: "text-amber-100",
+      accentRingClass: "ring-1 ring-amber-500/30",
     },
     grid_recall: {
-      card: "border-[var(--color-aqua-border)]/30 bg-[linear-gradient(160deg,var(--color-aqua-tint)_0%,rgba(34,211,238,0.08)_42%,rgba(6,14,20,0.94)_100%)] shadow-[0_0_40px_rgba(104,217,207,0.2)]",
-      iconWrap: `${baseIconWrapper} border-[var(--color-aqua-border)]/45 bg-gradient-to-br from-[var(--color-aqua-accent)]/12 via-[var(--color-aqua-icon)]/10 to-[var(--color-aqua-tint)] text-[var(--color-aqua-icon)] shadow-[0_0_18px_rgba(104,217,207,0.58)]`,
+      cardClass: "border-[var(--color-aqua-border)]/30 bg-[linear-gradient(160deg,var(--color-aqua-tint)_0%,rgba(34,211,238,0.08)_42%,rgba(6,14,20,0.94)_100%)] shadow-[0_0_40px_rgba(104,217,207,0.2)]",
+      iconWrapClass: `${baseIconWrapper} border-[var(--color-aqua-border)]/45 bg-gradient-to-br from-[var(--color-aqua-accent)]/12 via-[var(--color-aqua-icon)]/10 to-[var(--color-aqua-tint)] text-[var(--color-aqua-icon)] shadow-[0_0_18px_rgba(104,217,207,0.58)]`,
       iconClass: "text-base",
       icon: faTableCells,
-      title: "text-[var(--color-aqua-icon)]",
-      meta: "text-[var(--color-aqua-accent)]/80",
-      badge: "border-[var(--color-aqua-border)]/35 bg-[var(--color-aqua-accent)]/10 text-[var(--color-aqua-icon)]",
-      statTile: "border-[var(--color-aqua-border)]/25 bg-[var(--color-aqua-tint)]",
-      statLabel: "text-[var(--color-aqua-accent)]/80",
-      statValue: "text-[var(--color-aqua-icon)]",
-      trendPanel: "border-[var(--color-aqua-border)]/25 bg-[var(--color-aqua-tint)] ring-1 ring-[var(--color-aqua-border)]/30",
-      trendLabel: "text-[var(--color-aqua-accent)]/80",
-      trendText: "text-[var(--color-aqua-icon)]",
-      accentRing: "ring-1 ring-[var(--color-aqua-accent)]/30",
-      accentText: "text-[var(--color-aqua-icon)]",
+      accentTextClass: "text-[var(--color-aqua-icon)]",
+      sessionsTextClass: "text-[var(--color-aqua-accent)]/80",
+      trendBadgeClass: "border-[var(--color-aqua-border)]/35 bg-[var(--color-aqua-accent)]/10 text-[var(--color-aqua-icon)]",
+      avgBadgeClass: "border-[var(--color-aqua-border)]/35 bg-[var(--color-aqua-accent)]/20 text-[var(--color-aqua-icon)]",
+      statTileClass: "border-[var(--color-aqua-border)]/25 bg-[var(--color-aqua-tint)]",
+      statLabelClass: "text-[var(--color-aqua-accent)]/80",
+      statValueClass: "text-[var(--color-aqua-icon)]",
+      trendPanelClass: "border-[var(--color-aqua-border)]/25 bg-[var(--color-aqua-tint)] ring-1 ring-[var(--color-aqua-border)]/30",
+      trendTitleClass: "text-[var(--color-aqua-accent)]/80",
+      trendTextClass: "text-[var(--color-aqua-icon)]",
+      accentRingClass: "ring-1 ring-[var(--color-aqua-accent)]/30",
     },
     logic_gate: {
-      card: "border-orange-500/30 bg-[linear-gradient(160deg,rgba(249,115,22,0.14)_0%,rgba(43,20,6,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(249,115,22,0.2)]",
-      iconWrap: `${baseIconWrapper} border-orange-400/45 bg-orange-500/12 text-orange-200 shadow-[0_0_18px_rgba(249,115,22,0.58)]`,
+      cardClass: "border-orange-500/30 bg-[linear-gradient(160deg,rgba(249,115,22,0.14)_0%,rgba(43,20,6,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(249,115,22,0.2)]",
+      iconWrapClass: `${baseIconWrapper} border-orange-400/45 bg-orange-500/12 text-orange-200 shadow-[0_0_18px_rgba(249,115,22,0.58)]`,
       iconClass: "text-sm",
       icon: faMicrochip,
-      title: "text-orange-200",
-      meta: "text-orange-300/80",
-      badge: "border-orange-400/35 bg-orange-500/10 text-orange-200",
-      statTile: "border-orange-500/20 bg-orange-500/5",
-      statLabel: "text-orange-300/80",
-      statValue: "text-orange-100",
-      trendPanel: "border-orange-500/20 bg-orange-500/5 ring-1 ring-orange-500/30",
-      trendLabel: "text-orange-300/80",
-      trendText: "text-orange-100",
-      accentRing: "ring-1 ring-orange-500/30",
-      accentText: "text-orange-200",
+      accentTextClass: "text-orange-200",
+      sessionsTextClass: "text-orange-300/80",
+      trendBadgeClass: "border-orange-400/35 bg-orange-500/10 text-orange-200",
+      avgBadgeClass: "border-orange-400/35 bg-orange-500/20 text-orange-100",
+      statTileClass: "border-orange-500/20 bg-orange-500/5",
+      statLabelClass: "text-orange-300/80",
+      statValueClass: "text-orange-100",
+      trendPanelClass: "border-orange-500/20 bg-orange-500/5 ring-1 ring-orange-500/30",
+      trendTitleClass: "text-orange-300/80",
+      trendTextClass: "text-orange-100",
+      accentRingClass: "ring-1 ring-orange-500/30",
     },
     logic_grid: {
-      card: "border-sky-400/30 bg-[linear-gradient(160deg,rgba(56,189,248,0.14)_0%,#091a2f_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(59,130,246,0.22)]",
-      iconWrap: `${baseIconWrapper} border-sky-400/45 bg-gradient-to-br from-sky-500/14 to-blue-500/12 text-sky-200 shadow-[0_0_18px_rgba(56,189,248,0.65)]`,
+      cardClass: "border-sky-400/30 bg-[linear-gradient(160deg,rgba(56,189,248,0.14)_0%,#091a2f_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(59,130,246,0.22)]",
+      iconWrapClass: `${baseIconWrapper} border-sky-400/45 bg-gradient-to-br from-sky-500/14 to-blue-500/12 text-sky-200 shadow-[0_0_18px_rgba(56,189,248,0.65)]`,
       iconClass: "text-base",
       icon: faBorderAll,
-      title: "text-sky-200",
-      meta: "text-sky-300/80",
-      badge: "border-sky-400/35 bg-sky-500/10 text-sky-200",
-      statTile: "border-sky-400/25 bg-sky-500/10",
-      statLabel: "text-sky-300/80",
-      statValue: "text-sky-100",
-      trendPanel: "border-sky-400/25 bg-sky-500/10 ring-1 ring-sky-400/30",
-      trendLabel: "text-sky-300/80",
-      trendText: "text-sky-100",
-      accentRing: "ring-1 ring-sky-500/30",
-      accentText: "text-sky-200",
+      accentTextClass: "text-sky-200",
+      sessionsTextClass: "text-sky-300/80",
+      trendBadgeClass: "border-sky-400/35 bg-sky-500/10 text-sky-200",
+      avgBadgeClass: "border-sky-400/35 bg-sky-500/20 text-sky-100",
+      statTileClass: "border-sky-400/25 bg-sky-500/10",
+      statLabelClass: "text-sky-300/80",
+      statValueClass: "text-sky-100",
+      trendPanelClass: "border-sky-400/25 bg-sky-500/10 ring-1 ring-sky-400/30",
+      trendTitleClass: "text-sky-300/80",
+      trendTextClass: "text-sky-100",
+      accentRingClass: "ring-1 ring-sky-500/30",
     },
     signal_path: {
-      card: "border-cyan-600/30 bg-[linear-gradient(160deg,rgba(8,145,178,0.12)_0%,rgba(30,58,138,0.1)_36%,rgba(8,18,22,0.94)_100%)] shadow-[0_0_40px_rgba(37,99,235,0.2)]",
-      iconWrap: `${baseIconWrapper} border-cyan-500/45 bg-gradient-to-br from-cyan-600/14 via-blue-600/12 to-indigo-600/10 text-cyan-200 shadow-[0_0_20px_rgba(8,145,178,0.45)]`,
+      cardClass: "border-cyan-600/30 bg-[linear-gradient(160deg,rgba(8,145,178,0.12)_0%,rgba(30,58,138,0.1)_36%,rgba(8,18,22,0.94)_100%)] shadow-[0_0_40px_rgba(37,99,235,0.2)]",
+      iconWrapClass: `${baseIconWrapper} border-cyan-500/45 bg-gradient-to-br from-cyan-600/14 via-blue-600/12 to-indigo-600/10 text-cyan-200 shadow-[0_0_20px_rgba(8,145,178,0.45)]`,
       iconClass: "text-base",
       icon: faRoute,
-      title: "text-cyan-200",
-      meta: "text-cyan-300/80",
-      badge: "border-cyan-600/35 bg-cyan-600/10 text-cyan-200",
-      statTile: "border-cyan-600/20 bg-cyan-600/5",
-      statLabel: "text-cyan-300/80",
-      statValue: "text-cyan-100",
-      trendPanel: "border-cyan-600/20 bg-cyan-600/5 ring-1 ring-cyan-600/30",
-      trendLabel: "text-cyan-300/80",
-      trendText: "text-cyan-100",
-      accentRing: "ring-1 ring-blue-500/30",
-      accentText: "text-cyan-200",
+      accentTextClass: "text-cyan-200",
+      sessionsTextClass: "text-cyan-300/80",
+      trendBadgeClass: "border-cyan-600/35 bg-cyan-600/10 text-cyan-200",
+      avgBadgeClass: "border-cyan-600/35 bg-cyan-600/20 text-cyan-100",
+      statTileClass: "border-cyan-600/20 bg-cyan-600/5",
+      statLabelClass: "text-cyan-300/80",
+      statValueClass: "text-cyan-100",
+      trendPanelClass: "border-cyan-600/20 bg-cyan-600/5 ring-1 ring-cyan-600/30",
+      trendTitleClass: "text-cyan-300/80",
+      trendTextClass: "text-cyan-100",
+      accentRingClass: "ring-1 ring-blue-500/30",
     },
     spatial_rotation: {
-      card: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.14)_0%,rgba(10,18,36,0.92)_44%,rgba(4,10,22,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.2)]",
-      iconWrap: `${baseIconWrapper} border-cyan-400/45 bg-gradient-to-br from-cyan-500/14 via-fuchsia-500/10 to-violet-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
+      cardClass: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.14)_0%,rgba(10,18,36,0.92)_44%,rgba(4,10,22,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.2)]",
+      iconWrapClass: `${baseIconWrapper} border-cyan-400/45 bg-gradient-to-br from-cyan-500/14 via-fuchsia-500/10 to-violet-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
       iconClass: "text-base",
       icon: faRotateRight,
-      title: "text-cyan-100",
-      meta: "text-fuchsia-300/80",
-      badge: "border-cyan-400/35 bg-fuchsia-500/10 text-cyan-100",
-      statTile: "border-cyan-500/20 bg-cyan-500/5",
-      statLabel: "text-cyan-300/80",
-      statValue: "text-cyan-100",
-      trendPanel: "border-cyan-500/20 bg-[linear-gradient(160deg,rgba(6,13,27,0.9)_0%,rgba(16,24,48,0.92)_100%)] ring-1 ring-fuchsia-500/30",
-      trendLabel: "text-cyan-300/80",
-      trendText: "text-cyan-100",
-      accentRing: "ring-1 ring-cyan-400/30",
-      accentText: "text-cyan-100",
+      accentTextClass: "text-cyan-100",
+      sessionsTextClass: "text-fuchsia-300/80",
+      trendBadgeClass: "border-cyan-400/35 bg-fuchsia-500/10 text-cyan-100",
+      avgBadgeClass: "border-cyan-400/35 bg-fuchsia-500/20 text-cyan-100",
+      statTileClass: "border-cyan-500/20 bg-cyan-500/5",
+      statLabelClass: "text-cyan-300/80",
+      statValueClass: "text-cyan-100",
+      trendPanelClass: "border-cyan-500/20 bg-[linear-gradient(160deg,rgba(6,13,27,0.9)_0%,rgba(16,24,48,0.92)_100%)] ring-1 ring-fuchsia-500/30",
+      trendTitleClass: "text-cyan-300/80",
+      trendTextClass: "text-cyan-100",
+      accentRingClass: "ring-1 ring-cyan-400/30",
     },
     memory_chain: {
-      card: "border-[var(--color-lilac-border)]/30 bg-[linear-gradient(160deg,var(--color-lilac-tint)_0%,rgba(76,29,149,0.12)_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,139,255,0.22)]",
-      iconWrap: `${baseIconWrapper} border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_18px_rgba(168,139,255,0.62)]`,
+      cardClass: "border-[var(--color-lilac-border)]/30 bg-[linear-gradient(160deg,var(--color-lilac-tint)_0%,rgba(76,29,149,0.12)_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,139,255,0.22)]",
+      iconWrapClass: `${baseIconWrapper} border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_18px_rgba(168,139,255,0.62)]`,
       iconClass: "text-base",
       icon: faLink,
-      title: "text-[var(--color-lilac-icon)]",
-      meta: "text-[var(--color-lilac-accent)]/80",
-      badge: "border-[var(--color-lilac-border)]/35 bg-[var(--color-lilac-accent)]/10 text-[var(--color-lilac-icon)]",
-      statTile: "border-[var(--color-lilac-border)]/25 bg-[var(--color-lilac-tint)]",
-      statLabel: "text-[var(--color-lilac-accent)]/80",
-      statValue: "text-[var(--color-lilac-icon)]",
-      trendPanel: "border-[var(--color-lilac-border)]/25 bg-[var(--color-lilac-tint)] ring-1 ring-[var(--color-lilac-border)]/30",
-      trendLabel: "text-[var(--color-lilac-accent)]/80",
-      trendText: "text-[var(--color-lilac-icon)]",
-      accentRing: "ring-1 ring-[var(--color-lilac-accent)]/30",
-      accentText: "text-[var(--color-lilac-icon)]",
+      accentTextClass: "text-[var(--color-lilac-icon)]",
+      sessionsTextClass: "text-[var(--color-lilac-accent)]/80",
+      trendBadgeClass: "border-[var(--color-lilac-border)]/35 bg-[var(--color-lilac-accent)]/10 text-[var(--color-lilac-icon)]",
+      avgBadgeClass: "border-[var(--color-lilac-border)]/35 bg-[var(--color-lilac-accent)]/20 text-[var(--color-lilac-icon)]",
+      statTileClass: "border-[var(--color-lilac-border)]/25 bg-[var(--color-lilac-tint)]",
+      statLabelClass: "text-[var(--color-lilac-accent)]/80",
+      statValueClass: "text-[var(--color-lilac-icon)]",
+      trendPanelClass: "border-[var(--color-lilac-border)]/25 bg-[var(--color-lilac-tint)] ring-1 ring-[var(--color-lilac-border)]/30",
+      trendTitleClass: "text-[var(--color-lilac-accent)]/80",
+      trendTextClass: "text-[var(--color-lilac-icon)]",
+      accentRingClass: "ring-1 ring-[var(--color-lilac-accent)]/30",
     },
     symbol_recall: {
-      card: "border-[var(--color-rose-border)]/30 bg-[linear-gradient(160deg,var(--color-rose-tint)_0%,rgba(192,38,211,0.1)_40%,rgba(10,6,22,0.96)_100%)] shadow-[0_0_40px_rgba(255,143,192,0.22)]",
-      iconWrap: `${baseIconWrapper} border-[var(--color-rose-border)]/45 bg-gradient-to-br from-[var(--color-rose-accent)]/14 via-[var(--color-rose-icon)]/12 to-[var(--color-rose-tint)] text-[var(--color-rose-icon)] shadow-[0_0_18px_rgba(255,143,192,0.58)]`,
+      cardClass: "border-[var(--color-rose-border)]/30 bg-[linear-gradient(160deg,var(--color-rose-tint)_0%,rgba(192,38,211,0.1)_40%,rgba(10,6,22,0.96)_100%)] shadow-[0_0_40px_rgba(255,143,192,0.22)]",
+      iconWrapClass: `${baseIconWrapper} border-[var(--color-rose-border)]/45 bg-gradient-to-br from-[var(--color-rose-accent)]/14 via-[var(--color-rose-icon)]/12 to-[var(--color-rose-tint)] text-[var(--color-rose-icon)] shadow-[0_0_18px_rgba(255,143,192,0.58)]`,
       iconClass: "text-sm",
       icon: faBolt,
-      title: "text-[var(--color-rose-icon)]",
-      meta: "text-[var(--color-rose-accent)]/80",
-      badge: "border-[var(--color-rose-border)]/35 bg-[var(--color-rose-accent)]/10 text-[var(--color-rose-icon)]",
-      statTile: "border-[var(--color-rose-border)]/25 bg-[var(--color-rose-tint)]",
-      statLabel: "text-[var(--color-rose-accent)]/80",
-      statValue: "text-[var(--color-rose-icon)]",
-      trendPanel: "border-[var(--color-rose-border)]/25 bg-[var(--color-rose-tint)] ring-1 ring-[var(--color-rose-border)]/30",
-      trendLabel: "text-[var(--color-rose-accent)]/80",
-      trendText: "text-[var(--color-rose-icon)]",
-      accentRing: "ring-1 ring-[var(--color-rose-accent)]/30",
-      accentText: "text-[var(--color-rose-icon)]",
+      accentTextClass: "text-[var(--color-rose-icon)]",
+      sessionsTextClass: "text-[var(--color-rose-accent)]/80",
+      trendBadgeClass: "border-[var(--color-rose-border)]/35 bg-[var(--color-rose-accent)]/10 text-[var(--color-rose-icon)]",
+      avgBadgeClass: "border-[var(--color-rose-border)]/35 bg-[var(--color-rose-accent)]/20 text-[var(--color-rose-icon)]",
+      statTileClass: "border-[var(--color-rose-border)]/25 bg-[var(--color-rose-tint)]",
+      statLabelClass: "text-[var(--color-rose-accent)]/80",
+      statValueClass: "text-[var(--color-rose-icon)]",
+      trendPanelClass: "border-[var(--color-rose-border)]/25 bg-[var(--color-rose-tint)] ring-1 ring-[var(--color-rose-border)]/30",
+      trendTitleClass: "text-[var(--color-rose-accent)]/80",
+      trendTextClass: "text-[var(--color-rose-icon)]",
+      accentRingClass: "ring-1 ring-[var(--color-rose-accent)]/30",
     },
     odd_one_matrix: {
-      card: "border-rose-400/30 bg-[linear-gradient(160deg,rgba(244,63,94,0.12)_0%,rgba(120,20,72,0.1)_42%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.18)]",
-      iconWrap: `${baseIconWrapper} border-rose-400/45 bg-gradient-to-br from-rose-500/12 via-fuchsia-500/10 to-pink-500/8 text-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.55)]`,
+      cardClass: "border-rose-400/30 bg-[linear-gradient(160deg,rgba(244,63,94,0.12)_0%,rgba(120,20,72,0.1)_42%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.18)]",
+      iconWrapClass: `${baseIconWrapper} border-rose-400/45 bg-gradient-to-br from-rose-500/12 via-fuchsia-500/10 to-pink-500/8 text-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.55)]`,
       iconClass: "text-base",
       icon: faBullseye,
-      title: "text-rose-200",
-      meta: "text-rose-300/80",
-      badge: "border-rose-400/35 bg-rose-500/10 text-rose-200",
-      statTile: "border-rose-500/20 bg-rose-500/5",
-      statLabel: "text-rose-300/80",
-      statValue: "text-rose-100",
-      trendPanel: "border-rose-500/20 bg-rose-500/5 ring-1 ring-rose-500/30",
-      trendLabel: "text-rose-300/80",
-      trendText: "text-rose-100",
-      accentRing: "ring-1 ring-rose-500/30",
-      accentText: "text-rose-200",
+      accentTextClass: "text-rose-200",
+      sessionsTextClass: "text-rose-300/80",
+      trendBadgeClass: "border-rose-400/35 bg-rose-500/10 text-rose-200",
+      avgBadgeClass: "border-rose-400/35 bg-rose-500/20 text-rose-100",
+      statTileClass: "border-rose-500/20 bg-rose-500/5",
+      statLabelClass: "text-rose-300/80",
+      statValueClass: "text-rose-100",
+      trendPanelClass: "border-rose-500/20 bg-rose-500/5 ring-1 ring-rose-500/30",
+      trendTitleClass: "text-rose-300/80",
+      trendTextClass: "text-rose-100",
+      accentRingClass: "ring-1 ring-rose-500/30",
+    },
+    number_weave: {
+      cardClass: "border-emerald-400/30 bg-[linear-gradient(160deg,rgba(16,185,129,0.12)_0%,rgba(6,27,24,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(16,185,129,0.18)]",
+      iconWrapClass: `${baseIconWrapper} border-emerald-400/40 bg-emerald-500/10 text-emerald-200 shadow-[0_0_18px_rgba(16,185,129,0.62)]`,
+      iconClass: "text-[0.85rem]",
+      icon: faWaveform,
+      accentTextClass: "text-emerald-200",
+      sessionsTextClass: "text-emerald-300/80",
+      trendBadgeClass: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
+      avgBadgeClass: "border-emerald-400/35 bg-emerald-500/20 text-emerald-100",
+      statTileClass: "border-emerald-500/20 bg-emerald-500/5",
+      statLabelClass: "text-emerald-300/80",
+      statValueClass: "text-emerald-100",
+      trendPanelClass: "border-emerald-500/20 bg-emerald-500/5 ring-1 ring-emerald-500/30",
+      trendTitleClass: "text-emerald-300/80",
+      trendTextClass: "text-emerald-100",
+      accentRingClass: "ring-1 ring-emerald-500/30",
     },
     default: {
-      card: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
-      iconWrap: `${baseIconWrapper} border-slate-600/40 bg-slate-900/60 text-slate-200`,
+      cardClass: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
+      iconWrapClass: `${baseIconWrapper} border-slate-600/40 bg-slate-900/60 text-slate-200`,
       iconClass: "text-base",
       icon: faBrain,
-      title: "text-slate-200",
-      meta: "text-slate-400",
-      badge: "border-slate-700/70 bg-slate-900/70 text-slate-200",
-      statTile: "border-slate-800/70 bg-slate-900/60",
-      statLabel: "text-slate-400",
-      statValue: "text-slate-100",
-      trendPanel: "border-slate-800/70 bg-slate-950/40 ring-1 ring-slate-600/30",
-      trendLabel: "text-slate-400",
-      trendText: "text-slate-200",
-      accentRing: "ring-1 ring-slate-600/30",
-      accentText: "text-slate-200",
+      accentTextClass: "text-slate-200",
+      sessionsTextClass: "text-slate-400",
+      trendBadgeClass: "border-slate-700/70 bg-slate-900/70 text-slate-200",
+      avgBadgeClass: "border-slate-700/70 bg-slate-800/80 text-slate-100",
+      statTileClass: "border-slate-800/70 bg-slate-900/60",
+      statLabelClass: "text-slate-400",
+      statValueClass: "text-slate-100",
+      trendPanelClass: "border-slate-800/70 bg-slate-950/40 ring-1 ring-slate-600/30",
+      trendTitleClass: "text-slate-400",
+      trendTextClass: "text-slate-200",
+      accentRingClass: "ring-1 ring-slate-600/30",
     },
   };
 

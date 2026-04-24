@@ -10,6 +10,7 @@ export const PUZZLE_TYPES = {
   MEMORY_CHAIN: "memory_chain",
   SYMBOL_RECALL: "symbol_recall",
   ODD_ONE_MATRIX: "odd_one_matrix",
+  NUMBER_WEAVE: "number_weave",
 };
 
 export const PUZZLE_TYPE_METADATA = {
@@ -110,6 +111,14 @@ export const PUZZLE_TYPE_METADATA = {
     color: "fuchsia",
     cognitiveSkills: ["Visual Discrimination", "Pattern Matching"],
     icon: "bullseye",
+  },
+  [PUZZLE_TYPES.NUMBER_WEAVE]: {
+    label: "Number Weave",
+    shortLabel: "Weave",
+    description: "Infer patterns from interwoven numerical sequences.",
+    color: "cyan",
+    cognitiveSkills: ["Pattern Inference", "Numerical Logic", "Cognitive Flexibility"],
+    icon: "code-branch",
   },
 };
 
