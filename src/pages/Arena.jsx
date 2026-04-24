@@ -101,9 +101,9 @@ const adaptiveShiftMessageMap = {
 
 const liveCoachingToneMap = {
   recover: "border-yellow-400/20 bg-yellow-400/5 text-yellow-200",
-  steady: "border-cyan-500/20 bg-cyan-500/5 text-cyan-200",
-  challenge: "border-violet-500/20 bg-violet-500/5 text-violet-200",
-  default: "border-slate-700/70 bg-slate-800/40 text-slate-200",
+  steady: "border-cyan-500/20 bg-slate-950/40 text-cyan-200",
+  challenge: "border-violet-500/20 bg-slate-950/40 text-violet-200",
+  default: "border-slate-700/70 bg-slate-900/60 text-slate-200",
 };
 
 const recommendedSessionStyles = {
@@ -2679,6 +2679,27 @@ function Arena({ theme }) {
     );
   };
 
+  const numberWeavePuzzleMetrics = useMemo(() => {
+    if (activePuzzleType !== NUMBER_WEAVE_PUZZLE_TYPE) {
+      return {};
+    }
+
+    return {
+      id: currentPuzzle?.id,
+      prompt: currentPuzzle?.prompt,
+      sequenceLength: Array.isArray(currentPuzzle?.sequence)
+        ? currentPuzzle.sequence.length
+        : 0,
+      answer: currentPuzzle?.answer,
+      ruleType: currentPuzzle?.meta?.ruleType || "N/A",
+      lane1: currentPuzzle?.meta?.lane1Rule || "N/A",
+      lane2: currentPuzzle?.meta?.lane2Rule || "N/A",
+    };
+  }, [activePuzzleType, currentPuzzle]);
+
+  const shouldShowNumberWeaveDebug =
+    activePuzzleType === NUMBER_WEAVE_PUZZLE_TYPE && (SHOW_ANSWERS || SHOW_PUZZLE_DEBUG_META);
+
   const renderNumberWeaveContent = () => {
     const puzzle = currentPuzzle;
     if (!puzzle) return null;
@@ -2689,9 +2710,9 @@ function Arena({ theme }) {
       <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto space-y-12">
         {/* Family Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10">
-            <FontAwesomeIcon icon={faBrain} className="text-cyan-400 text-xs" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Number Weave</span>
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-slate-950/60 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <FontAwesomeIcon icon={faBrain} className="text-emerald-400 text-xs" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300">Number Weave</span>
           </div>
           <h2 className={`text-2xl font-black tracking-tight ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
             {formatDevValue(prompt) || "Complete the interwoven sequence"}
@@ -2757,6 +2778,39 @@ function Arena({ theme }) {
             );
           })}
         </div>
+
+        {shouldShowNumberWeaveDebug && (
+          <div className="w-full max-w-md mx-auto mt-8">
+            <DevDebugPanel title="Number Weave Dev">
+              {SHOW_ANSWERS && (
+                <div>
+                  <span className="font-bold text-white">Answer:</span>{" "}
+                  <span className="text-amber-100">{formatDevValue(numberWeavePuzzleMetrics.answer)}</span>
+                </div>
+              )}
+              {SHOW_PUZZLE_DEBUG_META && (
+                <>
+                  <div>
+                    <span className="font-bold text-white">ID:</span>{" "}
+                    <span className="text-amber-100">{formatDevValue(numberWeavePuzzleMetrics.id)}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-white">Rule Type:</span>{" "}
+                    <span className="text-amber-100">{formatDevValue(numberWeavePuzzleMetrics.ruleType)}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-white">Lane 1:</span>{" "}
+                    <span className="text-amber-100">{formatDevValue(numberWeavePuzzleMetrics.lane1)}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-white">Lane 2:</span>{" "}
+                    <span className="text-amber-100">{formatDevValue(numberWeavePuzzleMetrics.lane2)}</span>
+                  </div>
+                </>
+              )}
+            </DevDebugPanel>
+          </div>
+        )}
       </div>
     );
   };
@@ -4396,15 +4450,15 @@ function Arena({ theme }) {
                     </div>
                   </div>
                 <div
-                  className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 ${liveCoachingTone} ${liveCoachingPressureClass}`}
+                  className={`mt-6 rounded-2xl border px-4 py-3 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)] ${liveCoachingTone} ${liveCoachingPressureClass}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      <p className={`text-[10px] font-bold uppercase tracking-[0.22em] ${liveAdaptiveDifficulty.state === 'recover' ? 'text-yellow-500/80' : liveAdaptiveDifficulty.state === 'challenge' ? 'text-violet-400/80' : 'text-cyan-400/80'}`}>
                         Live Coaching
                       </p>
 
-                      <p className="mt-1 text-sm leading-relaxed">
+                      <p className="mt-1 text-sm leading-relaxed font-medium text-white">
                         {adaptiveCoachingMessage}
                       </p>
                     </div>
