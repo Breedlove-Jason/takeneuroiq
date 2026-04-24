@@ -21,6 +21,7 @@ import { getRandomSignalPathPuzzle } from './signalPathPuzzles.js';
 import { getRandomLogicGridPuzzle } from './logicGridPuzzles.js';
 import { getRandomRuleShiftPuzzle } from './puzzleGenerators/ruleShiftGenerator.js';
 import { getRandomOddOneMatrixPuzzle } from './puzzleGenerators/oddOneMatrixGenerator.js';
+import { getRandomSpatialRotationPuzzle } from './puzzleGenerators/spatialRotationGenerator.js';
 
 // ============================================================================
 // CONFIGURATION
@@ -35,6 +36,7 @@ const CANONICAL_FAMILIES = [
   'signal_path',
   'logic_grid',
   'odd_one_matrix',
+  'spatial_rotation',
 ];
 
 const CANONICAL_DIFFICULTIES = ['easy', 'medium', 'hard'];
@@ -60,6 +62,7 @@ const PUZZLE_GENERATORS = {
   signal_path: (difficulty) => getRandomSignalPathPuzzle(difficulty),
   logic_grid: (difficulty) => getRandomLogicGridPuzzle(difficulty),
   odd_one_matrix: (difficulty) => getRandomOddOneMatrixPuzzle(difficulty),
+  spatial_rotation: (difficulty) => getRandomSpatialRotationPuzzle(difficulty),
 };
 
 // ============================================================================
@@ -131,6 +134,14 @@ function createSignature(puzzle, family) {
               [c?.shape, c?.color, c?.size, c?.rotation, c?.count].join(':'),
             )
             .join('|'),
+        ].join('::');
+
+      case 'spatial_rotation':
+        return [
+          puzzle?.meta?.shapeName || 'unknown',
+          String(puzzle?.targetRotation || 0),
+          puzzle?.meta?.sourceSignature || '',
+          puzzle?.answer || '',
         ].join('::');
 
       default:
@@ -555,6 +566,54 @@ function validateOddOneMatrix(puzzle) {
   return errors;
 }
 
+function validateSpatialRotation(puzzle) {
+  const errors = [];
+
+  if (!puzzle || typeof puzzle !== 'object') {
+    errors.push('Puzzle object is missing or invalid');
+    return errors;
+  }
+
+  if (puzzle.puzzleType !== 'spatial_rotation') {
+    errors.push(`Invalid puzzleType: expected spatial_rotation, got ${puzzle.puzzleType}`);
+  }
+
+  if (!puzzle.sourceShape || typeof puzzle.sourceShape !== 'object') {
+    errors.push('Missing or invalid sourceShape');
+  } else if (!Array.isArray(puzzle.sourceShape.matrix)) {
+    errors.push('Missing or invalid sourceShape matrix');
+  }
+
+  if (typeof puzzle.targetRotation !== 'number') {
+    errors.push('Missing or invalid targetRotation');
+  }
+
+  const choices = extractOptions(puzzle);
+  if (choices.length === 0) {
+    errors.push('Missing or empty options array');
+  }
+
+  const answer = extractAnswer(puzzle);
+  if (!answer) {
+    errors.push('Missing correct answer ID');
+  }
+
+  const answerInOptions = choices.some((opt) => opt.id === answer);
+  if (answer && !answerInOptions) {
+    errors.push('Correct answer ID not present in options');
+  }
+
+  if (!puzzle.meta || typeof puzzle.meta !== 'object') {
+    errors.push('Missing or invalid meta object');
+  }
+
+  if (!puzzle.difficulty || !CANONICAL_DIFFICULTIES.includes(puzzle.difficulty)) {
+    errors.push(`Invalid difficulty: ${puzzle.difficulty}`);
+  }
+
+  return errors;
+}
+
 // ============================================================================
 // VALIDATOR MAPPING
 // ============================================================================
@@ -568,6 +627,7 @@ const FAMILY_VALIDATORS = {
   signal_path: validateSignalPath,
   logic_grid: validateLogicGrid,
   odd_one_matrix: validateOddOneMatrix,
+  spatial_rotation: validateSpatialRotation,
 };
 
 // ============================================================================

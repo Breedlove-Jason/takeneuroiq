@@ -440,9 +440,9 @@ function ProfileAnalytics({
       </div>
 
       {puzzleFamilyCards.length > 0 ? (
-        <div className="rounded-2xl border border-cyan-500/20 bg-[linear-gradient(165deg,rgba(15,23,42,0.95)_0%,rgba(2,6,23,0.96)_100%)] p-4 shadow-[0_0_44px_rgba(8,47,73,0.32)]">
-          <div className="flex flex-col gap-1 rounded-xl border border-cyan-500/15 bg-cyan-500/5 px-3 py-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
+        <div className="rounded-2xl border border-indigo-500/30 bg-[linear-gradient(165deg,rgba(30,27,75,0.45)_0%,rgba(15,23,42,0.95)_46%,rgba(2,6,23,0.98)_100%)] p-4 shadow-[0_0_44px_rgba(79,70,229,0.18)] ring-1 ring-violet-500/20">
+          <div className="flex flex-col gap-1 rounded-xl border border-indigo-500/20 bg-indigo-500/5 px-3 py-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-indigo-300">
               Puzzle Family Performance
             </p>
             <p className="text-sm text-slate-300">
@@ -464,6 +464,7 @@ function ProfileAnalytics({
                 "logic_gate",        // Orange
                 "logic_grid",        // Sky
                 "signal_path",       // Cyan/Blue
+                "spatial_rotation",   // Cyan/Violet/Fuchsia
                 "memory_chain",      // Lilac
               ];
               const rowIndex = Math.floor(index / 3);
@@ -566,8 +567,8 @@ function ProfileAnalytics({
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-cyan-500/30 bg-cyan-500/5 p-4 text-sm text-slate-300">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">
+        <div className="rounded-2xl border border-dashed border-indigo-500/35 bg-[linear-gradient(165deg,rgba(67,56,202,0.12)_0%,rgba(15,23,42,0.72)_100%)] p-4 text-sm text-slate-300 ring-1 ring-violet-500/20">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-indigo-300">
             Puzzle Family Performance
           </p>
           <p className="mt-2 text-sm text-slate-300">

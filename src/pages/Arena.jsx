@@ -2621,7 +2621,7 @@ function Arena({ theme }) {
 
     return (
       <div
-        className={`grid gap-1.5 ${compact ? "w-full max-w-64" : "w-full max-w-96"}`}
+        className={`grid gap-1.5 ${compact ? "w-full" : "w-full max-w-96"}`}
         style={{ gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))` }}
       >
         {safeMatrix.map((row, rowIndex) =>
@@ -4793,14 +4793,14 @@ function Arena({ theme }) {
                     </div>
                   </div>
                 ) : isSpatialRotationPuzzle ? (
-                  <div className="relative w-full overflow-hidden rounded-3xl border border-cyan-500/35 bg-slate-900/80 p-6 shadow-[inset_0_0_40px_rgba(34,211,238,0.12),0_20px_40px_rgba(2,6,23,0.55)] backdrop-blur-md">
+                  <div className="relative w-full overflow-hidden rounded-3xl border border-cyan-500/35 bg-slate-900/80 p-4 shadow-[inset_0_0_40px_rgba(34,211,238,0.12),0_20px_40px_rgba(2,6,23,0.55)] backdrop-blur-md">
                     <div className="relative z-10">
-                      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                      <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
                           <p className={`text-[10px] font-bold uppercase tracking-[0.35em] ${isCyber ? "text-cyan-300 text-glow-blue" : "text-cyan-300"}`}>
                             Spatial Rotation Arena
                           </p>
-                          <h3 className={`text-2xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
+                          <h3 className={`text-xl font-bold ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
                             {currentPuzzle?.prompt || "Rotate the source shape and choose the matching option."}
                           </h3>
                           <p className="text-xs font-medium text-slate-300">
@@ -4812,7 +4812,7 @@ function Arena({ theme }) {
                         </span>
                       </div>
 
-                      <div className="mb-5 rounded-xl border border-violet-500/25 bg-violet-500/10 px-4 py-3 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                      <div className="mb-3 rounded-xl border border-violet-500/25 bg-violet-500/10 px-4 py-2 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-violet-200">
                           Rotation focus
                         </p>
@@ -4821,9 +4821,9 @@ function Arena({ theme }) {
                         </p>
                       </div>
 
-                      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
-                        <div className="rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_28px_rgba(34,211,238,0.12)] backdrop-blur-[14px]">
-                          <div className="flex items-center justify-between border-b border-cyan-500/10 pb-3">
+                      <div className="mt-6 flex flex-col gap-6 lg:items-center">
+                        <div className="w-full max-w-3xl rounded-2xl border border-cyan-500/20 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_28px_rgba(34,211,238,0.12)] backdrop-blur-[14px]">
+                          <div className="flex items-center justify-between border-b border-cyan-500/10 pb-2">
                             <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-cyan-300/90">
                               Source Shape
                             </p>
@@ -4831,29 +4831,30 @@ function Arena({ theme }) {
                               {formatDevValue(currentPuzzle?.sourceShape?.shapeName ?? "Grid")}
                             </span>
                           </div>
-                          <p className="mt-3 text-xs font-medium text-slate-300">
+                          <p className="mt-2 text-[11px] font-medium text-slate-300">
                             Rotate this exact arrangement by <span className="font-semibold text-fuchsia-200">{currentPuzzle?.targetRotation ?? "?"}°</span> clockwise.
                           </p>
-                          <div className="mt-5 flex justify-center">
-                            <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/50 p-4 shadow-[inset_0_0_30px_rgba(2,6,23,0.75)]">
-                              {renderSpatialRotationMatrix(currentPuzzle?.sourceShape?.matrix, {
-                                compact: false,
-                                filledClassName: "bg-linear-to-br from-cyan-300 via-fuchsia-400 to-violet-500 border-cyan-200 shadow-[0_0_16px_rgba(34,211,238,0.45)]",
-                                emptyClassName: "border-cyan-500/15 bg-slate-950/35",
-                              })}
+                          <div className="mt-3 flex justify-center">
+                            <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/50 p-3 shadow-[inset_0_0_30px_rgba(2,6,23,0.75)]">
+                              <div className="w-40 sm:w-48">
+                                  {renderSpatialRotationMatrix(currentPuzzle?.sourceShape?.matrix, {
+                                    compact: true,
+                                    filledClassName: "bg-linear-to-br from-cyan-300 via-fuchsia-400 to-violet-500 border-cyan-200 shadow-[0_0_16px_rgba(34,211,238,0.45)]",
+                                    emptyClassName: "border-cyan-500/15 bg-slate-950/35",
+                                  })}
+                                </div>
+                              </div>
                             </div>
-                          </div>
                         </div>
 
-                        <div className="xl:sticky xl:top-6">
-                          <div className="rounded-2xl border border-fuchsia-500/15 bg-slate-950/60 p-5 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_26px_rgba(217,70,239,0.14)]">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-fuchsia-300/90">
-                              Answer Tray
-                            </p>
-                            <p className="text-xs font-medium text-slate-300">
-                              Choose the rotated match
-                            </p>
-                            <div className="mt-4 flex flex-col items-center gap-3">
+                        <div className="w-full">
+                          <div className="rounded-2xl border border-fuchsia-500/15 bg-slate-950/60 p-4 shadow-[inset_0_0_35px_rgba(2,6,23,0.6),0_0_26px_rgba(217,70,239,0.14)]">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-fuchsia-300/90">
+                                  Answer Tray
+                                </p>
+                              </div>
                               {feedback && (
                                 <div className="flex justify-center">
                                   <span
@@ -4863,8 +4864,9 @@ function Arena({ theme }) {
                                   </span>
                                 </div>
                               )}
-
-                              <div className="grid w-full gap-3">
+                            </div>
+                            <div className="mt-4 flex flex-col items-center gap-3">
+                              <div className="flex w-full flex-wrap justify-center gap-3">
                                 {(Array.isArray(currentPuzzle?.options) ? currentPuzzle.options : [])
                                   .filter((option) => option !== null && option !== undefined)
                                   .map((option, index) => {
@@ -4875,26 +4877,21 @@ function Arena({ theme }) {
                                         type="button"
                                         onClick={() => handleAnswer(option.id)}
                                         disabled={gameOver}
-                                        className="group rounded-2xl border border-cyan-400/25 bg-slate-900/70 p-3 text-left shadow-[0_0_18px_rgba(34,211,238,0.12)] transition-all duration-300 hover:border-fuchsia-400/50 hover:bg-slate-900 hover:shadow-[0_0_24px_rgba(217,70,239,0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+                                        className="group flex flex-col rounded-2xl border border-cyan-400/25 bg-slate-900/70 p-2 text-left shadow-[0_0_18px_rgba(34,211,238,0.12)] transition-all duration-300 hover:border-fuchsia-400/50 hover:bg-slate-900 hover:shadow-[0_0_24px_rgba(217,70,239,0.18)] disabled:cursor-not-allowed disabled:opacity-70"
                                       >
-                                        <div className="flex items-center justify-between gap-3">
-                                          <div>
-                                            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-200/90">
-                                              Choice {optionLabel}
-                                            </p>
-                                            <p className="text-[9px] font-medium uppercase tracking-[0.22em] text-slate-400">
-                                              {formatDevValue(option?.rotation ?? currentPuzzle?.targetRotation)}° preview
-                                            </p>
-                                          </div>
-                                          <span className="rounded-full border border-fuchsia-400/25 bg-fuchsia-500/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.22em] text-fuchsia-200">
-                                            Tap to answer
+                                        <div className="flex items-center justify-between gap-2 px-1">
+                                          <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-cyan-200/90">
+                                            Choice {optionLabel}
+                                          </p>
+                                          <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-1.5 py-0.5 text-[8px] font-bold uppercase text-fuchsia-200/70">
+                                            {formatDevValue(option?.rotation ?? currentPuzzle?.targetRotation)}°
                                           </span>
                                         </div>
-                                        <div className="mt-3 flex justify-center rounded-xl border border-white/5 bg-slate-950/40 p-3">
+                                        <div className="mt-2 flex h-24 w-24 items-center justify-center rounded-xl border border-white/5 bg-slate-950/40 p-1.5">
                                           {renderSpatialRotationMatrix(option?.matrix, {
                                             compact: true,
-                                            filledClassName: "bg-linear-to-br from-cyan-300 via-fuchsia-400 to-violet-500 border-cyan-200 shadow-[0_0_14px_rgba(34,211,238,0.4)]",
-                                            emptyClassName: "border-white/10 bg-slate-950/35",
+                                            filledClassName: "bg-linear-to-br from-cyan-300 via-fuchsia-400 to-violet-500 border-cyan-200 shadow-[0_0_8px_rgba(34,211,238,0.4)]",
+                                            emptyClassName: "border-white/5 bg-slate-950/35",
                                           })}
                                         </div>
                                       </button>

@@ -26,6 +26,7 @@ const CONFIG = {
     'signal_path',
     'logic_grid',
     'odd_one_matrix',
+    'spatial_rotation',
   ],
   difficulties: ['easy', 'medium', 'hard'],
   iterationsPerDifficulty: 50,

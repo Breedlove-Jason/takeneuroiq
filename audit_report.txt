@@ -1,0 +1,549 @@
+--------------------------------------------------
+🚀 Starting TakeNeuroIQ Puzzle Audit Runner...
+📊 Target: pattern_rush, sequence_sprint, rule_shift, grid_recall, logic_gate, signal_path, logic_grid, odd_one_matrix, spatial_rotation
+🔄 Iterations: 50 per difficulty (easy, medium, hard)
+--------------------------------------------------
+
+
+================================================================================
+PUZZLE AUDIT REPORT
+================================================================================
+Timestamp: 2026-04-24T21:58:44.450Z
+Status: ✓ PASS
+
+OVERALL SUMMARY
+--------------------------------------------------------------------------------
+Total Puzzles Generated: 1350
+Total Invalid Puzzles: 0
+Families Audited: 9
+Families Skipped: 0
+
+FAMILY BREAKDOWN
+--------------------------------------------------------------------------------
+
+[PATTERN_RUSH] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 148
+  Diversity: ⚠ 1 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 49
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 49
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 50
+  Warnings:
+    ⚠ High answer repetition: "bolt" appears 31 times (20.7%)
+
+[SEQUENCE_SPRINT] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 116
+  Diversity: ⚠ 1 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 36
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 40
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 44
+  Warnings:
+    ⚠ Low signature diversity: 116 unique out of 150 (77.3%)
+
+[RULE_SHIFT] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 150
+  Diversity: ✓ 0 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 50
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 50
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 50
+
+[GRID_RECALL] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 128
+  Diversity: ✓ 0 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 36
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 45
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 50
+
+[LOGIC_GATE] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 34
+  Diversity: ⚠ 2 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 8
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 20
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 28
+  Warnings:
+    ⚠ Low signature diversity: 34 unique out of 150 (22.7%)
+    ⚠ High answer repetition: "1" appears 76 times (50.7%)
+
+[SIGNAL_PATH] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 146
+  Diversity: ⚠ 1 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 48
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 48
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 50
+  Warnings:
+    ⚠ High answer repetition: "B" appears 46 times (30.7%)
+
+[LOGIC_GRID] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 145
+  Diversity: ✓ 0 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 50
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 50
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 50
+
+[ODD_ONE_MATRIX] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 150
+  Diversity: ⚠ 1 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 50
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 50
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 50
+  Warnings:
+    ⚠ High answer repetition: "3" appears 24 times (16.0%)
+
+[SPATIAL_ROTATION] ✓
+  Generated: 150
+  Invalid: 0
+  Unique Signatures: 140
+  Diversity: ⚠ 1 warning(s)
+    [easy] ✓ Generated: 50, Invalid: 0, Unique: 46
+    [medium] ✓ Generated: 50, Invalid: 0, Unique: 48
+    [hard] ✓ Generated: 50, Invalid: 0, Unique: 46
+  Warnings:
+    ⚠ High answer repetition: "opt-4" appears 45 times (30.0%)
+
+--------------------------------------------------------------------------------
+SAMPLE WARNINGS
+--------------------------------------------------------------------------------
+
+[pattern_rush]:
+  ⚠ High answer repetition: "bolt" appears 31 times (20.7%)
+
+[sequence_sprint]:
+  ⚠ Low signature diversity: 116 unique out of 150 (77.3%)
+
+[logic_gate]:
+  ⚠ Low signature diversity: 34 unique out of 150 (22.7%)
+
+[logic_gate]:
+  ⚠ High answer repetition: "1" appears 76 times (50.7%)
+
+[signal_path]:
+  ⚠ High answer repetition: "B" appears 46 times (30.7%)
+
+[odd_one_matrix]:
+  ⚠ High answer repetition: "3" appears 24 times (16.0%)
+
+[spatial_rotation]:
+  ⚠ High answer repetition: "opt-4" appears 45 times (30.0%)
+
+=== 🐞 DEBUG SUMMARY ===
+Invalid Puzzles Caught: 0
+Duplicate Signatures Caught: 5
+
+Top Repeated Signatures: {
+  "pattern_rush": {
+    "easy": [
+      {
+        "signature": "dual_layer_pattern::Shape + color alignment: shape offset +1 with color offset +1.::circle|square|triangle|diamond|missing|bolt::cross",
+        "count": 2
+      },
+      {
+        "signature": "size_progression::Size progression: shapes cycle through sizes.::diamond|cross|missing|circle|square::bolt",
+        "count": 1
+      },
+      {
+        "signature": "rotation_pattern::Rotation phase: steady 90° turn.::square|triangle|bolt|circle|missing|triangle::square",
+        "count": 1
+      }
+    ],
+    "medium": [
+      {
+        "signature": "dual_attribute::Dual-attribute change: simultaneous change in shape and rotation.::diamond|missing|bolt|circle|square|triangle|diamond::cross",
+        "count": 2
+      },
+      {
+        "signature": "rotation_pattern::Rotation phase: alternating turns of 90° and 180°.::circle|missing|bolt|square|triangle|circle|square::triangle",
+        "count": 1
+      },
+      {
+        "signature": "position_shift::Position shift: shapes shift position around the grid.::bolt|missing|diamond|bolt|square|diamond|bolt::square",
+        "count": 1
+      }
+    ],
+    "hard": [
+      {
+        "signature": "attribute_swap::Attribute swap: shape source and color source swap each step.::square|diamond|cross|circle|missing|diamond|cross|circle::square",
+        "count": 1
+      },
+      {
+        "signature": "mirror_flip::Mirror / Flip logic: shapes alternate and flip vertically.::bolt|bolt|circle|circle|bolt|bolt|circle|circle|missing::bolt",
+        "count": 1
+      },
+      {
+        "signature": "mirror_flip::Mirror / Flip logic: shapes alternate and flip vertically.::triangle|triangle|diamond|diamond|triangle|triangle|missing::diamond",
+        "count": 1
+      }
+    ]
+  },
+  "sequence_sprint": {
+    "easy": [
+      {
+        "signature": "color_cycle::Green,Blue,Indigo,Violet::Red",
+        "count": 5
+      },
+      {
+        "signature": "color_cycle::Red,Orange,Yellow,Green::Blue",
+        "count": 4
+      },
+      {
+        "signature": "color_cycle::Yellow,Green,Blue,Indigo::Violet",
+        "count": 4
+      }
+    ],
+    "medium": [
+      {
+        "signature": "mirror_pair::1,5,9,5::1",
+        "count": 3
+      },
+      {
+        "signature": "alphabet_shift::V,X,Z,B::D",
+        "count": 2
+      },
+      {
+        "signature": "mirror_pair::1,3,5,3::1",
+        "count": 2
+      }
+    ],
+    "hard": [
+      {
+        "signature": "mirror_pair::-1,3,7,3::-1",
+        "count": 3
+      },
+      {
+        "signature": "mirror_pair::0,4,8,4::0",
+        "count": 2
+      },
+      {
+        "signature": "mirror_pair::3,6,9,6::3",
+        "count": 2
+      }
+    ]
+  },
+  "rule_shift": {
+    "easy": [
+      {
+        "signature": "10,11,12,11,10::2::add 1::subtract 1::9",
+        "count": 1
+      },
+      {
+        "signature": "14,17,20,23,20::3::add 3::subtract 3::17",
+        "count": 1
+      },
+      {
+        "signature": "16,12,8,12,16::2::subtract 4::add 4::20",
+        "count": 1
+      }
+    ],
+    "medium": [
+      {
+        "signature": "20,40,80,84,88,92::2::multiply by 2::add 4::96",
+        "count": 1
+      },
+      {
+        "signature": "9,11,13,15,11,7::3::add 2::subtract 4::3",
+        "count": 1
+      },
+      {
+        "signature": "5,15,45,135,137,139::3::multiply by 3::add 2::141",
+        "count": 1
+      }
+    ],
+    "hard": [
+      {
+        "signature": "12,22,32,42,52,62,72,144::6::add 10::multiply by 2::288",
+        "count": 1
+      },
+      {
+        "signature": "28,19,10,1,5,9,13,17::3::subtract 9::add 4::21",
+        "count": 1
+      },
+      {
+        "signature": "37,31,25,19,13,7,15::5::subtract 6::add 8::23",
+        "count": 1
+      }
+    ]
+  },
+  "grid_recall": {
+    "easy": [
+      {
+        "signature": "101000000::3::2",
+        "count": 4
+      },
+      {
+        "signature": "000000101::3::2",
+        "count": 3
+      },
+      {
+        "signature": "000000110::3::2",
+        "count": 3
+      }
+    ],
+    "medium": [
+      {
+        "signature": "011100001::3::4",
+        "count": 2
+      },
+      {
+        "signature": "100100100::3::3",
+        "count": 2
+      },
+      {
+        "signature": "110111000::3::5",
+        "count": 2
+      }
+    ],
+    "hard": [
+      {
+        "signature": "0101101000101001::4::7",
+        "count": 1
+      },
+      {
+        "signature": "0110000100100100::4::5",
+        "count": 1
+      },
+      {
+        "signature": "0011101001100110::4::8",
+        "count": 1
+      }
+    ]
+  },
+  "logic_gate": {
+    "easy": [
+      {
+        "signature": "OR::output::1",
+        "count": 12
+      },
+      {
+        "signature": "XOR::output::1",
+        "count": 10
+      },
+      {
+        "signature": "AND::output::0",
+        "count": 9
+      }
+    ],
+    "medium": [
+      {
+        "signature": "OR::output::1",
+        "count": 6
+      },
+      {
+        "signature": "XNOR::output::1",
+        "count": 6
+      },
+      {
+        "signature": "???::missing_gate::AND",
+        "count": 6
+      }
+    ],
+    "hard": [
+      {
+        "signature": "???::missing_gate::XNOR",
+        "count": 4
+      },
+      {
+        "signature": "???::missing_gate::AND",
+        "count": 4
+      },
+      {
+        "signature": "???::missing_gate::NAND",
+        "count": 4
+      }
+    ]
+  },
+  "signal_path": {
+    "easy": [
+      {
+        "signature": "alternating_values::B,C,E::A",
+        "count": 2
+      },
+      {
+        "signature": "exactly_one_high::C,D,E,G::A",
+        "count": 2
+      },
+      {
+        "signature": "alternating_values::B,E,F,G::A",
+        "count": 1
+      }
+    ],
+    "medium": [
+      {
+        "signature": "exactly_one_high::B,D,E,F,G::C",
+        "count": 2
+      },
+      {
+        "signature": "exactly_one_high::B,C,F,G,H::B",
+        "count": 2
+      },
+      {
+        "signature": "no_consecutive_duplicates::A,B,D,F,G::D",
+        "count": 1
+      }
+    ],
+    "hard": [
+      {
+        "signature": "alternating_values::A,C,D,E,F,H::B",
+        "count": 1
+      },
+      {
+        "signature": "no_consecutive_duplicates::D,E,F,G,H::B",
+        "count": 1
+      },
+      {
+        "signature": "no_consecutive_duplicates::C,D,F,G,H::B",
+        "count": 1
+      }
+    ]
+  },
+  "logic_grid": {
+    "easy": [
+      {
+        "signature": "row_consistency::G|G|G|H|H|H|A|A|missing::A",
+        "count": 1
+      },
+      {
+        "signature": "value_progression::D|E|F|G|H|A|missing|C|D::B",
+        "count": 1
+      },
+      {
+        "signature": "column_consistency::G|H|G|missing::H",
+        "count": 1
+      }
+    ],
+    "medium": [
+      {
+        "signature": "value_progression::H|A|B|missing|D|E|F|G|H::C",
+        "count": 1
+      },
+      {
+        "signature": "symbol_cycle::✹|✧|◐|missing|✹|✧|◐|◑|✹::◑",
+        "count": 1
+      },
+      {
+        "signature": "row_consistency::missing|B|B|C|C|C|D|D|D::B",
+        "count": 1
+      }
+    ],
+    "hard": [
+      {
+        "signature": "rotation_shift::missing|●|■|■|⬢|●|●|■|⬢::⬢",
+        "count": 1
+      },
+      {
+        "signature": "symbol_cycle::missing|◐|◒|◓|◐|◒|◓|◐|◒::◓",
+        "count": 1
+      },
+      {
+        "signature": "rotation_shift::✦|■|▲|■|▲|missing|▲|✦|■::✦",
+        "count": 1
+      }
+    ]
+  },
+  "odd_one_matrix": {
+    "easy": [
+      {
+        "signature": "Quantity::3::3::diamond:#8b5cf6:large:315:1|diamond:#8b5cf6:large:315:1|diamond:#8b5cf6:large:315:1|diamond:#8b5cf6:large:315:2",
+        "count": 1
+      },
+      {
+        "signature": "Shape::1::1::triangle:#f97316:small:45:2|diamond:#f97316:small:45:2|triangle:#f97316:small:45:2|triangle:#f97316:small:45:2",
+        "count": 1
+      },
+      {
+        "signature": "Quantity::2::2::circle:#10b981:small:180:2|circle:#10b981:small:180:2|circle:#10b981:small:180:3|circle:#10b981:small:180:2",
+        "count": 1
+      }
+    ],
+    "medium": [
+      {
+        "signature": "Quantity::6::6::diamond:#10b981:medium:90:3|diamond:#10b981:medium:90:3|diamond:#10b981:medium:90:3|diamond:#10b981:medium:90:3|diamond:#10b981:medium:90:3|diamond:#10b981:medium:90:3|diamond:#10b981:medium:90:4|diamond:#10b981:medium:90:3|diamond:#10b981:medium:90:3",
+        "count": 1
+      },
+      {
+        "signature": "Size::8::8::star:#f97316:small:270:1|star:#f97316:small:270:1|star:#f97316:small:270:1|star:#f97316:small:270:1|star:#f97316:small:270:1|star:#f97316:small:270:1|star:#f97316:small:270:1|star:#f97316:small:270:1|star:#f97316:medium:270:1",
+        "count": 1
+      },
+      {
+        "signature": "Rotation::0::0::circle:#f97316:large:45:2|circle:#f97316:large:180:2|circle:#f97316:large:180:2|circle:#f97316:large:180:2|circle:#f97316:large:180:2|circle:#f97316:large:180:2|circle:#f97316:large:180:2|circle:#f97316:large:180:2|circle:#f97316:large:180:2",
+        "count": 1
+      }
+    ],
+    "hard": [
+      {
+        "signature": "Quantity::3::3::triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:3|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1|triangle:#ec4899:large:315:1",
+        "count": 1
+      },
+      {
+        "signature": "Size::6::6::square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:medium:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4|square:#3b82f6:large:270:4",
+        "count": 1
+      },
+      {
+        "signature": "Quantity::12::12::square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:4|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2|square:#ec4899:medium:225:2",
+        "count": 1
+      }
+    ]
+  },
+  "spatial_rotation": {
+    "easy": [
+      {
+        "signature": "offset-l::90::0100|0100|0110|0010::opt-4",
+        "count": 2
+      },
+      {
+        "signature": "stair::270::0001|0011|0010|0000::opt-3",
+        "count": 2
+      },
+      {
+        "signature": "step-bridge::270::0110|0010|0011|0000::opt-1",
+        "count": 2
+      }
+    ],
+    "medium": [
+      {
+        "signature": "arrow-tail::180::00000|00100|01110|00100|00100::opt-3",
+        "count": 2
+      },
+      {
+        "signature": "fork::90::00000|00100|01100|00110|00000::opt-4",
+        "count": 2
+      },
+      {
+        "signature": "cross-tail::90::00000|00000|01000|11100|00100::opt-3",
+        "count": 1
+      }
+    ],
+    "hard": [
+      {
+        "signature": "spiral-bend::90::11000|01000|01100|00110|00000::opt-2",
+        "count": 2
+      },
+      {
+        "signature": "splay::270::00010|00010|00111|00001|00000::opt-2",
+        "count": 2
+      },
+      {
+        "signature": "double-hook::90::00100|00100|00110|00011|00000::opt-1",
+        "count": 2
+      }
+    ]
+  }
+}
+
+================================================================================
+AUDIT PASSED
+================================================================================
+
