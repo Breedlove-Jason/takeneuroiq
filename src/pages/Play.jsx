@@ -1,5 +1,6 @@
 // src/pages/Play.jsx
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PLAY_DIRECTIONS } from '../game/playDirections.js';
 import { Link } from 'react-router-dom';
 import {
   faMicrochip,
@@ -509,6 +510,12 @@ function Play({ theme }) {
               >
                 {challenge.description}
               </p>
+
+              <details className={`mt-4 rounded-xl border p-4 ${isCyber ? 'border-cyan-400/25 text-slate-200' : 'border-slate-300 text-slate-700'}`}>
+                <summary className="cursor-pointer font-semibold">How to play</summary>
+                <p className="mt-3 text-sm leading-6">{PLAY_DIRECTIONS[challenge.puzzleType]}</p>
+                <p className="mt-2 text-sm leading-6">Read these directions before launching: the 45-second session begins in the arena. Select answers with a click or tap, or use Tab and Enter on answer buttons. Correct answers build your score; aim for accuracy before speed.</p>
+              </details>
 
               {challenge.skills && (
                 <div className="mt-auto flex min-h-10 flex-wrap gap-2 pt-8">
