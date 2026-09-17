@@ -1,3 +1,4 @@
+import { getAccountId } from '../auth/accountIdentity.js';
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import SolidIcon from '../components/SolidIcon.jsx';
 import { Stack as layerGroupIcon, ArrowClockwise as rotateRightIcon, Brain as brainIcon, Lightning as boltIcon } from '@phosphor-icons/react';
@@ -1147,6 +1148,8 @@ function buildPhantomTerminalLines({
 }
 
 function Arena({ theme }) {
+  const runOwnerRef = useRef(getAccountId());
+
   // Navigation/session context
   const isCyber = theme === "cyber";
 
@@ -2033,6 +2036,7 @@ function Arena({ theme }) {
       setCognitiveIdentity(identity);
 
       recordSession({
+        ownerId: runOwnerRef.current,
         ...computedFinalSessionDataWithLatest,
         sessionOutcome: evaluatedOutcome,
         cognitiveIdentity: identity,

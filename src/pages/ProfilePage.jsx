@@ -1096,7 +1096,7 @@ function ProfilePage() {
 
   const handleResetData = () => {
     const confirmed = window.confirm(
-      'Clear all TakeNeuroIQ session history and leaderboard data?',
+      'Clear the current player’s history on this device? Account scores will not be deleted.',
     );
 
     if (!confirmed) return;
@@ -1133,6 +1133,7 @@ function ProfilePage() {
   return (
     <section className="animate-fadeIn min-h-screen px-6 py-10">
       <div className="mx-auto max-w-7xl">
+        <p className="mb-5 text-sm text-slate-400">Device analytics · This history is stored in this browser for the current guest or account.</p>
         <div className="mb-8 rounded-3xl border border-cyan-400/30 bg-slate-900/70 p-6 shadow-[0_0_50px_rgba(34,211,238,0.15)] backdrop-blur-md">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
