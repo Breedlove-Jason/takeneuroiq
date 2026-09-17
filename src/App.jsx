@@ -1,3 +1,4 @@
+import RouteErrorBoundary from "./components/RouteErrorBoundary";
 import { lazy, Suspense } from "react";
 import { useAuth } from "./auth/AuthContext";
 
@@ -78,7 +79,7 @@ function App() {
             Restoring your account…
           </p>
         ) : (
-          <Suspense
+          <RouteErrorBoundary path={pathname}><Suspense
             fallback={
               <p role="status" className="p-12 text-center">
                 Loading your next challenge…
@@ -129,7 +130,7 @@ function App() {
                 }
               />
             </Routes>
-          </Suspense>
+          </Suspense></RouteErrorBoundary>
         )}
       </div>
     </div>
