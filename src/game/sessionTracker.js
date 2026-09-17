@@ -10,7 +10,8 @@
 import { getPlayerName } from './playerIdentity.js';
 import { calculateLiveAdaptiveDifficulty } from '../analytics/liveAdaptiveDifficulty.js';
 
-const STORAGE_KEY = 'takeneuroiq_sessions';
+import { getAccountId } from '../auth/accountIdentity.js';
+const storageKey = () => getAccountId() ? `takeneuroiq_sessions:${getAccountId()}` : 'takeneuroiq_sessions';
 
 /**
  * Loads session data from browser local storage.
@@ -20,7 +21,7 @@ const STORAGE_KEY = 'takeneuroiq_sessions';
 function loadSessions() {
   try {
     if (typeof localStorage === 'undefined') return [];
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
@@ -39,7 +40,7 @@ function loadSessions() {
 function saveSessions() {
   try {
     if (typeof localStorage === 'undefined') return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    localStorage.setItem(storageKey(), JSON.stringify(sessions));
   } catch (error) {
     console.error('Failed to save TakeNeuroIQ sessions:', error);
   }
@@ -53,7 +54,8 @@ function notifySessionUpdate() {
   window.dispatchEvent(new Event('takeneuroiq:sessions-updated'));
 }
 
-const sessions = loadSessions();
+let sessions = loadSessions();
+if (typeof window !== 'undefined') window.addEventListener('takeneuroiq:account-changed', () => { sessions = loadSessions(); notifySessionUpdate(); });
 
 /**
  * Determines a human-readable performance label for a given session.
@@ -200,9 +202,13 @@ export function recordSession(session) {
     label: session.label || getSessionLabel(session),
   };
 
+  // A run started under another identity must never migrate to the new account.
+  if (session.ownerId !== undefined && session.ownerId !== getAccountId()) return;
+  normalizedSession.ownerId = getAccountId();
   sessions.push(normalizedSession);
   notifySessionUpdate();
   saveSessions();
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('takeneuroiq:session-recorded', { detail: normalizedSession }));
 }
 
 /**
@@ -221,7 +227,7 @@ export function clearSessions() {
 
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(storageKey());
     }
     notifySessionUpdate();
   } catch (error) {
@@ -282,3 +288,4 @@ export function getLeaderboardSessions(sourceSessions = sessions) {
       puzzlesCorrect: session.puzzlesCorrect ?? session.correctAnswers ?? 0,
     }));
 }
+

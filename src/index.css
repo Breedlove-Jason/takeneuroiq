@@ -467,3 +467,31 @@
 .phosphor-glow {
   filter: drop-shadow(0 0 2px currentColor);
 }
+
+
+/* Shared tracks align every card, including expanded instructions. */
+.challenge-grid { display:grid;grid-template-columns:minmax(0,1fr);gap:24px; }
+.challenge-card { display:grid;grid-template-rows:subgrid;grid-row:span 6;gap:20px;padding:28px;border:1px solid color-mix(in srgb,var(--arena-accent) 45%,#172036);border-top:4px solid var(--arena-accent);border-radius:24px;background:linear-gradient(155deg,color-mix(in srgb,var(--arena-accent) 12%,#0c1426),#0c1426 65%);color:#f8fafc;box-shadow:0 14px 40px #0002;transition:box-shadow .2s,border-color .2s;min-width:0; }
+.challenge-card:hover { box-shadow:0 8px 36px color-mix(in srgb,var(--arena-accent) 16%,transparent);border-color:var(--arena-accent); }
+.challenge-card-light {background:linear-gradient(155deg,color-mix(in srgb,var(--arena-accent) 12%,white),white 65%);color:#0f172a;}
+.challenge-icon {display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;font-size:32px;border-radius:18px;background:color-mix(in srgb,var(--arena-accent) 14%,#0f172a);color:var(--arena-accent);}
+.challenge-description {line-height:1.75;color:#cbd5e1;}
+.challenge-card-light .challenge-description {color:#475569;}
+.challenge-directions {align-self:start;border:1px solid color-mix(in srgb,var(--arena-accent) 35%,transparent);border-radius:12px;padding:14px 16px;background:#00000010;}
+.challenge-directions summary {display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;font-weight:700;list-style:none;}
+.challenge-directions summary::-webkit-details-marker {display:none;}
+.challenge-directions[open] summary span {transform:rotate(45deg);}
+.challenge-tag {font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:6px 10px;border-radius:99px;background:color-mix(in srgb,var(--arena-accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--arena-accent) 35%,transparent);}
+.challenge-launch {display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:12px;padding:15px 16px;background:var(--arena-accent);color:#09111f;font-size:12px;font-weight:900;letter-spacing:.035em;transition:filter .2s;}
+.challenge-launch:hover {filter:brightness(1.1);}
+@media(min-width:768px){.challenge-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(min-width:1100px){.challenge-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@supports not(grid-template-rows:subgrid){.challenge-card{grid-template-rows:64px 64px 112px auto 64px 56px;}}
+.neuro-panel {border:1px solid #334155;border-radius:24px;background:#101a2dee;color:#f8fafc;padding:clamp(20px,4vw,36px);}
+.neuro-field {width:100%;border:1px solid #475569;border-radius:12px;padding:12px 14px;background:#080f20;color:#f8fafc;min-height:46px;}
+.neuro-field::placeholder {color:#94a3b8;}
+.neuro-button {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:12px;padding:11px 18px;background:#22d3ee;color:#07111f;font-weight:800;}
+.neuro-button:disabled {opacity:.45;cursor:not-allowed;}
+.neuro-muted-button {border:1px solid #475569;background:#1e293b;color:#f8fafc;}
+:where(a,button,input,select,summary):focus-visible {outline:3px solid #facc15;outline-offset:4px;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
