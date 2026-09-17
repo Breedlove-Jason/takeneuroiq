@@ -1,3 +1,4 @@
+import ProfileTrainingHub from "../components/ProfileTrainingHub.jsx";
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SolidIcon from '../components/SolidIcon.jsx';
@@ -1283,6 +1284,7 @@ function ProfilePage() {
                 </div>
               </div>
             </div>
+            <ProfileTrainingHub sessions={sessions} />
           </aside>
 
           <div className="space-y-6">
