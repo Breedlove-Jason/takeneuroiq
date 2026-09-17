@@ -1,9 +1,6 @@
 import React from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faLayerGroup,
-  faBrain,
-} from "@fortawesome/pro-duotone-svg-icons";
+import SolidIcon from '../SolidIcon.jsx';
+import { Stack as layerGroupIcon, Brain as brainIcon } from '@phosphor-icons/react';
 import MemoryChainArenaView from './families/MemoryChainArenaView';
 import RuleShiftArenaView from './families/RuleShiftArenaView';
 import LogicGridArenaView from './families/LogicGridArenaView';
@@ -100,7 +97,7 @@ const ArenaActiveView = ({
             </p>
           </div>
           <div className={`flex h-10 w-10 items-center justify-center rounded-xl border border-current/20 bg-current/10 ${isCyber ? "text-glow-blue" : ""}`}>
-            <FontAwesomeIcon icon={faBrain} className="text-lg" />
+            <SolidIcon icon={brainIcon} className="text-lg" />
           </div>
         </div>
       </div>
@@ -341,7 +338,7 @@ const ArenaActiveView = ({
         ) : (
           <div className="flex h-100 flex-col items-center justify-center rounded-3xl border border-white/5 bg-slate-900/50 backdrop-blur-sm">
             <div className="mb-4 flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-slate-800">
-              <FontAwesomeIcon icon={faLayerGroup} className="text-3xl text-slate-600" />
+              <SolidIcon icon={layerGroupIcon} className="text-3xl text-slate-600" />
             </div>
             <p className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-slate-500">
               Initializing Arena...
@@ -354,3 +351,4 @@ const ArenaActiveView = ({
 };
 
 export default ArenaActiveView;
+

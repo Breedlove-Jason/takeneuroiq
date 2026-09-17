@@ -1,20 +1,8 @@
 // src/pages/Play.jsx
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import SolidIcon from '../components/SolidIcon.jsx';
 import { PLAY_DIRECTIONS } from '../game/playDirections.js';
 import { Link } from 'react-router-dom';
-import {
-  faMicrochip,
-  faBorderAll,
-  faRoute,
-  faStar,
-  faDiagramProject,
-  faTableCells,
-  faLink,
-  faRotateRight,
-  faBullseye,
-  faShapes,
-  faLayerGroup,
-} from '@fortawesome/pro-duotone-svg-icons';
+import { Cpu as microchipIcon, GridFour as borderAllIcon, Path as routeIcon, Star as starIcon, FlowArrow as diagramProjectIcon, Table as tableCellsIcon, Link as linkIcon, ArrowClockwise as rotateRightIcon, Target as bullseyeIcon, Shapes as shapesIcon, Stack as layerGroupIcon } from '@phosphor-icons/react';
 
 /**
  * Play Page Component
@@ -40,7 +28,7 @@ function Play({ theme }) {
 
   const challenges = [
     {
-      icon: faStar,
+      icon: starIcon,
       puzzleType: 'pattern_rush',
       title: 'Pattern Rush',
       description:
@@ -72,7 +60,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-blue',
     },
     {
-      icon: faRotateRight,
+      icon: rotateRightIcon,
       puzzleType: 'rule_shift',
       title: 'Rule Shift',
       description:
@@ -104,7 +92,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-orange',
     },
     {
-      icon: faDiagramProject,
+      icon: diagramProjectIcon,
       puzzleType: 'sequence_sprint',
       title: 'Sequence Sprint',
       description:
@@ -136,7 +124,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-pink',
     },
     {
-      icon: faTableCells,
+      icon: tableCellsIcon,
       puzzleType: 'grid_recall',
       title: 'Grid Recall',
       description:
@@ -168,7 +156,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-aqua',
     },
     {
-      icon: faBorderAll,
+      icon: borderAllIcon,
       puzzleType: 'logic_grid',
       title: 'Logic Grid',
       description:
@@ -200,7 +188,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-blue',
     },
     {
-      icon: faRoute,
+      icon: routeIcon,
       puzzleType: 'signal_path',
       title: 'Signal Path',
       description:
@@ -232,7 +220,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-blue',
     },
     {
-      icon: faRotateRight,
+      icon: rotateRightIcon,
       puzzleType: 'spatial_rotation',
       title: 'Spatial Rotation',
       description:
@@ -264,7 +252,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-blue',
     },
     {
-      icon: faLink,
+      icon: linkIcon,
       puzzleType: 'memory_chain',
       title: 'Memory Chain',
       description:
@@ -296,7 +284,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-lilac',
     },
     {
-      icon: faShapes,
+      icon: shapesIcon,
       puzzleType: 'symbol_recall',
       title: 'Symbol Recall',
       description:
@@ -328,7 +316,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-rose',
     },
     {
-      icon: faMicrochip,
+      icon: microchipIcon,
       puzzleType: 'logic_gate',
       title: 'Logic Gate',
       description:
@@ -360,7 +348,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-lilac',
     },
     {
-      icon: faBullseye,
+      icon: bullseyeIcon,
       puzzleType: 'odd_one_matrix',
       title: 'Odd One Matrix',
       description:
@@ -392,7 +380,7 @@ function Play({ theme }) {
       glowTone: 'group-hover:text-glow-rose',
     },
     {
-      icon: faLayerGroup,
+      icon: layerGroupIcon,
       puzzleType: 'number_weave',
       title: 'Number Weave',
       description:
@@ -489,9 +477,9 @@ function Play({ theme }) {
                     <div className="absolute w-12 h-12 rounded-full border border-current opacity-0 animate-signal-pulse" style={{ animationDelay: '0.6s' }} />
                   </div>
                 )}
-                <FontAwesomeIcon
+                <SolidIcon
                   icon={challenge.icon}
-                  className="relative z-10 animate-float-subtle group-hover:animate-bounce [--fa-secondary-opacity:0.4]"
+                  className="relative z-10 animate-float-subtle group-hover:animate-bounce"
                 />
               </div>
 
@@ -570,3 +558,4 @@ function Play({ theme }) {
 }
 
 export default Play;
+

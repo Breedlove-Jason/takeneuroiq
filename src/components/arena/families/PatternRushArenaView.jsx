@@ -1,6 +1,6 @@
 import React from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faZap, faTrophy } from "@fortawesome/pro-duotone-svg-icons";
+import SolidIcon from '../../SolidIcon.jsx';
+import { Clock as clockIcon, Lightning as zapIcon, Trophy as trophyIcon } from '@phosphor-icons/react';
 
 const PatternRushArenaView = ({
   isCyber,
@@ -94,7 +94,7 @@ const PatternRushArenaView = ({
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
                   Remaining Time
                 </span>
-                <FontAwesomeIcon icon={faClock} className="text-emerald-400" />
+                <SolidIcon icon={clockIcon} className="text-emerald-400" />
               </div>
               <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-900 shadow-inner">
                 <div
@@ -113,7 +113,7 @@ const PatternRushArenaView = ({
               <div className="mt-8 space-y-4 border-t border-white/5 pt-8">
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
-                    <FontAwesomeIcon icon={faZap} />
+                    <SolidIcon icon={zapIcon} />
                   </div>
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
@@ -124,7 +124,7 @@ const PatternRushArenaView = ({
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
-                    <FontAwesomeIcon icon={faTrophy} />
+                    <SolidIcon icon={trophyIcon} />
                   </div>
                   <div>
                     <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
@@ -164,3 +164,4 @@ const PatternRushArenaView = ({
 };
 
 export default PatternRushArenaView;
+

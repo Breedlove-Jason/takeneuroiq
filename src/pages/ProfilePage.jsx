@@ -1,25 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faUserAstronaut,
-  faClockRotateLeft,
-  faBrain,
-  faChartLine,
-  faBolt,
-  faLayerGroup,
-  faRoute,
-  faWaveSquare,
-  faShieldHalved,
-  faStar,
-  faDiagramProject,
-  faTableCells,
-  faMicrochip,
-  faBorderAll,
-  faShapes,
-  faRotateRight,
-  faWaveform,
-} from '@fortawesome/pro-duotone-svg-icons';
+import SolidIcon from '../components/SolidIcon.jsx';
+import { UserCircle as userAstronautIcon, ClockCounterClockwise as clockRotateLeftIcon, Brain as brainIcon, ChartLineUp as chartLineIcon, Lightning as boltIcon, Stack as layerGroupIcon, Path as routeIcon, WaveSquare as waveSquareIcon, ShieldCheck as shieldHalvedIcon, Star as starIcon, FlowArrow as diagramProjectIcon, Table as tableCellsIcon, Cpu as microchipIcon, GridFour as borderAllIcon, Shapes as shapesIcon, ArrowClockwise as rotateRightIcon, Waveform as waveformIcon } from '@phosphor-icons/react';
 import {
   Radar,
   RadarChart,
@@ -193,91 +175,91 @@ function getPuzzleFamilyLabel(puzzleType, mode) {
 
 const RECENT_SESSION_FAMILY_VISUALS = {
   pattern_rush: {
-    icon: faStar,
+    icon: starIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/10 text-cyan-200',
     labelClass: 'text-cyan-200',
     badgeClass: 'text-cyan-300/70',
   },
   sequence_sprint: {
-    icon: faDiagramProject,
+    icon: diagramProjectIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-fuchsia-400/45 bg-fuchsia-500/12 text-fuchsia-200 shadow-[0_0_20px_rgba(217,70,239,0.28)]',
     labelClass: 'text-fuchsia-200',
     badgeClass: 'text-pink-300/75',
   },
   rule_shift: {
-    icon: faLayerGroup,
+    icon: layerGroupIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-amber-400/45 bg-amber-500/12 text-amber-200 shadow-[0_0_20px_rgba(245,158,11,0.28)]',
     labelClass: 'text-amber-100',
     badgeClass: 'text-orange-300/75',
   },
   grid_recall: {
-    icon: faTableCells,
+    icon: tableCellsIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-aqua-border)]/45 bg-gradient-to-br from-[var(--color-aqua-accent)]/12 to-[var(--color-aqua-tint)] text-[var(--color-aqua-icon)] shadow-[0_0_20px_rgba(104,217,207,0.26)]',
     labelClass: 'text-[var(--color-aqua-icon)]',
     badgeClass: 'text-[var(--color-aqua-accent)]',
   },
   logic_grid: {
-    icon: faBorderAll,
+    icon: borderAllIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-sky-400/45 bg-gradient-to-br from-sky-500/14 via-blue-500/12 to-indigo-500/10 text-sky-200 shadow-[0_0_20px_rgba(56,189,248,0.28)]',
     labelClass: 'text-sky-100',
     badgeClass: 'text-blue-300/75',
   },
   logic_gate: {
-    icon: faMicrochip,
+    icon: microchipIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_20px_rgba(168,139,255,0.26)]',
     labelClass: 'text-[var(--color-lilac-icon)]',
     badgeClass: 'text-[var(--color-lilac-accent)]',
   },
   signal_path: {
-    icon: faRoute,
+    icon: routeIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-500/45 bg-gradient-to-br from-cyan-600/14 via-blue-600/12 to-indigo-600/10 text-cyan-200 shadow-[0_0_22px_rgba(8,145,178,0.22)]',
     labelClass: 'text-cyan-200',
     badgeClass: 'text-blue-300/70',
   },
   spatial_rotation: {
-    icon: faRotateRight,
+    icon: rotateRightIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-cyan-400/45 bg-gradient-to-br from-cyan-500/14 via-fuchsia-500/10 to-violet-500/10 text-cyan-200 shadow-[0_0_22px_rgba(34,211,238,0.3)]',
     labelClass: 'text-cyan-100',
     badgeClass: 'text-fuchsia-200/75',
   },
   memory_chain: {
-    icon: faWaveSquare,
+    icon: waveSquareIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_20px_rgba(168,139,255,0.28)]',
     labelClass: 'text-[var(--color-lilac-icon)]',
     badgeClass: 'text-[var(--color-lilac-accent)]',
   },
   symbol_recall: {
-    icon: faBolt,
+    icon: boltIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-rose-border)]/45 bg-gradient-to-br from-[var(--color-rose-accent)]/14 via-[var(--color-rose-icon)]/12 to-[var(--color-rose-tint)] text-[var(--color-rose-icon)] shadow-[0_0_22px_rgba(255,143,192,0.28)]',
     labelClass: 'text-[var(--color-rose-icon)]',
     badgeClass: 'text-[var(--color-rose-accent)]',
   },
   odd_one_matrix: {
-    icon: faShapes,
+    icon: shapesIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-rose-400/45 bg-gradient-to-br from-rose-500/12 via-fuchsia-500/10 to-pink-500/8 text-rose-200 shadow-[0_0_20px_rgba(244,63,94,0.24)]',
     labelClass: 'text-rose-200',
     badgeClass: 'text-fuchsia-300/70',
   },
   number_weave: {
-    icon: faWaveform,
+    icon: waveformIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/45 bg-gradient-to-br from-emerald-500/14 via-teal-500/10 to-cyan-500/10 text-emerald-200 shadow-[0_0_22px_rgba(16,185,129,0.3)]',
     labelClass: 'text-emerald-100',
     badgeClass: 'text-teal-200/75',
   },
   default: {
-    icon: faBrain,
+    icon: brainIcon,
     iconWrap:
       'flex h-9 w-9 items-center justify-center rounded-full border border-slate-600/40 bg-slate-900/60 text-slate-200',
     labelClass: 'text-white',
@@ -923,10 +905,10 @@ function ProfilePage() {
   };
 
   const adaptiveInsightIcons = {
-    challenge: faBolt,
-    steady: faWaveSquare,
-    recover: faShieldHalved,
-    default: faWaveSquare,
+    challenge: boltIcon,
+    steady: waveSquareIcon,
+    recover: shieldHalvedIcon,
+    default: waveSquareIcon,
   };
 
   const adaptiveInsightBadge =
@@ -1155,9 +1137,9 @@ function ProfilePage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.2)]">
-                <FontAwesomeIcon
-                  icon={faBolt}
-                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] animate-pulse"
+                <SolidIcon
+                  icon={boltIcon}
+                  className="text-cyan-400 animate-pulse"
                 />
                 Neural Identity
               </p>
@@ -1198,9 +1180,9 @@ function ProfilePage() {
           <aside className="space-y-6">
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                <FontAwesomeIcon
-  icon={faUserAstronaut}
-  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+                <SolidIcon
+  icon={userAstronautIcon}
+  className="text-cyan-400 text-cyan-300"
 />
                 Identity Core
               </h2>
@@ -1249,9 +1231,9 @@ function ProfilePage() {
 
             <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                <FontAwesomeIcon
-                  icon={faBrain}
-                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-fuchsia-300"
+                <SolidIcon
+                  icon={brainIcon}
+                  className="text-cyan-400 text-fuchsia-300"
                 />
                 Cognitive Tracks
               </h2>
@@ -1320,10 +1302,10 @@ function ProfilePage() {
                 <div
                   className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] ${adaptiveInsightTone.label}`}
                 >
-                  <FontAwesomeIcon
+                  <SolidIcon
                     icon={adaptiveInsightIcon}
                     className="text-sm opacity-90"
-                    fixedWidth
+                    
                   />
                   <span>Adaptive Insight</span>
                 </div>
@@ -1385,9 +1367,9 @@ function ProfilePage() {
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                <FontAwesomeIcon
-                  icon={faBrain}
-                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+                <SolidIcon
+                  icon={brainIcon}
+                  className="text-cyan-400 text-cyan-300"
                 />
                 Cognitive Skill Signals
               </h2>
@@ -1487,9 +1469,9 @@ function ProfilePage() {
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(14,165,233,0.25)] backdrop-blur-md">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                  <FontAwesomeIcon
-  icon={faWaveSquare}
-  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+                  <SolidIcon
+  icon={waveSquareIcon}
+  className="text-cyan-400 text-cyan-300"
 />
                   Current Cognitive Focus
                 </h2>
@@ -1564,9 +1546,9 @@ function ProfilePage() {
 
             <div className="rounded-3xl border border-cyan-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(34,211,238,0.08)] backdrop-blur-md">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-                <FontAwesomeIcon
-  icon={faClockRotateLeft}
-  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-300"
+                <SolidIcon
+  icon={clockRotateLeftIcon}
+  className="text-cyan-400 text-cyan-300"
 />
                 Recent Sessions
               </h2>
@@ -1599,7 +1581,7 @@ function ProfilePage() {
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex items-center gap-3">
                                 <span className={familyVisual.iconWrap}>
-                                  <FontAwesomeIcon
+                                  <SolidIcon
                                     icon={familyVisual.icon}
                                     className="text-white"
                                   />
@@ -1733,7 +1715,7 @@ function ProfilePage() {
                           >
                             <div className="flex items-center gap-3">
                               <span className={familyVisual.iconWrap}>
-                                <FontAwesomeIcon
+                                <SolidIcon
                                   icon={familyVisual.icon}
                                   className="text-white"
                                 />
@@ -1813,9 +1795,9 @@ function ProfilePage() {
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
                 <div className="rounded-3xl border border-emerald-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(16,185,129,0.32)] ring-1 ring-emerald-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(16,185,129,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon
-  icon={faChartLine}
-  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-emerald-100 drop-shadow-[0_0_18px_rgba(16,185,129,0.9)]"
+                  <SolidIcon
+  icon={chartLineIcon}
+  className="text-cyan-400 text-emerald-100 drop-shadow-[0_0_18px_rgba(16,185,129,0.9)]"
 />
                   Progression
                 </h2>
@@ -1835,9 +1817,9 @@ function ProfilePage() {
 
                 <div className="rounded-3xl border border-cyan-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(14,165,233,0.32)] ring-1 ring-cyan-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(14,165,233,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon
-  icon={faLayerGroup}
-  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-cyan-100 drop-shadow-[0_0_18px_rgba(14,165,233,0.9)]"
+                  <SolidIcon
+  icon={layerGroupIcon}
+  className="text-cyan-400 text-cyan-100 drop-shadow-[0_0_18px_rgba(14,165,233,0.9)]"
 />
                   Adaptive Layer
                 </h2>
@@ -1865,9 +1847,9 @@ function ProfilePage() {
 
                 <div className="rounded-3xl border border-fuchsia-300/80 bg-slate-900/75 p-5 backdrop-blur-md shadow-[0_0_42px_rgba(236,72,153,0.35)] ring-1 ring-fuchsia-300/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_48px_rgba(236,72,153,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon
-  icon={faBolt}
-  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-fuchsia-100 drop-shadow-[0_0_18px_rgba(236,72,153,0.95)]"
+                  <SolidIcon
+  icon={boltIcon}
+  className="text-cyan-400 text-fuchsia-100 drop-shadow-[0_0_18px_rgba(236,72,153,0.95)]"
 />
                   Momentum
                 </h2>
@@ -1887,9 +1869,9 @@ function ProfilePage() {
 
               <div className="rounded-3xl border border-violet-300/80 bg-slate-900/78 p-5 backdrop-blur-md shadow-[0_0_50px_rgba(129,140,248,0.32)] ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_56px_rgba(129,140,248,0.45)]">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-white">
-                  <FontAwesomeIcon
-  icon={faBrain}
-  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1] text-violet-100 drop-shadow-[0_0_18px_rgba(129,140,248,0.95)]"
+                  <SolidIcon
+  icon={brainIcon}
+  className="text-cyan-400 text-violet-100 drop-shadow-[0_0_18px_rgba(129,140,248,0.95)]"
 />
                   Cognitive Identity
                 </h2>
@@ -2014,3 +1996,4 @@ function ProfilePage() {
 }
 
 export default ProfilePage;
+

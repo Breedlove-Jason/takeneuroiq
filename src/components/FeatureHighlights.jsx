@@ -1,22 +1,22 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrophy, faBolt, faBrain } from '@fortawesome/pro-duotone-svg-icons';
+import SolidIcon from './SolidIcon.jsx';
+import { Trophy as trophyIcon, Lightning as boltIcon, Brain as brainIcon } from '@phosphor-icons/react';
 
 function FeatureHighlights() {
   const features = [
     {
-      icon: faTrophy,
+      icon: trophyIcon,
       title: 'Compete Globally',
       description:
         'Challenge other players, improve your ranking, and climb a leaderboard built for competitive brain games.',
     },
     {
-      icon: faBolt,
+      icon: boltIcon,
       title: 'Daily Brain Challenges',
       description:
         'Come back each day for fresh puzzles, fast rounds, and new chances to test your speed and reasoning.',
     },
     {
-      icon: faBrain,
+      icon: brainIcon,
       title: 'Track Cognitive Skills',
       description:
         'See how you perform across logic, pattern recognition, memory, and processing speed over time.',
@@ -48,9 +48,9 @@ function FeatureHighlights() {
               className="rounded-2xl border border-fuchsia-400/10 bg-white/5 p-8 shadow-[0_0_30px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-300 hover:border-fuchsia-400/40 hover:bg-white/10 hover:shadow-[0_0_40px_rgba(217,70,239,0.1)] hover:-translate-y-1"
             >
               <div className="text-4xl drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">
-                <FontAwesomeIcon
+                <SolidIcon
                   icon={feature.icon}
-                  className="text-cyan-400 [--fa-secondary-color:theme(colors.fuchsia.500)] [--fa-secondary-opacity:1]"
+                  className="text-cyan-400"
                 />
               </div>
 
@@ -70,3 +70,4 @@ function FeatureHighlights() {
 }
 
 export default FeatureHighlights;
+

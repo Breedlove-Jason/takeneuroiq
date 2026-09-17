@@ -1,11 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faLayerGroup,
-  faRotateRight,
-  faBrain,
-  faBolt,
-} from "@fortawesome/pro-duotone-svg-icons";
+import SolidIcon from '../components/SolidIcon.jsx';
+import { Stack as layerGroupIcon, ArrowClockwise as rotateRightIcon, Brain as brainIcon, Lightning as boltIcon } from '@phosphor-icons/react';
 import PuzzleShape from "../components/PuzzleShape";
 import MatrixRain from "../components/MatrixRain";
 import { checkAnswer, getRandomPuzzle } from "../game/puzzleEngine";
@@ -2711,7 +2706,7 @@ function Arena({ theme }) {
         {/* Family Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-slate-950/60 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-            <FontAwesomeIcon icon={faBrain} className="text-emerald-400 text-xs" />
+            <SolidIcon icon={brainIcon} className="text-emerald-400 text-xs" />
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300">Number Weave</span>
           </div>
           <h2 className={`text-2xl font-black tracking-tight ${isCyber ? "text-white text-glow-blue" : "text-white"}`}>
@@ -4415,9 +4410,9 @@ function Arena({ theme }) {
                       }`}
                     >
                       <span className="relative z-10 flex items-center gap-3">
-                        <FontAwesomeIcon
-                          icon={faRotateRight}
-                          className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] transition-transform duration-500 group-hover:rotate-180"
+                        <SolidIcon
+                          icon={rotateRightIcon}
+                          className="text-cyan-400 transition-transform duration-500 group-hover:rotate-180"
                         />
                         Run Again
                       </span>
@@ -5826,9 +5821,9 @@ function Arena({ theme }) {
                       recommendedSessionTone.label
                     }`}
                   >
-                    <FontAwesomeIcon
-                      icon={faBolt}
-                      className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                    <SolidIcon
+                      icon={boltIcon}
+                      className="text-cyan-400"
                     />
                     Recommended Session
                   </div>
@@ -5883,9 +5878,9 @@ function Arena({ theme }) {
                   isCyber ? "text-cyan-300 text-glow-blue" : "text-slate-500"
                 }`}
               >
-                <FontAwesomeIcon
-                  icon={faBrain}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                <SolidIcon
+                  icon={brainIcon}
+                  className="text-cyan-400"
                 />
                 Challenge
               </p>
@@ -5936,9 +5931,9 @@ function Arena({ theme }) {
                   isCyber ? "text-fuchsia-300 text-glow-pink" : "text-slate-500"
                 }`}
               >
-                <FontAwesomeIcon
-                  icon={faBolt}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                <SolidIcon
+                  icon={boltIcon}
+                  className="text-cyan-400"
                 />
                 Time Remaining
               </p>
@@ -5972,9 +5967,9 @@ function Arena({ theme }) {
                   isCyber ? "text-slate-400" : "text-slate-500"
                 }`}
               >
-                <FontAwesomeIcon
-                  icon={faLayerGroup}
-                  className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+                <SolidIcon
+                  icon={layerGroupIcon}
+                  className="text-cyan-400"
                 />
                 Mode
               </p>
@@ -6153,3 +6148,4 @@ function Arena({ theme }) {
 }
 
 export default Arena;
+

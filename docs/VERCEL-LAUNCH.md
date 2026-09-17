@@ -1,11 +1,9 @@
 # TakeNeuroIQ launch
 
-Use the Vite preset, `npm run build`, and `dist` output. SPA rewrites support direct visits to `/play`, `/arena`, `/profile`, and `/leaderboard`.
+Use the Vite preset, `npm run build`, and `dist` output. SPA rewrites support `/play`, `/arena`, `/profile`, and `/leaderboard`.
 
-Font Awesome Pro and the custom kit require authorized registry access. Set `FONTAWESOME_PACKAGE_TOKEN` in the build environment; `.npmrc` reads this variable. Rotate the previously committed token, which remains in Git history. Never commit its replacement.
+Icons use the MIT-licensed `@phosphor-icons/react` package with filled weight, bundled locally. All dependencies come from public npm. No Font Awesome kit, paid packages, registry token, or icon environment variable is needed.
 
-The original logo and Neuro artwork were restored from the owner's repository ZIP. The production Vite build and all three existing test scripts pass. Browser verification is tracked separately from these checks.
+Run `npm ci`, `npm run build`, and `node --test tests/*.test.js` to verify. The original logo and Neuro artwork are preserved.
 
-A compiled static deployment does not need the registry token at runtime. Git-based deployments do need it during dependency installation.
-
-Product classification: adaptive puzzle platform in The Arcade. Session results describe in-app performance, not a validated IQ measurement. Records currently live in browser localStorage.
+Product classification: adaptive puzzle platform in The Arcade. Session results describe in-app performance, not a validated IQ measurement. Records live in browser localStorage.

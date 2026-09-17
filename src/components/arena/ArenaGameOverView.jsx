@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRotateRight } from "@fortawesome/pro-duotone-svg-icons";
+import SolidIcon from '../SolidIcon.jsx';
+import { ArrowClockwise as rotateRightIcon } from '@phosphor-icons/react';
 
 const Typewriter = ({ 
   text, 
@@ -305,9 +305,9 @@ const ArenaGameOverView = ({
           }`}
         >
           <span className="relative z-10 flex items-center gap-3">
-            <FontAwesomeIcon
-              icon={faRotateRight}
-              className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1] transition-transform duration-500 group-hover:rotate-180"
+            <SolidIcon
+              icon={rotateRightIcon}
+              className="text-cyan-400 transition-transform duration-500 group-hover:rotate-180"
             />
             Run Again
           </span>

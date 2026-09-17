@@ -10,22 +10,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { generateCoachingInsight } from "../analytics/coachingEngine";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChartLine,
-  faRoute,
-  faStar,
-  faDiagramProject,
-  faTableCells,
-  faMicrochip,
-  faBrain,
-  faBorderAll,
-  faRotateRight,
-  faWaveform,
-  faLink,
-  faBullseye,
-  faBolt,
-} from "@fortawesome/pro-duotone-svg-icons";
+import SolidIcon from './SolidIcon.jsx';
+import { ChartLineUp as chartLineIcon, Path as routeIcon, Star as starIcon, FlowArrow as diagramProjectIcon, Table as tableCellsIcon, Cpu as microchipIcon, Brain as brainIcon, GridFour as borderAllIcon, ArrowClockwise as rotateRightIcon, Waveform as waveformIcon, Link as linkIcon, Target as bullseyeIcon, Lightning as boltIcon } from '@phosphor-icons/react';
 
 /**
  * ProfileAnalytics Component
@@ -504,9 +490,9 @@ function ProfileAnalytics({
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <div className={familyConfig.iconWrapClass}>
-                        <FontAwesomeIcon
+                        <SolidIcon
                           icon={familyConfig.icon}
-                          className={`[--fa-secondary-opacity:1] transition-transform duration-300 group-hover:scale-110 ${familyConfig.iconClass || "text-lg"}`}
+                          className={` transition-transform duration-300 group-hover:scale-110 ${familyConfig.iconClass || "text-lg"}`}
                         />
                       </div>
                       <div className="min-w-0">
@@ -671,7 +657,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.12)_0%,rgba(6,13,27,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.18)]",
       iconWrapClass: `${baseIconWrapper} border-cyan-400/40 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
       iconClass: "text-[0.85rem]",
-      icon: faStar,
+      icon: starIcon,
       accentTextClass: "text-cyan-200",
       sessionsTextClass: "text-cyan-300/80",
       trendBadgeClass: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
@@ -688,7 +674,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-fuchsia-400/30 bg-[linear-gradient(160deg,rgba(217,70,239,0.14)_0%,rgba(48,10,40,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.22)]",
       iconWrapClass: `${baseIconWrapper} border-fuchsia-400/45 bg-fuchsia-500/12 text-fuchsia-200 shadow-[0_0_18px_rgba(217,70,239,0.65)]`,
       iconClass: "text-[0.85rem]",
-      icon: faDiagramProject,
+      icon: diagramProjectIcon,
       accentTextClass: "text-fuchsia-200",
       sessionsTextClass: "text-fuchsia-300/80",
       trendBadgeClass: "border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200",
@@ -705,7 +691,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-amber-400/30 bg-[linear-gradient(160deg,rgba(245,158,11,0.14)_0%,rgba(36,22,8,0.92)_46%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(245,158,11,0.22)]",
       iconWrapClass: `${baseIconWrapper} border-amber-400/45 bg-amber-500/12 text-amber-200 shadow-[0_0_18px_rgba(245,158,11,0.62)]`,
       iconClass: "text-[0.8rem]",
-      icon: faRotateRight,
+      icon: rotateRightIcon,
       accentTextClass: "text-amber-200",
       sessionsTextClass: "text-amber-300/80",
       trendBadgeClass: "border-amber-400/35 bg-amber-500/10 text-amber-200",
@@ -722,7 +708,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-[var(--color-aqua-border)]/30 bg-[linear-gradient(160deg,var(--color-aqua-tint)_0%,rgba(34,211,238,0.08)_42%,rgba(6,14,20,0.94)_100%)] shadow-[0_0_40px_rgba(104,217,207,0.2)]",
       iconWrapClass: `${baseIconWrapper} border-[var(--color-aqua-border)]/45 bg-gradient-to-br from-[var(--color-aqua-accent)]/12 via-[var(--color-aqua-icon)]/10 to-[var(--color-aqua-tint)] text-[var(--color-aqua-icon)] shadow-[0_0_18px_rgba(104,217,207,0.58)]`,
       iconClass: "text-base",
-      icon: faTableCells,
+      icon: tableCellsIcon,
       accentTextClass: "text-[var(--color-aqua-icon)]",
       sessionsTextClass: "text-[var(--color-aqua-accent)]/80",
       trendBadgeClass: "border-[var(--color-aqua-border)]/35 bg-[var(--color-aqua-accent)]/10 text-[var(--color-aqua-icon)]",
@@ -739,7 +725,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-orange-500/30 bg-[linear-gradient(160deg,rgba(249,115,22,0.14)_0%,rgba(43,20,6,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(249,115,22,0.2)]",
       iconWrapClass: `${baseIconWrapper} border-orange-400/45 bg-orange-500/12 text-orange-200 shadow-[0_0_18px_rgba(249,115,22,0.58)]`,
       iconClass: "text-sm",
-      icon: faMicrochip,
+      icon: microchipIcon,
       accentTextClass: "text-orange-200",
       sessionsTextClass: "text-orange-300/80",
       trendBadgeClass: "border-orange-400/35 bg-orange-500/10 text-orange-200",
@@ -756,7 +742,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-sky-400/30 bg-[linear-gradient(160deg,rgba(56,189,248,0.14)_0%,#091a2f_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(59,130,246,0.22)]",
       iconWrapClass: `${baseIconWrapper} border-sky-400/45 bg-gradient-to-br from-sky-500/14 to-blue-500/12 text-sky-200 shadow-[0_0_18px_rgba(56,189,248,0.65)]`,
       iconClass: "text-base",
-      icon: faBorderAll,
+      icon: borderAllIcon,
       accentTextClass: "text-sky-200",
       sessionsTextClass: "text-sky-300/80",
       trendBadgeClass: "border-sky-400/35 bg-sky-500/10 text-sky-200",
@@ -773,7 +759,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-cyan-600/30 bg-[linear-gradient(160deg,rgba(8,145,178,0.12)_0%,rgba(30,58,138,0.1)_36%,rgba(8,18,22,0.94)_100%)] shadow-[0_0_40px_rgba(37,99,235,0.2)]",
       iconWrapClass: `${baseIconWrapper} border-cyan-500/45 bg-gradient-to-br from-cyan-600/14 via-blue-600/12 to-indigo-600/10 text-cyan-200 shadow-[0_0_20px_rgba(8,145,178,0.45)]`,
       iconClass: "text-base",
-      icon: faRoute,
+      icon: routeIcon,
       accentTextClass: "text-cyan-200",
       sessionsTextClass: "text-cyan-300/80",
       trendBadgeClass: "border-cyan-600/35 bg-cyan-600/10 text-cyan-200",
@@ -790,7 +776,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-cyan-400/30 bg-[linear-gradient(160deg,rgba(34,211,238,0.14)_0%,rgba(10,18,36,0.92)_44%,rgba(4,10,22,0.96)_100%)] shadow-[0_0_40px_rgba(34,211,238,0.2)]",
       iconWrapClass: `${baseIconWrapper} border-cyan-400/45 bg-gradient-to-br from-cyan-500/14 via-fuchsia-500/10 to-violet-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.62)]`,
       iconClass: "text-base",
-      icon: faRotateRight,
+      icon: rotateRightIcon,
       accentTextClass: "text-cyan-100",
       sessionsTextClass: "text-fuchsia-300/80",
       trendBadgeClass: "border-cyan-400/35 bg-fuchsia-500/10 text-cyan-100",
@@ -807,7 +793,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-[var(--color-lilac-border)]/30 bg-[linear-gradient(160deg,var(--color-lilac-tint)_0%,rgba(76,29,149,0.12)_44%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(168,139,255,0.22)]",
       iconWrapClass: `${baseIconWrapper} border-[var(--color-lilac-border)]/45 bg-gradient-to-br from-[var(--color-lilac-accent)]/14 via-[var(--color-lilac-icon)]/12 to-[var(--color-lilac-tint)] text-[var(--color-lilac-icon)] shadow-[0_0_18px_rgba(168,139,255,0.62)]`,
       iconClass: "text-base",
-      icon: faLink,
+      icon: linkIcon,
       accentTextClass: "text-[var(--color-lilac-icon)]",
       sessionsTextClass: "text-[var(--color-lilac-accent)]/80",
       trendBadgeClass: "border-[var(--color-lilac-border)]/35 bg-[var(--color-lilac-accent)]/10 text-[var(--color-lilac-icon)]",
@@ -824,7 +810,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-[var(--color-rose-border)]/30 bg-[linear-gradient(160deg,var(--color-rose-tint)_0%,rgba(192,38,211,0.1)_40%,rgba(10,6,22,0.96)_100%)] shadow-[0_0_40px_rgba(255,143,192,0.22)]",
       iconWrapClass: `${baseIconWrapper} border-[var(--color-rose-border)]/45 bg-gradient-to-br from-[var(--color-rose-accent)]/14 via-[var(--color-rose-icon)]/12 to-[var(--color-rose-tint)] text-[var(--color-rose-icon)] shadow-[0_0_18px_rgba(255,143,192,0.58)]`,
       iconClass: "text-sm",
-      icon: faBolt,
+      icon: boltIcon,
       accentTextClass: "text-[var(--color-rose-icon)]",
       sessionsTextClass: "text-[var(--color-rose-accent)]/80",
       trendBadgeClass: "border-[var(--color-rose-border)]/35 bg-[var(--color-rose-accent)]/10 text-[var(--color-rose-icon)]",
@@ -841,7 +827,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-rose-400/30 bg-[linear-gradient(160deg,rgba(244,63,94,0.12)_0%,rgba(120,20,72,0.1)_42%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(217,70,239,0.18)]",
       iconWrapClass: `${baseIconWrapper} border-rose-400/45 bg-gradient-to-br from-rose-500/12 via-fuchsia-500/10 to-pink-500/8 text-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.55)]`,
       iconClass: "text-base",
-      icon: faBullseye,
+      icon: bullseyeIcon,
       accentTextClass: "text-rose-200",
       sessionsTextClass: "text-rose-300/80",
       trendBadgeClass: "border-rose-400/35 bg-rose-500/10 text-rose-200",
@@ -858,7 +844,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-emerald-400/30 bg-[linear-gradient(160deg,rgba(16,185,129,0.12)_0%,rgba(6,27,24,0.92)_48%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_40px_rgba(16,185,129,0.18)]",
       iconWrapClass: `${baseIconWrapper} border-emerald-400/40 bg-emerald-500/10 text-emerald-200 shadow-[0_0_18px_rgba(16,185,129,0.62)]`,
       iconClass: "text-[0.85rem]",
-      icon: faWaveform,
+      icon: waveformIcon,
       accentTextClass: "text-emerald-200",
       sessionsTextClass: "text-emerald-300/80",
       trendBadgeClass: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
@@ -875,7 +861,7 @@ function getFamilyCardTone(puzzleType, rowPalette = null) {
       cardClass: "border-slate-700/80 bg-[linear-gradient(160deg,rgba(30,41,59,0.2)_0%,rgba(2,6,23,0.92)_58%,rgba(2,6,23,0.96)_100%)] shadow-[0_0_30px_rgba(15,23,42,0.35)]",
       iconWrapClass: `${baseIconWrapper} border-slate-600/40 bg-slate-900/60 text-slate-200`,
       iconClass: "text-base",
-      icon: faBrain,
+      icon: brainIcon,
       accentTextClass: "text-slate-200",
       sessionsTextClass: "text-slate-400",
       trendBadgeClass: "border-slate-700/70 bg-slate-900/70 text-slate-200",
@@ -1047,9 +1033,9 @@ export function PerformanceSnapshot({ sessions = [] }) {
   return (
     <div className="rounded-3xl border border-fuchsia-400/20 bg-slate-900/70 p-5 shadow-[0_0_30px_rgba(217,70,239,0.08)] backdrop-blur-md">
       <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-        <FontAwesomeIcon
-          icon={faChartLine}
-          className="text-cyan-400 [--fa-secondary-color:var(--color-fuchsia-500)] [--fa-secondary-opacity:1]"
+        <SolidIcon
+          icon={chartLineIcon}
+          className="text-cyan-400"
         />
         Performance Snapshot
       </h2>
@@ -1095,3 +1081,4 @@ export function AgentSummary({ coachingInsight }) {
 }
 
 export default ProfileAnalytics;
+
