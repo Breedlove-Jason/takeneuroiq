@@ -495,3 +495,8 @@
 .neuro-muted-button {border:1px solid #475569;background:#1e293b;color:#f8fafc;}
 :where(a,button,input,select,summary):focus-visible {outline:3px solid #facc15;outline-offset:4px;}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
+
+/* Competitive arena retains readable contrast in either global theme. */
+.competition-shell { background: radial-gradient(ellipse at top right,rgba(139,92,246,.10),transparent 55%),#070d1d; border-radius: 0 0 2rem 2rem; }
+.competition-shell button:disabled { cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .competition-shell * { animation: none !important; transition: none !important; } }

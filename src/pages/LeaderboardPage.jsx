@@ -73,6 +73,7 @@ export default function LeaderboardPage() {
         See the best run from each player in a challenge. Compare like with
         like, celebrate a new best, and come back for another round.
       </p>
+      <Link to="/rankings" className="neuro-button mt-6">View competitive rankings</Link>
       <div className="neuro-panel mt-9">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div

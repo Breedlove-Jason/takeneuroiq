@@ -23,12 +23,12 @@ function Hero() {
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link to="/play" className="group relative overflow-hidden rounded-xl bg-cyan-400 px-8 py-4 font-bold text-slate-950 shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all hover:scale-105 hover:bg-cyan-300 hover:shadow-[0_0_35px_rgba(34,211,238,0.6)]">
-            <span className="relative z-10">Start a Challenge</span>
+          <Link to="/compete" className="group relative overflow-hidden rounded-xl bg-cyan-400 px-8 py-4 font-bold text-slate-950 shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all hover:scale-105 hover:bg-cyan-300 hover:shadow-[0_0_35px_rgba(34,211,238,0.6)]">
+            <span className="relative z-10">Enter the Arena</span>
             <div className="absolute inset-0 z-0 bg-linear-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
           </Link>
 
-          <Link to="/leaderboard" className="rounded-xl border border-fuchsia-400/30 bg-fuchsia-500/10 px-8 py-4 font-bold text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.1)] transition-all hover:scale-105 hover:border-fuchsia-400/60 hover:bg-fuchsia-500/20 hover:shadow-[0_0_25px_rgba(217,70,239,0.3)]">
+          <Link to="/rankings" className="rounded-xl border border-fuchsia-400/30 bg-fuchsia-500/10 px-8 py-4 font-bold text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.1)] transition-all hover:scale-105 hover:border-fuchsia-400/60 hover:bg-fuchsia-500/20 hover:shadow-[0_0_25px_rgba(217,70,239,0.3)]">
             View Leaderboard
           </Link>
         </div>

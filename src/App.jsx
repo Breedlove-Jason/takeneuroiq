@@ -20,6 +20,9 @@ import Header from "./layout/Header.jsx";
  * Sets the overall theme and application routing structure using React Router.
  * Managed themes: 'cyber' (dark/futuristic) and 'light' (clean/modern).
  */
+const CompetitionPage = lazy(() => import("./pages/CompetitionPage"));
+const RankingsPage = lazy(() => import("./pages/RankingsPage"));
+
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 
 const AccountPage = lazy(() => import("./pages/AccountPage"));
@@ -100,6 +103,8 @@ function App() {
                 path="/reset-password"
                 element={<AuthPage key="reset" mode="reset" />}
               />
+              <Route path="/compete" element={<CompetitionPage key={user?.id || "guest"} />} />
+              <Route path="/rankings" element={<RankingsPage />} />
               <Route path="/account" element={<AccountPage />} />
               <Route path="/" element={<Home theme={theme} />} />
               <Route path="/play" element={<Play theme={theme} />} />

@@ -28,8 +28,9 @@ export default function Header({ theme, setTheme }) {
         >
           {[
             ["/", "Home"],
-            ["/play", "Challenges"],
-            ["/leaderboard", "Leaderboard"],
+            ["/play", "Training"],
+            ["/compete", "Compete"],
+            ["/rankings", "Rankings"],
             ["/profile", "My progress"],
           ].map(([to, label]) => (
             <NavLink

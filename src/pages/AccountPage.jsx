@@ -105,10 +105,10 @@ function AccountForm({ user }) {
             />
             <span>
               <span className="font-bold">
-                Include me on the community leaderboard
+                Include me on public leaderboards
               </span>
               <span className="mt-1 block text-sm leading-6 text-slate-300">
-                Show my display name and best practice scores. My email and
+                Show my display name, competition rating, results, and best practice scores. My email and
                 detailed history remain private. Turning this off hides my
                 scores immediately.
               </span>
