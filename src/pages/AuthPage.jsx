@@ -4,6 +4,8 @@ import { Brain, ShieldCheck, ArrowRight } from "@phosphor-icons/react";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../lib/supabase";
 
+import { competitionDestination } from "../competition/invitation";
+
 const TITLES = {
   login: "Welcome back.",
   register: "Make room for your next best.",
@@ -58,7 +60,7 @@ export default function AuthPage({ mode = "login" }) {
         });
         if (!result.error) {
           setNotice("Check your email to confirm your account, then sign in.");
-          if (result.data.session) navigate("/account", { replace: true });
+          if (result.data.session) navigate(competitionDestination(), { replace: true });
         }
       } else if (mode === "forgot") {
         result = await supabase.auth.resetPasswordForEmail(email, {
@@ -76,7 +78,7 @@ export default function AuthPage({ mode = "login" }) {
         }
       } else {
         result = await supabase.auth.signInWithPassword({ email, password });
-        if (!result.error) navigate("/account", { replace: true });
+        if (!result.error) navigate(competitionDestination(), { replace: true });
       }
       if (result.error)
         setError(
@@ -149,8 +151,8 @@ export default function AuthPage({ mode = "login" }) {
         ) : user && ["login", "register"].includes(mode) ? (
           <div>
             <p className="mb-5">You’re signed in.</p>
-            <Link className="neuro-button" to="/account">
-              Open account
+            <Link className="neuro-button" to={competitionDestination()}>
+              Open arena
             </Link>
           </div>
         ) : mode === "reset" && !user ? (

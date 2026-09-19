@@ -4,6 +4,7 @@ import { Sword, Trophy, Lightning, Target, Medal, UsersThree, ArrowRight, Shield
 import { useAuth } from '../auth/AuthContext';
 import { accountsEnabled } from '../lib/supabase';
 import { competitionRpc } from '../competition/api';
+import { rememberInvitation, pendingInvitation, clearInvitation } from '../competition/invitation';
 import { achievements, emptyStats, modes, tier } from '../competition/model';
 function Metric({
   label,
@@ -157,7 +158,8 @@ export default function CompetitionPage() {
     user
   } = useAuth();
   const [params, setParams] = useSearchParams();
-  const [code, setCode] = useState(() => params.get('code') || '');
+  const [code, setCode] = useState(() => params.get('code') || pendingInvitation());
+  useEffect(() => { const invitation=params.get('code'); if(invitation) rememberInvitation(invitation); }, [params]);
   const [dashboard, setDashboard] = useState(null);
   const [match, setMatch] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -194,6 +196,7 @@ export default function CompetitionPage() {
         join_code: join
       });
       setMatch(data);
+      if (join) clearInvitation();
       if (params.has('code')) setParams({});
     } catch (e) {
       setError(e.message);
