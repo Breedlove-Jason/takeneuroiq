@@ -1,92 +1,59 @@
-# TakeNeuroIQ
+![NeuroIQ — TRAIN. CHALLENGE. COMPETE.](docs/project-banner.svg)
 
-TakeNeuroIQ is a React + Vite cognitive game experience focused on fast, adaptive puzzle play, session tracking, and analytics-driven progression.
+[Open live app](https://neuroiq.jasonbreedlove.dev) · [Portfolio](https://www.jasonbreedlove.dev) · [Browse source](https://github.com/Breedlove-Jason/takeneuroiq)
 
-## Project Structure
+# NeuroIQ
 
-```text
-takeneuroiq/
-├── AGENTS.md
-├── README.md
-├── TakeNeuroIQ-Founder- Brief.pdf
-├── business-strategy.txt
-├── dist/
-│   ├── assets/
-│   │   ├── index-B1AcRwjc.css
-│   │   ├── index-B4ILUv9d.js
-│   │   └── logo-B7RVZxgK.png
-│   └── index.html
-├── eslint.config.js
-├── index.html
-├── node_modules/
-├── package-lock.json
-├── package.json
-├── postcss.config.js
-├── project-hierarchy.txt
-├── public/
-├── src/
-│   ├── App.jsx
-│   ├── index.css
-│   ├── main.jsx
-│   ├── analytics/
-│   │   ├── adaptiveDifficulty.js
-│   │   ├── coachingEngine.js
-│   │   ├── cognitiveIdentity.js
-│   │   ├── cognitiveIdentitySummary.js
-│   │   ├── cognitiveTracks.js
-│   │   ├── liveAdaptiveDifficulty.js
-│   │   ├── puzzleFamilyAnalytics.js
-│   │   ├── sessionAnalytics.js
-│   │   └── sessionOutcomeEvaluator.js
-│   ├── assets/
-│   │   └── logo.png
-│   ├── components/
-│   │   ├── FeatureHighlights.jsx
-│   │   ├── Hero.jsx
-│   │   ├── HowItWorks.jsx
-│   │   ├── ProfileAnalytics.jsx
-│   │   ├── PuzzleShape.jsx
-│   │   └── SequenceSprintPuzzle.jsx
-│   ├── game/
-│   │   ├── patternPuzzles.js
-│   │   ├── playerIdentity.js
-│   │   ├── puzzleEngine.js
-│   │   ├── puzzleGenerator.js
-│   │   ├── sequenceSprintPuzzles.js
-│   │   └── sessionTracker.js
-│   ├── hooks/
-│   │   └── useSessionData.js
-│   ├── layout/
-│   │   └── Header.jsx
-│   ├── pages/
-│   │   ├── Arena.jsx
-│   │   ├── Home.jsx
-│   │   ├── LeaderboardPage.jsx
-│   │   ├── Play.jsx
-│   │   └── ProfilePage.jsx
-│   └── utils/
-│       ├── puzzleTypeRegistry.js
-│       └── sessionTrendUtils.js
-├── tests/
-│   ├── sessionTracker.test.js
-│   ├── verify_logic.js
-│   └── verify_session_data.test.js
-├── vite.config.js
-└── .idea/
-	└── ...
-```
+A cognitive puzzle competition platform with adaptive practice, player progression, ranked challenges, and scoreboards.
 
-## Key Areas
+## Explore
 
-- `src/pages/Arena.jsx` — main game play experience
-- `src/game/puzzleEngine.js` — puzzle selection and answer checking
-- `src/game/sessionTracker.js` — session persistence and leaderboard calculations
-- `src/analytics/` — scoring, identity, and session analysis helpers
-- `tests/` — validation scripts for core game and session behavior
+- Practice puzzle families with directions and session feedback.
+- Challenge other players and review competitive results.
+- Track progression, scores, and rankings.
+- Review personal session analytics in a responsive React interface.
 
-## Development
+## Engineering focus
 
-```bash
-npm install
+| Area | Implementation |
+| --- | --- |
+| Interface | React, Vite, Tailwind CSS, Phosphor icons |
+| Accounts and persistence | Supabase authentication and PostgreSQL |
+| Competition | Database migrations for accounts, scores, competition, and question timing |
+| Practice | Puzzle generation, answer checking, session tracking |
+| Analytics | Session trends, puzzle-family feedback, adaptive difficulty |
+
+## Run locally
+
+Use Node.js 22.12 or newer.
+
+```sh
+npm ci
+cp .env.example .env
 npm run dev
 ```
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for your own Supabase project. These are browser configuration values; never substitute a service-role secret. Apply the SQL migrations in `supabase/migrations/` in order to a development project.
+
+```sh
+npm test
+npm run lint
+npm run build
+```
+
+## Deployment and accounts
+
+The live app is hosted on Vercel. Configure the public Supabase variables, database migrations, authentication site URL, and allowed redirects for the deployment. Authentication email delivery is configured in Supabase, separately from the frontend build.
+
+## Code map
+
+- `src/game/`: puzzle generation and session logic
+- `src/analytics/`: feedback and progression helpers
+- `src/pages/`: play, competition, rankings, and profile screens
+- `src/lib/supabase.js`: database client configuration
+- `supabase/migrations/`: persisted competition schema and functions
+- `tests/`: automated logic and integration checks
+
+## Scope
+
+NeuroIQ is a puzzle and competition project, not a clinical assessment or validated IQ test. Scores describe performance within the app. Claims about health outcomes, intelligence measurement, or cheating prevention beyond the implemented checks are not made.
